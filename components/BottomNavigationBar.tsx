@@ -1,14 +1,12 @@
 import * as React from "react";
 import { View, Pressable } from "react-native";
-import {
-  Home,
-  Dumbbell,
-  MessageCircle,
-  Apple,
-  BarChart3,
-} from "lucide-react-native";
-import { Text } from "./text";
+import { Text } from "./ui/text";
 import { cn } from "~/lib/utils";
+import { Home } from "~/lib/icons/Home";
+import { Dumbbell } from "~/lib/icons/Dumbbell";
+import { MessageCircle } from "~/lib/icons/MessageCircle";
+import { Apple } from "~/lib/icons/Apple";
+import { BarChartIcon } from "~/lib/icons/BarChartIcon";
 
 interface Route {
   name: string;
@@ -46,7 +44,7 @@ const routes: Route[] = [
   {
     name: "stats",
     label: "Stats",
-    icon: BarChart3,
+    icon: BarChartIcon,
   },
 ];
 
@@ -56,7 +54,7 @@ const BottomNavigation = React.forwardRef<View, BottomNavigationProps>(
       <View
         ref={ref}
         className={cn(
-          "flex-row items-center justify-around border-t border-border bg-background px-4 py-2",
+          "flex-row border-t border-border bg-background p-4 pb-8",
           className
         )}
       >
@@ -69,21 +67,20 @@ const BottomNavigation = React.forwardRef<View, BottomNavigationProps>(
               key={route.name}
               onPress={() => onRouteChange(route.name)}
               className={cn(
-                "items-center px-3 py-2",
+                "flex-1 items-center justify-center",
                 "web:hover:opacity-80 active:opacity-70",
                 "transition-opacity"
               )}
             >
               <Icon
-                size={24}
-                className={cn("text-muted-foreground")}
-                fill={isActive ? "currentColor" : "none"}
-                strokeWidth={isActive ? 1.5 : 2}
+                size={isActive ? 28 : 24}
+                strokeWidth={isActive ? 2.5 : 2}
+                className="text-foreground"
               />
               <Text
                 className={cn(
-                  "text-xs mt-1 text-muted-foreground",
-                  isActive && "font-medium"
+                  "text-xs mt-1 text-foreground",
+                  isActive && "font-semibold"
                 )}
               >
                 {route.label}
