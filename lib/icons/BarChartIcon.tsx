@@ -51,6 +51,4 @@ const createBarChartIcon = (filled: boolean): LucideIcon => {
 
 const BarChart = createBarChartIcon(false);
 const BarChartFilled = createBarChartIcon(true);
-iconWithClassName(BarChart);
-iconWithClassName(BarChartFilled);
 export { BarChart, BarChartFilled };

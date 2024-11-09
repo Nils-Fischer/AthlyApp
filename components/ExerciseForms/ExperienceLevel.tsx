@@ -1,11 +1,10 @@
-// components/ExperienceLevel.tsx
 import React from "react";
 import { View } from "react-native";
 import { Button } from "~/components/ui/button";
 import { Text } from "~/components/ui/text";
-import { SignalZero, SignalMedium, SignalLow } from "~/lib/icons/Icons";
 import { Level } from "~/lib/types";
 import { cn } from "~/lib/utils";
+import { Baby, UserCircle, Trophy } from "~/lib/icons/Icons";
 
 interface ExperienceLevelProps {
   level: Level | null;
@@ -16,66 +15,72 @@ export function ExperienceLevel({
   level,
   onLevelChange,
 }: ExperienceLevelProps) {
-  const toggleLevel = (newLevel: Level) => {
-    onLevelChange(newLevel === level ? null : newLevel);
-  };
-
   const options = [
     {
-      level: Level.Beginner,
+      value: Level.Beginner,
       title: "Anfänger",
-      description:
-        "You've been training for less than a year or are just starting.",
-      stats: "Basic Training • Focus on Technique",
-      icon: SignalZero,
+      description: "Weniger als 1 Jahr",
+      icon: Baby,
     },
     {
-      level: Level.Intermediate,
+      value: Level.Intermediate,
       title: "Fortgeschritten",
-      description:
-        "You've been training regularly for 1-3 years and know the basic exercises.",
-      stats: "Advanced Training • Focus on Progression",
-      icon: SignalLow,
+      description: "1-3 Jahre",
+      icon: UserCircle,
     },
     {
-      level: Level.Expert,
+      value: Level.Expert,
       title: "Experte",
-      description:
-        "You've been training consistently for 3+ years and know your limits well.",
-      stats: "Specialized Training • Focus on Optimization",
-      icon: SignalMedium,
+      description: "Mehr als 3 Jahre",
+      icon: Trophy,
     },
   ];
 
   return (
-    <View className="flex-1 p-6">
-      <Text className="text-2xl font-bold mb-4">Wie erfahren bist du?</Text>
-      <View className="gap-4">
+    <View className="flex-1 w-full px-4 min-w-[350]">
+      <Text className="text-2xl font-bold mb-6">
+        Wie erfahrung hast du mit Training?
+      </Text>
+      <View className="gap-4 w-full">
         {options.map((option) => (
           <Button
-            key={option.level}
-            variant={level === option.level ? "default" : "secondary"}
+            key={option.value}
+            variant={level === option.value ? "default" : "ghost"}
+            size="lg"
             className={cn(
-              "w-full h-auto p-4 flex-row items-center justify-start gap-3",
-              level === option.level && "bg-primary"
+              "w-full h-auto p-4 flex-row items-center justify-between",
+              level === option.value && "bg-primary"
             )}
-            onPress={() => toggleLevel(option.level)}
+            onPress={() => onLevelChange(option.value)}
           >
-            <option.icon
-              size={28}
-              className={cn(
-                "text-foreground",
-                level === option.level && "text-primary-foreground"
-              )}
-            />
-            <Text
-              className={cn(
-                "text-foreground",
-                level === option.level && "text-primary-foreground"
-              )}
-            >
-              {option.title}
-            </Text>
+            <View className="flex-row items-center gap-3 flex-1">
+              <option.icon
+                size={24}
+                className={cn(
+                  "text-foreground",
+                  level === option.value && "text-primary-foreground"
+                )}
+              />
+              <View className="flex-1 gap-0 mr-3">
+                <Text
+                  className={cn(
+                    "font-semibold",
+                    level === option.value && "text-primary-foreground"
+                  )}
+                >
+                  {option.title}
+                </Text>
+                <Text
+                  className={cn(
+                    "text-sm text-muted-foreground",
+                    level === option.value && "text-primary-foreground/70"
+                  )}
+                  numberOfLines={2}
+                >
+                  {option.description}
+                </Text>
+              </View>
+            </View>
           </Button>
         ))}
       </View>

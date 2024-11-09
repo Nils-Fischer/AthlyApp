@@ -1,11 +1,14 @@
 import { Tabs } from "expo-router";
-import { Home, HomeFilled } from "~/lib/icons/Home";
-import { Dumbbell, DumbbellFilled } from "~/lib/icons/Dumbbell";
-import { MessageCircle, MessageCircleFilled } from "~/lib/icons/MessageCircle";
-import { Apple, AppleFilled } from "~/lib/icons/Apple";
 import { BarChart, BarChartFilled } from "~/lib/icons/BarChartIcon";
 import { ThemeToggle } from "~/components/ThemeToggle";
 import { useTheme } from "@react-navigation/native";
+import { Apple, Dumbbell, Home, MessageCircle } from "~/lib/icons/Icons";
+import {
+  AppleFilled,
+  DumbbellFilled,
+  HomeFilled,
+  MessageCircleFilled,
+} from "~/lib/icons/FilledIcons";
 
 interface Route {
   name: string;

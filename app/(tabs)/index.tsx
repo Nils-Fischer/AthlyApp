@@ -5,7 +5,7 @@ import Animated, {
   FadeOutDown,
   LayoutAnimationConfig,
 } from "react-native-reanimated";
-import { Info } from "~/lib/icons/Info";
+import { Info } from "~/lib/icons/Icons";
 import { Avatar, AvatarFallback, AvatarImage } from "~/components/ui/avatar";
 import { Button } from "~/components/ui/button";
 import {
