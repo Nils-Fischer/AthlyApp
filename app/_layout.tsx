@@ -11,7 +11,6 @@ import { useColorScheme } from "~/lib/useColorScheme";
 import { PortalHost } from "@rn-primitives/portal";
 import { ThemeToggle } from "~/components/ThemeToggle";
 import { setAndroidNavigationBar } from "~/lib/android-navigation-bar";
-import { BottomNavigation } from "~/components/BottomNavigationBar";
 
 const LIGHT_THEME: Theme = {
   dark: false,
@@ -68,20 +67,10 @@ export default function RootLayout() {
   return (
     <ThemeProvider value={isDarkColorScheme ? DARK_THEME : LIGHT_THEME}>
       <StatusBar style={isDarkColorScheme ? "light" : "dark"} />
-      <Stack>
-        <Stack.Screen
-          name="index"
-          options={{
-            title: "TrainTech",
-            headerRight: () => <ThemeToggle />,
-          }}
-        />
+      <Stack screenOptions={{ headerShown: false }}>
+        <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
       </Stack>
       <PortalHost />
-      <BottomNavigation
-        activeRoute={activeRoute}
-        onRouteChange={setActiveRoute}
-      />
     </ThemeProvider>
   );
 }
