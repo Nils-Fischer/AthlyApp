@@ -38,7 +38,10 @@ export function MainGoal({ goal, onGoalChange }: MainGoalProps) {
 
   return (
     <View className="flex-1 w-full px-4 min-w-[350]">
-      <Text className="text-2xl font-bold mb-6">Was ist dein Ziel?</Text>
+      <Text className="text-2xl font-bold">Was ist dein Ziel?</Text>
+      <Text className="text-base text-muted-foreground mb-6">
+        Wähle deinen primären Fokus für dein Training.
+      </Text>
       <View className="gap-4 w-full">
         {mainGoals.map((option) => (
           <Button

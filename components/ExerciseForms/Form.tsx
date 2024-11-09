@@ -11,6 +11,8 @@ import { TrainingDuration } from "./TrainingDuration";
 import { MainGoal } from "./MainGoal";
 import { AdditionalGoals } from "./AdditionalGoal";
 import { TrainingLocation } from "./TrainingLocation";
+import { ChevronLeft } from "~/lib/icons/Icons";
+import { cn } from "~/lib/utils";
 
 export function WorkoutForm() {
   const [currentStep, setCurrentStep] = useState(1);
@@ -108,11 +110,11 @@ export function WorkoutForm() {
       <View className="flex-row justify-center gap-4 p-4">
         {currentStep > 1 && (
           <Button variant="outline" onPress={handlePreviousStep}>
-            <Text>Back</Text>
+            <ChevronLeft className={cn("text-foreground")} />
           </Button>
         )}
         <Button disabled={!isStepValid(currentStep)} onPress={handleNextStep}>
-          <Text>Next</Text>
+          <Text>Weiter</Text>
         </Button>
       </View>
     </View>

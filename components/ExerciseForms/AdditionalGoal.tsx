@@ -44,10 +44,10 @@ export function AdditionalGoals({
   ];
 
   return (
-    <View className="flex-1 w-full px-4">
-      <Text className="text-2xl font-bold mb-2">Weitere Ziele</Text>
+    <View className="flex-1 w-full px-4 min-w-[350]">
+      <Text className="text-2xl font-bold">Weitere Ziele</Text>
       <Text className="text-base text-muted-foreground mb-6">
-        Wähle aus, was auf dich zutrifft.
+        Wähle weitere Ziele, die auf dich zutreffen.
       </Text>
       <View className="flex-row flex-wrap gap-3">
         {goals.map((goal) => (

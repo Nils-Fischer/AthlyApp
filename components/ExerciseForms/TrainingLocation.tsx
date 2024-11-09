@@ -70,8 +70,9 @@ export function TrainingLocation({
 
   return (
     <View className="flex-1 w-full px-4 min-w-[350]">
-      <Text className="text-2xl font-bold mb-6">
-        Wo möchtest du trainieren?
+      <Text className="text-2xl font-bold">Wo möchtest du trainieren?</Text>
+      <Text className="text-base text-muted-foreground mb-6">
+        Dein Trainingsort bestimmt die verfügbaren Übungen.
       </Text>
       <View className="gap-4 w-full">
         {locations.map((loc) => (

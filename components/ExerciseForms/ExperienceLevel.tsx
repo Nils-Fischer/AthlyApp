@@ -38,8 +38,11 @@ export function ExperienceLevel({
 
   return (
     <View className="flex-1 w-full px-4 min-w-[350]">
-      <Text className="text-2xl font-bold mb-6">
-        Wie erfahrung hast du mit Training?
+      <Text className="text-2xl font-bold">
+        Wie viel Erfahrung hast du mit Training?
+      </Text>
+      <Text className="text-base text-muted-foreground mb-6">
+        Hilft uns deinen Trainingsplan optimal anzupassen.
       </Text>
       <View className="gap-4 w-full">
         {options.map((option) => (
