@@ -26,7 +26,6 @@ export function WorkoutForm() {
   const [selectedSplit, setSelectedSplit] = useState<string | null>(null);
 
   const TOTAL_STEPS = 7;
-  const progressPercentage = ((currentStep - 1) / (TOTAL_STEPS - 1)) * 100;
 
   const handleNextStep = () => {
     if (currentStep < TOTAL_STEPS) {
@@ -78,7 +77,9 @@ export function WorkoutForm() {
         </Text>
       </View>
 
-      <Progress value={progressPercentage} className="mx-4" />
+      <View className="px-4 mb-5">
+        <Progress value={currentStep} max={TOTAL_STEPS} className="h-2" />
+      </View>
 
       <View className="flex-1">
         {currentStep === 1 && (
