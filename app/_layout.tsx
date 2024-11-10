@@ -11,6 +11,7 @@ import { useColorScheme } from "~/lib/useColorScheme";
 import { PortalHost } from "@rn-primitives/portal";
 import { setAndroidNavigationBar } from "~/lib/android-navigation-bar";
 import { SessionProvider } from "~/context";
+import { useExerciseStore } from "~/stores/exerciseStore";
 
 const LIGHT_THEME: Theme = {
   dark: false,
@@ -63,6 +64,8 @@ export default function RootLayout() {
   if (!isColorSchemeLoaded) {
     return null;
   }
+
+  useExerciseStore().fetchInitialData();
 
   return (
     <SessionProvider>
