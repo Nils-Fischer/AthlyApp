@@ -113,7 +113,11 @@ export function WorkoutForm() {
             <ChevronLeft className={cn("text-foreground")} />
           </Button>
         )}
-        <Button disabled={!isStepValid(currentStep)} onPress={handleNextStep}>
+        <Button
+          variant="destructive"
+          disabled={!isStepValid(currentStep)}
+          onPress={handleNextStep}
+        >
           <Text>Weiter</Text>
         </Button>
       </View>
