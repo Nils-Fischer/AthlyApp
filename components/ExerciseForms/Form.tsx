@@ -13,6 +13,7 @@ import { AdditionalGoals } from "./AdditionalGoal";
 import { TrainingLocation } from "./TrainingLocation";
 import { ChevronLeft } from "~/lib/icons/Icons";
 import { cn } from "~/lib/utils";
+import { TrainingSplitPreview } from "./SplitPreview";
 
 export function WorkoutForm() {
   const [currentStep, setCurrentStep] = useState(1);
@@ -22,6 +23,7 @@ export function WorkoutForm() {
   const [goal, setGoal] = useState<TrainingGoal | null>(null);
   const [selectedGoals, setSelectedGoals] = useState<string[]>([]);
   const [location, setLocation] = useState<LocationType | null>(null);
+  const [selectedSplit, setSelectedSplit] = useState<string | null>(null);
 
   const TOTAL_STEPS = 7;
   const progressPercentage = ((currentStep - 1) / (TOTAL_STEPS - 1)) * 100;
@@ -60,6 +62,8 @@ export function WorkoutForm() {
         return selectedGoals.length > 0;
       case 6:
         return location !== null;
+      case 7:
+        return selectedSplit !== null;
       default:
         return false;
     }
@@ -103,6 +107,13 @@ export function WorkoutForm() {
           <TrainingLocation
             location={location}
             onLocationChange={setLocation}
+          />
+        )}
+        {currentStep === 7 && (
+          <TrainingSplitPreview
+            frequency={frequency!}
+            selectedSplit={selectedSplit}
+            onSplitSelect={setSelectedSplit}
           />
         )}
       </View>
