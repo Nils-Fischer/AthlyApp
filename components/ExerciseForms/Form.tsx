@@ -77,8 +77,8 @@ export function WorkoutForm() {
         </Text>
       </View>
 
-      <View className="px-4 mb-5">
-        <Progress value={currentStep} max={TOTAL_STEPS} className="h-2" />
+      <View className="px-4 mb-5 -mt-2">
+        <Progress value={currentStep} max={TOTAL_STEPS} className="h-1" />
       </View>
 
       <View className="flex-1">
