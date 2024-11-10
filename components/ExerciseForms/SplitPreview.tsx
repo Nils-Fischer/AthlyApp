@@ -4,6 +4,7 @@ import { Text } from "~/components/ui/text";
 import { ClickableCard } from "../ClickableCard";
 import { cn } from "~/lib/utils";
 import { Activity } from "~/lib/icons/Icons";
+import Animated, { FadeInDown } from "react-native-reanimated";
 
 type SplitOption = {
   id: string;
@@ -13,7 +14,6 @@ type SplitOption = {
   daysPerWeek: number;
 };
 
-// Training split options based on frequency
 const TRAINING_SPLITS: Record<number, SplitOption[]> = {
   1: [
     {
@@ -100,6 +100,53 @@ const TRAINING_SPLITS: Record<number, SplitOption[]> = {
   ],
 };
 
+interface AnimatedCardProps {
+  index: number;
+  split: SplitOption;
+  isSelected: boolean;
+  onSelect: (id: string) => void;
+}
+
+const AnimatedCard = ({
+  index,
+  split,
+  isSelected,
+  onSelect,
+}: AnimatedCardProps) => {
+  const enteringAnimation = FadeInDown.delay(index * 500)
+    .springify()
+    .damping(12)
+    .stiffness(80);
+
+  return (
+    <Animated.View entering={enteringAnimation}>
+      <ClickableCard
+        title={split.title}
+        description={`${split.daysPerWeek}x pro Woche`}
+        onPress={() => onSelect(split.id)}
+        className={cn(
+          "border-2",
+          isSelected ? "border-primary" : "border-border"
+        )}
+      >
+        <View className="gap-2">
+          <Text className="text-sm text-muted-foreground">
+            {split.description}
+          </Text>
+          <View className="mt-2">
+            {split.details.map((detail, index) => (
+              <View key={index} className="flex-row items-center gap-2 py-1">
+                <Activity size={16} className="text-primary" />
+                <Text className="text-sm flex-1">{detail}</Text>
+              </View>
+            ))}
+          </View>
+        </View>
+      </ClickableCard>
+    </Animated.View>
+  );
+};
+
 interface TrainingSplitPreviewProps {
   frequency: number;
   selectedSplit: string | null;
@@ -115,14 +162,17 @@ export function TrainingSplitPreview({
 
   return (
     <View className="flex-1">
-      <View className="px-4">
+      <Animated.View
+        className="px-4"
+        entering={FadeInDown.duration(1000).springify()}
+      >
         <Text className="text-2xl font-bold mb-2">
           Wähle dein Trainingsprogramm
         </Text>
         <Text className="text-base text-muted-foreground mb-6">
           Basierend auf deiner gewählten Trainingsfrequenz
         </Text>
-      </View>
+      </Animated.View>
 
       <ScrollView
         className="flex-1 px-4"
@@ -130,34 +180,14 @@ export function TrainingSplitPreview({
         contentContainerStyle={{ paddingBottom: 20 }}
       >
         <View className="gap-4">
-          {availableSplits.map((split) => (
-            <ClickableCard
+          {availableSplits.map((split, index) => (
+            <AnimatedCard
               key={split.id}
-              title={split.title}
-              description={`${split.daysPerWeek}x pro Woche`}
-              onPress={() => onSplitSelect(split.id)}
-              className={cn(
-                "border-2",
-                selectedSplit === split.id ? "border-primary" : "border-border"
-              )}
-            >
-              <View className="gap-2">
-                <Text className="text-sm text-muted-foreground">
-                  {split.description}
-                </Text>
-                <View className="mt-2">
-                  {split.details.map((detail, index) => (
-                    <View
-                      key={index}
-                      className="flex-row items-center gap-2 py-1"
-                    >
-                      <Activity size={16} className="text-primary" />
-                      <Text className="text-sm flex-1">{detail}</Text>
-                    </View>
-                  ))}
-                </View>
-              </View>
-            </ClickableCard>
+              index={index}
+              split={split}
+              isSelected={selectedSplit === split.id}
+              onSelect={onSplitSelect}
+            />
           ))}
         </View>
       </ScrollView>
