@@ -1,7 +1,6 @@
-import * as React from "react";
-import { View } from "react-native";
-import { WorkoutForm } from "~/components/ExerciseForms/Form";
-import { H1 } from "~/components/ui/typography";
+import * as React from 'react';
+import { View } from 'react-native';
+import { WorkoutForm } from '~/components/ExerciseForms/Form';
 
 export default function Screen() {
   return (

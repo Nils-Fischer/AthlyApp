@@ -1,14 +1,14 @@
-import * as ProgressPrimitive from "@rn-primitives/progress";
-import * as React from "react";
-import { Platform, View } from "react-native";
+import * as ProgressPrimitive from '@rn-primitives/progress';
+import * as React from 'react';
+import { Platform, View } from 'react-native';
 import Animated, {
   Extrapolation,
   interpolate,
   useAnimatedStyle,
   useDerivedValue,
   withSpring,
-} from "react-native-reanimated";
-import { cn } from "~/lib/utils";
+} from 'react-native-reanimated';
+import { cn } from '~/lib/utils';
 
 interface ProgressProps extends ProgressPrimitive.RootProps {
   indicatorClassName?: string;
@@ -24,7 +24,7 @@ const Progress = React.forwardRef<ProgressPrimitive.RootRef, ProgressProps>(
       <ProgressPrimitive.Root
         ref={ref}
         className={cn(
-          "relative h-4 w-full overflow-hidden rounded-full bg-secondary",
+          'relative h-4 w-full overflow-hidden rounded-full bg-secondary',
           className
         )}
         {...props}
@@ -47,30 +47,23 @@ function Indicator({ value, className }: IndicatorProps) {
   const progress = useDerivedValue(() => value ?? 0);
 
   const indicator = useAnimatedStyle(() => {
+    const width = progress.value;
     return {
-      width: withSpring(
-        `${interpolate(
-          progress.value,
-          [0, 100],
-          [1, 100],
-          Extrapolation.CLAMP
-        )}%`,
-        { overshootClamping: true }
-      ),
+      width: `${Math.round(width)}%`,
     };
   });
 
-  if (Platform.OS === "web") {
+  if (Platform.OS === 'web') {
     return (
       <View
         className={cn(
-          "h-full w-full flex-1 bg-primary web:transition-all",
+          'h-full w-full flex-1 bg-primary web:transition-all',
           className
         )}
-        style={{ transform: `translateX(-${100 - (value ?? 0)}%)` }}
+        style={{ transform: `translateX(-${100 - Math.round(value ?? 0)}%)` }}
       >
         <ProgressPrimitive.Indicator
-          className={cn("h-full w-full", className)}
+          className={cn('h-full w-full', className)}
         />
       </View>
     );
@@ -80,7 +73,7 @@ function Indicator({ value, className }: IndicatorProps) {
     <ProgressPrimitive.Indicator asChild>
       <Animated.View
         style={indicator}
-        className={cn("h-full bg-foreground", className)}
+        className={cn('h-full bg-foreground', className)}
       />
     </ProgressPrimitive.Indicator>
   );
