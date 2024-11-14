@@ -30,15 +30,46 @@ export interface Exercise {
   priority: number;
 }
 
-export interface Profile {
+export enum Gender {
+  Male = 'Male',
+  Female = 'Female',
+  Other = 'Other',
+}
+
+// Exercise specific data for a workout
+export interface WorkoutExercise {
+  exerciseId: number;
+  sets: number;
+  reps: number;
+  restPeriod?: number;
+  notes?: string;
+}
+
+export interface Workout {
+  id: number;
+  name: string;
+  exercises: WorkoutExercise[];
+  duration?: number;
+  description?: string;
+}
+
+export interface Program {
+  id: number;
+  name: string;
+  workouts: Workout[];
+  description?: string;
+  frequency: number;
+}
+
+export interface UserProfile {
   firstName: string;
   lastName: string;
   age: number;
   gender: Gender;
 }
 
-export enum Gender {
-  Male = "Male",
-  Female = "Female",
-  Other = "Other",
+export interface UserData {
+  programs: Program[];
+  created_at: string;
+  last_updated: string;
 }
