@@ -1,20 +1,26 @@
-import React, { useState } from 'react';
-import { View } from 'react-native';
-import { Text } from '~/components/ui/text';
-import { Button } from '~/components/ui/button';
-import { Progress } from '~/components/ui/progress';
-import { ExperienceLevel } from './ExperienceLevel';
-import { Level, LocationType, TrainingGoal } from '~/lib/types';
-import { WeeklyFrequency } from './WeeklyFrequency';
-import { TrainingDuration } from './TrainingDuration';
-import { MainGoal } from './MainGoal';
-import { AdditionalGoals } from './AdditionalGoal';
-import { TrainingLocation } from './TrainingLocation';
-import { ChevronLeft } from '~/lib/icons/Icons';
-import { cn } from '~/lib/utils';
-import { TrainingSplitPreview } from './SplitPreview';
+import React, { useState } from "react";
+import { View } from "react-native";
+import { Text } from "~/components/ui/text";
+import { Button } from "~/components/ui/button";
+import { Progress } from "~/components/ui/progress";
+import { ExperienceLevel } from "./ExperienceLevel";
+import { Level, LocationType, Program, TrainingGoal } from "~/lib/types";
+import { WeeklyFrequency } from "./WeeklyFrequency";
+import { TrainingDuration } from "./TrainingDuration";
+import { MainGoal } from "./MainGoal";
+import { AdditionalGoals } from "./AdditionalGoal";
+import { TrainingLocation } from "./TrainingLocation";
+import { ChevronLeft } from "~/lib/icons/Icons";
+import { cn } from "~/lib/utils";
+import { TrainingSplitPreview } from "./SplitPreview";
+import { createProgram } from "~/lib/generateWorkouts";
+import { useExerciseStore } from "~/stores/exerciseStore";
 
-export function WorkoutForm() {
+interface WorkoutFormProps {
+  onProgramCreated?: (program: Program) => void;
+}
+
+export function WorkoutForm({ onProgramCreated }: WorkoutFormProps) {
   const [currentStep, setCurrentStep] = useState(1);
   const [level, setLevel] = useState<Level | null>(null);
   const [frequency, setFrequency] = useState<number | null>(null);
@@ -23,12 +29,15 @@ export function WorkoutForm() {
   const [selectedGoals, setSelectedGoals] = useState<string[]>([]);
   const [location, setLocation] = useState<LocationType | null>(null);
   const [selectedSplit, setSelectedSplit] = useState<string | null>(null);
+  const exercises = useExerciseStore.getState().exercises;
 
   const TOTAL_STEPS = 7;
 
   const handleNextStep = () => {
     if (currentStep < TOTAL_STEPS) {
       setCurrentStep((prev) => prev + 1);
+    } else if (currentStep === TOTAL_STEPS) {
+      finishCustomProgram();
     }
   };
 
@@ -40,9 +49,7 @@ export function WorkoutForm() {
 
   const toggleGoal = (goalId: string) => {
     setSelectedGoals((current) =>
-      current.includes(goalId)
-        ? current.filter((id) => id !== goalId)
-        : [...current, goalId]
+      current.includes(goalId) ? current.filter((id) => id !== goalId) : [...current, goalId]
     );
   };
 
@@ -67,6 +74,17 @@ export function WorkoutForm() {
     }
   };
 
+  const finishCustomProgram = () => {
+    const program = createProgram(
+      exercises,
+      frequency || 1,
+      duration || 45,
+      level || Level.Beginner,
+      goal || TrainingGoal.Hypertrophy
+    );
+    onProgramCreated?.(program);
+  };
+
   return (
     <View className="flex-1">
       <View className="p-4 flex-row justify-between items-center">
@@ -81,54 +99,24 @@ export function WorkoutForm() {
       </View>
 
       <View className="flex-1">
-        {currentStep === 1 && (
-          <ExperienceLevel level={level} onLevelChange={setLevel} />
-        )}
-        {currentStep === 2 && (
-          <WeeklyFrequency
-            frequency={frequency}
-            onFrequencyChange={setFrequency}
-          />
-        )}
-        {currentStep === 3 && (
-          <TrainingDuration
-            duration={duration}
-            onDurationChange={setDuration}
-          />
-        )}
+        {currentStep === 1 && <ExperienceLevel level={level} onLevelChange={setLevel} />}
+        {currentStep === 2 && <WeeklyFrequency frequency={frequency} onFrequencyChange={setFrequency} />}
+        {currentStep === 3 && <TrainingDuration duration={duration} onDurationChange={setDuration} />}
         {currentStep === 4 && <MainGoal goal={goal} onGoalChange={setGoal} />}
-        {currentStep === 5 && (
-          <AdditionalGoals
-            selectedGoals={selectedGoals}
-            onGoalToggle={toggleGoal}
-          />
-        )}
-        {currentStep === 6 && (
-          <TrainingLocation
-            location={location}
-            onLocationChange={setLocation}
-          />
-        )}
+        {currentStep === 5 && <AdditionalGoals selectedGoals={selectedGoals} onGoalToggle={toggleGoal} />}
+        {currentStep === 6 && <TrainingLocation location={location} onLocationChange={setLocation} />}
         {currentStep === 7 && (
-          <TrainingSplitPreview
-            frequency={frequency!}
-            selectedSplit={selectedSplit}
-            onSplitSelect={setSelectedSplit}
-          />
+          <TrainingSplitPreview frequency={frequency!} selectedSplit={selectedSplit} onSplitSelect={setSelectedSplit} />
         )}
       </View>
 
       <View className="flex-row justify-center gap-4 p-4">
         {currentStep > 1 && (
           <Button variant="outline" onPress={handlePreviousStep}>
-            <ChevronLeft className={cn('text-foreground')} />
+            <ChevronLeft className={cn("text-foreground")} />
           </Button>
         )}
-        <Button
-          variant="destructive"
-          disabled={!isStepValid(currentStep)}
-          onPress={handleNextStep}
-        >
+        <Button variant="destructive" disabled={!isStepValid(currentStep)} onPress={handleNextStep}>
           <Text>Weiter</Text>
         </Button>
       </View>

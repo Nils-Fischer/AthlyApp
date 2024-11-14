@@ -39,6 +39,7 @@ export enum Gender {
 // Exercise specific data for a workout
 export interface WorkoutExercise {
   exerciseId: number;
+  alternatives: number[];
   sets: number;
   reps: number;
   restPeriod?: number;

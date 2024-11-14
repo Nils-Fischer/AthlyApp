@@ -1,7 +1,7 @@
-import { create } from 'zustand';
-import { supabase } from '~/lib/supabase';
-import { UserData, Program } from '~/lib/types';
-import AsyncStorage from '@react-native-async-storage/async-storage';
+import { create } from "zustand";
+import { supabase } from "~/lib/supabase";
+import { UserData, Program } from "~/lib/types";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
 interface UserStore {
   userData: UserData | null;
@@ -20,7 +20,7 @@ export const useUserStore = create<UserStore>((set, get) => ({
     set({ isLoading: true, error: null });
     try {
       // First try to get from AsyncStorage
-      const cachedData = await AsyncStorage.getItem('userData');
+      const cachedData = await AsyncStorage.getItem("userData");
       if (cachedData) {
         const parsedData = JSON.parse(cachedData) as UserData;
         set({ userData: parsedData, isLoading: false });
@@ -37,13 +37,9 @@ export const useUserStore = create<UserStore>((set, get) => ({
       const {
         data: { user },
       } = await supabase.auth.getUser();
-      if (!user) throw new Error('No user found');
+      if (!user) throw new Error("No user found");
 
-      const { data, error } = await supabase
-        .from('user_data')
-        .select('*')
-        .eq('user_id', user.id)
-        .single();
+      const { data, error } = await supabase.from("user_data").select("*").eq("user_id", user.id).single();
 
       if (error) throw error;
 
@@ -55,10 +51,10 @@ export const useUserStore = create<UserStore>((set, get) => ({
 
       // Update both store and AsyncStorage
       set({ userData, isLoading: false });
-      await AsyncStorage.setItem('userData', JSON.stringify(userData));
+      await AsyncStorage.setItem("userData", JSON.stringify(userData));
     } catch (error) {
       set({
-        error: error instanceof Error ? error : new Error('Unknown error'),
+        error: error instanceof Error ? error : new Error("Unknown error"),
         isLoading: false,
       });
     }
@@ -70,7 +66,7 @@ export const useUserStore = create<UserStore>((set, get) => ({
       const {
         data: { user },
       } = await supabase.auth.getUser();
-      if (!user) throw new Error('No user found');
+      if (!user) throw new Error("No user found");
 
       const updatedData: UserData = {
         programs: newPrograms,
@@ -79,7 +75,7 @@ export const useUserStore = create<UserStore>((set, get) => ({
       };
 
       // Update Supabase
-      const { error } = await supabase.from('user_data').upsert({
+      const { error } = await supabase.from("user_data").upsert({
         user_id: user.id,
         programs: newPrograms,
         last_updated: updatedData.last_updated,
@@ -89,10 +85,10 @@ export const useUserStore = create<UserStore>((set, get) => ({
 
       // Update both store and AsyncStorage
       set({ userData: updatedData, isLoading: false });
-      await AsyncStorage.setItem('userData', JSON.stringify(updatedData));
+      await AsyncStorage.setItem("userData", JSON.stringify(updatedData));
     } catch (error) {
       set({
-        error: error instanceof Error ? error : new Error('Unknown error'),
+        error: error instanceof Error ? error : new Error("Unknown error"),
         isLoading: false,
       });
     }
