@@ -1,19 +1,18 @@
-// components/WorkoutForm.tsx
-import React, { useState } from "react";
-import { View } from "react-native";
-import { Text } from "~/components/ui/text";
-import { Button } from "~/components/ui/button";
-import { Progress } from "~/components/ui/progress";
-import { ExperienceLevel } from "./ExperienceLevel";
-import { Level, LocationType, TrainingGoal } from "~/lib/types";
-import { WeeklyFrequency } from "./WeeklyFrequency";
-import { TrainingDuration } from "./TrainingDuration";
-import { MainGoal } from "./MainGoal";
-import { AdditionalGoals } from "./AdditionalGoal";
-import { TrainingLocation } from "./TrainingLocation";
-import { ChevronLeft } from "~/lib/icons/Icons";
-import { cn } from "~/lib/utils";
-import { TrainingSplitPreview } from "./SplitPreview";
+import React, { useState } from 'react';
+import { View } from 'react-native';
+import { Text } from '~/components/ui/text';
+import { Button } from '~/components/ui/button';
+import { Progress } from '~/components/ui/progress';
+import { ExperienceLevel } from './ExperienceLevel';
+import { Level, LocationType, TrainingGoal } from '~/lib/types';
+import { WeeklyFrequency } from './WeeklyFrequency';
+import { TrainingDuration } from './TrainingDuration';
+import { MainGoal } from './MainGoal';
+import { AdditionalGoals } from './AdditionalGoal';
+import { TrainingLocation } from './TrainingLocation';
+import { ChevronLeft } from '~/lib/icons/Icons';
+import { cn } from '~/lib/utils';
+import { TrainingSplitPreview } from './SplitPreview';
 
 export function WorkoutForm() {
   const [currentStep, setCurrentStep] = useState(1);
@@ -122,7 +121,7 @@ export function WorkoutForm() {
       <View className="flex-row justify-center gap-4 p-4">
         {currentStep > 1 && (
           <Button variant="outline" onPress={handlePreviousStep}>
-            <ChevronLeft className={cn("text-foreground")} />
+            <ChevronLeft className={cn('text-foreground')} />
           </Button>
         )}
         <Button

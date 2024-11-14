@@ -17,8 +17,8 @@ interface ProgressProps extends ProgressPrimitive.RootProps {
 
 const Progress = React.forwardRef<ProgressPrimitive.RootRef, ProgressProps>(
   ({ className, value, max = 100, indicatorClassName, ...props }, ref) => {
-    // Calculate the percentage based on the max value
-    const percentage = value != null ? (value / max) * 100 : 0;
+    // Calculate and round the percentage immediately
+    const percentage = value != null ? Math.round((value / max) * 100) : 0;
 
     return (
       <ProgressPrimitive.Root
@@ -28,7 +28,7 @@ const Progress = React.forwardRef<ProgressPrimitive.RootRef, ProgressProps>(
           className
         )}
         {...props}
-        value={percentage} // Pass the calculated percentage to the root
+        value={percentage}
       >
         <Indicator value={percentage} className={indicatorClassName} />
       </ProgressPrimitive.Root>
@@ -44,23 +44,27 @@ interface IndicatorProps {
 }
 
 function Indicator({ value, className }: IndicatorProps) {
-  const progress = useDerivedValue(() => value ?? 0);
+  // Ensure value is always an integer
+  const progress = useDerivedValue(() => {
+    const safeValue = value ?? 0;
+    return Math.min(100, Math.max(0, Math.round(safeValue)));
+  });
 
   const indicator = useAnimatedStyle(() => {
-    const width = progress.value;
     return {
-      width: `${Math.round(width)}%`,
+      width: `${Math.round(progress.value)}%`,
     };
   });
 
   if (Platform.OS === 'web') {
+    const safeValue = Math.min(100, Math.max(0, Math.round(value ?? 0)));
     return (
       <View
         className={cn(
           'h-full w-full flex-1 bg-primary web:transition-all',
           className
         )}
-        style={{ transform: `translateX(-${100 - Math.round(value ?? 0)}%)` }}
+        style={{ transform: `translateX(-${100 - safeValue}%)` }}
       >
         <ProgressPrimitive.Indicator
           className={cn('h-full w-full', className)}
