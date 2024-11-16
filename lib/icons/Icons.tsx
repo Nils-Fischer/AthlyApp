@@ -1,5 +1,6 @@
 import {
   Activity,
+  MoreHorizontal,
   Apple,
   Baby,
   Brain,
@@ -39,6 +40,7 @@ import { BarChart } from "./BarChartIcon";
 
 iconWithClassName([
   Activity,
+  MoreHorizontal,
   Apple,
   Baby,
   BarChart,
@@ -110,5 +112,6 @@ export {
   UserCircle,
   Users,
   Weight,
+  MoreHorizontal,
   Zap,
 };

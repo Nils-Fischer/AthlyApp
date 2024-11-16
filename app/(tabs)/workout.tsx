@@ -8,9 +8,11 @@ import { Input } from "~/components/ui/input";
 import { Button } from "~/components/ui/button";
 import { Text } from "~/components/ui/text";
 import { Plus, Search } from "lucide-react-native";
+import { useRouter } from "expo-router";
 
 export default function RoutineScreen() {
   const userStore = useUserStore();
+  const router = useRouter();
   const [routines, setRoutines] = React.useState<Routine[]>(userStore.userData?.programs || []);
   const [searchQuery, setSearchQuery] = React.useState("");
   const [showForm, setShowForm] = React.useState(routines.length === 0);
@@ -81,7 +83,7 @@ export default function RoutineScreen() {
                   </View>
                 }
                 onPress={() => {
-                  console.log("Navigate to routine:", routine.id);
+                  router.push(`/workout/${routine.id}`);
                 }}
               />
             ))
