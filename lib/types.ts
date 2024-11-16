@@ -31,9 +31,9 @@ export interface Exercise {
 }
 
 export enum Gender {
-  Male = 'Male',
-  Female = 'Female',
-  Other = 'Other',
+  Male = "Male",
+  Female = "Female",
+  Other = "Other",
 }
 
 // Exercise specific data for a workout
@@ -54,7 +54,7 @@ export interface Workout {
   description?: string;
 }
 
-export interface Program {
+export interface Routine {
   id: number;
   name: string;
   workouts: Workout[];
@@ -70,7 +70,7 @@ export interface UserProfile {
 }
 
 export interface UserData {
-  programs: Program[];
+  programs: Routine[];
   created_at: string;
   last_updated: string;
 }

@@ -18,7 +18,6 @@ export const useExerciseStore = create<ExerciseState>((set) => ({
     try {
       set({ isLoading: true, error: null });
       const response = await supabase.from("exercises").select("*");
-      console.log("📦 Supabase response:", response);
 
       if (!response) {
         console.error("❌ No response from Supabase");

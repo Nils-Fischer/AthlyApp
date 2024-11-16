@@ -4,7 +4,7 @@ import { Text } from "~/components/ui/text";
 import { Button } from "~/components/ui/button";
 import { Progress } from "~/components/ui/progress";
 import { ExperienceLevel } from "./ExperienceLevel";
-import { Level, LocationType, Program, TrainingGoal } from "~/lib/types";
+import { Level, LocationType, Routine, TrainingGoal } from "~/lib/types";
 import { WeeklyFrequency } from "./WeeklyFrequency";
 import { TrainingDuration } from "./TrainingDuration";
 import { MainGoal } from "./MainGoal";
@@ -17,7 +17,7 @@ import { createProgram } from "~/lib/generateWorkouts";
 import { useExerciseStore } from "~/stores/exerciseStore";
 
 interface WorkoutFormProps {
-  onProgramCreated?: (program: Program) => void;
+  onProgramCreated?: (program: Routine) => void;
 }
 
 export function WorkoutForm({ onProgramCreated }: WorkoutFormProps) {

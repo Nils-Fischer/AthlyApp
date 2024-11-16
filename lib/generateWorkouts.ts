@@ -1,4 +1,4 @@
-import { type Exercise, Program, TrainingGoal, WorkoutExercise } from "./types";
+import { type Exercise, Routine, TrainingGoal, WorkoutExercise } from "./types";
 import { Level } from "./types";
 
 export function capitalize(string: string): string {
@@ -127,7 +127,7 @@ export function createProgram(
   availableTime: number,
   level: Level,
   goal: TrainingGoal
-): Program {
+): Routine {
   const plans = selectSplitPlan(exercises, daysAWeek, availableTime, level, goal);
   return {
     id: Math.floor(Math.random() * 1000000), // or use a proper ID generation method
