@@ -14,14 +14,23 @@ export const useExerciseStore = create<ExerciseState>((set) => ({
   isLoading: true,
   error: null,
   fetchInitialData: async () => {
+    console.log("🏋️ Fetching exercises data...");
     try {
       set({ isLoading: true, error: null });
       const response = await supabase.from("exercises").select("*");
-      if (!response) console.error("Failed to import Exercises");
+      console.log("📦 Supabase response:", response);
+
+      if (!response) {
+        console.error("❌ No response from Supabase");
+        throw new Error("Failed to import Exercises");
+      }
+
       const exercises = (response.data || []) as Exercise[];
-      const error = response ? null : Error("Failed to import Exercises");
-      set({ exercises: exercises, error: error, isLoading: false });
+      console.log(`✅ Successfully fetched ${exercises.length} exercises`);
+
+      set({ exercises: exercises, error: null, isLoading: false });
     } catch (error) {
+      console.error("❌ Error fetching exercises:", error);
       set({
         error: error instanceof Error ? error : new Error("Unknown error"),
         isLoading: false,
