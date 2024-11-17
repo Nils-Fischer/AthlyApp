@@ -3,7 +3,7 @@ import { View, ScrollView } from "react-native";
 import { H1 } from "~/components/ui/typography";
 import { ProgressRings } from "./ProgressRings";
 import { NutritionSummary } from "./NutritionSummary";
-import { MealsList } from "./Mealslist";
+import { MealsList } from "./MealsList";
 import { NutritionProgress, Meal } from "~/lib/types";
 
 export default function DietInterface() {
@@ -19,40 +19,40 @@ export default function DietInterface() {
       protein: 120,
       carbs: 250,
       fat: 70,
-    }
+    },
   });
 
   const [meals, setMeals] = React.useState<Meal[]>([
     {
-      id: '1',
+      id: "1",
       name: "Protein Oatmeal",
       type: "breakfast",
       calories: 350,
       protein: 20,
       carbs: 45,
       fat: 12,
-      time: "08:30"
+      time: "08:30",
     },
     {
-      id: '2',
+      id: "2",
       name: "Chicken Salad",
       type: "lunch",
       calories: 550,
       protein: 35,
       carbs: 45,
       fat: 20,
-      time: "12:30"
+      time: "12:30",
     },
     {
-      id: '3',
+      id: "3",
       name: "Protein Shake",
       type: "snack",
       calories: 250,
       protein: 25,
       carbs: 30,
       fat: 5,
-      time: "15:00"
-    }
+      time: "15:00",
+    },
   ]);
 
   const handleAddMeal = React.useCallback(() => {
@@ -73,11 +73,7 @@ export default function DietInterface() {
           <ProgressRings progress={progress} />
           <NutritionSummary progress={progress} />
         </View>
-        <MealsList 
-          meals={meals}
-          onMealPress={handleMealPress}
-          onAddMeal={handleAddMeal}
-        />
+        <MealsList meals={meals} onMealPress={handleMealPress} onAddMeal={handleAddMeal} />
       </ScrollView>
     </View>
   );
