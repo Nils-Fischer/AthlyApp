@@ -14,6 +14,40 @@ export enum LocationType {
   Home,
   Gym,
 }
+export interface Message {
+  id: number;
+  isAI: boolean;
+  message: string;
+  time: string;
+}
+export interface NutritionGoals {
+  calories: number;
+  protein: number;
+  carbs: number;
+  fat: number;
+}
+
+export interface Meal {
+  id: string;
+  name: string;
+  type: "breakfast" | "lunch" | "dinner" | "snack";
+  calories: number;
+  protein: number;
+  carbs: number;
+  fat: number;
+  time?: string;
+}
+
+export interface NutritionProgress {
+  consumed: {
+    calories: number;
+    protein: number;
+    carbs: number;
+    fat: number;
+  };
+  goals: NutritionGoals;
+}
+
 
 export interface Exercise {
   id: number;
