@@ -1,6 +1,6 @@
 import React, { useState } from "react";
-import { View, ScrollView } from "react-native";
-import { useLocalSearchParams } from "expo-router";
+import { View, ScrollView, Pressable } from "react-native"; // Add Pressable import
+import { useLocalSearchParams, useRouter } from "expo-router"; // Add useRouter
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "~/components/ui/tabs";
 import { Text } from "~/components/ui/text";
 import { MoreHorizontal } from "~/lib/icons/Icons";
@@ -10,7 +10,6 @@ import { useUserStore } from "~/stores/userStore";
 import { useExerciseStore } from "~/stores/exerciseStore";
 import { Image } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { H1 } from "~/components/ui/typography";
 
 const RoutineWorkout = ({
   workout,
@@ -21,6 +20,7 @@ const RoutineWorkout = ({
   routineName: string;
 }) => {
   const exerciseStore = useExerciseStore();
+  const router = useRouter(); // Add this
 
   // Helper function to find full exercise details
   const findFullExercise = (workoutExercise: WorkoutExercise) => {
@@ -48,37 +48,43 @@ const RoutineWorkout = ({
           if (!exercise) return null;
 
           return (
-            <View key={workoutExercise.exerciseId} className="bg-card rounded-xl p-4 border border-border">
-              <View className="flex-row justify-between items-start">
-                <View className="flex-row gap-3">
-                  <View className="w-12 h-12 bg-muted rounded-lg items-center justify-center">
-                    {exercise.images?.[0] ? (
-                      <Image
-                        source={{ uri: exercise.images[0] }}
-                        alt={exercise.name}
-                        className="w-8 h-8 object-cover"
-                      />
-                    ) : (
-                      <Image
-                        source={{ uri: "/api/placeholder/48/48" }}
-                        alt={exercise.name}
-                        className="w-8 h-8 object-cover"
-                      />
-                    )}
+            <Pressable
+              key={workoutExercise.exerciseId}
+              onPress={() => router.push(`/workout/exercise/${exercise.id}`)}
+              className="active:opacity-70"
+            >
+              <View className="bg-card rounded-xl p-4 border border-border">
+                <View className="flex-row justify-between items-start">
+                  <View className="flex-row gap-3">
+                    <View className="w-12 h-12 bg-muted rounded-lg items-center justify-center">
+                      {exercise.images?.[0] ? (
+                        <Image
+                          source={{ uri: exercise.images[0] }}
+                          alt={exercise.name}
+                          className="w-8 h-8 object-cover"
+                        />
+                      ) : (
+                        <Image
+                          source={{ uri: "/api/placeholder/48/48" }}
+                          alt={exercise.name}
+                          className="w-8 h-8 object-cover"
+                        />
+                      )}
+                    </View>
+                    <View>
+                      <Text className="font-medium mb-1">{exercise.name}</Text>
+                      <Text className="text-muted-foreground text-sm">{exercise.equipment}</Text>
+                    </View>
                   </View>
-                  <View>
-                    <Text className="font-medium mb-1">{exercise.name}</Text>
-                    <Text className="text-muted-foreground text-sm">{exercise.equipment}</Text>
-                  </View>
+                  <Button variant="ghost" className="h-8 w-8 p-0">
+                    <MoreHorizontal className="h-5 w-5 text-muted-foreground" />
+                  </Button>
                 </View>
-                <Button variant="ghost" className="h-8 w-8 p-0">
-                  <MoreHorizontal className="h-5 w-5 text-muted-foreground" />
-                </Button>
+                <Text className="mt-3 text-sm text-muted-foreground">
+                  {workoutExercise.sets} Sätze • {getRepsRange(workoutExercise)}
+                </Text>
               </View>
-              <Text className="mt-3 text-sm text-muted-foreground">
-                {workoutExercise.sets} Sätze • {getRepsRange(workoutExercise)}
-              </Text>
-            </View>
+            </Pressable>
           );
         })}
       </View>

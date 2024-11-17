@@ -50,6 +50,7 @@ export interface NutritionProgress {
 
 
 export interface Exercise {
+  timesUsed: string;
   id: number;
   name: string;
   level: string;
