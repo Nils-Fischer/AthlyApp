@@ -1,11 +1,11 @@
 import * as React from "react";
 import { View } from "react-native";
-import { H1 } from "~/components/ui/typography";
+import DietInterface from "~/components/Diet/DietInterface";
 
 export default function Screen() {
   return (
-    <View className="flex-1 justify-center items-center gap-5 p-6 bg-secondary/30">
-      <H1>Diet</H1>
+    <View className="flex-1">
+      <DietInterface />
     </View>
   );
 }
