@@ -13,7 +13,7 @@ import { TrainingLocation } from "./TrainingLocation";
 import { ChevronLeft } from "~/lib/icons/Icons";
 import { cn } from "~/lib/utils";
 import { TrainingSplitPreview } from "./SplitPreview";
-import { createProgram } from "~/lib/generateWorkouts";
+import { createRoutine } from "~/lib/generateWorkouts";
 import { useExerciseStore } from "~/stores/exerciseStore";
 
 interface WorkoutFormProps {
@@ -75,7 +75,7 @@ export function WorkoutForm({ onProgramCreated }: WorkoutFormProps) {
   };
 
   const finishCustomProgram = () => {
-    const program = createProgram(
+    const program = createRoutine(
       exercises,
       frequency || 1,
       duration || 45,

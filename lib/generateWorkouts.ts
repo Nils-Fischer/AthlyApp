@@ -121,14 +121,14 @@ interface ExercisePlan {
   exercises: WorkoutExercise[];
 }
 
-export function createProgram(
+export function createRoutine(
   exercises: Exercise[],
   daysAWeek: number,
   availableTime: number,
   level: Level,
   goal: TrainingGoal
 ): Routine {
-  const plans = selectSplitPlan(exercises, daysAWeek, availableTime, level, goal);
+  const plans = selectRoutine(exercises, daysAWeek, availableTime, level, goal);
   return {
     id: Math.floor(Math.random() * 1000000), // or use a proper ID generation method
     name: `${daysAWeek}-Day Split`,
@@ -144,7 +144,7 @@ export function createProgram(
   };
 }
 
-function selectSplitPlan(
+function selectRoutine(
   exercises: Exercise[],
   daysAWeek: number,
   availableTime: number,
