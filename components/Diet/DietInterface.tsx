@@ -1,3 +1,4 @@
+//TrainTechApp\components\Diet\DietInterface.tsx
 import * as React from "react";
 import { View, ScrollView } from "react-native";
 import { H1 } from "~/components/ui/typography";
