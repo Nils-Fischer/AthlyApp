@@ -1,3 +1,4 @@
+// TrainTechApp/components/exercise/ExerciseLibrary.tsx
 import React, { useState, useMemo } from "react";
 import { View } from "react-native";
 import { Input } from "~/components/ui/input";
@@ -7,8 +8,8 @@ import { CategoryFilter } from "./CategoryFilter";
 import { ExerciseList } from "./ExerciseList";
 
 export const ExerciseLibrary = () => {
-    const { exercises, isLoading } = useExerciseStore();
-    const [searchQuery, setSearchQuery] = useState("");
+  const { exercises, isLoading } = useExerciseStore();
+  const [searchQuery, setSearchQuery] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("all");
 
   const categories = useMemo(() => {
@@ -23,37 +24,39 @@ export const ExerciseLibrary = () => {
       return matchesSearch && matchesCategory;
     });
   }, [exercises, searchQuery, selectedCategory]);
-  
 
   return (
-    <View className="flex-1 px-4">
-      <View className="mb-4">
+    <View className="flex-1">
+      <View className="px-4">
         <Input
           placeholder="Übung suchen..."
           value={searchQuery}
           onChangeText={setSearchQuery}
           startContent={<Search size={20} className="text-muted-foreground" />}
+          className="mb-4"
+        />
+        
+        <CategoryFilter
+          categories={categories}
+          selectedCategory={selectedCategory}
+          onSelectCategory={setSelectedCategory}
         />
       </View>
-      
-      <CategoryFilter
-        categories={categories}
-        selectedCategory={selectedCategory}
-        onSelectCategory={setSelectedCategory}
-      />
-     {isLoading ? (
-        // Loading skeleton
-        <View className="gap-4">
-          {[1, 2, 3].map((i) => (
-            <View 
-              key={i} 
-              className="h-24 bg-muted/50 rounded-xl animate-pulse"
-            />
-          ))}
-        </View>
-      ) : (
-        <ExerciseList exercises={filteredExercises} />
-      )}
+
+      <View className="flex-1 px-4">
+        {isLoading ? (
+          <View className="gap-4">
+            {[1, 2, 3].map((i) => (
+              <View 
+                key={i} 
+                className="h-24 bg-muted/50 rounded-xl animate-pulse"
+              />
+            ))}
+          </View>
+        ) : (
+          <ExerciseList exercises={filteredExercises} />
+        )}
+      </View>
     </View>
   );
 };
