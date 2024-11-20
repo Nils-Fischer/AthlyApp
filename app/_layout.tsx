@@ -13,6 +13,7 @@ import { setAndroidNavigationBar } from "~/lib/android-navigation-bar";
 import { SessionProvider } from "~/context";
 import { useExerciseStore } from "~/stores/exerciseStore";
 import { useUserStore } from "~/stores/userStore";
+import { useEffect } from "react";
 
 const LIGHT_THEME: Theme = {
   dark: false,
@@ -73,35 +74,57 @@ export default function RootLayout() {
   const exerciseStore = useExerciseStore();
   const userStore = useUserStore();
 
-  React.useEffect(() => {
-    exerciseStore.fetchInitialData();
-    userStore.fetchUserData();
+  // Initialize AsyncStorage and fetch data
+  useEffect(() => {
+    const initializeApp = async () => {
+      try {
+        // First ensure AsyncStorage is working
+        await AsyncStorage.setItem("APP_INITIALIZED", "true");
+
+        await Promise.all([exerciseStore.fetchInitialData(), userStore.fetchUserData()]);
+      } catch (error) {
+        console.error("Failed to initialize app:", error);
+        // Optionally show an error toast/alert here
+      }
+    };
+
+    initializeApp();
   }, []);
 
-  React.useEffect(() => {
-    (async () => {
-      const theme = await AsyncStorage.getItem("theme");
-      if (Platform.OS === "web") {
-        // Adds the background color to the html element to prevent white background on overscroll.
-        document.documentElement.classList.add("bg-background");
-      }
-      if (!theme) {
-        AsyncStorage.setItem("theme", colorScheme);
+  // Handle theme setup
+  useEffect(() => {
+    const setupTheme = async () => {
+      try {
+        const theme = await AsyncStorage.getItem("theme");
+
+        if (Platform.OS === "web") {
+          document.documentElement.classList.add("bg-background");
+        }
+
+        const colorTheme = theme || colorScheme;
+        if (colorTheme !== colorScheme) {
+          setColorScheme(colorTheme as "light" | "dark");
+          setAndroidNavigationBar(colorTheme as "light" | "dark");
+        } else {
+          setAndroidNavigationBar(colorTheme);
+        }
+
+        // Save theme if not exists
+        if (!theme) {
+          await AsyncStorage.setItem("theme", colorScheme);
+        }
+
         setIsColorSchemeLoaded(true);
-        return;
-      }
-      const colorTheme = theme === "dark" ? "dark" : "light";
-      if (colorTheme !== colorScheme) {
-        setColorScheme(colorTheme);
-        setAndroidNavigationBar(colorTheme);
+      } catch (error) {
+        console.error("Theme setup failed:", error);
+        // Fallback to default theme
         setIsColorSchemeLoaded(true);
-        return;
+      } finally {
+        SplashScreen.hideAsync();
       }
-      setAndroidNavigationBar(colorTheme);
-      setIsColorSchemeLoaded(true);
-    })().finally(() => {
-      SplashScreen.hideAsync();
-    });
+    };
+
+    setupTheme();
   }, []);
 
   if (!isColorSchemeLoaded) {
