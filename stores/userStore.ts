@@ -7,7 +7,9 @@ interface UserStore {
   isLoading: boolean;
   error: Error | null;
   fetchUserData: () => Promise<void>;
-  updateUserData: (newPrograms: Routine[]) => Promise<void>;
+  updateUserData: (newroutines: Routine[]) => Promise<void>;
+  addRoutine: (routine: Routine) => Promise<void>;
+  removeRoutine: (routineId: number) => Promise<void>;
 }
 
 export const useUserStore = create<UserStore>((set, get) => ({
@@ -29,7 +31,7 @@ export const useUserStore = create<UserStore>((set, get) => ({
 
       // If no data exists yet, initialize with empty data
       const initialData: UserData = {
-        programs: [],
+        routines: [],
         created_at: new Date().toISOString(),
         last_updated: new Date().toISOString(),
       };
@@ -40,18 +42,18 @@ export const useUserStore = create<UserStore>((set, get) => ({
     } catch (error) {
       console.error("❌ Error fetching user data:", error);
       set({
-        error: error instanceof Error ? error : new Error("Unknown error"),
+        error: error instanceof Error ? error : new Error("❓ Unknown error"),
         isLoading: false,
       });
     }
   },
 
-  updateUserData: async (newPrograms) => {
+  updateUserData: async (newroutines) => {
     console.log("📝 Starting user data update...");
     set({ isLoading: true, error: null });
     try {
       const updatedData: UserData = {
-        programs: newPrograms,
+        routines: newroutines,
         created_at: get().userData?.created_at || new Date().toISOString(),
         last_updated: new Date().toISOString(),
       };
@@ -62,7 +64,57 @@ export const useUserStore = create<UserStore>((set, get) => ({
     } catch (error) {
       console.error("❌ Error updating user data:", error);
       set({
-        error: error instanceof Error ? error : new Error("Unknown error"),
+        error: error instanceof Error ? error : new Error("❓ Unknown error"),
+        isLoading: false,
+      });
+    }
+  },
+
+  addRoutine: async (routine: Routine) => {
+    console.log("📝 Starting routine addition...");
+    set({ isLoading: true, error: null });
+    try {
+      const currentData = get().userData;
+      if (!currentData) throw new Error("❌ No user data found");
+
+      const updatedData: UserData = {
+        ...currentData,
+        routines: [...currentData.routines, routine],
+        last_updated: new Date().toISOString(),
+      };
+
+      await AsyncStorage.setItem("userData", JSON.stringify(updatedData));
+      set({ userData: updatedData, isLoading: false });
+      console.log("✅ Successfully added routine");
+    } catch (error) {
+      console.error("❌ Error adding routine:", error);
+      set({
+        error: error instanceof Error ? error : new Error("❓ Unknown error"),
+        isLoading: false,
+      });
+    }
+  },
+
+  removeRoutine: async (routineId: number) => {
+    console.log("📝 Starting routine removal...");
+    set({ isLoading: true, error: null });
+    try {
+      const currentData = get().userData;
+      if (!currentData) throw new Error("❌ No user data found");
+
+      const updatedData: UserData = {
+        ...currentData,
+        routines: currentData.routines.filter((p) => p.id !== routineId),
+        last_updated: new Date().toISOString(),
+      };
+
+      await AsyncStorage.setItem("userData", JSON.stringify(updatedData));
+      set({ userData: updatedData, isLoading: false });
+      console.log("✅ Successfully removed routine");
+    } catch (error) {
+      console.error("❌ Error removing routine:", error);
+      set({
+        error: error instanceof Error ? error : new Error("❓ Unknown error"),
         isLoading: false,
       });
     }

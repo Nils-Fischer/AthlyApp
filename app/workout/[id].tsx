@@ -95,7 +95,7 @@ const RoutineWorkout = ({
 export default function RoutineDetails() {
   const { id } = useLocalSearchParams<{ id: string }>();
   const userStore = useUserStore();
-  const routine: Routine | undefined = userStore.userData?.programs.find((p) => p.id === Number(id));
+  const routine: Routine | undefined = userStore.userData?.routines.find((p) => p.id === Number(id));
   const [activeTab, setActiveTab] = useState(routine?.workouts[0]?.id.toString() || "0");
 
   if (!routine) {

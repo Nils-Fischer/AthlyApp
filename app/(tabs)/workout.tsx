@@ -12,20 +12,19 @@ import { Plus, Search } from "lucide-react-native";
 import { useRouter } from "expo-router";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "~/components/ui/tabs";
 import { ExerciseLibrary } from "~/components/exercise/ExerciseLibrary";
-import { TouchableOpacity } from 'react-native-gesture-handler';
-
 
 export default function RoutineScreen() {
   const userStore = useUserStore();
   const router = useRouter();
-  const [routines, setRoutines] = React.useState<Routine[]>(userStore.userData?.programs || []);
+  const [routines, setRoutines] = React.useState<Routine[]>(userStore.userData?.routines || []);
   const [searchQuery, setSearchQuery] = React.useState("");
   const [showForm, setShowForm] = React.useState(routines.length === 0);
   const [activeTab, setActiveTab] = React.useState("routines");
 
-  const handleProgramCreated = (program: Routine) => {
-    useUserStore.getState().updateUserData([program]);
-    setRoutines([...routines, program]);
+  const handleRoutineCreation = (routine: Routine) => {
+    console.log("🚀 Created routine:", routine);
+    userStore.addRoutine(routine);
+    setRoutines([...routines, routine]);
     setShowForm(false);
   };
 
@@ -34,31 +33,19 @@ export default function RoutineScreen() {
   }, [routines, searchQuery]);
 
   if (showForm) {
-    return <WorkoutForm onProgramCreated={handleProgramCreated} />;
+    return <WorkoutForm onProgramCreated={handleRoutineCreation} />;
   }
 
   return (
     <SafeAreaView className="flex-1 bg-background">
       <View className="flex-1">
-
-
-        <Tabs 
-          value={activeTab} 
-          onValueChange={setActiveTab} 
-          className="flex-1"
-        >
+        <Tabs value={activeTab} onValueChange={setActiveTab} className="flex-1">
           <View className="px-4">
             <TabsList className="flex-row h-12 bg-muted rounded-lg p-1 w-full">
-              <TabsTrigger 
-                value="routines" 
-                className="flex-1 rounded-md data-[state=active]:bg-background"
-              >
+              <TabsTrigger value="routines" className="flex-1 rounded-md data-[state=active]:bg-background">
                 <Text className="text-sm font-medium">Trainingspläne</Text>
               </TabsTrigger>
-              <TabsTrigger 
-                value="exercises" 
-                className="flex-1 rounded-md data-[state=active]:bg-background"
-              >
+              <TabsTrigger value="exercises" className="flex-1 rounded-md data-[state=active]:bg-background">
                 <Text className="text-sm font-medium">Übungen</Text>
               </TabsTrigger>
             </TabsList>
@@ -90,9 +77,7 @@ export default function RoutineScreen() {
                 >
                   {filteredRoutines.length === 0 ? (
                     <View className="flex-1 justify-center items-center py-20">
-                      <Text className="text-muted-foreground text-center">
-                        Keine Trainingspläne gefunden
-                      </Text>
+                      <Text className="text-muted-foreground text-center">Keine Trainingspläne gefunden</Text>
                     </View>
                   ) : (
                     filteredRoutines.map((routine) => (

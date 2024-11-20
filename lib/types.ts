@@ -48,7 +48,6 @@ export interface NutritionProgress {
   goals: NutritionGoals;
 }
 
-
 export interface Exercise {
   timesUsed: string;
   id: number;
@@ -105,7 +104,7 @@ export interface UserProfile {
 }
 
 export interface UserData {
-  programs: Routine[];
+  routines: Routine[];
   created_at: string;
   last_updated: string;
 }
