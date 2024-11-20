@@ -12,7 +12,7 @@ export function WorkoutPage({
 }: {
   workout: Workout;
   routineName: string;
-  onExercisePress: (exerciseId: number) => void;
+  onExercisePress?: (exerciseId: number) => void;
 }) {
   const exerciseStore = useExerciseStore();
 
@@ -44,7 +44,7 @@ export function WorkoutPage({
           return (
             <Pressable
               key={workoutExercise.exerciseId}
-              onPress={() => onExercisePress(exercise.id)}
+              onPress={() => onExercisePress?.(exercise.id)}
               className="active:opacity-70"
             >
               <View className="bg-card rounded-xl p-4 border border-border">
