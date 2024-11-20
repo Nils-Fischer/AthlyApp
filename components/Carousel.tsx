@@ -2,7 +2,6 @@ import React from "react";
 import { View, Dimensions, Pressable, Image } from "react-native";
 import { Video, ResizeMode } from "expo-av";
 import { Play } from "lucide-react-native";
-import { cn } from "~/lib/utils";
 import RNCarousel from "react-native-reanimated-carousel";
 
 const SCREEN_WIDTH = Dimensions.get("window").width;
