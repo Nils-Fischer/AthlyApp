@@ -1,41 +1,34 @@
 import * as React from "react";
 import ChatInterface from "~/components/Chat/chatinterface";
-import { generateId, formatTime, type Message } from "~/components/Chat/types";
+import { Message } from "~/components/Chat/types";
+import { createMessage, getAnswer } from "~/lib/chatUtils";
+import { Routine } from "~/lib/types";
+import { useExerciseStore } from "~/stores/exerciseStore";
+
+const initialMessages = [
+  createMessage("Hallo! 👋 Ich bin dein AI Personal Trainer. Wie kann ich dir heute helfen?", "ai"),
+];
 
 export default function Screen() {
-  const [messages, setMessages] = React.useState<Message[]>([
-    {
-      id: "1",
-      content: "Hallo! 👋 Ich bin dein AI Personal Trainer. Wie kann ich dir heute helfen?",
-      sender: "ai",
-      timestamp: formatTime(new Date()),
-    },
-  ]);
+  const exerciseStore = useExerciseStore();
+  const exerciseList = exerciseStore.exercises.map((exercise) => `${exercise.id} - ${exercise.name}`).join("\n");
+
+  const [messages, setMessages] = React.useState<Message[]>(initialMessages);
   const [isTyping, setIsTyping] = React.useState(false);
 
-  const handleSendMessage = React.useCallback((content: string) => {
-    const userMessage: Message = {
-      id: generateId(),
-      content,
-      sender: "user",
-      timestamp: formatTime(new Date()),
-    };
+  const handleSendMessage = React.useCallback(
+    async (content: string) => {
+      const userMessage: Message = createMessage(content, "user");
 
-    setMessages((prev) => [...prev, userMessage]);
-    setIsTyping(true);
+      setMessages((prev) => [...prev, userMessage]);
+      setIsTyping(true);
 
-    // Simulate AI response
-    setTimeout(() => {
-      const aiMessage: Message = {
-        id: generateId(),
-        content: "Ich verstehe dein Anliegen. Lass uns gemeinsam daran arbeiten! 💪",
-        sender: "ai",
-        timestamp: formatTime(new Date()),
-      };
+      const { aiMessage, routine } = await getAnswer(exerciseList, content);
+
       setMessages((prev) => [...prev, aiMessage]);
-      setIsTyping(false);
-    }, 1500);
-  }, []);
+    },
+    [exerciseList]
+  );
 
   return <ChatInterface messages={messages} isTyping={isTyping} onSendMessage={handleSendMessage} />;
 }

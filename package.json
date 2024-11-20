@@ -13,6 +13,7 @@
     "postinstall": "npx tailwindcss -i ./global.css -o ./node_modules/.cache/nativewind/global.css"
   },
   "dependencies": {
+    "@anthropic-ai/sdk": "^0.32.1",
     "@react-native-async-storage/async-storage": "2.1.0",
     "@react-native-community/cli-server-api": "^15.1.2",
     "@react-navigation/native": "7.0.3",
@@ -42,6 +43,7 @@
     "react": "^18.3.1",
     "react-dom": "18.3.1",
     "react-native": "^0.76.2",
+    "react-native-dotenv": "^3.4.11",
     "react-native-gesture-handler": "~2.20.2",
     "react-native-reanimated": "~3.16.1",
     "react-native-reanimated-carousel": "^3.5.1",
