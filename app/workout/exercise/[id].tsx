@@ -1,42 +1,22 @@
 // TrainTechApp/app/workout/exercise/[id].tsx
-import React, { useState, useRef } from "react";
-import { View, ScrollView, Dimensions, Pressable } from "react-native";
+import React, { useState } from "react";
+import { View, ScrollView, Pressable } from "react-native";
 import { Text } from "~/components/ui/text";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import { useExerciseStore } from "~/stores/exerciseStore";
 import { Image } from "react-native";
-import {
-  ArrowLeft,
-  Heart,
-  Share2,
-  BookmarkPlus,
-  ChevronDown,
-  Star,
-  Play,
-  Users2,
-  Trophy,
-  Lightbulb,
-} from "lucide-react-native";
-import { Button } from "~/components/ui/button";
 import { SafeAreaView } from "react-native-safe-area-context";
 import type { Edge } from "react-native-safe-area-context";
-import Carousel from "react-native-reanimated-carousel";
-import { Video, ResizeMode } from "expo-av";
-
-import { cn } from "~/lib/utils";
+import { Carousel } from "~/components/Carousel";
 import Animated, {
   useAnimatedStyle,
-  withSpring,
   interpolate,
   useAnimatedScrollHandler,
   useSharedValue,
-  withTiming,
-  FadeIn,
   FadeInDown,
 } from "react-native-reanimated";
+import { Trophy, Users2 } from "~/lib/icons/Icons";
 
-const exerciseDifficulty = 3; // Default difficulty or get it from exercise
-const SCREEN_WIDTH = Dimensions.get("window").width;
 const HEADER_HEIGHT = 288;
 
 type MediaType = "image" | "video";
@@ -57,11 +37,8 @@ export default function ExerciseDetailScreen() {
   const exercise = exerciseStore.exercises.find((ex) => ex.id === Number(id));
   const [activeIndex, setActiveIndex] = useState(0);
   const [isLiked, setIsLiked] = useState(false);
-  const [isSaved, setIsSaved] = useState(false);
-  const [showFullInstructions, setShowFullInstructions] = useState(false);
 
   const scrollY = useSharedValue(0);
-  const videoRef = useRef(null);
 
   const safeAreaEdges: Edge[] = ["top"];
 
@@ -91,23 +68,6 @@ export default function ExerciseDetailScreen() {
     // Implement share functionality
   };
 
-  const renderMediaItem = ({ item }: { item: MediaItem }) => {
-    if (item.type === "video") {
-      return (
-        <View className="w-full h-full justify-center bg-muted">
-          <Video
-            ref={videoRef}
-            source={{ uri: item.url }}
-            resizeMode={ResizeMode.CONTAIN}
-            useNativeControls
-            style={{ width: "100%", height: "100%" }}
-          />
-        </View>
-      );
-    }
-    return <Image source={{ uri: item.url }} style={{ width: "100%", height: "100%" }} resizeMode="cover" />;
-  };
-
   if (!exercise) {
     return (
       <SafeAreaView className="flex-1 justify-center items-center">
@@ -122,80 +82,16 @@ export default function ExerciseDetailScreen() {
         {/* Media Carousel Section */}
         <Animated.View style={[{ height: HEADER_HEIGHT }, headerStyle]} className="relative">
           <Carousel
-            loop
-            width={SCREEN_WIDTH}
             height={HEADER_HEIGHT}
-            data={mediaItems}
-            onSnapToItem={setActiveIndex}
-            renderItem={({ item }) => {
-              if (item.type === "video") {
-                return (
-                  <View className="relative w-full h-full">
-                    <Video
-                      source={{ uri: item.url }}
-                      resizeMode={ResizeMode.CONTAIN}
-                      useNativeControls
-                      style={{ width: "100%", height: "100%" }}
-                    />
-                    <Pressable
-                      onPress={() => {
-                        /* Handle play/pause */
-                      }}
-                      className="absolute inset-0 items-center justify-center"
-                    >
-                      <View className="bg-background/80 backdrop-blur-sm rounded-full p-4">
-                        <Play className="h-8 w-8 text-primary" />
-                      </View>
-                    </Pressable>
-                  </View>
-                );
-              }
-              return <Image source={{ uri: item.url }} style={{ width: "100%", height: "100%" }} resizeMode="cover" />;
-            }}
+            mediaItems={mediaItems}
+            onIndexChange={setActiveIndex}
+            currentIndex={activeIndex}
+            onLike={() => setIsLiked(!isLiked)}
+            isLiked={isLiked}
+            onShare={handleShare}
+            onBack={() => router.back()}
+            animationDelay={ANIMATION_BASE_DELAY}
           />
-
-          {/* Navigation Dots */}
-          <View className="absolute bottom-4 w-full flex-row justify-center gap-2">
-            {mediaItems.map((_, index) => (
-              <View
-                key={index}
-                className={cn("w-2 h-2 rounded-full", activeIndex === index ? "bg-primary" : "bg-muted-foreground/30")}
-              />
-            ))}
-          </View>
-
-          {/* Action Buttons */}
-          <Animated.View
-            entering={FadeIn.delay(ANIMATION_BASE_DELAY)}
-            className="absolute top-4 right-4 flex-row gap-2"
-          >
-            <Button
-              variant="ghost"
-              size="icon"
-              className="h-10 w-10 bg-background/80 backdrop-blur-sm rounded-full"
-              onPress={() => setIsLiked(!isLiked)}
-            >
-              <Heart className={cn("h-5 w-5", isLiked ? "text-red-500 fill-red-500" : "text-foreground")} />
-            </Button>
-            <Button
-              variant="ghost"
-              size="icon"
-              className="h-10 w-10 bg-background/80 backdrop-blur-sm rounded-full"
-              onPress={handleShare}
-            >
-              <Share2 className="h-5 w-5" />
-            </Button>
-          </Animated.View>
-
-          {/* Back Button */}
-          <Button
-            variant="ghost"
-            size="icon"
-            className="absolute top-4 left-4 h-10 w-10 bg-background/80 backdrop-blur-sm rounded-full"
-            onPress={() => router.back()}
-          >
-            <ArrowLeft className="h-6 w-6" />
-          </Button>
         </Animated.View>
 
         {/* Content */}
