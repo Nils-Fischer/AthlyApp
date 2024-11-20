@@ -29,7 +29,7 @@ export default function RoutineDetails() {
   return (
     <SafeAreaView className="flex-1 bg-background" edges={["top"]}>
       <ScrollView className="flex-1">
-        <View className="px-4 py-6">
+        <View className="px-4 pt-2 pb-6">
           <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full flex-col gap-1.5">
             <TabsList className="flex-row w-full mb-4">
               {routine.workouts.map((workout) => (
@@ -39,7 +39,7 @@ export default function RoutineDetails() {
               ))}
             </TabsList>
             {routine.workouts.map((workout) => (
-              <TabsContent key={workout.id} value={workout.id.toString()} className="w-full">
+              <TabsContent key={workout.id} value={workout.id.toString()} className="w-full px-0">
                 <WorkoutPage workout={workout} routineName={routine.name} onExercisePress={handleExercisePress} />
               </TabsContent>
             ))}

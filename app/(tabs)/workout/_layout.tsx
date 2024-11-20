@@ -6,13 +6,13 @@ export default function WorkoutLayout() {
       <Stack.Screen
         name="index"
         options={{
-          headerTitle: "Workouts",
+          headerShown: false,
         }}
       />
       <Stack.Screen
         name="[id]"
         options={{
-          headerTitle: "Workout Details",
+          headerShown: false,
         }}
       />
       <Stack.Screen
