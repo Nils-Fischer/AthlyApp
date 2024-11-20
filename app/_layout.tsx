@@ -1,5 +1,4 @@
 import "~/global.css";
-
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { Theme, ThemeProvider } from "@react-navigation/native";
 import { SplashScreen, Stack } from "expo-router";
@@ -14,6 +13,7 @@ import { SessionProvider } from "~/context";
 import { useExerciseStore } from "~/stores/exerciseStore";
 import { useUserStore } from "~/stores/userStore";
 import { useEffect } from "react";
+import { GestureHandlerRootView } from "react-native-gesture-handler";
 
 const LIGHT_THEME: Theme = {
   dark: false,
@@ -132,14 +132,16 @@ export default function RootLayout() {
   }
 
   return (
-    <SessionProvider>
-      <ThemeProvider value={isDarkColorScheme ? DARK_THEME : LIGHT_THEME}>
-        <StatusBar style={isDarkColorScheme ? "light" : "dark"} />
-        <Stack screenOptions={{ headerShown: false }}>
-          <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
-        </Stack>
-        <PortalHost />
-      </ThemeProvider>
-    </SessionProvider>
+    <GestureHandlerRootView style={{ flex: 1 }}>
+      <SessionProvider>
+        <ThemeProvider value={isDarkColorScheme ? DARK_THEME : LIGHT_THEME}>
+          <StatusBar style={isDarkColorScheme ? "light" : "dark"} />
+          <Stack screenOptions={{ headerShown: false }}>
+            <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
+          </Stack>
+          <PortalHost />
+        </ThemeProvider>
+      </SessionProvider>
+    </GestureHandlerRootView>
   );
 }

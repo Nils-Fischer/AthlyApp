@@ -10,14 +10,14 @@ import RNCarousel from "react-native-reanimated-carousel";
 
 const SCREEN_WIDTH = Dimensions.get("window").width;
 
-type MediaType = "image" | "video";
+export type MediaType = "image" | "video";
 
-interface MediaItem {
+export interface MediaItem {
   type: MediaType;
   url: string;
 }
 
-interface CarouselProps {
+export interface CarouselProps {
   height: number;
   mediaItems: MediaItem[];
   onIndexChange?: (index: number) => void;

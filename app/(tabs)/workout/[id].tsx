@@ -15,10 +15,7 @@ export default function RoutineDetails() {
   const [activeTab, setActiveTab] = useState(routine?.workouts[0]?.id.toString() || "0");
 
   const handleExercisePress = (exerciseId: number) => {
-    router.push({
-      pathname: "/workout/exercise/[id]",
-      params: { id: exerciseId.toString() },
-    });
+    router.push(`./exercise/${exerciseId}`);
   };
 
   if (!routine) {

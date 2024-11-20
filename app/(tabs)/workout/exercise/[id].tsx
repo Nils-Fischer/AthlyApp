@@ -7,7 +7,7 @@ import { useExerciseStore } from "~/stores/exerciseStore";
 import { Image } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import type { Edge } from "react-native-safe-area-context";
-import { Carousel } from "~/components/Carousel";
+import { Carousel, MediaItem } from "~/components/Carousel";
 import Animated, {
   useAnimatedStyle,
   interpolate,
@@ -18,13 +18,6 @@ import Animated, {
 import { Trophy, Users2 } from "~/lib/icons/Icons";
 
 const HEADER_HEIGHT = 288;
-
-type MediaType = "image" | "video";
-
-interface MediaItem {
-  type: MediaType;
-  url: string;
-}
 
 const AnimatedScrollView = Animated.createAnimatedComponent(ScrollView);
 
@@ -80,19 +73,18 @@ export default function ExerciseDetailScreen() {
     <SafeAreaView className="flex-1 bg-background" edges={safeAreaEdges}>
       <AnimatedScrollView onScroll={scrollHandler} scrollEventThrottle={16} className="flex-1" bounces={false}>
         {/* Media Carousel Section */}
-        <Animated.View style={[{ height: HEADER_HEIGHT }, headerStyle]} className="relative">
-          <Carousel
-            height={HEADER_HEIGHT}
-            mediaItems={mediaItems}
-            onIndexChange={setActiveIndex}
-            currentIndex={activeIndex}
-            onLike={() => setIsLiked(!isLiked)}
-            isLiked={isLiked}
-            onShare={handleShare}
-            onBack={() => router.back()}
-            animationDelay={ANIMATION_BASE_DELAY}
-          />
-        </Animated.View>
+        <Animated.View style={[{ height: HEADER_HEIGHT }, headerStyle]} className="relative"></Animated.View>
+        <Carousel
+          height={HEADER_HEIGHT}
+          mediaItems={mediaItems}
+          onIndexChange={setActiveIndex}
+          currentIndex={activeIndex}
+          onLike={() => setIsLiked(!isLiked)}
+          isLiked={isLiked}
+          onShare={handleShare}
+          onBack={() => router.back()}
+          animationDelay={ANIMATION_BASE_DELAY}
+        />
 
         {/* Content */}
         <View className="px-4 -mt-6 relative">
