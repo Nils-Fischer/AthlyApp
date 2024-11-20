@@ -12,6 +12,8 @@ import { Plus, Search } from "lucide-react-native";
 import { useRouter } from "expo-router";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "~/components/ui/tabs";
 import { ExerciseLibrary } from "~/components/exercise/ExerciseLibrary";
+import { TouchableOpacity } from 'react-native-gesture-handler';
+
 
 export default function RoutineScreen() {
   const userStore = useUserStore();
