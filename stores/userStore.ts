@@ -21,6 +21,14 @@ export const useUserStore = create<UserStore>((set, get) => ({
     console.log("👤 Starting user data fetch...");
     set({ isLoading: true, error: null });
     try {
+      // First, try to ensure storage is accessible
+      try {
+        await AsyncStorage.setItem("test", "test");
+        await AsyncStorage.removeItem("test");
+      } catch (e) {
+        throw new Error("Storage is not accessible. Please restart the app.");
+      }
+
       const cachedData = await AsyncStorage.getItem("userData");
       if (cachedData) {
         console.log("📱 Found user data");

@@ -34,11 +34,17 @@ import {
   Users,
   Weight,
   Zap,
+  Share2,
+  ArrowLeft,
+  Users2,
 } from "lucide-react-native";
 import { iconWithClassName } from "./iconWithClassName";
 import { BarChart } from "./BarChartIcon";
 
 iconWithClassName([
+  Share2,
+  ArrowLeft,
+  Users2,
   Activity,
   MoreHorizontal,
   Apple,
@@ -114,4 +120,7 @@ export {
   Weight,
   MoreHorizontal,
   Zap,
+  Share2,
+  ArrowLeft,
+  Users2,
 };

@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { View, ScrollView } from "react-native";
-import { useLocalSearchParams } from "expo-router";
+import { router, useLocalSearchParams } from "expo-router";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "~/components/ui/tabs";
 import { Text } from "~/components/ui/text";
 import { useUserStore } from "~/stores/userStore";
@@ -13,6 +13,13 @@ export default function RoutineDetails() {
   const userStore = useUserStore();
   const routine: Routine | undefined = userStore.userData?.routines.find((p) => p.id === Number(id));
   const [activeTab, setActiveTab] = useState(routine?.workouts[0]?.id.toString() || "0");
+
+  const handleExercisePress = (exerciseId: number) => {
+    router.push({
+      pathname: "/workout/exercise/[id]",
+      params: { id: exerciseId.toString() },
+    });
+  };
 
   if (!routine) {
     return (
@@ -36,7 +43,7 @@ export default function RoutineDetails() {
             </TabsList>
             {routine.workouts.map((workout) => (
               <TabsContent key={workout.id} value={workout.id.toString()} className="w-full">
-                <WorkoutPage workout={workout} routineName={routine.name} />
+                <WorkoutPage workout={workout} routineName={routine.name} onExercisePress={handleExercisePress} />
               </TabsContent>
             ))}
           </Tabs>

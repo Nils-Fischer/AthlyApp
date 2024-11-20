@@ -3,12 +3,18 @@ import { Button } from "~/components/ui/button";
 import { useExerciseStore } from "~/stores/exerciseStore";
 import { Image, Pressable, View } from "react-native";
 import { Workout, WorkoutExercise } from "~/lib/types";
-import { useRouter } from "expo-router";
 import { Text } from "~/components/ui/text";
 
-export function WorkoutPage({ workout, routineName }: { workout: Workout; routineName: string }) {
+export function WorkoutPage({
+  workout,
+  routineName,
+  onExercisePress,
+}: {
+  workout: Workout;
+  routineName: string;
+  onExercisePress: (exerciseId: number) => void;
+}) {
   const exerciseStore = useExerciseStore();
-  const router = useRouter();
 
   // Helper function to find full exercise details
   const findFullExercise = (workoutExercise: WorkoutExercise) => {
@@ -38,7 +44,7 @@ export function WorkoutPage({ workout, routineName }: { workout: Workout; routin
           return (
             <Pressable
               key={workoutExercise.exerciseId}
-              onPress={() => router.push(`/workout/exercise/${exercise.id}`)}
+              onPress={() => onExercisePress(exercise.id)}
               className="active:opacity-70"
             >
               <View className="bg-card rounded-xl p-4 border border-border">
