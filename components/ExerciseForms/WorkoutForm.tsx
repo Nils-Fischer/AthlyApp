@@ -17,10 +17,10 @@ import { createRoutine } from "~/lib/generateWorkouts";
 import { useExerciseStore } from "~/stores/exerciseStore";
 
 interface WorkoutFormProps {
-  onProgramCreated?: (program: Routine) => void;
+  onRoutineCreated?: (routine: Routine) => void;
 }
 
-export function WorkoutForm({ onProgramCreated }: WorkoutFormProps) {
+export function WorkoutForm({ onRoutineCreated }: WorkoutFormProps) {
   const [currentStep, setCurrentStep] = useState(1);
   const [level, setLevel] = useState<Level | null>(null);
   const [frequency, setFrequency] = useState<number | null>(null);
@@ -37,7 +37,7 @@ export function WorkoutForm({ onProgramCreated }: WorkoutFormProps) {
     if (currentStep < TOTAL_STEPS) {
       setCurrentStep((prev) => prev + 1);
     } else if (currentStep === TOTAL_STEPS) {
-      finishCustomProgram();
+      finishCustomRoutine();
     }
   };
 
@@ -74,15 +74,15 @@ export function WorkoutForm({ onProgramCreated }: WorkoutFormProps) {
     }
   };
 
-  const finishCustomProgram = () => {
-    const program = createRoutine(
+  const finishCustomRoutine = () => {
+    const routine = createRoutine(
       exercises,
       frequency || 1,
       duration || 45,
       level || Level.Beginner,
       goal || TrainingGoal.Hypertrophy
     );
-    onProgramCreated?.(program);
+    onRoutineCreated?.(routine);
   };
 
   return (

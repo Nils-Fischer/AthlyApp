@@ -67,13 +67,7 @@ export default function Screen() {
             <View className="space-y-4">
               <RoutineOverview routine={routine} />
               <View className="px-4 pb-4">
-                <Button
-                  className="w-full"
-                  onPress={() => {
-                    // Add your logic to save to profile here
-                    console.log("Saving to profile:", routine);
-                  }}
-                >
+                <Button className="w-full" onPress={() => {}}>
                   <Text className="text-primary-foreground font-medium">Zum Profil hinzufügen</Text>
                 </Button>
               </View>

@@ -33,7 +33,7 @@ export default function RoutineScreen() {
   }, [routines, searchQuery]);
 
   if (showForm) {
-    return <WorkoutForm onProgramCreated={handleRoutineCreation} />;
+    return <WorkoutForm onRoutineCreated={handleRoutineCreation} />;
   }
 
   return (
