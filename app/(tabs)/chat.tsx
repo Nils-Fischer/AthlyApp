@@ -26,6 +26,7 @@ export default function Screen() {
       const { aiMessage, routine } = await getAnswer(exerciseList, content);
 
       setMessages((prev) => [...prev, aiMessage]);
+      setIsTyping(false);
     },
     [exerciseList]
   );
