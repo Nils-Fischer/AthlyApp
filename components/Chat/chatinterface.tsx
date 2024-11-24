@@ -16,6 +16,7 @@ interface ChatInterfaceProps {
 export default function ChatInterface({ messages, isTyping, onSendMessage }: ChatInterfaceProps) {
   const [inputMessage, setInputMessage] = React.useState("");
   const scrollViewRef = React.useRef<ScrollView>(null);
+  const inputRef = React.useRef<TextInput>(null);
 
   // Keyboard handling
   React.useEffect(() => {
@@ -39,6 +40,7 @@ export default function ChatInterface({ messages, isTyping, onSendMessage }: Cha
     if (!inputMessage.trim()) return;
     onSendMessage(inputMessage.trim());
     setInputMessage("");
+    inputRef.current?.blur();
   }, [inputMessage, onSendMessage]);
 
   return (
@@ -68,21 +70,25 @@ export default function ChatInterface({ messages, isTyping, onSendMessage }: Cha
           <View className="flex-row items-center gap-2">
             <View className="flex-1 bg-muted rounded-lg overflow-hidden">
               <TextInput
+                ref={inputRef}
                 className="px-4 py-2.5 text-base text-foreground min-h-[44px]"
                 placeholder="Schreibe eine Nachricht..."
                 placeholderTextColor="#666"
                 value={inputMessage}
                 onChangeText={setInputMessage}
-                multiline
+                multiline={false}
                 maxLength={500}
                 style={{ maxHeight: 120 }}
+                keyboardType="default"
+                returnKeyType="send"
+                onSubmitEditing={handleSend}
               />
             </View>
             <Button
               size="icon"
               variant={inputMessage.trim() ? "default" : "secondary"}
               onPress={handleSend}
-              disabled={!inputMessage.trim()}
+              disabled={isTyping || !inputMessage.trim()}
             >
               <Text className={`text-lg ${!inputMessage.trim() ? "opacity-50" : ""}`}>➤</Text>
             </Button>
