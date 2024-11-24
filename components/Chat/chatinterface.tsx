@@ -47,10 +47,6 @@ export default function ChatInterface({ messages, isTyping, onSendMessage, showR
 
   return (
     <View className="flex-1 bg-background relative z-0">
-      <View className="px-4 py-3 border-b border-border bg-background/95">
-        <H1 className="text-xl font-bold">AI Personal Trainer</H1>
-      </View>
-
       <KeyboardAvoidingView
         behavior={Platform.OS === "ios" ? "padding" : undefined}
         className="flex-1"

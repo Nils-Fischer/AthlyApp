@@ -11,6 +11,8 @@ import { H1 } from "~/components/ui/typography";
 import { Text } from "~/components/ui/text";
 import { RoutineOverview } from "~/components/exercise/RoutineOverview";
 import { Button } from "~/components/ui/button";
+import { useUserStore } from "~/stores/userStore";
+import Animated, { FadeOut, FadeIn } from "react-native-reanimated";
 
 const initialMessages = [
   createTextMessage("Hallo! 👋 Ich bin dein AI Personal Trainer. Wie kann ich dir heute helfen?", "ai"),
@@ -23,6 +25,9 @@ export default function Screen() {
   const [messages, setMessages] = React.useState<Message[]>(initialMessages);
   const [isTyping, setIsTyping] = React.useState(false);
   const [routine, setRoutine] = React.useState<Routine | null>(null);
+  const [isAdded, setIsAdded] = React.useState(false);
+
+  const userStore = useUserStore();
 
   const previewRoutine = (routine: Routine) => {
     setRoutine(routine);
@@ -44,6 +49,15 @@ export default function Screen() {
     [exerciseList]
   );
 
+  const handleAddRoutine = async (routine: Routine) => {
+    await userStore.addRoutine(routine);
+    setIsAdded(true);
+  };
+
+  React.useEffect(() => {
+    setIsAdded(false);
+  }, [routine]);
+
   return (
     <View className="flex-1 bg-background">
       <ChatInterface
@@ -60,17 +74,24 @@ export default function Screen() {
         gestureEnabled={true}
         closeOnTouchBackdrop={true}
         elevation={2}
+        overdrawEnabled={false}
       >
         <ScrollView className="p-4 bg-background min-h-full">
           <H1 className="text-xl font-semibold text-foreground m-4">Trainingsplan Vorschau</H1>
           {routine ? (
             <View className="space-y-4">
               <RoutineOverview routine={routine} />
-              <View className="px-4 pb-4">
-                <Button className="w-full" onPress={() => {}}>
-                  <Text className="text-primary-foreground font-medium">Zum Profil hinzufügen</Text>
-                </Button>
-              </View>
+              {isAdded || userStore.userData?.routines.find((r) => r.id === routine.id) ? (
+                <Animated.View entering={FadeIn} className="px-4 pb-4">
+                  <Text className="text-green-500 text-center font-medium">✓ Bereits in deinem Profil</Text>
+                </Animated.View>
+              ) : (
+                <Animated.View exiting={FadeOut} className="px-4 pb-4">
+                  <Button className="w-full" onPress={() => handleAddRoutine(routine)}>
+                    <Text className="text-primary-foreground font-medium">Zum Profil hinzufügen</Text>
+                  </Button>
+                </Animated.View>
+              )}
             </View>
           ) : (
             <View className="p-4 items-center justify-center">

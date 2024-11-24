@@ -57,7 +57,11 @@ function parseResponse(text: string): TaggedSection[] {
       const tag = match[1];
       const content = match[2];
       if (tag === "routine") {
-        return { tag, content: parseJSON<Routine>(content) };
+        const routine = parseJSON<Routine>(content);
+        if (routine) {
+          routine.id = parseInt(generateId());
+        }
+        return { tag, content: routine };
       }
       return { tag, content };
     });
