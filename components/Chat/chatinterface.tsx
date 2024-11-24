@@ -6,14 +6,16 @@ import { Text } from "~/components/ui/text";
 import { ChatMessage } from "./ChatMessage";
 import { TypingIndicator } from "./TypingIndicator";
 import type { Message } from "./types";
+import { Routine } from "~/lib/types";
 
 interface ChatInterfaceProps {
   messages: Message[];
   isTyping: boolean;
   onSendMessage: (message: string) => void;
+  showRoutine?: (routine: Routine) => void;
 }
 
-export default function ChatInterface({ messages, isTyping, onSendMessage }: ChatInterfaceProps) {
+export default function ChatInterface({ messages, isTyping, onSendMessage, showRoutine }: ChatInterfaceProps) {
   const [inputMessage, setInputMessage] = React.useState("");
   const scrollViewRef = React.useRef<ScrollView>(null);
   const inputRef = React.useRef<TextInput>(null);
@@ -61,7 +63,7 @@ export default function ChatInterface({ messages, isTyping, onSendMessage }: Cha
           contentContainerStyle={{ paddingTop: 20, paddingBottom: 20 }}
         >
           {messages.map((message) => (
-            <ChatMessage key={message.id} message={message} />
+            <ChatMessage key={message.id} message={message} showRoutine={showRoutine} />
           ))}
           {isTyping && <TypingIndicator />}
         </ScrollView>

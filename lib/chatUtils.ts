@@ -2,12 +2,7 @@ import Anthropic from "@anthropic-ai/sdk";
 import { Routine } from "./types";
 import { parseJSON } from "./utils";
 import { Message } from "~/components/Chat/types";
-
-interface ParsedResponse {
-  mainText: string;
-  analyses: string[];
-  routines: (Routine | null)[];
-}
+import { TaggedSection } from "~/components/Chat/types";
 
 const generateId = () => Math.random().toString(36).substr(2, 9);
 
@@ -15,7 +10,11 @@ const formatTime = (date: Date) => {
   return date.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
 };
 
-export function createMessage(content: string, sender: "user" | "ai"): Message {
+export function createTextMessage(content: string, sender: "user" | "ai"): Message {
+  return createMessage([{ tag: "text", content }], sender);
+}
+
+export function createMessage(content: TaggedSection[], sender: "user" | "ai"): Message {
   return {
     id: generateId(),
     content,
@@ -24,60 +23,44 @@ export function createMessage(content: string, sender: "user" | "ai"): Message {
   };
 }
 
-const errorMessage: Message = createMessage("Etwas ist schief gelaufen. Bitte versuche es erneut.", "ai");
+const errorMessage: Message = createMessage(
+  [{ tag: "text", content: "Etwas ist schief gelaufen. Bitte versuche es erneut." }],
+  "ai"
+);
 
-export async function getAnswer(
-  exerciseList: string,
-  userQuery: string
-): Promise<{ aiMessage: Message; routine: Routine | null }> {
+export async function getAnswer(exerciseList: string, userQuery: string): Promise<{ aiMessage: Message }> {
   try {
     const response = await generateResponse(exerciseList, userQuery);
 
     if (response.content[0]?.type === "text") {
-      const { mainText, analyses, routines } = parseResponse(response.content[0].text);
-      const aiMessage: Message = createMessage(mainText, "ai");
+      const taggedSections = parseResponse(response.content[0].text);
+      const analysis = taggedSections.find((section) => section.tag === "analysis")?.content;
+      console.log(analysis);
+      const aiMessage: Message = createMessage(taggedSections, "ai");
 
-      return { aiMessage, routine: routines[0] };
+      return { aiMessage };
     } else {
       console.error("Tool use error");
-      return { aiMessage: errorMessage, routine: null };
+      return { aiMessage: errorMessage };
     }
   } catch (error) {
     console.error("Error generating AI response:", error);
-    return { aiMessage: errorMessage, routine: null };
+    return { aiMessage: errorMessage };
   }
 }
 
-function parseResponse(text: string): ParsedResponse {
-  const extractTagContent = (text: string, tagName: string): string[] => {
-    const regex = new RegExp(`<${tagName}>(.*?)<\/${tagName}>`, "gs");
-    const matches: string[] = [];
-
-    text.replace(regex, (match, content) => {
-      matches.push(content.trim());
-      return "";
+function parseResponse(text: string): TaggedSection[] {
+  const regex = /<(.*?)>([^]*?)<\/.*?>/g;
+  return Array.from(text.matchAll(regex))
+    .filter((match) => match[1] && match[2])
+    .map((match) => {
+      const tag = match[1];
+      const content = match[2];
+      if (tag === "routine") {
+        return { tag, content: parseJSON<Routine>(content) };
+      }
+      return { tag, content };
     });
-
-    return matches;
-  };
-
-  // Extract content from tags
-  const analyses = extractTagContent(text, "analysis");
-  const routines = extractTagContent(text, "routine").map((routine) => parseJSON<Routine>(routine));
-
-  // Remove all tagged content for clean text
-  const cleanText = text.replace(/<\w+>.*?<\/\w+>/gs, "").trim();
-
-  // Log extracted content
-  if (analyses.length > 0) {
-    console.log("Analysis:", analyses);
-  }
-
-  if (routines.length > 0) {
-    console.log("Routines:", routines);
-  }
-
-  return { mainText: cleanText, analyses, routines };
 }
 
 function generateResponse(exerciseList: string, userQuery: string) {
@@ -145,7 +128,7 @@ function generateResponse(exerciseList: string, userQuery: string) {
     a. Provide a direct, concise answer.
     b. Simplify technical concepts using familiar references.
 
-    3. Format your response as a casual text message, matching the user's language style and formality.
+    3. Format your response as a casual text message, matching the user's language style and formality, and wrap all text meant for the user in <text> tags.
 
     4. Apply these localization rules:
     - Use region-appropriate measurements (metric/imperial)

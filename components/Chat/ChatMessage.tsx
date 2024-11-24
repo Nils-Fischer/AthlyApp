@@ -5,9 +5,14 @@ import { Card } from "~/components/ui/card";
 import { P } from "~/components/ui/typography";
 import { Text } from "~/components/ui/text";
 import { MessageAvatar } from "./MessageAvatar";
-import type { Message } from "./types";
+import { Button } from "~/components/ui/button";
+import type { Message, TaggedSection } from "./types";
+import { Routine } from "~/lib/types";
 
-export const ChatMessage = React.memo<{ message: Message }>(({ message }) => {
+export const ChatMessage = React.memo<{
+  message: Message;
+  showRoutine?: (routine: Routine) => void;
+}>(({ message, showRoutine }) => {
   const isAI = message.sender === "ai";
 
   return (
@@ -23,7 +28,34 @@ export const ChatMessage = React.memo<{ message: Message }>(({ message }) => {
         <View>
           <Card className={`${isAI ? "bg-secondary/30" : "bg-primary"} border-0 shadow-sm`}>
             <View className="px-4 py-2.5">
-              <P className={`${isAI ? "text-foreground" : "text-primary-foreground"}`}>{message.content}</P>
+              {Array.isArray(message.content) ? (
+                message.content.map((section: TaggedSection, index: number) => {
+                  if (section.tag === "text") {
+                    return (
+                      <P key={index} className={`${isAI ? "text-foreground" : "text-primary-foreground"}`}>
+                        {(section.content || "").toString()}
+                      </P>
+                    );
+                  }
+                  if (section.tag === "routine") {
+                    return (
+                      <Button
+                        key={index}
+                        variant="secondary"
+                        className="mt-2"
+                        onPress={() => {
+                          section.content && showRoutine?.(section.content as Routine);
+                        }}
+                      >
+                        <Text>Routine ansehen</Text>
+                      </Button>
+                    );
+                  }
+                  return null;
+                })
+              ) : (
+                <P className={`${isAI ? "text-foreground" : "text-primary-foreground"}`}>{message.content}</P>
+              )}
             </View>
           </Card>
           <Text className="text-xs text-muted-foreground mt-1 ml-1">{message.timestamp}</Text>

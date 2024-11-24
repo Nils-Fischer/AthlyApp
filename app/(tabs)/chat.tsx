@@ -4,17 +4,16 @@ import { useRef } from "react";
 import ActionSheet, { ActionSheetRef } from "react-native-actions-sheet";
 import ChatInterface from "~/components/Chat/chatinterface";
 import { Message } from "~/components/Chat/types";
-import { createMessage, getAnswer } from "~/lib/chatUtils";
+import { createMessage, createTextMessage, getAnswer } from "~/lib/chatUtils";
 import { Routine } from "~/lib/types";
 import { useExerciseStore } from "~/stores/exerciseStore";
 import { H1 } from "~/components/ui/typography";
 import { Text } from "~/components/ui/text";
 import { RoutineOverview } from "~/components/exercise/RoutineOverview";
-import { WorkoutPage } from "~/components/exercise/WorkoutPage";
 import { Button } from "~/components/ui/button";
 
 const initialMessages = [
-  createMessage("Hallo! 👋 Ich bin dein AI Personal Trainer. Wie kann ich dir heute helfen?", "ai"),
+  createTextMessage("Hallo! 👋 Ich bin dein AI Personal Trainer. Wie kann ich dir heute helfen?", "ai"),
 ];
 
 export default function Screen() {
@@ -32,13 +31,12 @@ export default function Screen() {
 
   const handleSendMessage = React.useCallback(
     async (content: string) => {
-      const userMessage: Message = createMessage(content, "user");
+      const userMessage: Message = createTextMessage(content, "user");
 
       setMessages((prev) => [...prev, userMessage]);
       setIsTyping(true);
 
-      const { aiMessage, routine } = await getAnswer(exerciseList, content);
-      routine && previewRoutine(routine);
+      const { aiMessage } = await getAnswer(exerciseList, content);
 
       setMessages((prev) => [...prev, aiMessage]);
       setIsTyping(false);
@@ -48,7 +46,12 @@ export default function Screen() {
 
   return (
     <View className="flex-1 bg-background">
-      <ChatInterface messages={messages} isTyping={isTyping} onSendMessage={handleSendMessage} />
+      <ChatInterface
+        messages={messages}
+        isTyping={isTyping}
+        onSendMessage={handleSendMessage}
+        showRoutine={previewRoutine}
+      />
 
       <ActionSheet
         ref={actionSheetRef}
