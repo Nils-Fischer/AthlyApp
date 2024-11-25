@@ -68,7 +68,11 @@ function parseResponse(text: string): TaggedSection[] {
 }
 
 function generateResponse(exerciseList: string, userQuery: string) {
-  const api_key = process.env.ANTHROPIC_API_KEY || "invalid";
+  const api_key = process.env.EXPO_PUBLIC_ANTHROPIC_API_KEY;
+  if (!api_key) {
+    console.error("Missing Antropic key");
+    throw Error("Antropic API Key missing");
+  }
   const anthropic = new Anthropic({
     apiKey: api_key,
   });
