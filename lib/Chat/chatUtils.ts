@@ -41,7 +41,9 @@ export async function getAnswer(
     if (response.content[0]?.type === "text") {
       const taggedSections = parseResponse(response.content[0].text);
       const analysis = taggedSections.find((section) => section.tag === "analysis")?.content;
-      console.log(analysis);
+      const summary = taggedSections.find((section) => section.tag === "summary")?.content;
+      console.log("analysis", analysis);
+      console.log("summary", summary);
       const aiMessage: Message = createMessage(taggedSections, "ai");
 
       return { aiMessage };
@@ -57,19 +59,31 @@ export async function getAnswer(
 
 function parseResponse(text: string): TaggedSection[] {
   const regex = /<(.*?)>([^]*?)<\/.*?>/g;
+
   return Array.from(text.matchAll(regex))
     .filter((match) => match[1] && match[2])
-    .map((match) => {
-      const tag = match[1] as TaggedSection["tag"];
-      const content = match[2];
-      if (tag === "routine") {
-        const routine = parseJSON<Routine>(content);
-        if (routine) {
-          routine.id = parseInt(generateId());
-        }
-        return { tag, content: routine };
+    .map((match): TaggedSection => {
+      // Add explicit return type here
+      const tag = match[1] as "text" | "routine" | "analysis" | "summary";
+      const content = match[2].trim();
+
+      switch (tag) {
+        case "routine":
+          const routine = parseJSON<Routine>(content);
+          if (routine) {
+            routine.id = parseInt(generateId());
+          }
+          return { tag, content: routine ?? null };
+        case "text":
+          return { tag, content };
+        case "analysis":
+          return { tag, content };
+        case "summary":
+          return { tag, content };
+        default:
+          console.error("Invalid tag in response:", tag);
+          return { tag: "unknown", content } as TaggedSection;
       }
-      return { tag, content };
     });
 }
 
@@ -83,8 +97,10 @@ function generateResponse(messages: Message[], summary: string, exercises: Exerc
     apiKey: api_key,
   });
   const context = analyzeChatContext(messages);
-  const lastMessage = messages.at(-1)?.content.at(0)?.content as string;
-  const prompt = getPrompt(lastMessage, context, summary, exercises);
+  const lastMessage = messages.at(-1);
+  const messageContent = lastMessage?.content.find((section) => section.tag === "text")?.content;
+  if (!messageContent) throw Error("No message content found");
+  const prompt = getPrompt(messageContent, context, summary, exercises);
 
   return anthropic.messages.create(prompt);
 }

@@ -37,11 +37,12 @@ export default function Screen() {
   const handleSendMessage = React.useCallback(
     async (content: string) => {
       const userMessage: Message = createTextMessage(content, "user");
+      const newMessages = [...messages, userMessage];
 
-      setMessages((prev) => [...prev, userMessage]);
+      setMessages(newMessages);
       setIsTyping(true);
 
-      const { aiMessage } = await getAnswer(messages, summary, exerciseStore.exercises);
+      const { aiMessage } = await getAnswer(newMessages, summary, exerciseStore.exercises);
       setSummary(aiMessage.content.find((section) => section.tag === "summary")?.content as string);
 
       setMessages((prev) => [...prev, aiMessage]);

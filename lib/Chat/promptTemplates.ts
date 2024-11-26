@@ -4,11 +4,14 @@ import { ChatContext } from "./types";
 
 export function getPrompt(userQuery: string, context: ChatContext, summary: string, exercises: Exercise[]) {
   const exerciseList = exercises.map((exercise) => `${exercise.id} - ${exercise.name}`).join("\n");
+  console.log("User query:", userQuery);
 
   switch (context.type) {
     case "knowledge":
+      console.log("Knowledge prompt");
       return promptForKnowledgeQuery(userQuery, summary);
     case "routine_creation":
+      console.log("Routine creation prompt");
       return promptForRoutineCreation(userQuery, exerciseList, summary);
   }
 }
