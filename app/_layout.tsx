@@ -70,33 +70,16 @@ SplashScreen.preventAutoHideAsync();
 
 export default function RootLayout() {
   const { colorScheme, setColorScheme, isDarkColorScheme } = useColorScheme();
-  const [isColorSchemeLoaded, setIsColorSchemeLoaded] = React.useState(false);
+  const [isReady, setIsReady] = React.useState(false);
   const exerciseStore = useExerciseStore();
   const userStore = useUserStore();
 
-  // Initialize AsyncStorage and fetch data
-  useEffect(() => {
-    const initializeApp = async () => {
+  // Combine all initialization into a single effect
+  React.useEffect(() => {
+    async function initialize() {
       try {
-        // First ensure AsyncStorage is working
-        await AsyncStorage.setItem("APP_INITIALIZED", "true");
-
-        await Promise.all([exerciseStore.fetchInitialData(), userStore.fetchUserData()]);
-      } catch (error) {
-        console.error("Failed to initialize app:", error);
-        // Optionally show an error toast/alert here
-      }
-    };
-
-    initializeApp();
-  }, []);
-
-  // Handle theme setup
-  useEffect(() => {
-    const setupTheme = async () => {
-      try {
+        // Load theme first
         const theme = await AsyncStorage.getItem("theme");
-
         if (Platform.OS === "web") {
           document.documentElement.classList.add("bg-background");
         }
@@ -109,26 +92,32 @@ export default function RootLayout() {
           setAndroidNavigationBar(colorTheme);
         }
 
-        // Save theme if not exists
         if (!theme) {
           await AsyncStorage.setItem("theme", colorScheme);
         }
 
-        setIsColorSchemeLoaded(true);
+        // Then initialize app data
+        await AsyncStorage.setItem("APP_INITIALIZED", "true");
+        await Promise.all([exerciseStore.fetchInitialData(), userStore.fetchUserData()]);
+
+        setIsReady(true);
+        SplashScreen.hideAsync();
       } catch (error) {
-        console.error("Theme setup failed:", error);
-        // Fallback to default theme
-        setIsColorSchemeLoaded(true);
-      } finally {
+        console.error("Initialization failed:", error);
+        setIsReady(true);
         SplashScreen.hideAsync();
       }
-    };
+    }
 
-    setupTheme();
+    initialize();
   }, []);
 
-  if (!isColorSchemeLoaded) {
-    return null;
+  if (!isReady) {
+    return (
+      <GestureHandlerRootView style={{ flex: 1 }}>
+        <SessionProvider>{null}</SessionProvider>
+      </GestureHandlerRootView>
+    );
   }
 
   return (
@@ -136,7 +125,7 @@ export default function RootLayout() {
       <SessionProvider>
         <ThemeProvider value={isDarkColorScheme ? DARK_THEME : LIGHT_THEME}>
           <StatusBar style={isDarkColorScheme ? "light" : "dark"} />
-          <Stack screenOptions={{ headerShown: false }}>
+          <Stack>
             <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
           </Stack>
           <PortalHost />

@@ -27,6 +27,7 @@ export default function Screen() {
   const [summary, setSummary] = React.useState("First Message in this conversation");
 
   const userStore = useUserStore();
+  const exerciseStore = useExerciseStore();
 
   const previewRoutine = (routine: Routine) => {
     setRoutine(routine);
@@ -40,7 +41,7 @@ export default function Screen() {
       setMessages((prev) => [...prev, userMessage]);
       setIsTyping(true);
 
-      const { aiMessage } = await getAnswer(messages, summary);
+      const { aiMessage } = await getAnswer(messages, summary, exerciseStore.exercises);
       setSummary(aiMessage.content.find((section) => section.tag === "summary")?.content as string);
 
       setMessages((prev) => [...prev, aiMessage]);

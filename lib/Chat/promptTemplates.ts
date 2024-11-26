@@ -1,11 +1,10 @@
 import Anthropic from "@anthropic-ai/sdk";
-import { useExerciseStore } from "~/stores/exerciseStore";
+import { Exercise } from "~/lib/types";
 import { ChatContext } from "./types";
 
-const exerciseStore = useExerciseStore();
-const exerciseList = exerciseStore.exercises.map((exercise) => `${exercise.id} - ${exercise.name}`).join("\n");
+export function getPrompt(userQuery: string, context: ChatContext, summary: string, exercises: Exercise[]) {
+  const exerciseList = exercises.map((exercise) => `${exercise.id} - ${exercise.name}`).join("\n");
 
-export function getPrompt(userQuery: string, context: ChatContext, summary: string) {
   switch (context.type) {
     case "knowledge":
       return promptForKnowledgeQuery(userQuery, summary);

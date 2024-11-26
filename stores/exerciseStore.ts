@@ -11,26 +11,25 @@ interface ExerciseState {
 
 export const useExerciseStore = create<ExerciseState>((set) => ({
   exercises: [],
-  isLoading: true,
+  isLoading: false,
   error: null,
   fetchInitialData: async () => {
     console.log("🏋️ Fetching exercises data...");
     try {
       set({ isLoading: true, error: null });
-      const { data: response, error } = await supabase.from("exercises").select("*");
+      const { data, error } = await supabase.from("exercises").select("*").throwOnError();
 
-      if (error) {
-        console.error("❌ Error fetching exercises:", error);
-        throw new Error("Failed to import Exercises");
-      }
+      if (error) throw error;
+      if (!data) throw new Error("No data received from database");
 
-      const exercises = (response || []) as Exercise[];
+      const exercises = Array.isArray(data) ? data : [];
       console.log(`✅ Successfully fetched ${exercises.length} exercises`);
 
-      set({ exercises: exercises, error: null, isLoading: false });
+      set({ exercises, error: null, isLoading: false });
     } catch (error) {
       console.error("❌ Error fetching exercises:", error);
       set({
+        exercises: [],
         error: error instanceof Error ? error : new Error("Unknown error"),
         isLoading: false,
       });

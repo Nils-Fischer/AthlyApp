@@ -1,5 +1,5 @@
 import Anthropic from "@anthropic-ai/sdk";
-import { Routine } from "../types";
+import { Exercise, Routine } from "../types";
 import { parseJSON } from "../utils";
 import { Message } from "~/lib/Chat/types";
 import { TaggedSection } from "~/lib/Chat/types";
@@ -30,9 +30,13 @@ const errorMessage: Message = createMessage(
   "ai"
 );
 
-export async function getAnswer(messages: Message[], summary: string): Promise<{ aiMessage: Message }> {
+export async function getAnswer(
+  messages: Message[],
+  summary: string,
+  exercises: Exercise[]
+): Promise<{ aiMessage: Message }> {
   try {
-    const response = await generateResponse(messages, summary);
+    const response = await generateResponse(messages, summary, exercises);
 
     if (response.content[0]?.type === "text") {
       const taggedSections = parseResponse(response.content[0].text);
@@ -69,7 +73,7 @@ function parseResponse(text: string): TaggedSection[] {
     });
 }
 
-function generateResponse(messages: Message[], summary: string) {
+function generateResponse(messages: Message[], summary: string, exercises: Exercise[]) {
   const api_key = process.env.EXPO_PUBLIC_ANTHROPIC_API_KEY;
   if (!api_key) {
     console.error("Missing Antropic key");
@@ -80,7 +84,7 @@ function generateResponse(messages: Message[], summary: string) {
   });
   const context = analyzeChatContext(messages);
   const lastMessage = messages.at(-1)?.content.at(0)?.content as string;
-  const prompt = getPrompt(lastMessage, context, summary);
+  const prompt = getPrompt(lastMessage, context, summary, exercises);
 
   return anthropic.messages.create(prompt);
 }
