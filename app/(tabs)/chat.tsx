@@ -24,6 +24,7 @@ export default function Screen() {
   const [isTyping, setIsTyping] = React.useState(false);
   const [routine, setRoutine] = React.useState<Routine | null>(null);
   const [isAdded, setIsAdded] = React.useState(false);
+  const [summary, setSummary] = React.useState("First Message in this conversation");
 
   const userStore = useUserStore();
 
@@ -39,12 +40,13 @@ export default function Screen() {
       setMessages((prev) => [...prev, userMessage]);
       setIsTyping(true);
 
-      const { aiMessage } = await getAnswer(messages);
+      const { aiMessage } = await getAnswer(messages, summary);
+      setSummary(aiMessage.content.find((section) => section.tag === "summary")?.content as string);
 
       setMessages((prev) => [...prev, aiMessage]);
       setIsTyping(false);
     },
-    [messages, isTyping]
+    [messages, isTyping, summary]
   );
 
   const handleAddRoutine = async (routine: Routine) => {

@@ -8,7 +8,7 @@ export interface Message {
 }
 
 export interface TaggedSection {
-  tag: string;
+  tag: "text" | "routine" | "analysis" | "summary";
   content: string | Routine | null;
 }
 

@@ -3,7 +3,7 @@ import { Routine } from "../types";
 import { parseJSON } from "../utils";
 import { Message } from "~/lib/Chat/types";
 import { TaggedSection } from "~/lib/Chat/types";
-import { getPrompt, promptForRoutineCreation } from "~/lib/Chat/promptTemplates";
+import { getPrompt } from "~/lib/Chat/promptTemplates";
 import { analyzeChatContext } from "./contextExtraction";
 
 const generateId = () => Math.random().toString(36).substr(2, 9);
@@ -30,9 +30,9 @@ const errorMessage: Message = createMessage(
   "ai"
 );
 
-export async function getAnswer(messages: Message[]): Promise<{ aiMessage: Message }> {
+export async function getAnswer(messages: Message[], summary: string): Promise<{ aiMessage: Message }> {
   try {
-    const response = await generateResponse(messages);
+    const response = await generateResponse(messages, summary);
 
     if (response.content[0]?.type === "text") {
       const taggedSections = parseResponse(response.content[0].text);
@@ -56,7 +56,7 @@ function parseResponse(text: string): TaggedSection[] {
   return Array.from(text.matchAll(regex))
     .filter((match) => match[1] && match[2])
     .map((match) => {
-      const tag = match[1];
+      const tag = match[1] as TaggedSection["tag"];
       const content = match[2];
       if (tag === "routine") {
         const routine = parseJSON<Routine>(content);
@@ -69,7 +69,7 @@ function parseResponse(text: string): TaggedSection[] {
     });
 }
 
-function generateResponse(messages: Message[]) {
+function generateResponse(messages: Message[], summary: string) {
   const api_key = process.env.EXPO_PUBLIC_ANTHROPIC_API_KEY;
   if (!api_key) {
     console.error("Missing Antropic key");
@@ -80,7 +80,7 @@ function generateResponse(messages: Message[]) {
   });
   const context = analyzeChatContext(messages);
   const lastMessage = messages.at(-1)?.content.at(0)?.content as string;
-  const prompt = getPrompt(lastMessage, context);
+  const prompt = getPrompt(lastMessage, context, summary);
 
   return anthropic.messages.create(prompt);
 }
