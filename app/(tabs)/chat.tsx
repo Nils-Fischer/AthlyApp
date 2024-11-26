@@ -3,8 +3,8 @@ import { View, ScrollView, Pressable } from "react-native";
 import { useRef } from "react";
 import ActionSheet, { ActionSheetRef } from "react-native-actions-sheet";
 import ChatInterface from "~/components/Chat/chatinterface";
-import { Message } from "~/components/Chat/types";
-import { createMessage, createTextMessage, getAnswer } from "~/lib/chatUtils";
+import { Message } from "~/lib/Chat/types";
+import { createTextMessage, getAnswer } from "~/lib/Chat/chatUtils";
 import { Routine } from "~/lib/types";
 import { useExerciseStore } from "~/stores/exerciseStore";
 import { H1 } from "~/components/ui/typography";
@@ -20,8 +20,6 @@ const initialMessages = [
 
 export default function Screen() {
   const actionSheetRef = useRef<ActionSheetRef>(null);
-  const exerciseStore = useExerciseStore();
-  const exerciseList = exerciseStore.exercises.map((exercise) => `${exercise.id} - ${exercise.name}`).join("\n");
   const [messages, setMessages] = React.useState<Message[]>(initialMessages);
   const [isTyping, setIsTyping] = React.useState(false);
   const [routine, setRoutine] = React.useState<Routine | null>(null);
@@ -41,12 +39,12 @@ export default function Screen() {
       setMessages((prev) => [...prev, userMessage]);
       setIsTyping(true);
 
-      const { aiMessage } = await getAnswer(exerciseList, content);
+      const { aiMessage } = await getAnswer(messages);
 
       setMessages((prev) => [...prev, aiMessage]);
       setIsTyping(false);
     },
-    [exerciseList]
+    [messages, isTyping]
   );
 
   const handleAddRoutine = async (routine: Routine) => {

@@ -11,3 +11,13 @@ export interface TaggedSection {
   tag: string;
   content: string | Routine | null;
 }
+
+export interface ChatContext {
+  type: "knowledge" | "routine_creation";
+  confidence: number;
+  requiresData: {
+    userProfile: boolean;
+    exerciseDatabse: boolean;
+    existingRoutines: boolean;
+  };
+}

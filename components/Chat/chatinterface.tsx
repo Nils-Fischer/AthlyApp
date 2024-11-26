@@ -5,7 +5,7 @@ import { Button } from "~/components/ui/button";
 import { Text } from "~/components/ui/text";
 import { ChatMessage } from "./ChatMessage";
 import { TypingIndicator } from "./TypingIndicator";
-import type { Message } from "./types";
+import type { Message } from "../../lib/Chat/types";
 import { Routine } from "~/lib/types";
 
 interface ChatInterfaceProps {

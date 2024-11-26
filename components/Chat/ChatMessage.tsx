@@ -6,7 +6,7 @@ import { P } from "~/components/ui/typography";
 import { Text } from "~/components/ui/text";
 import { MessageAvatar } from "./MessageAvatar";
 import { Button } from "~/components/ui/button";
-import type { Message, TaggedSection } from "./types";
+import type { Message, TaggedSection } from "../../lib/Chat/types";
 import { Routine } from "~/lib/types";
 
 export const ChatMessage = React.memo<{
