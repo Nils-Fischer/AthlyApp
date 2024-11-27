@@ -42,10 +42,10 @@ export default function Screen() {
       setMessages(newMessages);
       setIsTyping(true);
 
-      const { aiMessage } = await getAnswer(newMessages, summary, exerciseStore.exercises);
-      setSummary(aiMessage.content.find((section) => section.tag === "summary")?.content as string);
+      const answer = await getAnswer(newMessages, summary, exerciseStore.exercises);
+      setSummary(answer.content.find((section) => section.tag === "summary")?.content as string);
 
-      setMessages((prev) => [...prev, aiMessage]);
+      setMessages((prev) => [...prev, answer]);
       setIsTyping(false);
     },
     [messages, isTyping, summary]
