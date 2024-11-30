@@ -7,6 +7,7 @@ import { useExerciseStore } from "~/stores/exerciseStore";
 import { CategoryFilter } from "./CategoryFilter";
 import { ExerciseList } from "./ExerciseList";
 
+
 export const ExerciseLibrary = () => {
   const { exercises, isLoading } = useExerciseStore();
   const [searchQuery, setSearchQuery] = useState("");

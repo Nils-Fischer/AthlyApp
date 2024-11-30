@@ -72,12 +72,14 @@ export enum Gender {
 
 // Exercise specific data for a workout
 export interface WorkoutExercise {
+  weight: number;
   exerciseId: number;
   alternatives: number[];
   sets: number;
   reps: number;
   restPeriod?: number;
   notes?: string;
+  isMarked?: boolean
 }
 
 export interface Workout {

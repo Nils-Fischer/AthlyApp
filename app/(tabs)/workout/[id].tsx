@@ -1,3 +1,4 @@
+//app/(tabs)/workout/[id].tsx
 import React, { useState } from "react";
 import { View, ScrollView } from "react-native";
 import { router, useLocalSearchParams } from "expo-router";

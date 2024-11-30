@@ -10,6 +10,7 @@ interface UserStore {
   updateUserData: (newroutines: Routine[]) => Promise<void>;
   addRoutine: (routine: Routine) => Promise<void>;
   removeRoutine: (routineId: number) => Promise<void>;
+  updateRoutine: (updatedRoutine: Routine) => Promise<void>;
 }
 
 export const useUserStore = create<UserStore>((set, get) => ({
@@ -121,6 +122,33 @@ export const useUserStore = create<UserStore>((set, get) => ({
       console.log("✅ Successfully removed routine");
     } catch (error) {
       console.error("❌ Error removing routine:", error);
+      set({
+        error: error instanceof Error ? error : new Error("❓ Unknown error"),
+        isLoading: false,
+      });
+    }
+  },
+
+  updateRoutine: async (updatedRoutine: Routine) => {
+    console.log("📝 Starting routine update...");
+    set({ isLoading: true, error: null });
+    try {
+      const currentData = get().userData;
+      if (!currentData) throw new Error("❌ No user data found");
+
+      const updatedData: UserData = {
+        ...currentData,
+        routines: currentData.routines.map(routine => 
+          routine.id === updatedRoutine.id ? updatedRoutine : routine
+        ),
+        last_updated: new Date().toISOString(),
+      };
+
+      await AsyncStorage.setItem("userData", JSON.stringify(updatedData));
+      set({ userData: updatedData, isLoading: false });
+      console.log("✅ Successfully updated routine");
+    } catch (error) {
+      console.error("❌ Error updating routine:", error);
       set({
         error: error instanceof Error ? error : new Error("❓ Unknown error"),
         isLoading: false,

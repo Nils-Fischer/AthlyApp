@@ -1,21 +1,31 @@
-// TrainTechApp/components/exercise/ExerciseCard.tsx
 import React from "react";
 import { View, Pressable } from "react-native";
 import { Text } from "~/components/ui/text";
 import { Image } from "react-native";
-import { Exercise } from "~/lib/types";
+import { Exercise, WorkoutExercise } from "~/lib/types";
 import { useRouter } from "expo-router";
+import { AlertOctagon } from "lucide-react-native";
 
 interface ExerciseCardProps {
   exercise: Exercise;
+  workoutExercise?: WorkoutExercise;
+  onPress?: () => void;
 }
 
-export const ExerciseCard = ({ exercise }: ExerciseCardProps) => {
+export const ExerciseCard = ({ exercise, workoutExercise, onPress }: ExerciseCardProps) => {
   const router = useRouter();
+
+  const handlePress = () => {
+    if (onPress) {
+      onPress();
+    } else {
+      router.push(`/workout/exercise/${exercise.id}`);
+    }
+  };
 
   return (
     <Pressable 
-      onPress={() => router.push(`/workout/exercise/${exercise.id}`)}
+      onPress={handlePress}
       className="active:opacity-70"
     >
       <View className="bg-card/60 backdrop-blur-lg rounded-2xl p-4 border border-border/50">
@@ -36,7 +46,15 @@ export const ExerciseCard = ({ exercise }: ExerciseCardProps) => {
             )}
           </View>
           <View className="flex-1 justify-center">
-            <Text className="font-semibold text-base mb-1">{exercise.name}</Text>
+            <View className="flex-row items-center gap-2 mb-1">
+              <Text className="font-semibold text-base">{exercise.name}</Text>
+              {workoutExercise?.isMarked && (
+                <View className="bg-primary/10 px-2 py-0.5 rounded-full flex-row items-center">
+                  <AlertOctagon size={12} className="text-primary mr-1" />
+                  <Text className="text-xs text-primary">Markiert</Text>
+                </View>
+              )}
+            </View>
             <Text className="text-muted-foreground text-sm mb-2">{exercise.equipment}</Text>
             <View className="flex-row flex-wrap gap-2">
               {exercise.primaryMuscles.map((muscle, index) => (
@@ -45,6 +63,17 @@ export const ExerciseCard = ({ exercise }: ExerciseCardProps) => {
                 </View>
               ))}
             </View>
+            {workoutExercise && (
+              <View className="mt-2 pt-2 border-t border-border/50">
+                <Text className="text-sm text-muted-foreground">
+                  {workoutExercise.sets} Sätze • {
+                    typeof workoutExercise.reps === 'number' 
+                      ? `${workoutExercise.reps} Wdh.`
+                      : `${workoutExercise.reps[0]}-${workoutExercise.reps[1]} Wdh.`
+                  }
+                </Text>
+              </View>
+            )}
           </View>
         </View>
       </View>
