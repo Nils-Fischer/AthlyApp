@@ -18,7 +18,7 @@ const AlertDialogOverlayWeb = React.forwardRef<AlertDialogPrimitive.OverlayRef, 
     return (
       <AlertDialogPrimitive.Overlay
         className={cn(
-          "z-50 bg-black/80 flex justify-center items-center p-2 absolute top-0 right-0 bottom-0 left-0",
+          "z-50 bg-black/50 flex justify-center items-center p-2 absolute top-0 right-0 bottom-0 left-0",
           open ? "web:animate-in web:fade-in-0" : "web:animate-out web:fade-out-0",
           className
         )}
