@@ -1,88 +1,68 @@
 import { Button } from "~/components/ui/button";
 import { useExerciseStore } from "~/stores/exerciseStore";
-import { Image, Pressable, ScrollView, View } from "react-native";
+import { Image, Pressable, View } from "react-native";
 import { Workout, WorkoutExercise, Exercise } from "~/lib/types";
 import { Text } from "~/components/ui/text";
-import { MoreHorizontal, Pencil, Plus, Trash2, X, ChevronLeft, AlertOctagon, Edit3, Repeat } from "~/lib/icons/Icons";
-import React, { useState, useRef } from "react";
+import { MoreHorizontal, Pencil, Plus, Trash2, X, AlertOctagon, Edit3, Repeat } from "~/lib/icons/Icons";
+import React, { useState } from "react";
 import { Card } from "~/components/ui/card";
 import { ExerciseLibrary } from "~/components/exercise/ExerciseLibrary";
 import { ExerciseEditPage } from "./ExerciseEditPage";
 import { AlternativeExercisesModal } from "./AlternativeExercisesModal";
 import { Dialog, DialogContent, DialogTrigger } from "../ui/dialog";
 import { DeleteExerciseDialog } from "./DeleteExerciseDialog";
-import { ActionSheetRef } from "react-native-actions-sheet";
 import { BottomSheet } from "~/components/ui/bottom-sheet";
 
-export function WorkoutPage({
-  workout,
-  routineName,
-  onExercisePress,
-  onUpdateWorkout,
-}: {
+const getFullExercise = (workoutExercise: WorkoutExercise, exercises: Exercise[]) => {
+  return exercises.find((ex) => ex.id === workoutExercise.exerciseId);
+};
+
+const getRepsRange = (exercise: WorkoutExercise) => {
+  if (exercise.reps === 10) return "10 Wdh.";
+  if (Array.isArray(exercise.reps)) return `${exercise.reps[0]}-${exercise.reps[1]} Wdh.`;
+  return `${exercise.reps} Wdh.`;
+};
+
+interface WorkoutPageProps {
   workout: Workout;
   routineName: string;
   onExercisePress?: (exerciseId: number) => void;
   onUpdateWorkout?: (workout: Workout) => void;
-}) {
+}
+
+export function WorkoutPage({ workout, routineName, onExercisePress, onUpdateWorkout }: WorkoutPageProps) {
   const exerciseStore = useExerciseStore();
   const [isEditMode, setIsEditMode] = useState(false);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
-  const [showAddExercise, setShowAddExercise] = useState(false);
-  const [showEditPage, setShowEditPage] = useState(false);
-  const [showAlternatives, setShowAlternatives] = useState(false);
-  const [selectedExercise, setSelectedExercise] = useState<WorkoutExercise | null>(null);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
-  const addExerciseSheetRef = useRef<ActionSheetRef>(null);
-  const alternativesSheetRef = useRef<ActionSheetRef>(null);
-  const editSheetRef = useRef<ActionSheetRef>(null);
+  const [showAlternatives, setShowAlternatives] = useState<WorkoutExercise | null>(null);
+  const [editWorkoutExercise, setEditWorkoutExercise] = useState<WorkoutExercise | null>(null);
+  const [showAddExercise, setShowAddExercise] = useState(false);
 
-  function deleteExercise(exerciseId: number) {
+  const toggleEditMode = () => setIsEditMode(!isEditMode);
+
+  const deleteExercise = (exerciseId: number) => {
     const updatedWorkout = {
       ...workout,
       exercises: workout.exercises.filter((ex) => ex.exerciseId !== exerciseId),
     };
     onUpdateWorkout?.(updatedWorkout);
-  }
-
-  const getFullExercise = (workoutExercise: WorkoutExercise) => {
-    return exerciseStore.exercises.find((ex) => ex.id === workoutExercise.exerciseId);
-  };
-
-  const getRepsRange = (exercise: WorkoutExercise) => {
-    if (exercise.reps === 10) return "10 Wdh.";
-    if (Array.isArray(exercise.reps)) return `${exercise.reps[0]}-${exercise.reps[1]} Wdh.`;
-    return `${exercise.reps} Wdh.`;
   };
 
   const handleUpdateExercise = (updatedExercise: WorkoutExercise) => {
-    // Finde den Index der alten Übung
-    const exerciseIndex = workout.exercises.findIndex((ex) => ex.exerciseId === selectedExercise?.exerciseId);
-
+    const exerciseIndex = workout.exercises.findIndex((ex) => ex.exerciseId === updatedExercise.exerciseId);
     if (exerciseIndex === -1) return;
 
-    // Erstelle eine neue Liste mit der ersetzten Übung
     const newExercises = [...workout.exercises];
-    newExercises[exerciseIndex] = {
-      ...newExercises[exerciseIndex],
-      ...updatedExercise,
-    };
+    newExercises[exerciseIndex] = { ...newExercises[exerciseIndex], ...updatedExercise };
 
-    const updatedWorkout = {
-      ...workout,
-      exercises: newExercises,
-    };
-
-    console.log("WorkoutPage - Updated workout:", updatedWorkout);
-    onUpdateWorkout?.(updatedWorkout);
-
-    setShowEditPage(false);
-    setSelectedExercise(null);
+    onUpdateWorkout?.({ ...workout, exercises: newExercises });
+    setEditWorkoutExercise(null);
   };
 
   const handleAddExercise = (exerciseId: number) => {
     const newExercise: WorkoutExercise = {
-      exerciseId: exerciseId,
+      exerciseId,
       alternatives: [],
       sets: 3,
       reps: 10,
@@ -90,34 +70,11 @@ export function WorkoutPage({
       isMarked: false,
     };
 
-    const updatedWorkout = {
+    onUpdateWorkout?.({
       ...workout,
       exercises: [...workout.exercises, newExercise],
-    };
-    onUpdateWorkout?.(updatedWorkout);
+    });
     setShowAddExercise(false);
-  };
-
-  const toggleEditMode = () => {
-    setIsEditMode(!isEditMode);
-    if (showAddExercise) setShowAddExercise(false);
-  };
-
-  const openAddExerciseSheet = () => {
-    addExerciseSheetRef.current?.show();
-  };
-
-  const closeAddExerciseSheet = () => {
-    addExerciseSheetRef.current?.hide();
-  };
-
-  const closeAlternativesSheet = () => {
-    alternativesSheetRef.current?.hide();
-  };
-
-  const closeEditSheet = () => {
-    editSheetRef.current?.hide();
-    setSelectedExercise(null);
   };
 
   const ExerciseOptionsMenu = ({
@@ -140,14 +97,12 @@ export function WorkoutPage({
     };
 
     const handleShowAlternatives = () => {
-      setSelectedExercise(workoutExercise);
-      setShowAlternatives(true);
+      setShowAlternatives(workoutExercise);
       onClose();
     };
 
     const handleEditDetails = () => {
-      setSelectedExercise(workoutExercise);
-      setShowEditPage(true);
+      setEditWorkoutExercise(workoutExercise);
       onClose();
     };
 
@@ -211,10 +166,10 @@ export function WorkoutPage({
       </View>
 
       {isEditMode && (
-        <Pressable onPress={openAddExerciseSheet}>
+        <Pressable onPress={() => setShowAddExercise(true)}>
           <Card className="shadow-none mb-4 p-4 flex-row justify-between items-center bg-background">
             <Text className="text-sm font-medium">Übung hinzufügen</Text>
-            <Button variant="ghost" size="icon" className="h-8 w-8" onPress={openAddExerciseSheet}>
+            <Button variant="ghost" size="icon" className="h-8 w-8" onPress={() => setShowAddExercise(true)}>
               <Plus size={20} className="text-primary" />
             </Button>
           </Card>
@@ -223,7 +178,7 @@ export function WorkoutPage({
 
       <View className="gap-3">
         {workout.exercises.map((workoutExercise) => {
-          const exercise = getFullExercise(workoutExercise);
+          const exercise = getFullExercise(workoutExercise, exerciseStore.exercises);
           if (!exercise) return null;
 
           return (
@@ -231,8 +186,7 @@ export function WorkoutPage({
               key={workoutExercise.exerciseId}
               onPress={() => {
                 if (isEditMode) {
-                  setSelectedExercise(workoutExercise);
-                  setShowEditPage(true);
+                  setEditWorkoutExercise(workoutExercise);
                 } else {
                   onExercisePress?.(exercise.id);
                 }
@@ -297,46 +251,45 @@ export function WorkoutPage({
         })}
       </View>
 
-      <BottomSheet title="Übung hinzufügen" actionSheetRef={addExerciseSheetRef} onClose={closeAddExerciseSheet}>
+      <BottomSheet title="Übung hinzufügen" isOpen={showAddExercise} onClose={() => setShowAddExercise(false)}>
         <ExerciseLibrary
           onPress={(exerciseId) => {
             handleAddExercise(exerciseId);
-            closeAddExerciseSheet();
           }}
         />
       </BottomSheet>
 
-      {/* Alternative Exercises Sheet */}
-      {selectedExercise && (
+      {showAlternatives && (
         <BottomSheet
           title="Alternative Übungen"
-          actionSheetRef={alternativesSheetRef}
-          onClose={closeAlternativesSheet}
+          isOpen={showAlternatives !== null}
+          onClose={() => setShowAlternatives(null)}
           snapPoints={[75]}
         >
-          {/* TODO: Replace with new component */}
           <AlternativeExercisesModal
-            exercise={getFullExercise(selectedExercise)!}
-            onClose={closeAlternativesSheet}
+            exercise={getFullExercise(showAlternatives, exerciseStore.exercises)!}
+            onClose={() => setShowAlternatives(null)}
             onSelectAlternative={(exercise) => {
               handleUpdateExercise({
-                ...selectedExercise,
+                ...showAlternatives,
                 exerciseId: exercise.id,
               });
-              closeAlternativesSheet();
             }}
           />
         </BottomSheet>
       )}
 
-      {/* Exercise Edit Sheet */}
-      {selectedExercise && (
-        <BottomSheet title="Übung bearbeiten" actionSheetRef={editSheetRef} onClose={closeEditSheet} snapPoints={[90]}>
-          {/* TODO: Replace with non modal component */}
+      {editWorkoutExercise && (
+        <BottomSheet
+          title="Übung bearbeiten"
+          isOpen={editWorkoutExercise !== null}
+          onClose={() => setEditWorkoutExercise(null)}
+          snapPoints={[90]}
+        >
           <ExerciseEditPage
-            exercise={getFullExercise(selectedExercise)!}
-            workoutExercise={selectedExercise}
-            onClose={closeEditSheet}
+            exercise={getFullExercise(editWorkoutExercise, exerciseStore.exercises)!}
+            workoutExercise={editWorkoutExercise}
+            onClose={() => setEditWorkoutExercise(null)}
             onUpdate={handleUpdateExercise}
           />
         </BottomSheet>

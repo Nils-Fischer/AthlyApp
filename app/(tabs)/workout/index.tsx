@@ -8,10 +8,10 @@ import { useUserStore } from "~/stores/userStore";
 import { Input } from "~/components/ui/input";
 import { Button } from "~/components/ui/button";
 import { Text } from "~/components/ui/text";
-import { Plus, Search } from "lucide-react-native";
 import { useRouter } from "expo-router";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "~/components/ui/tabs";
 import { ExerciseLibrary } from "~/components/exercise/ExerciseLibrary";
+import { Plus, Search } from "~/lib/icons/Icons";
 
 export default function RoutineScreen() {
   const userStore = useUserStore();
@@ -110,7 +110,7 @@ export default function RoutineScreen() {
             </TabsContent>
 
             <TabsContent value="exercises" className="flex-1 h-full">
-              <ExerciseLibrary />
+              <ExerciseLibrary onPress={(exerciseId) => router.push(`/workout/exercise/${exerciseId}`)} />
             </TabsContent>
           </View>
         </Tabs>

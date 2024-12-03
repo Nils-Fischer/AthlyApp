@@ -70,7 +70,6 @@ export enum Gender {
   Other = "Other",
 }
 
-// Exercise specific data for a workout
 export interface WorkoutExercise {
   weight: number;
   exerciseId: number;
@@ -79,7 +78,7 @@ export interface WorkoutExercise {
   reps: number;
   restPeriod?: number;
   notes?: string;
-  isMarked?: boolean
+  isMarked?: boolean;
 }
 
 export interface Workout {
@@ -110,3 +109,56 @@ export interface UserData {
   created_at: string;
   last_updated: string;
 }
+/* 
+
+enum EquipmentType {
+  Barbell = "Barbell",
+  Dumbbell = "Dumbbell",
+  Machine = "Machine",
+  Cable = "Cable",
+  Bodyweight = "Bodyweight",
+  Specialty = "Specialty",
+}
+
+enum MuscleGroup {
+  Chest = "Chest",
+  Back = "Back",
+  Shoulders = "Shoulders",
+  Biceps = "Biceps",
+  Triceps = "Triceps",
+  Core = "Core",
+  Legs = "Legs",
+}
+
+enum Difficulty {
+  Beginner = "Beginner",
+  Intermediate = "Intermediate",
+  Advanced = "Advanced",
+}
+
+enum Mechanic {
+  Compound = "Compound",
+  Isolation = "Isolation",
+}
+
+interface Exercise {
+  id: string;
+  name: string;
+  equipment: EquipmentType;
+  primaryMuscleGroup: MuscleGroup;
+  secondaryMuscleGroups?: MuscleGroup[];
+  difficulty: Difficulty;
+  tag: string; // type of exercise
+  mechanic: Mechanic;
+  variations?: string[];
+  commonMistakes?: string[];
+  warmup?: string[];
+}
+
+interface ExerciseMetadata {
+  id: string;
+  instructions: string[];
+  description: string;
+  media: string[];
+}
+*/

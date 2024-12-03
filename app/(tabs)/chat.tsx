@@ -76,7 +76,6 @@ export default function Screen() {
         gestureEnabled={true}
         closeOnTouchBackdrop={true}
         elevation={2}
-        overdrawEnabled={false}
       >
         <ScrollView className="p-4 bg-background min-h-full">
           <H1 className="text-xl font-semibold text-foreground m-4">Trainingsplan Vorschau</H1>

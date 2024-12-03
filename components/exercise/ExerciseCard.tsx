@@ -3,47 +3,21 @@ import { View, Pressable } from "react-native";
 import { Text } from "~/components/ui/text";
 import { Image } from "react-native";
 import { Exercise, WorkoutExercise } from "~/lib/types";
-import { useRouter } from "expo-router";
 import { AlertOctagon } from "lucide-react-native";
 
 interface ExerciseCardProps {
   exercise: Exercise;
   workoutExercise?: WorkoutExercise;
-  onPress?: () => void;
+  onPress?: (exerciseId: number) => void;
 }
 
 export const ExerciseCard = ({ exercise, workoutExercise, onPress }: ExerciseCardProps) => {
-  const router = useRouter();
-
-  const handlePress = () => {
-    if (onPress) {
-      onPress();
-    } else {
-      router.push(`/workout/exercise/${exercise.id}`);
-    }
-  };
-
   return (
-    <Pressable 
-      onPress={handlePress}
-      className="active:opacity-70"
-    >
+    <Pressable onPress={() => onPress?.(exercise.id)} className="active:opacity-70">
       <View className="bg-card/60 backdrop-blur-lg rounded-2xl p-4 border border-border/50">
         <View className="flex-row gap-4">
           <View className="w-16 h-16 bg-muted rounded-xl items-center justify-center overflow-hidden">
-            {exercise.images?.[0] ? (
-              <Image
-                source={{ uri: exercise.images[0] }}
-                alt={exercise.name}
-                className="w-full h-full"
-              />
-            ) : (
-              <Image
-                source={{ uri: "/api/placeholder/64/64" }}
-                alt={exercise.name}
-                className="w-full h-full"
-              />
-            )}
+            <Image source={{ uri: exercise.images[0] }} alt={exercise.name} className="w-full h-full" />
           </View>
           <View className="flex-1 justify-center">
             <View className="flex-row items-center gap-2 mb-1">
@@ -66,11 +40,10 @@ export const ExerciseCard = ({ exercise, workoutExercise, onPress }: ExerciseCar
             {workoutExercise && (
               <View className="mt-2 pt-2 border-t border-border/50">
                 <Text className="text-sm text-muted-foreground">
-                  {workoutExercise.sets} Sätze • {
-                    typeof workoutExercise.reps === 'number' 
-                      ? `${workoutExercise.reps} Wdh.`
-                      : `${workoutExercise.reps[0]}-${workoutExercise.reps[1]} Wdh.`
-                  }
+                  {workoutExercise.sets} Sätze •{" "}
+                  {typeof workoutExercise.reps === "number"
+                    ? `${workoutExercise.reps} Wdh.`
+                    : `${workoutExercise.reps[0]}-${workoutExercise.reps[1]} Wdh.`}
                 </Text>
               </View>
             )}
