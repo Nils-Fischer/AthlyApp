@@ -4,10 +4,10 @@ import { Image, Pressable, View } from "react-native";
 import { Workout, WorkoutExercise, Exercise } from "~/lib/types";
 import { Text } from "~/components/ui/text";
 import { MoreHorizontal, Pencil, Plus, Trash2, X, AlertOctagon, Edit3, Repeat } from "~/lib/icons/Icons";
-import React, { useState } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { Card } from "~/components/ui/card";
 import { ExerciseLibrary } from "~/components/exercise/ExerciseLibrary";
-import { ExerciseEditPage } from "./ExerciseEditPage";
+import { ExerciseEditPage, ExerciseEditHandle } from "./ExerciseEditPage";
 import { AlternativeExercisesModal } from "./AlternativeExercisesModal";
 import { Dialog, DialogContent, DialogTrigger } from "../ui/dialog";
 import { DeleteExerciseDialog } from "./DeleteExerciseDialog";
@@ -30,14 +30,25 @@ interface WorkoutPageProps {
   onUpdateWorkout?: (workout: Workout) => void;
 }
 
-export function WorkoutPage({ workout, routineName, onExercisePress, onUpdateWorkout }: WorkoutPageProps) {
+export function WorkoutPage({
+  workout: initialWorkout,
+  routineName,
+  onExercisePress,
+  onUpdateWorkout,
+}: WorkoutPageProps) {
   const exerciseStore = useExerciseStore();
+  const [workout, setWorkout] = useState(initialWorkout);
   const [isEditMode, setIsEditMode] = useState(false);
-  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
-  const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const [deleteExerciseId, setDeleteExerciseId] = useState<number | null>(null);
+  const [menuExerciseId, setMenuExerciseId] = useState<number | null>(null);
   const [showAlternatives, setShowAlternatives] = useState<WorkoutExercise | null>(null);
   const [editWorkoutExercise, setEditWorkoutExercise] = useState<WorkoutExercise | null>(null);
   const [showAddExercise, setShowAddExercise] = useState(false);
+  const exerciseEditRef = useRef<ExerciseEditHandle>(null);
+
+  useEffect(() => {
+    setWorkout(initialWorkout);
+  }, [initialWorkout]);
 
   const toggleEditMode = () => setIsEditMode(!isEditMode);
 
@@ -46,6 +57,7 @@ export function WorkoutPage({ workout, routineName, onExercisePress, onUpdateWor
       ...workout,
       exercises: workout.exercises.filter((ex) => ex.exerciseId !== exerciseId),
     };
+    setWorkout(updatedWorkout);
     onUpdateWorkout?.(updatedWorkout);
   };
 
@@ -55,9 +67,10 @@ export function WorkoutPage({ workout, routineName, onExercisePress, onUpdateWor
 
     const newExercises = [...workout.exercises];
     newExercises[exerciseIndex] = { ...newExercises[exerciseIndex], ...updatedExercise };
+    const updatedWorkout = { ...workout, exercises: newExercises };
 
-    onUpdateWorkout?.({ ...workout, exercises: newExercises });
-    setEditWorkoutExercise(null);
+    setWorkout(updatedWorkout);
+    onUpdateWorkout?.(updatedWorkout);
   };
 
   const handleAddExercise = (exerciseId: number) => {
@@ -70,20 +83,23 @@ export function WorkoutPage({ workout, routineName, onExercisePress, onUpdateWor
       isMarked: false,
     };
 
-    onUpdateWorkout?.({
+    if (workout.exercises.map((exercise) => exercise.exerciseId).includes(exerciseId)) return;
+
+    const updatedWorkout = {
       ...workout,
       exercises: [...workout.exercises, newExercise],
-    });
+    };
+
+    setWorkout(updatedWorkout);
+    onUpdateWorkout?.(updatedWorkout);
     setShowAddExercise(false);
   };
 
   const ExerciseOptionsMenu = ({
-    exercise,
     workoutExercise,
     onClose,
     onUpdate,
   }: {
-    exercise: Exercise;
     workoutExercise: WorkoutExercise;
     onClose: () => void;
     onUpdate: (exercise: WorkoutExercise) => void;
@@ -212,11 +228,13 @@ export function WorkoutPage({ workout, routineName, onExercisePress, onUpdateWor
                   </View>
                   {isEditMode ? (
                     <DeleteExerciseDialog
-                      open={showDeleteConfirm}
-                      onOpenChange={setShowDeleteConfirm}
+                      open={deleteExerciseId === workoutExercise.exerciseId}
+                      onOpenChange={(open) => {
+                        setDeleteExerciseId(open ? workoutExercise.exerciseId : null);
+                      }}
                       onConfirm={() => {
-                        deleteExercise(exercise.id);
-                        setShowDeleteConfirm(false);
+                        deleteExercise(workoutExercise.exerciseId);
+                        setDeleteExerciseId(null);
                       }}
                       trigger={
                         <Button variant="ghost" size="icon" className="h-8 w-8">
@@ -225,7 +243,12 @@ export function WorkoutPage({ workout, routineName, onExercisePress, onUpdateWor
                       }
                     />
                   ) : (
-                    <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
+                    <Dialog
+                      open={menuExerciseId === workoutExercise.exerciseId}
+                      onOpenChange={(open) => {
+                        setMenuExerciseId(open ? workoutExercise.exerciseId : null);
+                      }}
+                    >
                       <DialogTrigger asChild>
                         <Button variant="ghost" size="icon" className="h-8 w-8">
                           <MoreHorizontal className="text-muted-foreground" />
@@ -233,9 +256,8 @@ export function WorkoutPage({ workout, routineName, onExercisePress, onUpdateWor
                       </DialogTrigger>
                       <DialogContent>
                         <ExerciseOptionsMenu
-                          exercise={exercise}
                           workoutExercise={workoutExercise}
-                          onClose={() => setIsDialogOpen(false)}
+                          onClose={() => setMenuExerciseId(null)}
                           onUpdate={handleUpdateExercise}
                         />
                       </DialogContent>
@@ -284,13 +306,19 @@ export function WorkoutPage({ workout, routineName, onExercisePress, onUpdateWor
           title="Übung bearbeiten"
           isOpen={editWorkoutExercise !== null}
           onClose={() => setEditWorkoutExercise(null)}
-          snapPoints={[90]}
+          snapPoints={[95]}
+          onSave={() => {
+            exerciseEditRef.current?.save();
+            setEditWorkoutExercise(null);
+          }}
         >
           <ExerciseEditPage
+            ref={exerciseEditRef}
             exercise={getFullExercise(editWorkoutExercise, exerciseStore.exercises)!}
             workoutExercise={editWorkoutExercise}
             onClose={() => setEditWorkoutExercise(null)}
             onUpdate={handleUpdateExercise}
+            onExercisePress={onExercisePress}
           />
         </BottomSheet>
       )}
