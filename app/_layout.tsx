@@ -12,8 +12,9 @@ import { setAndroidNavigationBar } from "~/lib/android-navigation-bar";
 import { SessionProvider } from "~/context";
 import { useExerciseStore } from "~/stores/exerciseStore";
 import { useUserStore } from "~/stores/userStore";
-import { useEffect } from "react";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
+import { SheetProvider } from "react-native-actions-sheet";
+import "~/components/exercise/sheets";
 
 const LIGHT_THEME: Theme = {
   dark: false,
@@ -123,13 +124,15 @@ export default function RootLayout() {
   return (
     <GestureHandlerRootView style={{ flex: 1 }}>
       <SessionProvider>
-        <ThemeProvider value={isDarkColorScheme ? DARK_THEME : LIGHT_THEME}>
-          <StatusBar style={isDarkColorScheme ? "light" : "dark"} />
-          <Stack>
-            <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
-          </Stack>
-          <PortalHost />
-        </ThemeProvider>
+        <SheetProvider>
+          <ThemeProvider value={isDarkColorScheme ? DARK_THEME : LIGHT_THEME}>
+            <StatusBar style={isDarkColorScheme ? "light" : "dark"} />
+            <Stack>
+              <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
+            </Stack>
+            <PortalHost />
+          </ThemeProvider>
+        </SheetProvider>
       </SessionProvider>
     </GestureHandlerRootView>
   );

@@ -14,7 +14,12 @@ const AnimatedScrollView = Animated.createAnimatedComponent(ScrollView);
 
 const ANIMATION_BASE_DELAY = 100;
 const STAGGER_DELAY = 50;
-export default function ExerciseDetailScreen() {
+
+type Props = {
+  useLocalSearchParams?: () => { id: string };
+};
+
+export default function ExerciseDetailScreen({ useLocalSearchParams: paramsFn }: Props = {}) {
   const { id } = useLocalSearchParams<{ id: string }>();
   const router = useRouter();
   const exerciseStore = useExerciseStore();

@@ -4,14 +4,17 @@ import { Image, Pressable, View } from "react-native";
 import { Workout, WorkoutExercise, Exercise } from "~/lib/types";
 import { Text } from "~/components/ui/text";
 import { MoreHorizontal, Pencil, Plus, Trash2, X, AlertOctagon, Edit3, Repeat } from "~/lib/icons/Icons";
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect } from "react";
 import { Card } from "~/components/ui/card";
 import { ExerciseLibrary } from "~/components/exercise/ExerciseLibrary";
-import { ExerciseEditPage, ExerciseEditHandle } from "./ExerciseEditPage";
-import { AlternativeExercisesModal } from "./AlternativeExercisesModal";
 import { Dialog, DialogContent, DialogTrigger } from "../ui/dialog";
 import { DeleteExerciseDialog } from "./DeleteExerciseDialog";
 import { BottomSheet } from "~/components/ui/bottom-sheet";
+import { SheetManager } from "react-native-actions-sheet";
+import { registerSheet } from "react-native-actions-sheet";
+import EditExerciseBottomSheet from "./EditExerciseBottomSheet";
+
+registerSheet("sheet-with-router", EditExerciseBottomSheet);
 
 const getFullExercise = (workoutExercise: WorkoutExercise, exercises: Exercise[]) => {
   return exercises.find((ex) => ex.id === workoutExercise.exerciseId);
@@ -44,7 +47,6 @@ export function WorkoutPage({
   const [showAlternatives, setShowAlternatives] = useState<WorkoutExercise | null>(null);
   const [editWorkoutExercise, setEditWorkoutExercise] = useState<WorkoutExercise | null>(null);
   const [showAddExercise, setShowAddExercise] = useState(false);
-  const exerciseEditRef = useRef<ExerciseEditHandle>(null);
 
   useEffect(() => {
     setWorkout(initialWorkout);
@@ -161,6 +163,24 @@ export function WorkoutPage({
       </View>
     );
   };
+
+  const showEditExerciseSheet = async (workoutExercise: WorkoutExercise) => {
+    SheetManager.show("sheet-with-router", {
+      payload: {
+        exercise: getFullExercise(workoutExercise, exerciseStore.exercises)!,
+        workoutExercise: workoutExercise,
+        onClose: () => setEditWorkoutExercise(null),
+        onSave: handleUpdateExercise,
+        initalRoute: "main-edit-route",
+      },
+    });
+  };
+
+  useEffect(() => {
+    if (editWorkoutExercise) {
+      showEditExerciseSheet(editWorkoutExercise);
+    }
+  }, [editWorkoutExercise]);
 
   return (
     <View className="flex-1">
@@ -280,48 +300,6 @@ export function WorkoutPage({
           }}
         />
       </BottomSheet>
-
-      {showAlternatives && (
-        <BottomSheet
-          title="Alternative Übungen"
-          isOpen={showAlternatives !== null}
-          onClose={() => setShowAlternatives(null)}
-          snapPoints={[75]}
-        >
-          <AlternativeExercisesModal
-            exercise={getFullExercise(showAlternatives, exerciseStore.exercises)!}
-            onClose={() => setShowAlternatives(null)}
-            onSelectAlternative={(exercise) => {
-              handleUpdateExercise({
-                ...showAlternatives,
-                exerciseId: exercise.id,
-              });
-            }}
-          />
-        </BottomSheet>
-      )}
-
-      {editWorkoutExercise && (
-        <BottomSheet
-          title="Übung bearbeiten"
-          isOpen={editWorkoutExercise !== null}
-          onClose={() => setEditWorkoutExercise(null)}
-          snapPoints={[95]}
-          onSave={() => {
-            exerciseEditRef.current?.save();
-            setEditWorkoutExercise(null);
-          }}
-        >
-          <ExerciseEditPage
-            ref={exerciseEditRef}
-            exercise={getFullExercise(editWorkoutExercise, exerciseStore.exercises)!}
-            workoutExercise={editWorkoutExercise}
-            onClose={() => setEditWorkoutExercise(null)}
-            onUpdate={handleUpdateExercise}
-            onExercisePress={onExercisePress}
-          />
-        </BottomSheet>
-      )}
     </View>
   );
 }

@@ -1,30 +1,23 @@
 // ExerciseProgressModal.tsx
-import React from 'react';
-import { View, ScrollView, Dimensions } from 'react-native';
-import { Text } from '~/components/ui/text';
-import { Button } from '~/components/ui/button';
-import { 
-  ChevronLeft, 
-  TrendingUp, 
-  Trophy, 
-  Target, 
-  Calendar
-} from 'lucide-react-native';
-import { LineChart } from 'react-native-chart-kit';
-import { Exercise } from '~/lib/types';
+import React from "react";
+import { View, ScrollView, Dimensions } from "react-native";
+import { Text } from "~/components/ui/text";
+import { Button } from "~/components/ui/button";
+import { ChevronLeft, TrendingUp, Trophy, Target, Calendar } from "lucide-react-native";
+import { LineChart } from "react-native-chart-kit";
+import { Exercise } from "~/lib/types";
+import { Router } from "react-native-actions-sheet";
 
-interface ExerciseProgressModalProps {
+export interface ExerciseProgressProps {
+  router: Router<"sheet-with-router">;
   exercise: Exercise;
   onClose: () => void;
 }
 
-export const ExerciseProgressModal: React.FC<ExerciseProgressModalProps> = ({
-  exercise,
-  onClose,
-}) => {
+export const ExerciseProgress: React.FC<ExerciseProgressProps> = ({ exercise, onClose }) => {
   // Beispieldaten für Chart
   const data = {
-    labels: ['1.W', '2.W', '3.W', '4.W'],
+    labels: ["1.W", "2.W", "3.W", "4.W"],
     datasets: [
       {
         data: [0, 0, 0, 0],
@@ -32,18 +25,13 @@ export const ExerciseProgressModal: React.FC<ExerciseProgressModalProps> = ({
     ],
   };
 
-  const screenWidth = Dimensions.get('window').width;
+  const screenWidth = Dimensions.get("window").width;
 
   return (
     <View className="flex-1 bg-background">
       {/* Header */}
       <View className="pt-14 px-4 py-2 flex-row items-center border-b border-border">
-        <Button
-          variant="ghost"
-          size="icon"
-          className="h-8 w-8 mr-2"
-          onPress={onClose}
-        >
+        <Button variant="ghost" size="icon" className="h-8 w-8 mr-2" onPress={onClose}>
           <ChevronLeft size={24} />
         </Button>
         <View>
@@ -85,16 +73,16 @@ export const ExerciseProgressModal: React.FC<ExerciseProgressModalProps> = ({
               <Text>Filter</Text>
             </Button>
           </View>
-          
+
           <View className="items-center justify-center py-4">
             <LineChart
               data={data}
               width={screenWidth - 64}
               height={220}
               chartConfig={{
-                backgroundColor: 'transparent',
-                backgroundGradientFrom: 'transparent',
-                backgroundGradientTo: 'transparent',
+                backgroundColor: "transparent",
+                backgroundGradientFrom: "transparent",
+                backgroundGradientTo: "transparent",
                 decimalPlaces: 0,
                 color: (opacity = 1) => `rgba(147, 51, 234, ${opacity})`, // Purple (primary)
                 labelColor: (opacity = 1) => `rgba(156, 163, 175, ${opacity})`, // Gray
@@ -102,10 +90,10 @@ export const ExerciseProgressModal: React.FC<ExerciseProgressModalProps> = ({
                   borderRadius: 16,
                 },
                 propsForDots: {
-                  r: '6',
-                  strokeWidth: '2',
-                  stroke: '#9333ea'
-                }
+                  r: "6",
+                  strokeWidth: "2",
+                  stroke: "#9333ea",
+                },
               }}
               bezier
               style={{
@@ -117,9 +105,7 @@ export const ExerciseProgressModal: React.FC<ExerciseProgressModalProps> = ({
               withDots={true}
               withShadow={false}
             />
-            <Text className="text-muted-foreground text-center mt-4">
-              Noch keine Trainingsdaten vorhanden
-            </Text>
+            <Text className="text-muted-foreground text-center mt-4">Noch keine Trainingsdaten vorhanden</Text>
           </View>
         </View>
 
@@ -128,9 +114,7 @@ export const ExerciseProgressModal: React.FC<ExerciseProgressModalProps> = ({
           <Text className="font-medium mb-3">Letzte Aktivitäten</Text>
           <View className="items-center py-8">
             <Calendar size={40} className="text-muted-foreground mb-3" />
-            <Text className="text-muted-foreground text-center">
-              Hier erscheinen deine letzten Trainingseinheiten
-            </Text>
+            <Text className="text-muted-foreground text-center">Hier erscheinen deine letzten Trainingseinheiten</Text>
             <Button className="mt-4" variant="outline">
               <TrendingUp size={16} className="mr-2" />
               <Text>Training starten</Text>
