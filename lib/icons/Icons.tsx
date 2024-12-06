@@ -1,4 +1,7 @@
 import {
+  TrendingUp,
+  AlertCircle,
+  RefreshCw,
   Pencil,
   Minus,
   BarChart2,
@@ -53,6 +56,7 @@ import { iconWithClassName } from "./iconWithClassName";
 import { BarChart } from "./BarChartIcon";
 
 iconWithClassName([
+  TrendingUp,
   Pencil,
   Minus,
   BarChart2,
@@ -103,9 +107,13 @@ iconWithClassName([
   Weight,
   X,
   Zap,
+  AlertCircle,
+  RefreshCw,
 ]);
 
 export {
+  AlertCircle,
+  RefreshCw,
   Activity,
   Apple,
   ArrowLeft,
@@ -155,5 +163,6 @@ export {
   ChevronRight,
   FileText,
   Edit3,
+  TrendingUp,
   Repeat,
 };

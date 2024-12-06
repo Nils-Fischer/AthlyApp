@@ -3,7 +3,7 @@ import React from "react";
 import { View, ScrollView, Dimensions } from "react-native";
 import { Text } from "~/components/ui/text";
 import { Button } from "~/components/ui/button";
-import { ChevronLeft, TrendingUp, Trophy, Target, Calendar } from "lucide-react-native";
+import { ChevronLeft, Trophy, Target, Calendar } from "~/lib/icons/Icons";
 import { LineChart } from "react-native-chart-kit";
 import { Exercise } from "~/lib/types";
 import { Router } from "react-native-actions-sheet";
@@ -14,7 +14,7 @@ export interface ExerciseProgressProps {
   onClose: () => void;
 }
 
-export const ExerciseProgress: React.FC<ExerciseProgressProps> = ({ exercise, onClose }) => {
+export const ExerciseProgress: React.FC<ExerciseProgressProps> = ({ exercise, onClose, router }) => {
   // Beispieldaten für Chart
   const data = {
     labels: ["1.W", "2.W", "3.W", "4.W"],
@@ -30,8 +30,8 @@ export const ExerciseProgress: React.FC<ExerciseProgressProps> = ({ exercise, on
   return (
     <View className="flex-1 bg-background">
       {/* Header */}
-      <View className="pt-14 px-4 py-2 flex-row items-center border-b border-border">
-        <Button variant="ghost" size="icon" className="h-8 w-8 mr-2" onPress={onClose}>
+      <View className="px-4 py-2 flex-row items-center border-b border-border">
+        <Button variant="ghost" size="icon" className="h-8 w-8 mr-2" onPress={() => router.goBack()}>
           <ChevronLeft size={24} />
         </Button>
         <View>
@@ -68,10 +68,6 @@ export const ExerciseProgress: React.FC<ExerciseProgressProps> = ({ exercise, on
               <Text className="font-medium">Gewichtsverlauf</Text>
               <Text className="text-sm text-muted-foreground">Letzte 4 Wochen</Text>
             </View>
-            <Button variant="outline" size="sm">
-              <Calendar size={16} className="mr-2" />
-              <Text>Filter</Text>
-            </Button>
           </View>
 
           <View className="items-center justify-center py-4">
@@ -115,10 +111,6 @@ export const ExerciseProgress: React.FC<ExerciseProgressProps> = ({ exercise, on
           <View className="items-center py-8">
             <Calendar size={40} className="text-muted-foreground mb-3" />
             <Text className="text-muted-foreground text-center">Hier erscheinen deine letzten Trainingseinheiten</Text>
-            <Button className="mt-4" variant="outline">
-              <TrendingUp size={16} className="mr-2" />
-              <Text>Training starten</Text>
-            </Button>
           </View>
         </View>
       </ScrollView>

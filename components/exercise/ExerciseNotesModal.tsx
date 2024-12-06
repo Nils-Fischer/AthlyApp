@@ -3,7 +3,7 @@ import React from "react";
 import { View, TextInput, ScrollView, Pressable } from "react-native";
 import { Text } from "~/components/ui/text";
 import { Button } from "~/components/ui/button";
-import { ChevronLeft, Target, Dumbbell, AlertCircle, RefreshCw } from "lucide-react-native";
+import { ChevronLeft, Target, Dumbbell, AlertCircle, RefreshCw } from "~/lib/icons/Icons";
 import { Router } from "react-native-actions-sheet";
 
 export interface ExerciseNoteProps {
@@ -14,7 +14,7 @@ export interface ExerciseNoteProps {
   router: Router<"sheet-with-router">;
 }
 
-export const ExerciseNotes: React.FC<ExerciseNoteProps> = ({ notes, setNotes, onClose, exerciseName }) => {
+export const ExerciseNotes: React.FC<ExerciseNoteProps> = ({ notes, setNotes, onClose, exerciseName, router }) => {
   const quickTips = [
     {
       icon: <Target size={20} className="text-foreground" />,
@@ -41,9 +41,9 @@ export const ExerciseNotes: React.FC<ExerciseNoteProps> = ({ notes, setNotes, on
   return (
     <View className="flex-1 bg-background">
       {/* Header */}
-      <View className="pt-14 px-4 py-2 flex-row items-center justify-between border-b border-border">
+      <View className="px-4 py-2 flex-row items-center justify-between border-b border-border">
         <View className="flex-row items-center">
-          <Button variant="ghost" size="icon" className="h-8 w-8 mr-2" onPress={onClose}>
+          <Button variant="ghost" size="icon" className="h-8 w-8 mr-2" onPress={() => router.goBack()}>
             <ChevronLeft size={24} />
           </Button>
           <View>

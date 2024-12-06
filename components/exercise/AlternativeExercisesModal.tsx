@@ -51,8 +51,8 @@ export const AlternativeExercisesSelection: React.FC<AlternativeExercisesSelecti
   return (
     <View className="flex-1 bg-background">
       {/* Header */}
-      <View className="pt-14 px-4 py-2 flex-row items-center border-b border-border">
-        <Button variant="ghost" size="icon" className="h-8 w-8 mr-2" onPress={onClose}>
+      <View className="px-4 py-2 flex-row items-center border-b border-border">
+        <Button variant="ghost" size="icon" className="h-8 w-8 mr-2" onPress={() => router.goBack()}>
           <ChevronLeft size={24} />
         </Button>
         <View className="flex-1">
@@ -62,7 +62,7 @@ export const AlternativeExercisesSelection: React.FC<AlternativeExercisesSelecti
       </View>
 
       {/* Content */}
-      <ScrollView className="flex-1 p-4">
+      <ScrollView className="flex-1 p-4 pb-32">
         {alternativeExercises.length > 0 ? (
           <View className="gap-4">
             {alternativeExercises.map((alternativeExercise) => (
@@ -117,16 +117,18 @@ export const AlternativeExercisesSelection: React.FC<AlternativeExercisesSelecti
         )}
       </ScrollView>
 
-      {/* Replace Button */}
-      {selectedExercise && (
-        <View className="p-4 border-t border-border">
-          <Button onPress={handleConfirmReplacement} className="w-full">
+      {/* Fixed Bottom Button - Positioned above navbar */}
+      <View className="absolute bottom-16 left-0 right-0 p-4 bg-background">
+        <Button onPress={handleConfirmReplacement} className="w-full" disabled={!selectedExercise}>
+          {selectedExercise ? (
             <Text className="text-primary-foreground font-medium">
               {selectedExercise.name} als Alternative festlegen
             </Text>
-          </Button>
-        </View>
-      )}
+          ) : (
+            <Text className="text-primary-foreground font-medium">Bitte wähle eine Alternative</Text>
+          )}
+        </Button>
+      </View>
     </View>
   );
 };
