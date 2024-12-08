@@ -13,6 +13,7 @@ import { SheetManager } from "react-native-actions-sheet";
 import { registerSheet } from "react-native-actions-sheet";
 import ExerciseBottomSheetEditor from "~/components/Exercise/ExerciseBottomSheetEditor";
 import { ExerciseDeleteConfirmation } from "../Exercise/ExerciseDeleteConfirmation";
+import { ExerciseEditAlternatives } from "../Exercise/ExerciseEditAlternatives";
 
 registerSheet("sheet-with-router", ExerciseBottomSheetEditor);
 
@@ -293,6 +294,28 @@ export function WorkoutPage({
             addExercise(exerciseId);
           }}
         />
+      </BottomSheet>
+
+      <BottomSheet
+        title="Alternative Übung Auswahl"
+        isOpen={showAlternatives !== null}
+        onClose={() => setShowAlternatives(null)}
+      >
+        {showAlternatives && (
+          <ExerciseEditAlternatives
+            workoutExercise={showAlternatives}
+            onSelection={(updatedWorkoutExercise) => {
+              const updatedWorkout = {
+                ...workout,
+                exercises: [...workout.exercises.filter((ex) => ex !== showAlternatives), updatedWorkoutExercise],
+              };
+              setWorkout(updatedWorkout);
+              setShowAlternatives(null);
+              onUpdateWorkout?.(updatedWorkout);
+            }}
+            withConfirmation={false}
+          />
+        )}
       </BottomSheet>
     </View>
   );
