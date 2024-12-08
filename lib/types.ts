@@ -71,7 +71,6 @@ export enum Gender {
 }
 
 export interface WorkoutExercise {
-  weight: number;
   exerciseId: number;
   alternatives: number[];
   sets: number;

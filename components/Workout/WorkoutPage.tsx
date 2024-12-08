@@ -81,7 +81,6 @@ export function WorkoutPage({
       alternatives: [],
       sets: 3,
       reps: 10,
-      weight: 0,
       isMarked: false,
     };
 
