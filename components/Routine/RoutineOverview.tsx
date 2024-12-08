@@ -3,7 +3,7 @@ import { ScrollView, View } from "react-native";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "~/components/ui/tabs";
 import { Text } from "~/components/ui/text";
 import { Routine, Workout } from "~/lib/types";
-import { WorkoutPage } from "./WorkoutPage";
+import { WorkoutPage } from "~/components/Workout/WorkoutPage";
 import { useUserStore } from "~/stores/userStore";
 
 export function RoutineOverview({
@@ -30,15 +30,13 @@ export function RoutineOverview({
     console.log("RoutineOverview - Updating workout:", updatedWorkout);
     const updatedRoutine: Routine = {
       ...routine,
-      workouts: routine.workouts.map(workout => 
-        workout.id === updatedWorkout.id ? updatedWorkout : workout
-      )
+      workouts: routine.workouts.map((workout) => (workout.id === updatedWorkout.id ? updatedWorkout : workout)),
     };
     console.log("RoutineOverview - Updated routine:", updatedRoutine);
-    
+
     // Lokalen State aktualisieren
     setRoutine(updatedRoutine);
-    
+
     // Store aktualisieren
     await userStore.updateRoutine(updatedRoutine);
   };

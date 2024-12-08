@@ -10,7 +10,7 @@ import { Button } from "~/components/ui/button";
 import { Text } from "~/components/ui/text";
 import { useRouter } from "expo-router";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "~/components/ui/tabs";
-import { ExerciseLibrary } from "~/components/exercise/ExerciseLibrary";
+import { ExerciseLibrary } from "~/components/Exercise/ExerciseLibrary";
 import { Plus, Search } from "~/lib/icons/Icons";
 
 export default function RoutineScreen() {

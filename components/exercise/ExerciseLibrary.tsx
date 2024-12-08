@@ -1,10 +1,9 @@
-// TrainTechApp/components/exercise/ExerciseLibrary.tsx
 import React, { useState, useMemo } from "react";
 import { View } from "react-native";
 import { Input } from "~/components/ui/input";
 import { useExerciseStore } from "~/stores/exerciseStore";
-import { CategoryFilter } from "./CategoryFilter";
-import { ExerciseList } from "./ExerciseList";
+import { ExerciseLibraryFilter } from "~/components/Exercise/ExerciseLibraryFilter";
+import { ExerciseLibraryList } from "~/components/Exercise/ExerciseLibraryList";
 import { Search } from "~/lib/icons/Icons";
 
 interface ExerciseLibraryProps {
@@ -39,7 +38,7 @@ export const ExerciseLibrary = ({ onPress }: ExerciseLibraryProps) => {
           startContent={<Search size={20} className="text-muted-foreground" />}
         />
 
-        <CategoryFilter
+        <ExerciseLibraryFilter
           categories={categories}
           selectedCategory={selectedCategory}
           onSelectCategory={setSelectedCategory}
@@ -54,7 +53,7 @@ export const ExerciseLibrary = ({ onPress }: ExerciseLibraryProps) => {
             ))}
           </View>
         ) : (
-          <ExerciseList exercises={filteredExercises} onPress={onPress} />
+          <ExerciseLibraryList exercises={filteredExercises} onPress={onPress} />
         )}
       </View>
     </View>

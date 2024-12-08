@@ -11,7 +11,7 @@ interface ExerciseCardProps {
   onPress?: (exerciseId: number) => void;
 }
 
-export const ExerciseCard = ({ exercise, workoutExercise, onPress }: ExerciseCardProps) => {
+export const ExerciseOverviewCard = ({ exercise, workoutExercise, onPress }: ExerciseCardProps) => {
   return (
     <Pressable onPress={() => onPress?.(exercise.id)} className="active:opacity-70">
       <View className="bg-card/60 backdrop-blur-lg rounded-2xl p-4 border border-border/50">

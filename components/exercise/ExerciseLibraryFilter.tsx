@@ -8,7 +8,7 @@ interface CategoryFilterProps {
   onSelectCategory: (category: string) => void;
 }
 
-export const CategoryFilter = ({ categories, selectedCategory, onSelectCategory }: CategoryFilterProps) => {
+export const ExerciseLibraryFilter = ({ categories, selectedCategory, onSelectCategory }: CategoryFilterProps) => {
   return (
     <ScrollView horizontal showsHorizontalScrollIndicator={false} className="mt-3">
       <View className="flex-row gap-3">

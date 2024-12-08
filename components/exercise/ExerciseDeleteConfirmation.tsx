@@ -1,5 +1,5 @@
 import React from "react";
-import { Pressable, View } from "react-native";
+import { View } from "react-native";
 import { Text } from "~/components/ui/text";
 import {
   AlertDialog,
@@ -8,7 +8,7 @@ import {
   AlertDialogCancel,
   AlertDialogTrigger,
 } from "~/components/ui/alert-dialog";
-import { Button } from "../ui/button";
+import { Button } from "~/components/ui/button";
 
 interface DeleteExerciseDialogProps {
   open: boolean;
@@ -17,7 +17,7 @@ interface DeleteExerciseDialogProps {
   trigger?: React.ReactNode;
 }
 
-export function DeleteExerciseDialog({ open, onOpenChange, onConfirm, trigger }: DeleteExerciseDialogProps) {
+export function ExerciseDeleteConfirmation({ open, onOpenChange, onConfirm, trigger }: DeleteExerciseDialogProps) {
   return (
     <AlertDialog open={open} onOpenChange={onOpenChange}>
       {trigger && <AlertDialogTrigger asChild>{trigger}</AlertDialogTrigger>}

@@ -9,7 +9,7 @@ import { Routine } from "~/lib/types";
 import { useExerciseStore } from "~/stores/exerciseStore";
 import { H1 } from "~/components/ui/typography";
 import { Text } from "~/components/ui/text";
-import { RoutineOverview } from "~/components/exercise/RoutineOverview";
+import { RoutineOverview } from "~/components/Exercise/RoutineOverview";
 import { Button } from "~/components/ui/button";
 import { useUserStore } from "~/stores/userStore";
 import Animated, { FadeOut, FadeIn } from "react-native-reanimated";

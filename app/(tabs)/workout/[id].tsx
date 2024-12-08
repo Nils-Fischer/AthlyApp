@@ -6,8 +6,8 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "~/components/ui/tabs";
 import { Text } from "~/components/ui/text";
 import { useUserStore } from "~/stores/userStore";
 import { Routine } from "~/lib/types";
-import { WorkoutPage } from "~/components/exercise/WorkoutPage";
-import { RoutineOverview } from "~/components/exercise/RoutineOverview";
+import { WorkoutPage } from "~/components/Exercise/WorkoutPage";
+import { RoutineOverview } from "~/components/Exercise/RoutineOverview";
 
 export default function RoutineDetails() {
   const { id } = useLocalSearchParams<{ id: string }>();

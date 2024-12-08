@@ -1,7 +1,7 @@
 import React from "react";
 import { ScrollView, View } from "react-native";
 import { Exercise } from "~/lib/types";
-import { ExerciseCard } from "./ExerciseCard";
+import { ExerciseOverviewCard } from "~/components/Exercise/ExerciseOverviewCard";
 import { Text } from "~/components/ui/text";
 
 interface ExerciseListProps {
@@ -9,7 +9,7 @@ interface ExerciseListProps {
   onPress?: (exerciseId: number) => void;
 }
 
-export const ExerciseList = ({ exercises, onPress }: ExerciseListProps) => {
+export const ExerciseLibraryList = ({ exercises, onPress }: ExerciseListProps) => {
   if (exercises.length === 0) {
     return (
       <View className="flex-1 justify-center items-center">
@@ -28,7 +28,7 @@ export const ExerciseList = ({ exercises, onPress }: ExerciseListProps) => {
     >
       <View className="gap-3">
         {exercises.map((exercise) => (
-          <ExerciseCard key={exercise.id} exercise={exercise} onPress={onPress} />
+          <ExerciseOverviewCard key={exercise.id} exercise={exercise} onPress={onPress} />
         ))}
       </View>
     </ScrollView>

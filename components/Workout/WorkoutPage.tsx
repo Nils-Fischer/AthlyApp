@@ -6,15 +6,15 @@ import { Text } from "~/components/ui/text";
 import { MoreHorizontal, Pencil, Plus, Trash2, X, AlertOctagon, Edit3, Repeat } from "~/lib/icons/Icons";
 import React, { useState, useEffect } from "react";
 import { Card } from "~/components/ui/card";
-import { ExerciseLibrary } from "~/components/exercise/ExerciseLibrary";
+import { ExerciseLibrary } from "~/components/Exercise/ExerciseLibrary";
 import { Dialog, DialogContent, DialogTrigger } from "../ui/dialog";
-import { DeleteExerciseDialog } from "./DeleteExerciseDialog";
 import { BottomSheet } from "~/components/ui/bottom-sheet";
 import { SheetManager } from "react-native-actions-sheet";
 import { registerSheet } from "react-native-actions-sheet";
-import EditExerciseBottomSheet from "./EditExerciseBottomSheet";
+import ExerciseBottomSheetEditor from "~/components/Exercise/ExerciseBottomSheetEditor";
+import { ExerciseDeleteConfirmation } from "../Exercise/ExerciseDeleteConfirmation";
 
-registerSheet("sheet-with-router", EditExerciseBottomSheet);
+registerSheet("sheet-with-router", ExerciseBottomSheetEditor);
 
 const getFullExercise = (workoutExercise: WorkoutExercise, exercises: Exercise[]) => {
   return exercises.find((ex) => ex.id === workoutExercise.exerciseId);
@@ -45,7 +45,6 @@ export function WorkoutPage({
   const [deleteExerciseId, setDeleteExerciseId] = useState<number | null>(null);
   const [menuExerciseId, setMenuExerciseId] = useState<number | null>(null);
   const [showAlternatives, setShowAlternatives] = useState<WorkoutExercise | null>(null);
-  const [editWorkoutExercise, setEditWorkoutExercise] = useState<WorkoutExercise | null>(null);
   const [showAddExercise, setShowAddExercise] = useState(false);
 
   useEffect(() => {
@@ -63,7 +62,7 @@ export function WorkoutPage({
     onUpdateWorkout?.(updatedWorkout);
   };
 
-  const handleUpdateExercise = (updatedExercise: WorkoutExercise) => {
+  const updateExercise = (updatedExercise: WorkoutExercise) => {
     const exerciseIndex = workout.exercises.findIndex((ex) => ex.exerciseId === updatedExercise.exerciseId);
     if (exerciseIndex === -1) return;
 
@@ -75,7 +74,7 @@ export function WorkoutPage({
     onUpdateWorkout?.(updatedWorkout);
   };
 
-  const handleAddExercise = (exerciseId: number) => {
+  const addExercise = (exerciseId: number) => {
     const newExercise: WorkoutExercise = {
       exerciseId,
       alternatives: [],
@@ -120,7 +119,7 @@ export function WorkoutPage({
     };
 
     const handleEditDetails = () => {
-      setEditWorkoutExercise(workoutExercise);
+      showEditExerciseSheet(workoutExercise);
       onClose();
     };
 
@@ -165,22 +164,17 @@ export function WorkoutPage({
   };
 
   const showEditExerciseSheet = async (workoutExercise: WorkoutExercise) => {
-    SheetManager.show("sheet-with-router", {
+    const result = await SheetManager.show("sheet-with-router", {
       payload: {
         exercise: getFullExercise(workoutExercise, exerciseStore.exercises)!,
         workoutExercise: workoutExercise,
-        onClose: () => setEditWorkoutExercise(null),
-        onSave: handleUpdateExercise,
         initalRoute: "main-edit-route",
       },
     });
-  };
-
-  useEffect(() => {
-    if (editWorkoutExercise) {
-      showEditExerciseSheet(editWorkoutExercise);
+    if (result) {
+      updateExercise(result);
     }
-  }, [editWorkoutExercise]);
+  };
 
   return (
     <View className="flex-1">
@@ -222,7 +216,7 @@ export function WorkoutPage({
               key={workoutExercise.exerciseId}
               onPress={() => {
                 if (isEditMode) {
-                  setEditWorkoutExercise(workoutExercise);
+                  showEditExerciseSheet(workoutExercise);
                 } else {
                   onExercisePress?.(exercise.id);
                 }
@@ -247,7 +241,7 @@ export function WorkoutPage({
                     </View>
                   </View>
                   {isEditMode ? (
-                    <DeleteExerciseDialog
+                    <ExerciseDeleteConfirmation
                       open={deleteExerciseId === workoutExercise.exerciseId}
                       onOpenChange={(open) => {
                         setDeleteExerciseId(open ? workoutExercise.exerciseId : null);
@@ -278,7 +272,7 @@ export function WorkoutPage({
                         <ExerciseOptionsMenu
                           workoutExercise={workoutExercise}
                           onClose={() => setMenuExerciseId(null)}
-                          onUpdate={handleUpdateExercise}
+                          onUpdate={updateExercise}
                         />
                       </DialogContent>
                     </Dialog>
@@ -296,7 +290,7 @@ export function WorkoutPage({
       <BottomSheet title="Übung hinzufügen" isOpen={showAddExercise} onClose={() => setShowAddExercise(false)}>
         <ExerciseLibrary
           onPress={(exerciseId) => {
-            handleAddExercise(exerciseId);
+            addExercise(exerciseId);
           }}
         />
       </BottomSheet>
