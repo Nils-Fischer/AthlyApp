@@ -68,7 +68,7 @@ export const ExerciseEditPage: React.FC<ExerciseEditPageProps> = ({
       <ScrollView className="flex-1 bg-background">
         {/* Exercise Info Card */}
         <View className="p-4">
-          <ExerciseOverviewCard exercise={exercise} />
+          <ExerciseOverviewCard exercise={exercise} onPress={goToExerciseDetails} />
           {/* Sets */}
           <View className="my-6">
             <Text className="text-base font-medium text-muted-foreground mb-2">Sätze</Text>

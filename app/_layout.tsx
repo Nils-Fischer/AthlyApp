@@ -14,7 +14,7 @@ import { useExerciseStore } from "~/stores/exerciseStore";
 import { useUserStore } from "~/stores/userStore";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
 import { SheetProvider } from "react-native-actions-sheet";
-import "~/components/Exercise/sheets";
+import "~/app/sheets";
 
 const LIGHT_THEME: Theme = {
   dark: false,

@@ -1,13 +1,9 @@
-//app/(tabs)/workout/[id].tsx
-import React, { useState } from "react";
-import { View, ScrollView } from "react-native";
+import React from "react";
 import { router, useLocalSearchParams } from "expo-router";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "~/components/ui/tabs";
 import { Text } from "~/components/ui/text";
 import { useUserStore } from "~/stores/userStore";
 import { Routine } from "~/lib/types";
-import { WorkoutPage } from "~/components/Exercise/WorkoutPage";
-import { RoutineOverview } from "~/components/Exercise/RoutineOverview";
+import { RoutineOverview } from "~/components/Routine/RoutineOverview";
 
 export default function RoutineDetails() {
   const { id } = useLocalSearchParams<{ id: string }>();
