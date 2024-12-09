@@ -3,17 +3,23 @@ import { useExerciseStore } from "~/stores/exerciseStore";
 import { Image, Pressable, View } from "react-native";
 import { Workout, WorkoutExercise, Exercise } from "~/lib/types";
 import { Text } from "~/components/ui/text";
-import { MoreHorizontal, Pencil, Plus, Trash2, X, AlertOctagon, Edit3, Repeat } from "~/lib/icons/Icons";
+import { MoreHorizontal, Pencil, Plus, Trash2, X, Edit3, Repeat } from "~/lib/icons/Icons";
 import React, { useState, useEffect } from "react";
 import { Card } from "~/components/ui/card";
 import { ExerciseLibrary } from "~/components/Exercise/ExerciseLibrary";
-import { Dialog, DialogContent, DialogTrigger } from "../ui/dialog";
 import { BottomSheet } from "~/components/ui/bottom-sheet";
 import { SheetManager } from "react-native-actions-sheet";
 import { registerSheet } from "react-native-actions-sheet";
 import ExerciseBottomSheetEditor from "~/components/Exercise/ExerciseBottomSheetEditor";
 import { ExerciseDeleteConfirmation } from "../Exercise/ExerciseDeleteConfirmation";
 import { ExerciseEditAlternatives } from "../Exercise/ExerciseEditAlternatives";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "~/components/ui/dropdown-menu";
 
 registerSheet("sheet-with-router", ExerciseBottomSheetEditor);
 
@@ -94,73 +100,6 @@ export function WorkoutPage({
     setWorkout(updatedWorkout);
     onUpdateWorkout?.(updatedWorkout);
     setShowAddExercise(false);
-  };
-
-  const ExerciseOptionsMenu = ({
-    workoutExercise,
-    onClose,
-    onUpdate,
-  }: {
-    workoutExercise: WorkoutExercise;
-    onClose: () => void;
-    onUpdate: (exercise: WorkoutExercise) => void;
-  }) => {
-    const handleMarkExercise = () => {
-      onUpdate({
-        ...workoutExercise,
-        isMarked: !workoutExercise.isMarked,
-      });
-      onClose();
-    };
-
-    const handleShowAlternatives = () => {
-      setShowAlternatives(workoutExercise);
-      onClose();
-    };
-
-    const handleEditDetails = () => {
-      showEditExerciseSheet(workoutExercise);
-      onClose();
-    };
-
-    return (
-      <View className="p-4">
-        <View className="gap-4">
-          <Pressable className="flex-row items-center p-3 active:opacity-70" onPress={handleShowAlternatives}>
-            <Repeat size={20} className="text-foreground mr-3" />
-            <View>
-              <Text className="font-medium">Alternative Übung</Text>
-              <Text className="text-sm text-muted-foreground">Ähnliche Übung auswählen</Text>
-            </View>
-          </Pressable>
-
-          <Pressable
-            className="flex-row items-center justify-between p-3 active:opacity-70"
-            onPress={handleMarkExercise}
-          >
-            <View className="flex-row items-center">
-              <AlertOctagon
-                size={20}
-                className={`mr-3 ${workoutExercise.isMarked ? "text-primary" : "text-foreground"}`}
-              />
-              <View>
-                <Text className="font-medium">Übung markieren</Text>
-                <Text className="text-sm text-muted-foreground">Übung hervorheben</Text>
-              </View>
-            </View>
-            {workoutExercise.isMarked && <View className="h-2 w-2 rounded-full bg-primary" />}
-          </Pressable>
-
-          <Pressable className="flex-row items-center p-3 active:opacity-70" onPress={handleEditDetails}>
-            <Edit3 size={20} className="text-foreground mr-3" />
-            <View>
-              <Text className="font-medium">Details bearbeiten</Text>
-              <Text className="text-sm text-muted-foreground">Parameter & Optionen anpassen</Text>
-            </View>
-          </Pressable>
-        </View>
-      </View>
-    );
   };
 
   const showEditExerciseSheet = async (workoutExercise: WorkoutExercise) => {
@@ -257,25 +196,42 @@ export function WorkoutPage({
                       }
                     />
                   ) : (
-                    <Dialog
-                      open={menuExerciseId === workoutExercise.exerciseId}
-                      onOpenChange={(open) => {
-                        setMenuExerciseId(open ? workoutExercise.exerciseId : null);
-                      }}
-                    >
-                      <DialogTrigger asChild>
+                    <DropdownMenu>
+                      <DropdownMenuTrigger asChild>
                         <Button variant="ghost" size="icon" className="h-8 w-8">
                           <MoreHorizontal className="text-muted-foreground" />
                         </Button>
-                      </DialogTrigger>
-                      <DialogContent>
-                        <ExerciseOptionsMenu
-                          workoutExercise={workoutExercise}
-                          onClose={() => setMenuExerciseId(null)}
-                          onUpdate={updateExercise}
-                        />
-                      </DialogContent>
-                    </Dialog>
+                      </DropdownMenuTrigger>
+                      <DropdownMenuContent className="w-56" avoidCollisions={true} align="start" side="top">
+                        <DropdownMenuItem
+                          onPress={() => setShowAlternatives(workoutExercise)}
+                          className="flex-row gap-2 justify-between"
+                        >
+                          <Text className="font-medium">Alternative Übung</Text>
+                          <Repeat size={20} className="text-foreground" />
+                        </DropdownMenuItem>
+
+                        <DropdownMenuSeparator />
+
+                        <DropdownMenuItem
+                          onPress={() => showEditExerciseSheet(workoutExercise)}
+                          className="flex-row gap-2 justify-between"
+                        >
+                          <Text className="font-medium">Details bearbeiten</Text>
+                          <Edit3 size={20} className="text-foreground" />
+                        </DropdownMenuItem>
+
+                        <DropdownMenuSeparator />
+
+                        <DropdownMenuItem
+                          onPress={() => deleteExercise(workoutExercise.exerciseId)}
+                          className="flex-row gap-2 justify-between"
+                        >
+                          <Text className="font-medium text-destructive">Übung löschen</Text>
+                          <Trash2 size={20} className="text-destructive" />
+                        </DropdownMenuItem>
+                      </DropdownMenuContent>
+                    </DropdownMenu>
                   )}
                 </View>
                 <Text className="mt-3 text-sm text-muted-foreground">

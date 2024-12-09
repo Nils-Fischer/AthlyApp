@@ -51,12 +51,18 @@ import {
   Weight,
   X,
   Zap,
+  ChevronDown,
+  ChevronUp,
+  Check,
 } from "lucide-react-native";
 import { iconWithClassName } from "./iconWithClassName";
 import { BarChart } from "./BarChartIcon";
 
 iconWithClassName([
   TrendingUp,
+  ChevronDown,
+  ChevronUp,
+  Check,
   Pencil,
   Minus,
   BarChart2,
@@ -165,4 +171,7 @@ export {
   Edit3,
   TrendingUp,
   Repeat,
+  ChevronDown,
+  ChevronUp,
+  Check,
 };
