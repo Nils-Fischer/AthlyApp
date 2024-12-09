@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { View } from "react-native";
+import { TextInput, View } from "react-native";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "~/components/ui/tabs";
 import { Text } from "~/components/ui/text";
 import { Routine, Workout } from "~/lib/types";
@@ -33,6 +33,11 @@ export function RoutineOverview({
     await userStore.updateRoutine(updatedRoutine);
   };
 
+  const handleUpdateRoutine = async (updatedRoutine: Routine) => {
+    setRoutine(updatedRoutine);
+    await userStore.updateRoutine(updatedRoutine);
+  };
+
   const toggleEditMode = () => setIsEditMode(!isEditMode);
 
   if (!routine || !routine.workouts.length) {
@@ -48,7 +53,19 @@ export function RoutineOverview({
       <Tabs value={activeTab} onValueChange={setActiveTab} className="flex-1">
         <View className="px-4 pt-2">
           <View className="flex-row justify-between items-center mb-3">
-            <Text className="text-sm text-muted-foreground">{routine.name}</Text>
+            {isEditMode ? (
+              <TextInput
+                className="text-sm bg-background text-foreground"
+                defaultValue={routine.name}
+                showSoftInputOnFocus={false}
+                onChangeText={(text) => {
+                  const updatedRoutine = { ...routine, name: text };
+                  handleUpdateRoutine(updatedRoutine);
+                }}
+              />
+            ) : (
+              <Text className="text-sm text-muted-foreground">{routine.name}</Text>
+            )}
             <Button variant="ghost" className="h-8 px-3 flex-row items-center" onPress={toggleEditMode}>
               {isEditMode ? (
                 <>
@@ -66,7 +83,25 @@ export function RoutineOverview({
           <TabsList className="flex-row w-full mb-4">
             {routine.workouts.map((workout) => (
               <TabsTrigger key={workout.id} value={workout.id.toString()} className="flex-1">
-                <Text>{workout.name}</Text>
+                {isEditMode && activeTab === workout.id.toString() ? (
+                  <View className="flex-row items-center justify-center w-full">
+                    <TextInput
+                      className="px-8 py-1 rounded-md bg-background text-center text-foreground"
+                      defaultValue={workout.name}
+                      showSoftInputOnFocus={false}
+                      autoFocus
+                      onChangeText={(text) => {
+                        const updatedWorkout = { ...workout, name: text };
+                        handleUpdateWorkout(updatedWorkout);
+                      }}
+                      onPressIn={() => {
+                        TextInput.State.currentlyFocusedInput()?.setNativeProps({ showSoftInputOnFocus: true });
+                      }}
+                    />
+                  </View>
+                ) : (
+                  <Text>{workout.name}</Text>
+                )}
               </TabsTrigger>
             ))}
           </TabsList>
