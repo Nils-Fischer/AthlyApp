@@ -172,7 +172,7 @@ export function WorkoutPage({
         <Pressable onPress={() => setShowAddExercise(true)} className="mb-4">
           <Card className="shadow-none p-4 flex-row justify-between items-center bg-background">
             <Text className="text-sm font-medium">Übung hinzufügen</Text>
-            <Button variant="ghost" size="icon" className="h-8 w-8">
+            <Button variant="ghost" size="icon" className="h-8 w-8" onPress={() => setShowAddExercise(true)}>
               <Plus size={20} className="text-primary" />
             </Button>
           </Card>
