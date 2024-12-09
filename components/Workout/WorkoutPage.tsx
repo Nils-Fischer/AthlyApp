@@ -26,6 +26,7 @@ interface WorkoutPageProps {
   routineName: string;
   onExercisePress?: (exerciseId: number) => void;
   onUpdateWorkout?: (workout: Workout) => void;
+  isEditMode: boolean;
 }
 
 export function WorkoutPage({
@@ -33,10 +34,10 @@ export function WorkoutPage({
   routineName,
   onExercisePress,
   onUpdateWorkout,
+  isEditMode,
 }: WorkoutPageProps) {
   const exerciseStore = useExerciseStore();
   const [workout, setWorkout] = useState(initialWorkout);
-  const [isEditMode, setIsEditMode] = useState(false);
   const [deleteExerciseId, setDeleteExerciseId] = useState<number | null>(null);
   const [showAlternatives, setShowAlternatives] = useState<WorkoutExercise | null>(null);
   const [showAddExercise, setShowAddExercise] = useState(false);
@@ -44,8 +45,6 @@ export function WorkoutPage({
   useEffect(() => {
     setWorkout(initialWorkout);
   }, [initialWorkout]);
-
-  const toggleEditMode = () => setIsEditMode(!isEditMode);
 
   const deleteExercise = (exerciseId: number) => {
     const updatedWorkout = {
@@ -151,23 +150,6 @@ export function WorkoutPage({
 
   return (
     <View className="flex-1">
-      <View className="flex-row justify-between items-center mb-3">
-        <Text className="text-sm text-muted-foreground">{routineName}</Text>
-        <Button variant="ghost" className="h-8 px-3 flex-row items-center" onPress={toggleEditMode}>
-          {isEditMode ? (
-            <>
-              <X size={16} className="text-destructive mr-2" />
-              <Text className="text-destructive text-sm font-medium">Abbrechen</Text>
-            </>
-          ) : (
-            <>
-              <Pencil size={16} className="text-primary mr-2" />
-              <Text className="text-primary text-sm font-medium">Bearbeiten</Text>
-            </>
-          )}
-        </Button>
-      </View>
-
       {isEditMode && (
         <Pressable onPress={() => setShowAddExercise(true)} className="mb-4">
           <Card className="shadow-none p-4 flex-row justify-between items-center bg-background">

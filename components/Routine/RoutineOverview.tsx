@@ -5,6 +5,8 @@ import { Text } from "~/components/ui/text";
 import { Routine, Workout } from "~/lib/types";
 import { WorkoutPage } from "~/components/Workout/WorkoutPage";
 import { useUserStore } from "~/stores/userStore";
+import { Button } from "~/components/ui/button";
+import { Pencil, X } from "lucide-react-native";
 
 export function RoutineOverview({
   routine: initialRoutine,
@@ -15,6 +17,7 @@ export function RoutineOverview({
 }) {
   const [routine, setRoutine] = useState(initialRoutine);
   const [activeTab, setActiveTab] = useState(routine?.workouts[0]?.id.toString() || "0");
+  const [isEditMode, setIsEditMode] = useState(false);
   const userStore = useUserStore();
 
   useEffect(() => {
@@ -30,6 +33,8 @@ export function RoutineOverview({
     await userStore.updateRoutine(updatedRoutine);
   };
 
+  const toggleEditMode = () => setIsEditMode(!isEditMode);
+
   if (!routine || !routine.workouts.length) {
     return (
       <View className="flex-1 justify-center items-center">
@@ -42,6 +47,22 @@ export function RoutineOverview({
     <View className="flex-1">
       <Tabs value={activeTab} onValueChange={setActiveTab} className="flex-1">
         <View className="px-4 pt-2">
+          <View className="flex-row justify-between items-center mb-3">
+            <Text className="text-sm text-muted-foreground">{routine.name}</Text>
+            <Button variant="ghost" className="h-8 px-3 flex-row items-center" onPress={toggleEditMode}>
+              {isEditMode ? (
+                <>
+                  <X size={16} className="text-destructive mr-2" />
+                  <Text className="text-destructive text-sm font-medium">Abbrechen</Text>
+                </>
+              ) : (
+                <>
+                  <Pencil size={16} className="text-primary mr-2" />
+                  <Text className="text-primary text-sm font-medium">Bearbeiten</Text>
+                </>
+              )}
+            </Button>
+          </View>
           <TabsList className="flex-row w-full mb-4">
             {routine.workouts.map((workout) => (
               <TabsTrigger key={workout.id} value={workout.id.toString()} className="flex-1">
@@ -57,6 +78,7 @@ export function RoutineOverview({
               routineName={routine.name}
               onExercisePress={handleExercisePress}
               onUpdateWorkout={handleUpdateWorkout}
+              isEditMode={isEditMode}
             />
           </TabsContent>
         ))}
