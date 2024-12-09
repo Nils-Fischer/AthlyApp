@@ -1,10 +1,10 @@
 import { Button } from "~/components/ui/button";
 import { useExerciseStore } from "~/stores/exerciseStore";
-import { Image, Pressable, View } from "react-native";
+import { Image, Pressable, TouchableOpacity, View } from "react-native";
 import { Workout, WorkoutExercise, Exercise } from "~/lib/types";
 import { Text } from "~/components/ui/text";
 import { MoreHorizontal, Pencil, Plus, Trash2, X, Edit3, Repeat } from "~/lib/icons/Icons";
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef, useMemo } from "react";
 import { Card } from "~/components/ui/card";
 import { ExerciseLibrary } from "~/components/Exercise/ExerciseLibrary";
 import { BottomSheet } from "~/components/ui/bottom-sheet";
@@ -20,6 +20,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "~/components/ui/dropdown-menu";
+import DraggableFlatList, { ScaleDecorator, RenderItemParams } from "react-native-draggable-flatlist";
 
 registerSheet("sheet-with-router", ExerciseBottomSheetEditor);
 
@@ -50,7 +51,6 @@ export function WorkoutPage({
   const [workout, setWorkout] = useState(initialWorkout);
   const [isEditMode, setIsEditMode] = useState(false);
   const [deleteExerciseId, setDeleteExerciseId] = useState<number | null>(null);
-  const [menuExerciseId, setMenuExerciseId] = useState<number | null>(null);
   const [showAlternatives, setShowAlternatives] = useState<WorkoutExercise | null>(null);
   const [showAddExercise, setShowAddExercise] = useState(false);
 
@@ -115,6 +115,124 @@ export function WorkoutPage({
     }
   };
 
+  const onDragEnd = ({ data }: { data: WorkoutExercise[] }) => {
+    const updatedWorkout = {
+      ...workout,
+      exercises: data,
+    };
+
+    setWorkout(updatedWorkout);
+
+    requestAnimationFrame(() => {
+      onUpdateWorkout?.(updatedWorkout);
+    });
+  };
+
+  const renderItem = ({ item: workoutExercise, drag, isActive }: RenderItemParams<WorkoutExercise>) => {
+    const exercise = getFullExercise(workoutExercise, exerciseStore.exercises);
+    if (!exercise) return null;
+
+    return (
+      <ScaleDecorator key={workoutExercise.exerciseId}>
+        <TouchableOpacity
+          onPress={() => {
+            if (isEditMode) {
+              showEditExerciseSheet(workoutExercise);
+            } else {
+              onExercisePress?.(exercise.id);
+            }
+          }}
+          onLongPress={isEditMode ? drag : undefined}
+          className={`mb-3 ${isActive ? "bg-muted" : ""}`}
+          style={{
+            transform: [{ scale: isActive ? 1.02 : 1 }],
+            shadowOpacity: isActive ? 0.2 : 0,
+            shadowRadius: 5,
+            shadowOffset: { width: 0, height: 2 },
+            elevation: isActive ? 5 : 0,
+          }}
+        >
+          <View className="bg-card rounded-xl p-4 border border-border">
+            <View className="flex-row justify-between items-start">
+              <View className="flex-row gap-3 flex-1">
+                <View className="w-12 h-12 bg-muted rounded-lg items-center justify-center overflow-hidden">
+                  {exercise.images?.[0] && (
+                    <Image
+                      source={{ uri: exercise.images[0] }}
+                      alt={exercise.name}
+                      className="w-full h-full object-cover"
+                    />
+                  )}
+                </View>
+                <View className="flex-1">
+                  <Text className="font-medium mb-1">{exercise.name}</Text>
+                  <Text className="text-muted-foreground text-sm">{exercise.equipment}</Text>
+                </View>
+              </View>
+              {isEditMode ? (
+                <ExerciseDeleteConfirmation
+                  open={deleteExerciseId === workoutExercise.exerciseId}
+                  onOpenChange={(open) => {
+                    setDeleteExerciseId(open ? workoutExercise.exerciseId : null);
+                  }}
+                  onConfirm={() => {
+                    deleteExercise(workoutExercise.exerciseId);
+                    setDeleteExerciseId(null);
+                  }}
+                  trigger={
+                    <Button variant="ghost" size="icon" className="h-8 w-8">
+                      <Trash2 size={18} className="text-destructive" />
+                    </Button>
+                  }
+                />
+              ) : (
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <Button variant="ghost" size="icon" className="h-8 w-8">
+                      <MoreHorizontal className="text-muted-foreground" />
+                    </Button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent className="w-56" avoidCollisions={true} align="start" side="top">
+                    <DropdownMenuItem
+                      onPress={() => setShowAlternatives(workoutExercise)}
+                      className="flex-row gap-2 justify-between"
+                    >
+                      <Text className="font-medium">Alternative Übung</Text>
+                      <Repeat size={20} className="text-foreground" />
+                    </DropdownMenuItem>
+
+                    <DropdownMenuSeparator />
+
+                    <DropdownMenuItem
+                      onPress={() => showEditExerciseSheet(workoutExercise)}
+                      className="flex-row gap-2 justify-between"
+                    >
+                      <Text className="font-medium">Details bearbeiten</Text>
+                      <Edit3 size={20} className="text-foreground" />
+                    </DropdownMenuItem>
+
+                    <DropdownMenuSeparator />
+
+                    <DropdownMenuItem
+                      onPress={() => deleteExercise(workoutExercise.exerciseId)}
+                      className="flex-row gap-2 justify-between"
+                    >
+                      <Text className="font-medium text-destructive">Übung löschen</Text>
+                      <Trash2 size={20} className="text-destructive" />
+                    </DropdownMenuItem>
+                  </DropdownMenuContent>
+                </DropdownMenu>
+              )}
+            </View>
+            <Text className="mt-3 text-sm text-muted-foreground">
+              {workoutExercise.sets} Sätze • {getRepsRange(workoutExercise)}
+            </Text>
+          </View>
+        </TouchableOpacity>
+      </ScaleDecorator>
+    );
+  };
+
   return (
     <View className="flex-1">
       <View className="flex-row justify-between items-center mb-3">
@@ -135,113 +253,26 @@ export function WorkoutPage({
       </View>
 
       {isEditMode && (
-        <Pressable onPress={() => setShowAddExercise(true)}>
-          <Card className="shadow-none mb-4 p-4 flex-row justify-between items-center bg-background">
+        <Pressable onPress={() => setShowAddExercise(true)} className="mb-4">
+          <Card className="shadow-none p-4 flex-row justify-between items-center bg-background">
             <Text className="text-sm font-medium">Übung hinzufügen</Text>
-            <Button variant="ghost" size="icon" className="h-8 w-8" onPress={() => setShowAddExercise(true)}>
+            <Button variant="ghost" size="icon" className="h-8 w-8">
               <Plus size={20} className="text-primary" />
             </Button>
           </Card>
         </Pressable>
       )}
 
-      <View className="gap-3">
-        {workout.exercises.map((workoutExercise) => {
-          const exercise = getFullExercise(workoutExercise, exerciseStore.exercises);
-          if (!exercise) return null;
-
-          return (
-            <Pressable
-              key={workoutExercise.exerciseId}
-              onPress={() => {
-                if (isEditMode) {
-                  showEditExerciseSheet(workoutExercise);
-                } else {
-                  onExercisePress?.(exercise.id);
-                }
-              }}
-              className="active:opacity-70"
-            >
-              <View className="bg-card rounded-xl p-4 border border-border">
-                <View className="flex-row justify-between items-start">
-                  <View className="flex-row gap-3 flex-1">
-                    <View className="w-12 h-12 bg-muted rounded-lg items-center justify-center overflow-hidden">
-                      {exercise.images?.[0] && (
-                        <Image
-                          source={{ uri: exercise.images[0] }}
-                          alt={exercise.name}
-                          className="w-full h-full object-cover"
-                        />
-                      )}
-                    </View>
-                    <View className="flex-1">
-                      <Text className="font-medium mb-1">{exercise.name}</Text>
-                      <Text className="text-muted-foreground text-sm">{exercise.equipment}</Text>
-                    </View>
-                  </View>
-                  {isEditMode ? (
-                    <ExerciseDeleteConfirmation
-                      open={deleteExerciseId === workoutExercise.exerciseId}
-                      onOpenChange={(open) => {
-                        setDeleteExerciseId(open ? workoutExercise.exerciseId : null);
-                      }}
-                      onConfirm={() => {
-                        deleteExercise(workoutExercise.exerciseId);
-                        setDeleteExerciseId(null);
-                      }}
-                      trigger={
-                        <Button variant="ghost" size="icon" className="h-8 w-8">
-                          <Trash2 size={18} className="text-destructive" />
-                        </Button>
-                      }
-                    />
-                  ) : (
-                    <DropdownMenu>
-                      <DropdownMenuTrigger asChild>
-                        <Button variant="ghost" size="icon" className="h-8 w-8">
-                          <MoreHorizontal className="text-muted-foreground" />
-                        </Button>
-                      </DropdownMenuTrigger>
-                      <DropdownMenuContent className="w-56" avoidCollisions={true} align="start" side="top">
-                        <DropdownMenuItem
-                          onPress={() => setShowAlternatives(workoutExercise)}
-                          className="flex-row gap-2 justify-between"
-                        >
-                          <Text className="font-medium">Alternative Übung</Text>
-                          <Repeat size={20} className="text-foreground" />
-                        </DropdownMenuItem>
-
-                        <DropdownMenuSeparator />
-
-                        <DropdownMenuItem
-                          onPress={() => showEditExerciseSheet(workoutExercise)}
-                          className="flex-row gap-2 justify-between"
-                        >
-                          <Text className="font-medium">Details bearbeiten</Text>
-                          <Edit3 size={20} className="text-foreground" />
-                        </DropdownMenuItem>
-
-                        <DropdownMenuSeparator />
-
-                        <DropdownMenuItem
-                          onPress={() => deleteExercise(workoutExercise.exerciseId)}
-                          className="flex-row gap-2 justify-between"
-                        >
-                          <Text className="font-medium text-destructive">Übung löschen</Text>
-                          <Trash2 size={20} className="text-destructive" />
-                        </DropdownMenuItem>
-                      </DropdownMenuContent>
-                    </DropdownMenu>
-                  )}
-                </View>
-                <Text className="mt-3 text-sm text-muted-foreground">
-                  {workoutExercise.sets} Sätze • {getRepsRange(workoutExercise)}
-                </Text>
-              </View>
-            </Pressable>
-          );
-        })}
-      </View>
+      <DraggableFlatList
+        data={workout.exercises}
+        onDragEnd={onDragEnd}
+        keyExtractor={(item) => item.exerciseId.toString()}
+        renderItem={renderItem}
+        containerStyle={{ flex: 1 }}
+        contentContainerStyle={{ paddingBottom: 20 }}
+        dragHitSlop={{ top: 0, bottom: 0, left: 0, right: 0 }}
+        animationConfig={{ duration: 200 }}
+      />
 
       <BottomSheet title="Übung hinzufügen" isOpen={showAddExercise} onClose={() => setShowAddExercise(false)}>
         <ExerciseLibrary
