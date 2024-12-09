@@ -68,14 +68,11 @@ export function RoutineOverview({
             )}
             <Button variant="ghost" className="h-8 px-3 flex-row items-center" onPress={toggleEditMode}>
               {isEditMode ? (
-                <>
-                  <X size={16} className="text-destructive mr-2" />
-                  <Text className="text-destructive text-sm font-medium">Abbrechen</Text>
-                </>
+                <Text className="text-destructive font-bold">Fertig</Text>
               ) : (
                 <>
                   <Pencil size={16} className="text-primary mr-2" />
-                  <Text className="text-primary text-sm font-medium">Bearbeiten</Text>
+                  <Text className="text-primary  font-medium">Bearbeiten</Text>
                 </>
               )}
             </Button>
