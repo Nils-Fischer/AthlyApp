@@ -14,6 +14,8 @@ import { ExerciseLibrary } from "~/components/Exercise/ExerciseLibrary";
 import { Plus, Search } from "~/lib/icons/Icons";
 import { CustomDropdownMenu } from "~/components/ui/custom-dropdown-menu";
 import { ClipboardList, PlusCircle, Sparkles } from "lucide-react-native";
+import { generateId } from "~/lib/utils";
+import { RoutineCreationDialog } from "~/components/Routine/RoutineCreationDialog";
 
 export default function RoutineScreen() {
   const userStore = useUserStore();
@@ -22,6 +24,7 @@ export default function RoutineScreen() {
   const [searchQuery, setSearchQuery] = React.useState("");
   const [showForm, setShowForm] = React.useState(routines.length === 0);
   const [activeTab, setActiveTab] = React.useState("routines");
+  const [showRoutineCreationDialog, setShowRoutineCreationDialog] = React.useState(false);
 
   const handleRoutineCreation = (routine: Routine) => {
     console.log("🚀 Created routine:", routine);
@@ -38,14 +41,12 @@ export default function RoutineScreen() {
     {
       name: "Leere Routine",
       icon: PlusCircle,
-      onPress: () => setShowForm(true),
+      onPress: () => setShowRoutineCreationDialog(true),
     },
     {
       name: "Fragebogen",
       icon: ClipboardList,
-      onPress: () => {
-        // Handle questionnaire
-      },
+      onPress: () => setShowForm(true),
     },
     {
       name: "AI-Erstellung",
@@ -144,6 +145,17 @@ export default function RoutineScreen() {
           </View>
         </Tabs>
       </View>
+
+      <RoutineCreationDialog
+        open={showRoutineCreationDialog}
+        onOpenChange={setShowRoutineCreationDialog}
+        onCreate={(routine) => {
+          userStore.addRoutine(routine);
+          setRoutines([...routines, routine]);
+          setShowRoutineCreationDialog(false);
+          router.push(`/workout/${routine.id}`);
+        }}
+      />
     </SafeAreaView>
   );
 }

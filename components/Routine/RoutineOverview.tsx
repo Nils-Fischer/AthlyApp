@@ -18,7 +18,9 @@ export function RoutineOverview({
 }) {
   const [routine, setRoutine] = useState(initialRoutine);
   const [activeTab, setActiveTab] = useState(routine?.workouts[0]?.id.toString() || "0");
-  const [isEditMode, setIsEditMode] = useState(false);
+  const [isEditMode, setIsEditMode] = useState(
+    routine.workouts.length === 1 && routine.workouts[0].exercises.length === 0
+  );
   const userStore = useUserStore();
 
   useEffect(() => {
