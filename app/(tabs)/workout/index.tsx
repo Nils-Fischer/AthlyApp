@@ -14,7 +14,6 @@ import { ExerciseLibrary } from "~/components/Exercise/ExerciseLibrary";
 import { Plus, Search } from "~/lib/icons/Icons";
 import { CustomDropdownMenu } from "~/components/ui/custom-dropdown-menu";
 import { ClipboardList, PlusCircle, Sparkles } from "lucide-react-native";
-import { generateId } from "~/lib/utils";
 import { RoutineCreationDialog } from "~/components/Routine/RoutineCreationDialog";
 
 export default function RoutineScreen() {
@@ -62,7 +61,7 @@ export default function RoutineScreen() {
   }
 
   return (
-    <SafeAreaView className="flex-1 bg-background">
+    <>
       <View className="flex-1">
         <Tabs value={activeTab} onValueChange={setActiveTab} className="flex-1">
           <View className="px-4">
@@ -156,6 +155,6 @@ export default function RoutineScreen() {
           router.push(`/workout/${routine.id}`);
         }}
       />
-    </SafeAreaView>
+    </>
   );
 }

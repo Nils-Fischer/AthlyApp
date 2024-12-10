@@ -2,7 +2,7 @@ import { Tabs, usePathname } from "expo-router";
 import { BarChart, BarChartFilled } from "~/lib/icons/BarChartIcon";
 import { ThemeToggle } from "~/components/ThemeToggle";
 import { useTheme } from "@react-navigation/native";
-import { Apple, Dumbbell, Home, MessageCircle } from "~/lib/icons/Icons";
+import { Apple, ChevronLeft, Dumbbell, Home, MessageCircle } from "~/lib/icons/Icons";
 import { AppleFilled, DumbbellFilled, HomeFilled, MessageCircleFilled } from "~/lib/icons/FilledIcons";
 
 interface Route {
@@ -68,7 +68,7 @@ export default function TabLayout() {
         tabBarActiveTintColor: colors.text,
         tabBarInactiveTintColor: colors.text + "80",
         headerShown: isRootPath,
-        headerRight: () => <ThemeToggle />,
+        headerRight: isRootPath ? () => <ThemeToggle /> : undefined,
       }}
     >
       {routes.map((route) => {
