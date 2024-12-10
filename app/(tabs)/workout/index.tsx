@@ -1,20 +1,16 @@
 // TrainTechApp/app/(tabs)/workout.tsx
 import * as React from "react";
-import { ScrollView, View, SafeAreaView } from "react-native";
-import { ClickableCard } from "~/components/ClickableCard";
+import { View } from "react-native";
 import { WorkoutForm } from "~/components/ExerciseForms/WorkoutForm";
 import { Routine } from "~/lib/types";
 import { useUserStore } from "~/stores/userStore";
-import { Input } from "~/components/ui/input";
-import { Button } from "~/components/ui/button";
 import { Text } from "~/components/ui/text";
 import { useRouter } from "expo-router";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "~/components/ui/tabs";
 import { ExerciseLibrary } from "~/components/Exercise/ExerciseLibrary";
-import { Plus, Search } from "~/lib/icons/Icons";
-import { CustomDropdownMenu } from "~/components/ui/custom-dropdown-menu";
 import { ClipboardList, PlusCircle, Sparkles } from "lucide-react-native";
 import { RoutineCreationDialog } from "~/components/Routine/RoutineCreationDialog";
+import { RoutineLibrary } from "~/components/Routine/RoutineLibrary";
 
 export default function RoutineScreen() {
   const userStore = useUserStore();
@@ -77,65 +73,12 @@ export default function RoutineScreen() {
 
           <View className="flex-1 mt-4">
             <TabsContent value="routines" className="flex-1 h-full">
-              <View className="flex-1 px-4">
-                {/* Search Bar */}
-                <View className="flex-row justify-between items-center mb-4">
-                  <View className="flex-1 mr-2">
-                    <Input
-                      placeholder="Trainingsplan suchen..."
-                      value={searchQuery}
-                      onChangeText={setSearchQuery}
-                      startContent={<Search size={20} className="text-muted-foreground" />}
-                    />
-                  </View>
-                  <CustomDropdownMenu
-                    items={dropdownItems}
-                    trigger={
-                      <Button size="icon" variant="ghost" className="h-10 w-10 rounded-full">
-                        <Plus className="text-foreground" size={24} />
-                      </Button>
-                    }
-                  />
-                </View>
-
-                {/* Routines List */}
-                <ScrollView
-                  className="flex-1"
-                  showsVerticalScrollIndicator={false}
-                  contentContainerStyle={{ paddingBottom: 20 }}
-                >
-                  {filteredRoutines.length === 0 ? (
-                    <View className="flex-1 justify-center items-center py-20">
-                      <Text className="text-muted-foreground text-center">Keine Trainingspläne gefunden</Text>
-                    </View>
-                  ) : (
-                    filteredRoutines.map((routine) => (
-                      <ClickableCard
-                        key={routine.id}
-                        title={routine.name}
-                        description={routine.description}
-                        className="mb-4"
-                        footer={
-                          <View className="flex-row items-center space-x-4">
-                            <View className="flex-row items-center space-x-1">
-                              <Text className="text-sm font-medium">{routine.workouts.length}</Text>
-                              <Text className="text-sm text-muted-foreground">Workouts</Text>
-                            </View>
-                            <View className="w-1 h-1 rounded-full bg-border" />
-                            <View className="flex-row items-center space-x-1">
-                              <Text className="text-sm font-medium">{routine.frequency}x</Text>
-                              <Text className="text-sm text-muted-foreground">pro Woche</Text>
-                            </View>
-                          </View>
-                        }
-                        onPress={() => {
-                          router.push(`/workout/${routine.id}`);
-                        }}
-                      />
-                    ))
-                  )}
-                </ScrollView>
-              </View>
+              <RoutineLibrary
+                routines={filteredRoutines}
+                searchQuery={searchQuery}
+                onSearchChange={setSearchQuery}
+                dropdownItems={dropdownItems}
+              />
             </TabsContent>
 
             <TabsContent value="exercises" className="flex-1 h-full">

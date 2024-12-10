@@ -32,7 +32,7 @@ export const ExerciseLibrary = ({ onPress }: ExerciseLibraryProps) => {
     <View className="flex-1 px-4">
       <View className="space-y-3">
         <Input
-          placeholder="Trainingsplan suchen..."
+          placeholder="Übung suchen..."
           value={searchQuery}
           onChangeText={setSearchQuery}
           startContent={<Search size={20} className="text-muted-foreground" />}
