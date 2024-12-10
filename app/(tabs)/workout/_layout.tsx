@@ -1,4 +1,4 @@
-import { Stack } from "expo-router";
+import { Stack, usePathname } from "expo-router";
 
 export default function WorkoutLayout() {
   return (
@@ -18,7 +18,7 @@ export default function WorkoutLayout() {
       <Stack.Screen
         name="exercise"
         options={{
-          headerShown: false,
+          headerShown: true,
         }}
       />
     </Stack>

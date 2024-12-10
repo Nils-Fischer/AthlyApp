@@ -1,14 +1,9 @@
-import { Tabs } from "expo-router";
+import { Tabs, usePathname } from "expo-router";
 import { BarChart, BarChartFilled } from "~/lib/icons/BarChartIcon";
 import { ThemeToggle } from "~/components/ThemeToggle";
 import { useTheme } from "@react-navigation/native";
 import { Apple, Dumbbell, Home, MessageCircle } from "~/lib/icons/Icons";
-import {
-  AppleFilled,
-  DumbbellFilled,
-  HomeFilled,
-  MessageCircleFilled,
-} from "~/lib/icons/FilledIcons";
+import { AppleFilled, DumbbellFilled, HomeFilled, MessageCircleFilled } from "~/lib/icons/FilledIcons";
 
 interface Route {
   name: string;
@@ -64,13 +59,15 @@ const routes: Route[] = [
 
 export default function TabLayout() {
   const { colors } = useTheme();
+  const pathname = usePathname();
+  const isRootPath = pathname.split("/").length <= 2;
 
   return (
     <Tabs
       screenOptions={{
         tabBarActiveTintColor: colors.text,
         tabBarInactiveTintColor: colors.text + "80",
-        headerShown: true,
+        headerShown: isRootPath,
         headerRight: () => <ThemeToggle />,
       }}
     >
@@ -83,14 +80,7 @@ export default function TabLayout() {
               title: route.name,
               tabBarIcon: ({ focused }) => {
                 const Icon = focused ? route.icon.filled : route.icon.outlined;
-                return (
-                  <Icon
-                    size={28}
-                    className={`text-foreground ${
-                      focused ? "fill-foreground" : ""
-                    }`}
-                  />
-                );
+                return <Icon size={28} className={`text-foreground ${focused ? "fill-foreground" : ""}`} />;
               },
             }}
           />

@@ -6,21 +6,22 @@ import { Routine, Workout } from "~/lib/types";
 import { WorkoutPage } from "~/components/Workout/WorkoutPage";
 import { useUserStore } from "~/stores/userStore";
 import { Button } from "~/components/ui/button";
-import { Pencil, Plus } from "lucide-react-native";
+import { MoreHorizontal } from "lucide-react-native";
 import { generateId } from "~/lib/utils";
+import { Plus, Trash2 } from "~/lib/icons/Icons";
+import { CustomDropdownMenu } from "~/components/ui/custom-dropdown-menu";
 
 export function RoutineOverview({
   routine: initialRoutine,
   handleExercisePress,
+  isEditMode,
 }: {
   routine: Routine;
   handleExercisePress?: (exerciseId: number) => void;
+  isEditMode: boolean;
 }) {
   const [routine, setRoutine] = useState(initialRoutine);
   const [activeTab, setActiveTab] = useState(routine?.workouts[0]?.id.toString() || "0");
-  const [isEditMode, setIsEditMode] = useState(
-    routine.workouts.length === 1 && routine.workouts[0].exercises.length === 0
-  );
   const userStore = useUserStore();
 
   useEffect(() => {
@@ -40,8 +41,6 @@ export function RoutineOverview({
     setRoutine(updatedRoutine);
     await userStore.updateRoutine(updatedRoutine);
   };
-
-  const toggleEditMode = () => setIsEditMode(!isEditMode);
 
   const handleAddWorkout = async () => {
     const newWorkout: Workout = {
@@ -79,33 +78,8 @@ export function RoutineOverview({
   return (
     <View className="flex-1">
       <Tabs value={activeTab} onValueChange={setActiveTab} className="flex-1">
-        <View className="px-4 pt-2">
-          <View className="flex-row justify-between items-center mb-3">
-            {isEditMode ? (
-              <TextInput
-                className="text-sm bg-background text-foreground"
-                defaultValue={routine.name}
-                showSoftInputOnFocus={false}
-                onChangeText={(text) => {
-                  const updatedRoutine = { ...routine, name: text };
-                  handleUpdateRoutine(updatedRoutine);
-                }}
-              />
-            ) : (
-              <Text className="text-sm text-muted-foreground">{routine.name}</Text>
-            )}
-            <Button variant="ghost" className="h-8 px-3 flex-row items-center" onPress={toggleEditMode}>
-              {isEditMode ? (
-                <Text className="text-destructive font-bold">Fertig</Text>
-              ) : (
-                <>
-                  <Pencil size={16} className="text-primary mr-2" />
-                  <Text className="text-primary  font-medium">Bearbeiten</Text>
-                </>
-              )}
-            </Button>
-          </View>
-          <TabsList className="flex-row w-full mb-4">
+        <View className="px-4 pt-2 flex-row">
+          <TabsList className="mb-4 flex-row flex-1 items-center">
             {routine.workouts.map((workout) => (
               <TabsTrigger key={workout.id} value={workout.id.toString()} className="flex-1">
                 {isEditMode && activeTab === workout.id.toString() ? (
@@ -133,12 +107,34 @@ export function RoutineOverview({
                 )}
               </TabsTrigger>
             ))}
-            {isEditMode && (
-              <Button variant="ghost" className="h-8 w-8 p-0 justify-center items-center" onPress={handleAddWorkout}>
-                <Plus size={20} className="text-primary" />
-              </Button>
-            )}
           </TabsList>
+          {isEditMode && (
+            <CustomDropdownMenu
+              items={[
+                {
+                  name: "Workout hinzufügen",
+                  icon: Plus,
+                  onPress: handleAddWorkout,
+                },
+                {
+                  name: "Workout löschen",
+                  icon: Trash2,
+                  onPress: () => {
+                    setActiveTab(routine.workouts[0].id.toString());
+                    deleteWorkout(Number(activeTab));
+                  },
+                  destructive: true,
+                },
+              ]}
+              trigger={
+                <Button variant="ghost" className="flex-none h-8 w-8 p-0 ml-2 justify-center items-center">
+                  <MoreHorizontal size={20} className="text-primary" />
+                </Button>
+              }
+              side="bottom"
+              align="end"
+            />
+          )}
         </View>
         {routine.workouts.map((workout) => (
           <TabsContent key={workout.id} value={workout.id.toString()} className="flex-1 px-4">

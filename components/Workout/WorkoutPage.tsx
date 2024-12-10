@@ -154,29 +154,12 @@ export function WorkoutPage({
     <View className="flex-1">
       {isEditMode && (
         <View className="mb-4 flex-row items-center">
-          <Pressable onPress={() => setShowAddExercise(true)} className="flex-1 mr-2">
+          <Pressable onPress={() => setShowAddExercise(true)} className="flex-1">
             <Card className="shadow-none p-4 flex-row justify-between items-center bg-background">
               <Text className="text-sm font-medium">Übung hinzufügen</Text>
               <Plus size={20} className="text-primary" />
             </Card>
           </Pressable>
-          <DeleteConfirmation
-            open={isDeleteDialogOpen}
-            onOpenChange={setIsDeleteDialogOpen}
-            onConfirm={() => deleteWorkout(workout.id)}
-            title="Workout löschen"
-            description="Möchten Sie dieses Workout wirklich löschen? Diese Aktion kann nicht rückgängig gemacht werden."
-            trigger={
-              <Button
-                variant="destructive"
-                size="default"
-                className="h-15 w-12"
-                onPress={() => setIsDeleteDialogOpen(true)}
-              >
-                <Trash2 size={20} className="text-destructive-foreground" />
-              </Button>
-            }
-          />
         </View>
       )}
 
