@@ -4,14 +4,7 @@ import { Button } from "~/components/ui/button";
 import { MoreHorizontal, Trash2, Edit3, Repeat, X } from "~/lib/icons/Icons";
 import { Exercise, WorkoutExercise } from "~/lib/types";
 import { DeleteConfirmation } from "../DeleteConfirmation";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from "~/components/ui/dropdown-menu";
-import { ScaleDecorator } from "react-native-draggable-flatlist";
+import { CustomDropdownMenu } from "~/components/ui/custom-dropdown-menu";
 
 interface WorkoutExerciseItemProps {
   workoutExercise: WorkoutExercise;
@@ -48,6 +41,25 @@ export function WorkoutExerciseItem({
   onShowEditSheet,
   onDelete,
 }: WorkoutExerciseItemProps) {
+  const dropdownItems = [
+    {
+      name: "Alternative Übung",
+      icon: Repeat,
+      onPress: onShowAlternatives,
+    },
+    {
+      name: "Details bearbeiten",
+      icon: Edit3,
+      onPress: onShowEditSheet,
+    },
+    {
+      name: "Übung löschen",
+      icon: Trash2,
+      onPress: onDelete,
+      destructive: true,
+    },
+  ];
+
   return (
     <TouchableOpacity onPress={onPress} onLongPress={onLongPress} className={`mb-3 ${isActive ? "bg-muted" : ""}`}>
       <View className="bg-card rounded-xl p-4 border border-border">
@@ -81,33 +93,16 @@ export function WorkoutExerciseItem({
               description="Möchtest du diese Übung wirklich aus dem Workout entfernen?"
             />
           ) : (
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
+            <CustomDropdownMenu
+              items={dropdownItems}
+              side="top"
+              align="start"
+              trigger={
                 <Button variant="ghost" size="icon" className="h-8 w-8">
                   <MoreHorizontal className="text-muted-foreground" />
                 </Button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent className="w-56" avoidCollisions={true} align="start" side="top">
-                <DropdownMenuItem onPress={onShowAlternatives} className="flex-row gap-2 justify-between">
-                  <Text className="font-medium">Alternative Übung</Text>
-                  <Repeat size={20} className="text-foreground" />
-                </DropdownMenuItem>
-
-                <DropdownMenuSeparator />
-
-                <DropdownMenuItem onPress={onShowEditSheet} className="flex-row gap-2 justify-between">
-                  <Text className="font-medium">Details bearbeiten</Text>
-                  <Edit3 size={20} className="text-foreground" />
-                </DropdownMenuItem>
-
-                <DropdownMenuSeparator />
-
-                <DropdownMenuItem onPress={onDelete} className="flex-row gap-2 justify-between">
-                  <Text className="font-medium text-destructive">Übung löschen</Text>
-                  <Trash2 size={20} className="text-destructive" />
-                </DropdownMenuItem>
-              </DropdownMenuContent>
-            </DropdownMenu>
+              }
+            />
           )}
         </View>
         <Text className="mt-3 text-sm text-muted-foreground">

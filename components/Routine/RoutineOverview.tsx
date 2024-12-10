@@ -6,7 +6,7 @@ import { Routine, Workout } from "~/lib/types";
 import { WorkoutPage } from "~/components/Workout/WorkoutPage";
 import { useUserStore } from "~/stores/userStore";
 import { Button } from "~/components/ui/button";
-import { Pencil, X, Plus } from "lucide-react-native";
+import { Pencil, Plus } from "lucide-react-native";
 import { generateId } from "~/lib/utils";
 
 export function RoutineOverview({

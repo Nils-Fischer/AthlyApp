@@ -12,6 +12,8 @@ import { useRouter } from "expo-router";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "~/components/ui/tabs";
 import { ExerciseLibrary } from "~/components/Exercise/ExerciseLibrary";
 import { Plus, Search } from "~/lib/icons/Icons";
+import { CustomDropdownMenu } from "~/components/ui/custom-dropdown-menu";
+import { ClipboardList, PlusCircle, Sparkles } from "lucide-react-native";
 
 export default function RoutineScreen() {
   const userStore = useUserStore();
@@ -31,6 +33,28 @@ export default function RoutineScreen() {
   const filteredRoutines = React.useMemo(() => {
     return routines.filter((routine) => routine.name.toLowerCase().includes(searchQuery.toLowerCase()));
   }, [routines, searchQuery]);
+
+  const dropdownItems = [
+    {
+      name: "Leere Routine",
+      icon: PlusCircle,
+      onPress: () => setShowForm(true),
+    },
+    {
+      name: "Fragebogen",
+      icon: ClipboardList,
+      onPress: () => {
+        // Handle questionnaire
+      },
+    },
+    {
+      name: "AI-Erstellung",
+      icon: Sparkles,
+      onPress: () => {
+        // Handle AI creation
+      },
+    },
+  ];
 
   if (showForm) {
     return <WorkoutForm onRoutineCreated={handleRoutineCreation} />;
@@ -64,9 +88,14 @@ export default function RoutineScreen() {
                       startContent={<Search size={20} className="text-muted-foreground" />}
                     />
                   </View>
-                  <Button size="icon" variant="ghost" onPress={() => setShowForm(true)} className="h-10 w-10">
-                    <Plus className="text-foreground" size={24} />
-                  </Button>
+                  <CustomDropdownMenu
+                    items={dropdownItems}
+                    trigger={
+                      <Button size="icon" variant="ghost" className="h-10 w-10 rounded-full">
+                        <Plus className="text-foreground" size={24} />
+                      </Button>
+                    }
+                  />
                 </View>
 
                 {/* Routines List */}
