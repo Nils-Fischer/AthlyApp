@@ -10,22 +10,29 @@ import {
 } from "~/components/ui/alert-dialog";
 import { Button } from "~/components/ui/button";
 
-interface DeleteExerciseDialogProps {
+interface DeleteConfirmationProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   onConfirm: () => void;
   trigger?: React.ReactNode;
+  title: string;
+  description: string;
 }
 
-export function ExerciseDeleteConfirmation({ open, onOpenChange, onConfirm, trigger }: DeleteExerciseDialogProps) {
+export function DeleteConfirmation({
+  open,
+  onOpenChange,
+  onConfirm,
+  trigger,
+  title,
+  description,
+}: DeleteConfirmationProps) {
   return (
     <AlertDialog open={open} onOpenChange={onOpenChange}>
       {trigger && <AlertDialogTrigger asChild>{trigger}</AlertDialogTrigger>}
       <AlertDialogContent>
-        <Text className="text-xl font-semibold mb-2">Übung löschen?</Text>
-        <Text className="text-base text-muted-foreground mb-6">
-          Möchtest du diese Übung wirklich aus dem Workout entfernen?
-        </Text>
+        <Text className="text-xl font-semibold mb-2">{title}</Text>
+        <Text className="text-base text-muted-foreground mb-6">{description}</Text>
         <View className="flex-row items-center gap-3">
           <AlertDialogCancel asChild>
             <Button variant="outline" className="flex-1 h-12">

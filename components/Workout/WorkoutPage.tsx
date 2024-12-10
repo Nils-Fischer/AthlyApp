@@ -3,7 +3,7 @@ import { useExerciseStore } from "~/stores/exerciseStore";
 import { Pressable, View } from "react-native";
 import { Workout, WorkoutExercise, Exercise } from "~/lib/types";
 import { Text } from "~/components/ui/text";
-import { Pencil, Plus, X } from "~/lib/icons/Icons";
+import { Plus, Trash2 } from "~/lib/icons/Icons";
 import React, { useState, useEffect } from "react";
 import { Card } from "~/components/ui/card";
 import { ExerciseLibrary } from "~/components/Exercise/ExerciseLibrary";
@@ -14,6 +14,7 @@ import ExerciseBottomSheetEditor from "~/components/Exercise/ExerciseBottomSheet
 import { ExerciseEditAlternatives } from "../Exercise/ExerciseEditAlternatives";
 import DraggableFlatList, { RenderItemParams } from "react-native-draggable-flatlist";
 import { WorkoutExerciseItem } from "./WorkoutExerciseItem";
+import { DeleteConfirmation } from "~/components/DeleteConfirmation";
 
 registerSheet("sheet-with-router", ExerciseBottomSheetEditor);
 
@@ -23,24 +24,25 @@ const getFullExercise = (workoutExercise: WorkoutExercise, exercises: Exercise[]
 
 interface WorkoutPageProps {
   workout: Workout;
-  routineName: string;
   onExercisePress?: (exerciseId: number) => void;
   onUpdateWorkout?: (workout: Workout) => void;
   isEditMode: boolean;
+  deleteWorkout: (workoutId: number) => void;
 }
 
 export function WorkoutPage({
   workout: initialWorkout,
-  routineName,
   onExercisePress,
   onUpdateWorkout,
   isEditMode,
+  deleteWorkout,
 }: WorkoutPageProps) {
   const exerciseStore = useExerciseStore();
   const [workout, setWorkout] = useState(initialWorkout);
   const [deleteExerciseId, setDeleteExerciseId] = useState<number | null>(null);
   const [showAlternatives, setShowAlternatives] = useState<WorkoutExercise | null>(null);
   const [showAddExercise, setShowAddExercise] = useState(false);
+  const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
 
   useEffect(() => {
     setWorkout(initialWorkout);
@@ -151,14 +153,31 @@ export function WorkoutPage({
   return (
     <View className="flex-1">
       {isEditMode && (
-        <Pressable onPress={() => setShowAddExercise(true)} className="mb-4">
-          <Card className="shadow-none p-4 flex-row justify-between items-center bg-background">
-            <Text className="text-sm font-medium">Übung hinzufügen</Text>
-            <Button variant="ghost" size="icon" className="h-8 w-8" onPress={() => setShowAddExercise(true)}>
+        <View className="mb-4 flex-row items-center">
+          <Pressable onPress={() => setShowAddExercise(true)} className="flex-1 mr-2">
+            <Card className="shadow-none p-4 flex-row justify-between items-center bg-background">
+              <Text className="text-sm font-medium">Übung hinzufügen</Text>
               <Plus size={20} className="text-primary" />
-            </Button>
-          </Card>
-        </Pressable>
+            </Card>
+          </Pressable>
+          <DeleteConfirmation
+            open={isDeleteDialogOpen}
+            onOpenChange={setIsDeleteDialogOpen}
+            onConfirm={() => deleteWorkout(workout.id)}
+            title="Workout löschen"
+            description="Möchten Sie dieses Workout wirklich löschen? Diese Aktion kann nicht rückgängig gemacht werden."
+            trigger={
+              <Button
+                variant="destructive"
+                size="default"
+                className="h-15 w-12"
+                onPress={() => setIsDeleteDialogOpen(true)}
+              >
+                <Trash2 size={20} className="text-destructive-foreground" />
+              </Button>
+            }
+          />
+        </View>
       )}
 
       <DraggableFlatList

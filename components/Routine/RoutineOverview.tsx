@@ -6,7 +6,8 @@ import { Routine, Workout } from "~/lib/types";
 import { WorkoutPage } from "~/components/Workout/WorkoutPage";
 import { useUserStore } from "~/stores/userStore";
 import { Button } from "~/components/ui/button";
-import { Pencil, X } from "lucide-react-native";
+import { Pencil, X, Plus } from "lucide-react-native";
+import { generateId } from "~/lib/utils";
 
 export function RoutineOverview({
   routine: initialRoutine,
@@ -39,6 +40,31 @@ export function RoutineOverview({
   };
 
   const toggleEditMode = () => setIsEditMode(!isEditMode);
+
+  const handleAddWorkout = async () => {
+    const newWorkout: Workout = {
+      id: generateId(),
+      name: `Workout ${routine.workouts.length + 1}`,
+      exercises: [],
+    };
+
+    const updatedRoutine: Routine = {
+      ...routine,
+      workouts: [...routine.workouts, newWorkout],
+    };
+
+    setActiveTab(newWorkout.id.toString());
+    await handleUpdateRoutine(updatedRoutine);
+  };
+
+  const deleteWorkout = async (workoutId: number) => {
+    const updatedRoutine: Routine = {
+      ...routine,
+      workouts: routine.workouts.filter((workout) => workout.id !== workoutId),
+    };
+    setRoutine(updatedRoutine);
+    await userStore.updateRoutine(updatedRoutine);
+  };
 
   if (!routine || !routine.workouts.length) {
     return (
@@ -83,10 +109,12 @@ export function RoutineOverview({
                 {isEditMode && activeTab === workout.id.toString() ? (
                   <View className="flex-row items-center justify-center w-full">
                     <TextInput
-                      className="px-8 py-1 rounded-md bg-background text-center text-foreground"
+                      className="flex-1 py-1 rounded-md bg-background text-center text-foreground"
                       defaultValue={workout.name}
                       showSoftInputOnFocus={false}
                       autoFocus
+                      numberOfLines={1}
+                      maxLength={20}
                       onChangeText={(text) => {
                         const updatedWorkout = { ...workout, name: text };
                         handleUpdateWorkout(updatedWorkout);
@@ -97,20 +125,27 @@ export function RoutineOverview({
                     />
                   </View>
                 ) : (
-                  <Text>{workout.name}</Text>
+                  <Text numberOfLines={1} className="px-2">
+                    {workout.name}
+                  </Text>
                 )}
               </TabsTrigger>
             ))}
+            {isEditMode && (
+              <Button variant="ghost" className="h-8 w-8 p-0 justify-center items-center" onPress={handleAddWorkout}>
+                <Plus size={20} className="text-primary" />
+              </Button>
+            )}
           </TabsList>
         </View>
         {routine.workouts.map((workout) => (
           <TabsContent key={workout.id} value={workout.id.toString()} className="flex-1 px-4">
             <WorkoutPage
               workout={workout}
-              routineName={routine.name}
               onExercisePress={handleExercisePress}
               onUpdateWorkout={handleUpdateWorkout}
               isEditMode={isEditMode}
+              deleteWorkout={() => deleteWorkout(workout.id)}
             />
           </TabsContent>
         ))}
