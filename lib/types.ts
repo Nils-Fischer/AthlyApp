@@ -49,6 +49,7 @@ export interface NutritionProgress {
 }
 
 export interface Exercise {
+  alternatives: never[];
   timesUsed: string;
   id: number;
   name: string;
@@ -158,3 +159,31 @@ interface Exercise {
   media: string[];
 }
 */
+
+export interface SetInput {
+  reps: number;
+  weight: number;
+  isCompleted?: boolean;
+}
+
+export interface WarmUpSet {
+  percentage: number;
+  weight: number;
+  reps: number;
+  isCompleted: boolean;
+}
+
+export interface PreviousWorkout {
+  date: string;
+  sets: SetInput[];
+  volume: number;
+}
+export interface ExerciseModalProps {
+  isVisible: boolean;
+  onClose: () => void;
+  exercise: Exercise;
+  workoutExercise: WorkoutExercise;
+  isWorkoutStarted: boolean;
+  onSave: (sets: SetInput[]) => void;
+  previousWorkout?: PreviousWorkout;
+}

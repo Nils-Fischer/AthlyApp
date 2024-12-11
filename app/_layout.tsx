@@ -1,3 +1,4 @@
+//app\_layout.tsx
 import "~/global.css";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { Theme, ThemeProvider } from "@react-navigation/native";
@@ -38,6 +39,7 @@ const LIGHT_THEME: Theme = {
     },
   },
 };
+
 const DARK_THEME: Theme = {
   dark: true,
   colors: NAV_THEME.dark,
@@ -61,12 +63,8 @@ const DARK_THEME: Theme = {
   },
 };
 
-export {
-  // Catch any errors thrown by the Layout component.
-  ErrorBoundary,
-} from "expo-router";
+export { ErrorBoundary } from "expo-router";
 
-// Prevent the splash screen from auto-hiding before getting the color scheme.
 SplashScreen.preventAutoHideAsync();
 
 export default function RootLayout() {
@@ -75,11 +73,9 @@ export default function RootLayout() {
   const exerciseStore = useExerciseStore();
   const userStore = useUserStore();
 
-  // Combine all initialization into a single effect
   React.useEffect(() => {
     async function initialize() {
       try {
-        // Load theme first
         const theme = await AsyncStorage.getItem("theme");
         if (Platform.OS === "web") {
           document.documentElement.classList.add("bg-background");
@@ -97,7 +93,6 @@ export default function RootLayout() {
           await AsyncStorage.setItem("theme", colorScheme);
         }
 
-        // Then initialize app data
         await AsyncStorage.setItem("APP_INITIALIZED", "true");
         await Promise.all([exerciseStore.fetchInitialData(), userStore.fetchUserData()]);
 
