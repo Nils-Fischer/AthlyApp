@@ -14,7 +14,6 @@ import ExerciseBottomSheetEditor from "~/components/Exercise/ExerciseBottomSheet
 import { ExerciseEditAlternatives } from "../Exercise/ExerciseEditAlternatives";
 import DraggableFlatList, { RenderItemParams } from "react-native-draggable-flatlist";
 import { WorkoutExerciseItem } from "./WorkoutExerciseItem";
-import { DeleteConfirmation } from "~/components/DeleteConfirmation";
 
 registerSheet("sheet-with-router", ExerciseBottomSheetEditor);
 
@@ -42,7 +41,6 @@ export function WorkoutPage({
   const [deleteExerciseId, setDeleteExerciseId] = useState<number | null>(null);
   const [showAlternatives, setShowAlternatives] = useState<WorkoutExercise | null>(null);
   const [showAddExercise, setShowAddExercise] = useState(false);
-  const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
 
   useEffect(() => {
     setWorkout(initialWorkout);
@@ -57,8 +55,8 @@ export function WorkoutPage({
     onUpdateWorkout?.(updatedWorkout);
   };
 
-  const updateExercise = (updatedExercise: WorkoutExercise) => {
-    const exerciseIndex = workout.exercises.findIndex((ex) => ex.exerciseId === updatedExercise.exerciseId);
+  const updateWorkoutExercise = (oldExercises: WorkoutExercise, updatedExercise: WorkoutExercise) => {
+    const exerciseIndex = workout.exercises.findIndex((ex) => ex.exerciseId === oldExercises.exerciseId);
     if (exerciseIndex === -1) return;
 
     const newExercises = [...workout.exercises];
@@ -90,7 +88,9 @@ export function WorkoutPage({
     setShowAddExercise(false);
   };
 
-  const showEditExerciseSheet = async (workoutExercise: WorkoutExercise) => {
+  const showEditExerciseSheet: (workoutExercise: WorkoutExercise) => void = async (
+    workoutExercise: WorkoutExercise
+  ) => {
     const result = await SheetManager.show("sheet-with-router", {
       payload: {
         exercise: getFullExercise(workoutExercise, exerciseStore.exercises)!,
@@ -99,7 +99,7 @@ export function WorkoutPage({
       },
     });
     if (result) {
-      updateExercise(result);
+      updateWorkoutExercise(workoutExercise, result);
     }
   };
 
@@ -191,13 +191,8 @@ export function WorkoutPage({
           <ExerciseEditAlternatives
             workoutExercise={showAlternatives}
             onSelection={(updatedWorkoutExercise) => {
-              const updatedWorkout = {
-                ...workout,
-                exercises: [...workout.exercises.filter((ex) => ex !== showAlternatives), updatedWorkoutExercise],
-              };
-              setWorkout(updatedWorkout);
+              updateWorkoutExercise(showAlternatives, updatedWorkoutExercise);
               setShowAlternatives(null);
-              onUpdateWorkout?.(updatedWorkout);
             }}
             withConfirmation={false}
           />

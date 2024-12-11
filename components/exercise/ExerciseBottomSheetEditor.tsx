@@ -87,7 +87,13 @@ function ExerciseBottomSheetEditor(props: ActionSheetProps<"sheet-with-router">)
             onClose={() => navigateToMainEditRoute()}
             onSave={() => save(workoutExercise)}
           >
-            <ExerciseEditAlternatives workoutExercise={workoutExercise} onSelection={setWorkoutExercise} />
+            <ExerciseEditAlternatives
+              workoutExercise={workoutExercise}
+              onSelection={(updatedWorkoutExercise) => {
+                setWorkoutExercise(updatedWorkoutExercise);
+                navigateToMainEditRoute(updatedWorkoutExercise, exercise);
+              }}
+            />
           </ExerciseBottomSheetHeader>
         );
       case "exercise-stats-route":

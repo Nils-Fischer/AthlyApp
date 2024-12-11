@@ -23,26 +23,28 @@ export const ExerciseEditAlternatives: React.FC<ExerciseEditAlternativesProps> =
     workoutExercise.alternatives.includes(ex.id)
   );
 
-  const newWorkoutExercise: WorkoutExercise = selectedExercise
-    ? {
-        ...workoutExercise,
-        alternatives: [...workoutExercise.alternatives.filter((id) => id !== selectedExercise.id)],
-        exerciseId: selectedExercise.id,
-      }
-    : workoutExercise;
+  const createUpdatedWorkoutExercise = (selected: Exercise): WorkoutExercise => ({
+    ...workoutExercise,
+    alternatives: [...workoutExercise.alternatives.filter((id) => id !== selected.id), workoutExercise.exerciseId],
+    exerciseId: selected.id,
+  });
 
   const handleConfirmReplacement = () => {
-    onSelection(newWorkoutExercise);
+    if (selectedExercise) {
+      onSelection(createUpdatedWorkoutExercise(selectedExercise));
+    }
   };
 
   const handleExerciseSelection = (alternativeExercise: Exercise) => {
     setSelectedExercise(alternativeExercise);
-    if (withConfirmation) onSelection(newWorkoutExercise);
+    if (!withConfirmation) {
+      onSelection(createUpdatedWorkoutExercise(alternativeExercise));
+    }
   };
 
   return (
     <View className="flex-1 bg-background">
-      <ScrollView className="flex-1 p-4 pb-32">
+      <ScrollView className="flex-1 p-4 pb-24">
         {alternativeExercises.length > 0 ? (
           <View className="gap-4">
             {alternativeExercises.map((alternativeExercise) => (
@@ -101,7 +103,7 @@ export const ExerciseEditAlternatives: React.FC<ExerciseEditAlternativesProps> =
 
       {/* Bottom Button - Only show when withConfirmation is true */}
       {withConfirmation && alternativeExercises.length > 0 && (
-        <View className="absolute bottom-25 left-0 right-0 p-4 bg-background">
+        <View className="absolute bottom-10 left-0 right-0 p-4 bg-background border-t border-border">
           <Button onPress={handleConfirmReplacement} className="w-full" disabled={!selectedExercise}>
             {selectedExercise ? (
               <Text className="text-primary-foreground font-medium">
