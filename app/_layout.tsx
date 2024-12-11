@@ -1,3 +1,4 @@
+//app\_layout.tsx
 import "~/global.css";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { Theme, ThemeProvider } from "@react-navigation/native";
@@ -12,7 +13,6 @@ import { setAndroidNavigationBar } from "~/lib/android-navigation-bar";
 import { SessionProvider } from "~/context";
 import { useExerciseStore } from "~/stores/exerciseStore";
 import { useUserStore } from "~/stores/userStore";
-import { useEffect } from "react";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
 
 const LIGHT_THEME: Theme = {
@@ -37,6 +37,7 @@ const LIGHT_THEME: Theme = {
     },
   },
 };
+
 const DARK_THEME: Theme = {
   dark: true,
   colors: NAV_THEME.dark,
@@ -61,11 +62,9 @@ const DARK_THEME: Theme = {
 };
 
 export {
-  // Catch any errors thrown by the Layout component.
   ErrorBoundary,
 } from "expo-router";
 
-// Prevent the splash screen from auto-hiding before getting the color scheme.
 SplashScreen.preventAutoHideAsync();
 
 export default function RootLayout() {
@@ -74,11 +73,9 @@ export default function RootLayout() {
   const exerciseStore = useExerciseStore();
   const userStore = useUserStore();
 
-  // Combine all initialization into a single effect
   React.useEffect(() => {
     async function initialize() {
       try {
-        // Load theme first
         const theme = await AsyncStorage.getItem("theme");
         if (Platform.OS === "web") {
           document.documentElement.classList.add("bg-background");
@@ -96,7 +93,6 @@ export default function RootLayout() {
           await AsyncStorage.setItem("theme", colorScheme);
         }
 
-        // Then initialize app data
         await AsyncStorage.setItem("APP_INITIALIZED", "true");
         await Promise.all([exerciseStore.fetchInitialData(), userStore.fetchUserData()]);
 
@@ -125,8 +121,19 @@ export default function RootLayout() {
       <SessionProvider>
         <ThemeProvider value={isDarkColorScheme ? DARK_THEME : LIGHT_THEME}>
           <StatusBar style={isDarkColorScheme ? "light" : "dark"} />
-          <Stack>
-            <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
+          <Stack screenOptions={{
+            headerShown: false,
+            animation: 'none'
+          }}>
+            <Stack.Screen name="(tabs)" />
+            <Stack.Screen 
+              name="dashboard" 
+              options={{ 
+                animation: 'slide_from_bottom',
+                presentation: 'modal',
+                animationDuration: 200
+              }} 
+            />
           </Stack>
           <PortalHost />
         </ThemeProvider>

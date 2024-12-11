@@ -1,26 +1,38 @@
 // TrainTechApp/app/workout/exercise/[id].tsx
-import React, { useState } from "react";
+import React from "react";
 import { View, ScrollView, Pressable } from "react-native";
 import { Text } from "~/components/ui/text";
-import { useLocalSearchParams, useRouter } from "expo-router";
+import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useExerciseStore } from "~/stores/exerciseStore";
 import { Image } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { Carousel, MediaItem } from "~/components/Carousel";
 import Animated, { useAnimatedScrollHandler, useSharedValue, FadeInDown } from "react-native-reanimated";
-import { Trophy, Users2 } from "~/lib/icons/Icons";
+import { Trophy, Users2, ChevronLeft } from "lucide-react-native";
+import { useNavigationStore } from '~/stores/navigationStore';
 
 const AnimatedScrollView = Animated.createAnimatedComponent(ScrollView);
 
 const ANIMATION_BASE_DELAY = 100;
 const STAGGER_DELAY = 50;
+
 export default function ExerciseDetailScreen() {
-  const { id } = useLocalSearchParams<{ id: string }>();
   const router = useRouter();
+  const navigationStore = useNavigationStore();
+  const { id } = useLocalSearchParams<{ id: string }>();
   const exerciseStore = useExerciseStore();
   const exercise = exerciseStore.exercises.find((ex) => ex.id === Number(id));
 
   const scrollY = useSharedValue(0);
+
+  const handleBack = () => {
+    if (navigationStore.previousScreen === 'exerciseModal') {
+      router.back();
+      navigationStore.setPreviousScreen(undefined);  // null zu undefined
+    } else {
+      router.replace('/(tabs)');  // Anpassung der Route
+    }
+  };
 
   const mediaItems: MediaItem[] = [
     ...(exercise?.images?.map((url) => ({ type: "image" as const, url })) || []),
@@ -44,6 +56,16 @@ export default function ExerciseDetailScreen() {
 
   return (
     <AnimatedScrollView onScroll={scrollHandler} scrollEventThrottle={16} className="flex-1" bounces={false}>
+      {/* Back Button */}
+      <View className="absolute top-0 left-0 right-0 z-10 pt-14 px-4 pb-4">
+        <Pressable
+          onPress={handleBack}
+          className="h-10 w-10 rounded-full bg-background/80 backdrop-blur-md items-center justify-center"
+        >
+          <ChevronLeft size={24} className="text-foreground" />
+        </Pressable>
+      </View>
+
       {/* Media Carousel Section */}
       <Carousel mediaItems={mediaItems} />
 

@@ -49,6 +49,7 @@ export interface NutritionProgress {
 }
 
 export interface Exercise {
+  alternatives: never[];
   timesUsed: string;
   id: number;
   name: string;
@@ -72,6 +73,7 @@ export enum Gender {
 
 // Exercise specific data for a workout
 export interface WorkoutExercise {
+  isCompleted: boolean;
   weight: number;
   exerciseId: number;
   alternatives: number[];
@@ -80,6 +82,7 @@ export interface WorkoutExercise {
   restPeriod?: number;
   notes?: string;
   isMarked?: boolean
+  completedSets?: SetInput[];
 }
 
 export interface Workout {
@@ -109,4 +112,31 @@ export interface UserData {
   routines: Routine[];
   created_at: string;
   last_updated: string;
+}
+export interface SetInput {
+  reps: number;
+  weight: number;
+  isCompleted?: boolean;
+}
+
+export interface WarmUpSet {
+  percentage: number;
+  weight: number;
+  reps: number;
+  isCompleted: boolean;
+}
+
+export interface PreviousWorkout {
+  date: string;
+  sets: SetInput[];
+  volume: number;
+}
+export interface ExerciseModalProps {
+  isVisible: boolean;
+  onClose: () => void;
+  exercise: Exercise;
+  workoutExercise: WorkoutExercise;
+  isWorkoutStarted: boolean;
+  onSave: (sets: SetInput[]) => void;
+  previousWorkout?: PreviousWorkout;
 }
