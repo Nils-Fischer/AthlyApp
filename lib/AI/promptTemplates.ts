@@ -1,143 +1,14 @@
-import Anthropic from "@anthropic-ai/sdk";
-import { Exercise } from "~/lib/types";
-import { ChatContext } from "./types";
-import OpenAI from "openai";
-import { APIPromise } from "openai/core";
-import { APIPromise as AnthropicAPIPromise } from "@anthropic-ai/sdk/core";
-
-export async function getPrompt(
-  provider: "openai" | "anthropic",
-  userQuery: string,
-  context: ChatContext,
-  summary: string,
-  exercises: Exercise[]
-): Promise<string> {
-  const exerciseList = exercises.map((exercise) => `${exercise.id} - ${exercise.name}`).join("\n");
-  const system = "You are Alex, a knowledgeable and friendly personal trainer AI.";
-  console.log("User query:", userQuery);
-
-  const errorMessage = "Etwas ist schief gelaufen. Bitte versuche es erneut.";
-  try {
-    switch (provider) {
-      case "openai":
-        const openaiAnswer = await createOpenAIRequest(context, system, userQuery, summary, exerciseList);
-        if (!openaiAnswer.choices?.[0]?.message?.content) {
-          console.error("Invalid OpenAI response format", openaiAnswer);
-          return errorMessage;
-        }
-        return openaiAnswer.choices[0].message.content;
-      case "anthropic":
-        const anthropicAnswer = await createAnthropicRequest(context, system, userQuery, summary, exerciseList);
-        if (anthropicAnswer.content[0]?.type === "text") {
-          return anthropicAnswer.content[0].text;
-        } else {
-          console.error("Tool use error");
-          return errorMessage;
-        }
-    }
-  } catch (error) {
-    console.error("Error generating AI response:", error);
-    return errorMessage;
-  }
+export interface RoutineFormData {
+  mainPrompt: string;
+  goals?: string;
+  equipment?: string;
+  frequency?: string;
+  limitations?: string;
 }
 
-function createOpenAIRequest(
-  context: ChatContext,
-  system: string,
-  message: string,
-  summary: string,
-  exerciseList: string
-): APIPromise<OpenAI.Chat.Completions.ChatCompletion> {
-  const api_key = process.env.EXPO_PUBLIC_OPENAI_API_KEY;
-  if (!api_key) {
-    console.error("Missing OpenAI key");
-    throw Error("OpenAI API Key missing");
-  }
-  const openai = new OpenAI({ apiKey: api_key });
-  switch (context.type) {
-    case "knowledge":
-      console.log("Knowledge prompt");
-      return openai.chat.completions.create(
-        createOpenAIMessage(1000, system, promptForKnowledgeQuery(message, summary))
-      );
-    case "routine_creation":
-      console.log("Routine creation prompt");
-      return openai.chat.completions.create(
-        createOpenAIMessage(1000, system, promptForRoutineCreation(message, exerciseList, summary))
-      );
-  }
-}
-
-function createOpenAIMessage(
-  max_tokens: number,
-  system: string,
-  message: string
-): OpenAI.Chat.Completions.ChatCompletionCreateParamsNonStreaming {
-  return {
-    model: "gpt-4o-mini",
-    max_completion_tokens: max_tokens,
-    messages: [
-      { role: "system", content: system },
-      {
-        role: "user",
-        content: message,
-      },
-    ],
-  };
-}
-
-function createAnthropicRequest(
-  context: ChatContext,
-  system: string,
-  message: string,
-  summary: string,
-  exerciseList: string
-): AnthropicAPIPromise<Anthropic.Messages.Message> {
-  const api_key = process.env.EXPO_PUBLIC_ANTHROPIC_API_KEY;
-  if (!api_key) {
-    console.error("Missing Antropic key");
-    throw Error("Antropic API Key missing");
-  }
-  const anthropic = new Anthropic({ apiKey: api_key });
-
-  switch (context.type) {
-    case "knowledge":
-      console.log("Knowledge prompt");
-      return anthropic.messages.create(createAnthropicMessage(1000, system, promptForKnowledgeQuery(message, summary)));
-    case "routine_creation":
-      console.log("Routine creation prompt");
-      return anthropic.messages.create(
-        createAnthropicMessage(1000, system, promptForRoutineCreation(message, exerciseList, summary))
-      );
-  }
-}
-
-function createAnthropicMessage(
-  max_tokens: number,
-  system: string,
-  message: string
-): Anthropic.Messages.MessageCreateParamsNonStreaming {
-  return {
-    model: "claude-3-5-haiku-20241022",
-    max_tokens: max_tokens,
-    temperature: 0,
-    system: system,
-    messages: [
-      {
-        role: "user",
-        content: [
-          {
-            type: "text",
-            text: message,
-          },
-        ],
-      },
-    ],
-  };
-}
-
-export function promptForKnowledgeQuery(userQuery: string, summary: string): string {
-  return `You are Alex, a knowledgeable and friendly personal trainer AI. Your task is to provide personalized fitness advice to users from various cultural backgrounds. 
+export const prompts = {
+  promptForKnowledgeQuery(userQuery: string, summary: string): string {
+    return `You are Alex, a knowledgeable and friendly personal trainer AI. Your task is to provide personalized fitness advice to users from various cultural backgrounds. 
 
   Summary of the conversation so far:
   <summary>
@@ -181,10 +52,10 @@ export function promptForKnowledgeQuery(userQuery: string, summary: string): str
   4. Keep responses brief and conversational
   5. Focus on evidence-based information
   6. Acknowledge when certain questions might need professional medical advice`;
-}
+  },
 
-export function promptForRoutineCreation(userQuery: string, summary: string, exerciseList: string): string {
-  return `You are Alex, a knowledgeable and friendly personal trainer AI. Your task is to provide personalized fitness advice and workout routines to users from various cultural backgrounds. 
+  promptForRoutineCreation(userQuery: string, summary: string, exerciseList: string): string {
+    return `You are Alex, a knowledgeable and friendly personal trainer AI. Your task is to provide personalized fitness advice and workout routines to users from various cultural backgrounds. 
 
   Summary of the conversation so far:
   <summary>
@@ -257,4 +128,94 @@ export function promptForRoutineCreation(userQuery: string, summary: string, exe
   2. Maintain consistency with any previously given advice
   3. Include both <text> tags for user response and <summary> tags for context
   4. Keep responses brief and conversational`;
-}
+  },
+
+  promptForRoutineCreationWithForm: (formData: RoutineFormData, exerciseList: string): string => `
+    You are Alex, a knowledgeable and friendly personal trainer AI. Your task is to create a personalized workout routine based on the user's specific requirements.
+
+    Available exercises:
+    <exercise_list>
+    ${exerciseList}
+    </exercise_list>
+
+    User requirements:
+    <requirements>
+    Main request: ${formData.mainPrompt}
+    ${formData.goals ? `Goals: ${formData.goals}` : ""}
+    ${formData.equipment ? `Available equipment: ${formData.equipment}` : ""}
+    ${formData.frequency ? `Preferred frequency: ${formData.frequency}` : ""}
+    ${formData.limitations ? `Limitations/Restrictions: ${formData.limitations}` : ""}
+    </requirements>
+
+    Create a workout routine that matches these requirements. Generate a response in the following format:
+
+    1. First, plan out the routine structure within <analysis> tags, considering:
+       - User's experience level and limitations
+       - Optimal workout split based on frequency
+       - Exercise selection and progression
+       - Rest and recovery needs
+       - Equipment availability
+   
+  a. Generate a localized routine in this JSON format and wrap it in <routine> tags:
+      {
+          "id": number,
+          "name": "Routine Name",
+          "description": "Routine description",
+          "frequency": number,
+          "workouts": [
+          {
+              "id": number,
+              "name": "Workout Name",
+              "description": "Workout description",
+              "duration": number,
+              "exercises": [
+              {
+                  "exerciseId": number,
+                  "alternatives": [number],
+                  "sets": number,
+                  "reps": number
+              }
+              ]
+          }
+          ]
+      }
+. Finally, provide the routine data in this exact JSON format, wrapped in <routine> tags:
+    {
+      "name": "Routine Name",
+      "description": "Brief description of the routine's focus and benefits",
+      "frequency": number, // weekly training frequency
+      "workouts": [
+        {
+          "name": "Workout Name (e.g., 'Upper Body Day 1')",
+          "description": "Brief description of this workout's focus",
+          "duration": number, // estimated minutes
+          "exercises": [
+            {
+              "exerciseId": number, // must match an ID from the exercise list
+              "alternatives": [number], // array of alternative exercise IDs
+              "sets": number,
+              "reps": number,
+              "notes": "Optional exercise-specific instructions"
+            }
+          ]
+        }
+      ]
+    }
+
+    Guidelines:
+    1. Only use exercises from the provided exercise list
+    2. Consider the user's limitations and equipment availability
+    3. Provide realistic alternatives for each exercise
+    4. Keep workouts within the requested time constraints
+    5. Match the intensity to the user's experience level
+    6. Include proper warm-up exercises
+    7. Structure the routine to match the requested frequency
+
+    Remember to:
+    1. Keep the explanation brief and clear
+    2. Ensure all exerciseIds exist in the exercise list
+    3. Provide a balanced routine that aligns with the stated goals
+    4. Include both <text> and <routine> tags in your response
+    5. Don't use comments in your json answer
+  `,
+};

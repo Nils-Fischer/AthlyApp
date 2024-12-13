@@ -8,9 +8,10 @@ import { Text } from "~/components/ui/text";
 import { useRouter } from "expo-router";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "~/components/ui/tabs";
 import { ExerciseLibrary } from "~/components/Exercise/ExerciseLibrary";
-import { ClipboardList, PlusCircle, Sparkles } from "lucide-react-native";
+import { ClipboardList, PlusCircle, Sparkles } from "~/lib/icons/Icons";
 import { RoutineCreationDialog } from "~/components/Routine/RoutineCreationDialog";
 import { RoutineLibrary } from "~/components/Routine/RoutineLibrary";
+import { AIRoutineCreationDialog } from "~/components/Routine/AIRoutineCreationDialog";
 
 export default function RoutineScreen() {
   const userStore = useUserStore();
@@ -20,6 +21,7 @@ export default function RoutineScreen() {
   const [showForm, setShowForm] = React.useState(routines.length === 0);
   const [activeTab, setActiveTab] = React.useState("routines");
   const [showRoutineCreationDialog, setShowRoutineCreationDialog] = React.useState(false);
+  const [showAIRoutineDialog, setShowAIRoutineDialog] = React.useState(false);
 
   const handleRoutineCreation = (routine: Routine) => {
     console.log("🚀 Created routine:", routine);
@@ -46,9 +48,7 @@ export default function RoutineScreen() {
     {
       name: "AI-Erstellung",
       icon: Sparkles,
-      onPress: () => {
-        // Handle AI creation
-      },
+      onPress: () => setShowAIRoutineDialog(true),
     },
   ];
 
@@ -95,6 +95,17 @@ export default function RoutineScreen() {
           userStore.addRoutine(routine);
           setRoutines([...routines, routine]);
           setShowRoutineCreationDialog(false);
+          router.push(`/workout/${routine.id}`);
+        }}
+      />
+
+      <AIRoutineCreationDialog
+        open={showAIRoutineDialog}
+        onOpenChange={setShowAIRoutineDialog}
+        onCreate={(routine) => {
+          userStore.addRoutine(routine);
+          setRoutines([...routines, routine]);
+          setShowAIRoutineDialog(false);
           router.push(`/workout/${routine.id}`);
         }}
       />
