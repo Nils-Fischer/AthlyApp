@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { View, ScrollView, Pressable, ActivityIndicator, ImageBackground, useWindowDimensions } from 'react-native';
+import { View, ScrollView, Pressable, ActivityIndicator, ImageBackground, Alert , useWindowDimensions } from 'react-native';
 import { Text } from '~/components/ui/text';
 import { Button } from '~/components/ui/button';
 import { Card } from '~/components/ui/card';
@@ -40,6 +40,9 @@ import DraggableFlatList, {
   DragEndParams,
 } from 'react-native-draggable-flatlist';
 import { WorkoutStartModal } from '~/components/dashboard/active-workout/WorkoutStartModal';
+import { useWorkoutHistoryStore } from '~/stores/workoutHistoryStore';
+import { WorkoutSummaryModal } from '~/components/dashboard/active-workout/WorkoutSummaryModal';
+
 
 // Helper function for formatting time
 const formatTime = (seconds: number): string => {
@@ -66,6 +69,10 @@ export default function ActiveWorkoutScreen() {
   const [showStartModal, setShowStartModal] = useState(false);
   const [restTimer, setRestTimer] = useState(0);
   const [restTimerInterval, setRestTimerInterval] = useState<NodeJS.Timeout | null>(null);
+  const [showEndConfirmation, setShowEndConfirmation] = useState(false);
+  const [showSummary, setShowSummary] = useState(false);
+  const [estimatedCalories, setEstimatedCalories] = useState(0);
+  
 
   // UI States
   const [selectedExercise, setSelectedExercise] = useState<{
@@ -86,20 +93,21 @@ export default function ActiveWorkoutScreen() {
   const EXTRA_SCROLL_PADDING = 100;
   const SCROLL_VIEW_HEIGHT = height - HEADER_HEIGHT - FOOTER_HEIGHT;
 
+  const workoutHistory = useWorkoutHistoryStore();
+
 
   useEffect(() => {
-    setWorkoutHistory({
-      1: {  // exerciseId: 1
-        date: new Date().toISOString(),
-        sets: [
-          { weight: 40, reps: 12, isCompleted: true },
-          { weight: 40, reps: 12, isCompleted: true },
-          { weight: 40, reps: 12, isCompleted: true }
-        ]
-      }
-      // Weitere Übungen hier...
-    });
+    workoutHistory.init();
   }, []);
+
+  useEffect(() => {
+    if (isStarted && !isPaused) {
+      // Grobe Schätzung: 5 Kalorien pro Minute Training
+      const caloriesPerMinute = 5;
+      setEstimatedCalories(Math.round((workoutTimer / 60) * caloriesPerMinute));
+    }
+  }, [workoutTimer, isStarted, isPaused]);
+
   // Timer Effect
   useEffect(() => {
     let workoutInterval: NodeJS.Timeout;
@@ -174,25 +182,25 @@ export default function ActiveWorkoutScreen() {
       sets: SetInput[];
     }
   }
-  const [workoutHistory, setWorkoutHistory] = useState<WorkoutHistory>({});
 
   const handleWorkoutComplete = () => {
-    // Aktuelles Datum
-    const today = new Date().toISOString();
-    
-    // Update Historie mit den neuen Daten
-    const newHistory = { ...workoutHistory };
     workoutExercises.forEach(exercise => {
       if (exercise.completedSets) {
-        newHistory[exercise.exerciseId] = {
-          date: today,
-          sets: exercise.completedSets
-        };
+        // Nutze den Store statt setState
+        workoutHistory.addWorkoutHistory(
+          exercise.exerciseId,
+          exercise.completedSets
+        );
       }
     });
-    
-    setWorkoutHistory(newHistory);
-    // Hier könnte später die Speicherung in einer Datenbank erfolgen
+  
+    // Rest deiner bestehenden Logik
+    setIsStarted(false);
+    setIsPaused(false);
+    setWorkoutTimer(0);
+    setCompletedSets(0);
+    setTotalVolume(0);
+    router.back();
   };
   
 
@@ -239,15 +247,59 @@ export default function ActiveWorkoutScreen() {
   };
 
   const handleEndWorkout = () => {
-    if (confirm("Möchtest du das Training wirklich beenden?")) {
-      handleWorkoutComplete();
-      setIsStarted(false);
-      setIsPaused(false);
-      setWorkoutTimer(0);
-      setCompletedSets(0);
-      setTotalVolume(0);
-      router.back();
-    }
+    // Stoppe zuerst den Timer
+    clearWorkoutTimers();  // Neue Funktion
+    
+    Alert.alert(
+      "Workout beenden?",
+      "Bist du sicher, dass du das Training beenden möchtest?",
+      [
+        {
+          text: "Weiter trainieren",
+          style: "cancel",
+          onPress: () => {
+            // Starte Timer wieder, wenn User weitermachen möchte
+            setIsStarted(true);
+          }
+        },
+        {
+          text: "Beenden",
+          style: "destructive",
+          onPress: handleConfirmEnd
+        }
+      ]
+    );
+  };
+  const clearWorkoutTimers = () => {
+    setIsStarted(false);
+    setIsPaused(true);
+    // Speichere die finalen Werte
+    const finalDuration = workoutTimer;
+    const finalCalories = estimatedCalories;
+    setFinalStats({
+      duration: workoutTimer,
+      calories: estimatedCalories,
+      volume: totalVolume,
+      completedSets: completedSets
+    });
+  };
+  
+  // Neuer State für die finalen Statistiken
+  const [finalStats, setFinalStats] = useState({
+    duration: 0,
+    calories: 0,
+    volume: 0,
+    completedSets: 0
+  });
+
+  const handleConfirmEnd = () => {
+    setShowEndConfirmation(false);
+    setShowSummary(true);
+  };
+  
+  const handleFinishWorkout = () => {
+    handleWorkoutComplete();
+    setShowSummary(false);
   };
 
   const handleCancelEdit = () => {
@@ -582,8 +634,7 @@ export default function ActiveWorkoutScreen() {
           exercise={selectedExercise.exercise}
           workoutExercise={selectedExercise.workoutExercise}
           isWorkoutStarted={isStarted}
-          // Hier übergeben wir die vorherigen Workout-Daten
-          previousWorkout={workoutHistory[selectedExercise.exercise.id]}
+          previousWorkout={workoutHistory.getLastWorkout(selectedExercise.exercise.id)}
           onSave={(sets) => {
             setWorkoutExercises(prev => prev.map(ex => {
               if (ex.exerciseId === selectedExercise.exercise.id) {
@@ -627,6 +678,15 @@ export default function ActiveWorkoutScreen() {
           setIsStarted(true);
           Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
         }}
+      />
+      <WorkoutSummaryModal
+        isVisible={showSummary}
+        onClose={handleFinishWorkout}
+        duration={finalStats.duration}
+        totalVolume={finalStats.volume}
+        completedSets={finalStats.completedSets}
+        totalSets={workoutExercises.reduce((acc, ex) => acc + ex.sets, 0)}
+        estimatedCalories={finalStats.calories}
       />
     </View>
   );

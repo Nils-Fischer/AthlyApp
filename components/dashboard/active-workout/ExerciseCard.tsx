@@ -175,7 +175,7 @@ export const ExerciseCard = ({
             </View>
 
             {/* Progress Bar for Completed Sets */}
-            {workoutExercise.completedSets && (
+            {isActive && workoutExercise.completedSets && (
               <View className="mt-3">
                 <Text className="text-sm text-muted-foreground mb-1">Fortschritt</Text>
                 <View className="h-2 bg-secondary/10 rounded-full overflow-hidden">

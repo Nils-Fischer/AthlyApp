@@ -32,8 +32,11 @@ import { Exercise, WorkoutExercise } from '~/lib/types';
 import * as Haptics from 'expo-haptics';
 import { router } from 'expo-router';
 import Animated, { FadeIn, FadeOut, FadeInDown } from 'react-native-reanimated';
-import { Swipeable } from 'react-native-gesture-handler';
 import { useNavigationStore } from '~/stores/navigationStore';
+import { useWorkoutHistoryStore } from '~/stores/workoutHistoryStore';
+import { WorkoutHistoryView } from './WorkoutHistoryView';
+import { ExerciseTimer } from '~/components/dashboard/active-workout/ExerciseTimer';
+import { WarmupRecommendations } from '~/components/dashboard/active-workout/WarmupRecommendations';
 
 interface SetInput {
   reps: number;
@@ -49,6 +52,7 @@ interface WarmUpSet {
   reps: number;
   isCompleted: boolean;
 }
+
 
 interface ExerciseModalProps {
   isVisible: boolean;
@@ -74,32 +78,39 @@ export const ExerciseModal = ({
   previousWorkout,
 }: ExerciseModalProps) => {
   // States
+  const workoutHistory = useWorkoutHistoryStore();
+  
+  useEffect(() => {
+    workoutHistory.init();
+  }, []);
+  
   const initialSets = useMemo(() => {
     if (workoutExercise.completedSets) {
       return workoutExercise.completedSets;
     }
     
-    // Wenn es vorherige Workout-Daten gibt
-    if (previousWorkout?.sets) {
-      return previousWorkout.sets.map(prevSet => ({
-        reps: prevSet.reps,           // Verwende die vorherigen Werte als Default
-        weight: prevSet.weight,       // Verwende die vorherigen Werte als Default
-        isCompleted: false,
-        previousWeight: prevSet.weight,
-        previousReps: prevSet.reps
-      }));
+    const lastWorkout = workoutHistory.getLastWorkout(exercise.id);
+    if (lastWorkout?.sets) {
+      return Array(workoutExercise.sets).fill(0).map((_, index) => {
+        const lastSet = lastWorkout.sets[index];
+        return {
+          reps: lastSet?.reps || workoutExercise.reps,
+          weight: lastSet?.weight || workoutExercise.weight,
+          isCompleted: false
+        };
+      });
     }
-  
-    // Fallback auf Standard-Werte
+    
     return Array(workoutExercise.sets).fill({
       reps: workoutExercise.reps,
       weight: workoutExercise.weight,
       isCompleted: false
     });
-  }, [workoutExercise, previousWorkout]);
+  }, [workoutExercise, exercise.id]);
 
   const [sets, setSets] = useState<SetInput[]>(initialSets);
   const [isEditMode, setIsEditMode] = useState(false);
+  const [isDeleteMode, setIsDeleteMode] = useState(false);
   const [warmUpSet, setWarmUpSet] = useState<SetInput | null>(null);
   const navigationStore = useNavigationStore();
   const [rpe, setRpe] = useState<number>(7);
@@ -116,6 +127,7 @@ export const ExerciseModal = ({
     }
     return "Übung aktualisieren";
   };
+  const [showHistory, setShowHistory] = useState(false);
 
 
   // Calculations
@@ -160,13 +172,22 @@ export const ExerciseModal = ({
 
   const handleDeleteSet = useCallback((index: number) => {
     setSets(prev => {
+      // Don't allow deleting if only one set remains
+      if (prev.length <= 1) {
+        if (Platform.OS !== 'web') {
+          Haptics.notificationAsync(Haptics.NotificationFeedbackType.Error);
+        }
+        return prev;
+      }
+      
       const newSets = [...prev];
       newSets.splice(index, 1);
+      
+      if (Platform.OS !== 'web') {
+        Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
+      }
       return newSets;
     });
-    if (Platform.OS !== 'web') {
-      Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
-    }
   }, []);
 
   const updateSet = useCallback((index: number, field: keyof SetInput, value: string) => {
@@ -293,6 +314,25 @@ export const ExerciseModal = ({
                 </View>
                 <ChevronRight size={20} className="text-muted-foreground" />
               </Pressable>
+              {/* Neuer Button für Workout History */}
+              <Pressable 
+                className="p-4 flex-row items-center justify-between active:opacity-70"
+                onPress={() => {
+                  // Hier Modal mit WorkoutHistoryView öffnen
+                  setShowHistory(true);
+                }}
+              >
+                <View className="flex-row items-center">
+                  <View className="w-10 h-10 rounded-full bg-primary/10 items-center justify-center mr-3">
+                    <BarChart3 size={20} className="text-primary" />
+                  </View>
+                  <View>
+                    <Text className="font-medium">Trainings-Historie</Text>
+                    <Text className="text-sm text-muted-foreground">Vergangene Leistungen</Text>
+                  </View>
+                </View>
+                <ChevronRight size={20} className="text-muted-foreground" />
+              </Pressable>
             </Card>
 
             {/* Sets Management Card */}
@@ -307,6 +347,7 @@ export const ExerciseModal = ({
                     <View>
                       <Text className="font-medium">Aufwärmen</Text>
                       <Text className="text-sm text-muted-foreground">Vorbereitung für dein Training</Text>
+                      
                     </View>
                   </View>
                   <Switch
@@ -401,10 +442,18 @@ export const ExerciseModal = ({
                     <Button
                       variant="ghost"
                       size="icon"
-                      className="h-9 w-9 rounded-full bg-secondary/10"
-                      onPress={() => setIsEditMode(!isEditMode)}
+                      className={`h-9 w-9 rounded-full ${isDeleteMode ? 'bg-destructive/10' : 'bg-secondary/10'}`}
+                      onPress={() => {
+                        setIsDeleteMode(!isDeleteMode);
+                        if (Platform.OS !== 'web') {
+                          Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+                        }
+                      }}
                     >
-                      <Trash2 size={16} className={isEditMode ? "text-destructive" : "text-muted-foreground"} />
+                      <Trash2 
+                        size={16} 
+                        className={isDeleteMode ? "text-destructive" : "text-muted-foreground"} 
+                      />
                     </Button>
                     <Button
                       variant="ghost"
@@ -418,72 +467,58 @@ export const ExerciseModal = ({
                 </View>
 
               {/* Working Sets List */}
-              <View className="space-y-2">
-                {sets.map((set, index) => (
-                  <Animated.View
-                    key={index}
-                    entering={FadeInDown.delay(index * 50)}
-                    className={`
-                      rounded-xl overflow-hidden
-                      ${set.isCompleted ? 'border-2 border-green-500 bg-green-50' : 'bg-secondary/5'}
-                    `}
-                  >
-                    <View className="p-4">
+            <View className="space-y-2">
+            {sets.map((set, index) => (
+              <Animated.View
+                key={index}
+                entering={FadeInDown.delay(index * 50)}
+                className={`
+                  rounded-xl overflow-hidden
+                  ${isWorkoutStarted && set.isCompleted ? 'border-2 border-green-500 bg-green-50' : 'bg-secondary/5'}
+                `}
+              >
+                <View className="p-4">
+                  <View className="flex-row items-center">
+                    <View className="w-10 h-10 rounded-full bg-background items-center justify-center">
+                      <Text className="text-base font-medium text-foreground">{index + 1}</Text>
+                    </View>
+
+                    <View className="flex-1">
+                      <Text className="text-xs text-muted-foreground mb-1">Gewicht</Text>
                       <View className="flex-row items-center">
-                        <View className="w-10 h-10 rounded-full bg-background items-center justify-center">
-                          <Text className="text-base font-medium text-foreground">{index + 1}</Text>
-                        </View>
+                        <TextInput
+                          className={`
+                            flex-1 h-10 px-3 rounded-lg text-base
+                            ${isWorkoutStarted && set.isCompleted ? 'bg-green-50' : 'bg-background'}
+                          `}
+                          value={set.weight.toString()}
+                          onChangeText={(value) => updateSet(index, 'weight', value)}
+                          keyboardType="numeric"
+                          maxLength={3}
+                          placeholder="0"
+                        />
+                        <Text className="ml-2 text-sm text-muted-foreground">kg</Text>
+                      </View>
+                    </View>
 
-                        <View className="flex-1">
-                          {/* Gewicht Input */}
-                          <View className="flex-row items-center mb-1">
-                            <Text className="text-xs text-muted-foreground">Gewicht</Text>
-                            {previousWorkout && (
-                              <Text className="text-xs text-muted-foreground ml-2">
-                                (Letztes Mal: {previousWorkout.sets[index]?.weight || '-'}kg)
-                              </Text>
-                            )}
-                          </View>
-                          <View className="flex-row items-center">
-                            <TextInput
-                              className={`
-                                flex-1 h-10 px-3 rounded-lg text-base
-                                ${set.isCompleted ? 'bg-green-50' : 'bg-background'}
-                              `}
-                              value={set.weight.toString()}
-                              onChangeText={(value) => updateSet(index, 'weight', value)}
-                              keyboardType="numeric"
-                              maxLength={3}
-                              placeholder={previousWorkout?.sets[index]?.weight.toString() || "0"}
-                            />
-                            <Text className="ml-2 text-sm text-muted-foreground">kg</Text>
-                          </View>
-                        </View>
+                    <View className="flex-1">
+                      <Text className="text-xs text-muted-foreground mb-1">Wdh</Text>
+                      <TextInput
+                        className={`
+                          h-10 px-3 rounded-lg text-base
+                          ${isWorkoutStarted && set.isCompleted ? 'bg-green-50' : 'bg-background'}
+                        `}
+                        value={set.reps.toString()}
+                        onChangeText={(value) => updateSet(index, 'reps', value)}
+                        keyboardType="numeric"
+                        maxLength={2}
+                        placeholder="0"
+                      />
+                    </View>
 
-                        <View className="flex-1">
-                          {/* Wiederholungen Input */}
-                          <View className="flex-row items-center mb-1">
-                            <Text className="text-xs text-muted-foreground">Wdh</Text>
-                            {previousWorkout && (
-                              <Text className="text-xs text-muted-foreground ml-2">
-                                (Letztes Mal: {previousWorkout.sets[index]?.reps || '-'})
-                              </Text>
-                            )}
-                          </View>
-                          <TextInput
-                            className={`
-                              h-10 px-3 rounded-lg text-base
-                              ${set.isCompleted ? 'bg-green-50' : 'bg-background'}
-                            `}
-                            value={set.reps.toString()}
-                            onChangeText={(value) => updateSet(index, 'reps', value)}
-                            keyboardType="numeric"
-                            maxLength={2}
-                            placeholder={previousWorkout?.sets[index]?.reps.toString() || "0"}
-                          />
-                        </View>
-
-                        {isWorkoutStarted && (
+                      {/* Aktions-Buttons basierend auf Modus */}
+                      {isWorkoutStarted ? (
+                        !isDeleteMode ? (
                           <Pressable
                             onPress={() => handleSetComplete(index)}
                             className={`
@@ -497,12 +532,29 @@ export const ExerciseModal = ({
                               className={set.isCompleted ? 'text-white' : 'text-green-500'} 
                             />
                           </Pressable>
-                        )}
-                      </View>
+                        ) : (
+                          <Pressable
+                            onPress={() => handleDeleteSet(index)}
+                            className="w-10 h-10 rounded-full items-center justify-center ml-2 bg-destructive"
+                          >
+                            <Trash2 size={16} className="text-white" />
+                          </Pressable>
+                        )
+                      ) : (
+                        isDeleteMode ? (
+                          <Pressable
+                            onPress={() => handleDeleteSet(index)}
+                            className="w-10 h-10 rounded-full items-center justify-center ml-2 bg-destructive"
+                          >
+                            <Trash2 size={16} className="text-white" />
+                          </Pressable>
+                        ) : null
+                      )}
                     </View>
-                  </Animated.View>
-                ))}
-              </View>
+                  </View>
+                </Animated.View>
+              ))}
+            </View>
           </View>
         </Card>
 
@@ -529,6 +581,39 @@ export const ExerciseModal = ({
             </Card>
           </View>
         </ScrollView>
+
+        {/* History Modal */}
+<Modal
+  visible={showHistory}
+  animationType="slide"
+  presentationStyle="pageSheet"
+  onRequestClose={() => setShowHistory(false)}
+>
+  <View className="flex-1 bg-background">
+    <View className="pt-7 px-4 pb-4 border-b border-border">
+      <View className="flex-row justify-between items-center">
+        <Button
+          variant="ghost"
+          size="icon"
+          onPress={() => setShowHistory(false)}
+          className="bg-background/80 backdrop-blur-lg rounded-full"
+        >
+          <ArrowLeft size={24} className="text-foreground" />
+        </Button>
+        <Text className="text-xl font-bold">Trainings-Historie</Text>
+        <View style={{ width: 40 }} />
+      </View>
+    </View>
+    
+    <WorkoutHistoryView
+      exerciseId={exercise.id}
+      history={Object.values(workoutHistory.history)
+        .filter(entry => entry.sets?.length > 0)
+        .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())}
+      exerciseName={exercise.name}
+    />
+  </View>
+</Modal>
 
 {/* Footer mit fixierter Position */}
 <View className="absolute bottom-14 left-0 right-0">
