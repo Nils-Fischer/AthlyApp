@@ -7,6 +7,7 @@ import { Plus, Search } from "~/lib/icons/Icons";
 import { CustomDropdownMenu } from "~/components/ui/custom-dropdown-menu";
 import { Routine } from "~/lib/types";
 import { RoutineCard } from "./RoutineCard";
+import { router } from "expo-router";
 
 interface RoutineLibraryProps {
   routines: Routine[];
@@ -25,7 +26,7 @@ export const RoutineLibrary = ({
   routines,
   searchQuery,
   onSearchChange,
-  addButtonDropdownItems: dropdownItems,
+  addButtonDropdownItems,
   onDelete,
   onToggleActive,
 }: RoutineLibraryProps) => {
@@ -42,7 +43,7 @@ export const RoutineLibrary = ({
           />
         </View>
         <CustomDropdownMenu
-          items={dropdownItems}
+          items={addButtonDropdownItems}
           trigger={
             <Button size="icon" variant="ghost" className="h-10 w-10 rounded-full">
               <Plus className="text-foreground" size={24} />
@@ -63,7 +64,13 @@ export const RoutineLibrary = ({
               return (b.active ? 1 : 0) - (a.active ? 1 : 0) || a.name.localeCompare(b.name);
             })
             .map((routine) => (
-              <RoutineCard key={routine.id} routine={routine} onDelete={onDelete} onToggleActive={onToggleActive} />
+              <RoutineCard
+                key={routine.id}
+                routine={routine}
+                onPress={() => router.push(`/workout/${routine.id}`)}
+                onDelete={onDelete}
+                onToggleActive={onToggleActive}
+              />
             ))
         )}
       </ScrollView>

@@ -8,11 +8,13 @@ import { MoreHorizontal, Trash2 } from "~/lib/icons/Icons";
 
 interface RoutineCardProps {
   routine: Routine;
+  onPress?: () => void;
   onDelete?: (id: number) => void;
   onToggleActive?: (id: number) => void;
+  showDropdown?: boolean;
 }
 
-export const RoutineCard = ({ routine, onDelete, onToggleActive }: RoutineCardProps) => {
+export const RoutineCard = ({ routine, onPress, onDelete, onToggleActive, showDropdown = true }: RoutineCardProps) => {
   const dropdownItems: DropdownItem[] = [
     {
       name: routine.active ? "Set Inactive" : "Set Active",
@@ -31,7 +33,7 @@ export const RoutineCard = ({ routine, onDelete, onToggleActive }: RoutineCardPr
 
   return (
     <Pressable
-      onPress={() => router.push(`/workout/${routine.id}`)}
+      onPress={onPress}
       className={`
         mb-4 overflow-hidden rounded-lg border border-border
         ${routine.active ? "bg-destructive/5 border-l-4 border-l-destructive" : "bg-card"}
@@ -55,20 +57,22 @@ export const RoutineCard = ({ routine, onDelete, onToggleActive }: RoutineCardPr
               </Text>
             )}
           </View>
-          <CustomDropdownMenu
-            items={dropdownItems}
-            align="start"
-            trigger={
-              <Pressable
-                className={`
+          {showDropdown && (
+            <CustomDropdownMenu
+              items={dropdownItems}
+              align="start"
+              trigger={
+                <Pressable
+                  className={`
                   h-8 w-8 items-center justify-center rounded-full
                   ${routine.active ? "hover:bg-primary/10" : "hover:bg-muted"}
                 `}
-              >
-                <MoreHorizontal size={20} className={routine.active ? "text-primary" : "text-muted-foreground"} />
-              </Pressable>
-            }
-          />
+                >
+                  <MoreHorizontal size={20} className={routine.active ? "text-primary" : "text-muted-foreground"} />
+                </Pressable>
+              }
+            />
+          )}
         </View>
 
         {/* Stats */}

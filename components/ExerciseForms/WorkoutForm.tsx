@@ -12,7 +12,7 @@ import { AdditionalGoals } from "./AdditionalGoal";
 import { TrainingLocation } from "./TrainingLocation";
 import { ChevronLeft } from "~/lib/icons/Icons";
 import { cn } from "~/lib/utils";
-import { TrainingSplitPreview } from "./SplitPreview";
+import { RoutinePreview } from "./RoutinePreview";
 import { createRoutine } from "~/lib/generateWorkouts";
 import { useExerciseStore } from "~/stores/exerciseStore";
 
@@ -28,7 +28,7 @@ export function WorkoutForm({ onRoutineCreated }: WorkoutFormProps) {
   const [goal, setGoal] = useState<TrainingGoal | null>(null);
   const [selectedGoals, setSelectedGoals] = useState<string[]>([]);
   const [location, setLocation] = useState<LocationType | null>(null);
-  const [selectedSplit, setSelectedSplit] = useState<string | null>(null);
+  const [selectedRoutine, setSelectedRoutine] = useState<number | null>(null);
   const exercises = useExerciseStore.getState().exercises;
 
   const TOTAL_STEPS = 7;
@@ -68,7 +68,7 @@ export function WorkoutForm({ onRoutineCreated }: WorkoutFormProps) {
       case 6:
         return location !== null;
       case 7:
-        return selectedSplit !== null;
+        return selectedRoutine !== null;
       default:
         return false;
     }
@@ -106,7 +106,11 @@ export function WorkoutForm({ onRoutineCreated }: WorkoutFormProps) {
         {currentStep === 5 && <AdditionalGoals selectedGoals={selectedGoals} onGoalToggle={toggleGoal} />}
         {currentStep === 6 && <TrainingLocation location={location} onLocationChange={setLocation} />}
         {currentStep === 7 && (
-          <TrainingSplitPreview frequency={frequency!} selectedSplit={selectedSplit} onSplitSelect={setSelectedSplit} />
+          <RoutinePreview
+            frequency={frequency!}
+            selectedRoutine={selectedRoutine}
+            onRoutineSelect={setSelectedRoutine}
+          />
         )}
       </View>
 
