@@ -49,6 +49,7 @@ export interface NutritionProgress {
 }
 
 export interface Exercise {
+  alternatives: never[];
   timesUsed: string;
   id: number;
   name: string;
@@ -158,3 +159,110 @@ interface Exercise {
   media: string[];
 }
 */
+
+export interface SetInput {
+  reps: number;
+  weight: number;
+  isCompleted?: boolean;
+  previousWeight?: number;
+  previousReps?: number;
+}
+export interface WorkoutHistoryEntry {
+  date: string;
+  sets: SetInput[];
+  volume?: number;
+}
+export interface WorkoutHistory {
+  [exerciseId: number]: WorkoutHistoryEntry;
+}
+
+export interface WorkoutHistoryStore {
+  history: WorkoutHistory;
+  addWorkoutHistory: (exerciseId: number, sets: SetInput[]) => Promise<void>;
+  getLastWorkout: (exerciseId: number) => WorkoutHistoryEntry | undefined;
+  init: () => Promise<void>;
+}
+
+export interface WarmUpSet {
+  percentage: number;
+  weight: number;
+  reps: number;
+  isCompleted: boolean;
+}
+
+export interface PreviousWorkout {
+  date: string;
+  sets: SetInput[];
+  volume: number;
+}
+export interface ExerciseModalProps {
+  isVisible: boolean;
+  onClose: () => void;
+  exercise: Exercise;
+  workoutExercise: WorkoutExercise;
+  isWorkoutStarted: boolean;
+  onSave: (sets: SetInput[]) => void;
+  previousWorkout?: WorkoutHistoryEntry;
+  mode?: "planning" | "workout";
+}
+
+// In deiner bestehenden types.ts, nach den anderen Interfaces
+
+export interface WorkoutPerformance {
+  date: string;
+  volume: number;
+  intensity: number;
+  completedSets: number;
+  totalSets: number;
+  duration: number;
+  exercises: {
+    id: number;
+    performance: number; // Prozentuale Leistung (0-100)
+    improvement: number; // Verbesserung zum letzten Mal
+  }[];
+}
+
+export interface WorkoutTrend {
+  lastFive: WorkoutPerformance[];
+  average: {
+    volume: number;
+    intensity: number;
+    completion: number; // Prozent der completed Sets
+  };
+  bestPerformance: WorkoutPerformance;
+  consistency: number; // Trainings-Konstanz (0-100)
+  currentStreak: number;
+}
+
+export interface RecoveryRecommendation {
+  nextWorkoutIn: number; // Tage
+  recommendedIntensity: number;
+  tips: {
+    type: "nutrition" | "sleep" | "activity";
+    message: string;
+    priority: "high" | "medium" | "low";
+  }[];
+}
+
+export interface WorkoutProgressStore {
+  performances: WorkoutPerformance[];
+  addPerformance: (performance: WorkoutPerformance) => void;
+  getTrend: () => WorkoutTrend;
+  getRecoveryRecommendation: () => RecoveryRecommendation;
+}
+export interface IntelligentFeedback {
+  type: "performance" | "recovery" | "motivation";
+  message: string;
+  recommendation?: string;
+  priority: "high" | "medium" | "low";
+}
+
+export interface CoachResponse {
+  mainMessage: string;
+  details: IntelligentFeedback[];
+  nextWorkoutSuggestion?: {
+    weight: number;
+    intensity: number;
+    recoveryTime: number;
+  };
+}
