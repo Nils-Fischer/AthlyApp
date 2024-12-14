@@ -5,24 +5,30 @@ import { Input } from "~/components/ui/input";
 import { Button } from "~/components/ui/button";
 import { Plus, Search } from "~/lib/icons/Icons";
 import { CustomDropdownMenu } from "~/components/ui/custom-dropdown-menu";
-import { ClickableCard } from "~/components/ClickableCard";
 import { Routine } from "~/lib/types";
-import { useRouter } from "expo-router";
+import { RoutineCard } from "./RoutineCard";
 
 interface RoutineLibraryProps {
   routines: Routine[];
   searchQuery: string;
   onSearchChange: (query: string) => void;
-  dropdownItems: Array<{
+  addButtonDropdownItems: Array<{
     name: string;
     icon: any;
     onPress: () => void;
   }>;
+  onDelete: (id: number) => void;
+  onToggleActive: (id: number) => void;
 }
 
-export const RoutineLibrary = ({ routines, searchQuery, onSearchChange, dropdownItems }: RoutineLibraryProps) => {
-  const router = useRouter();
-
+export const RoutineLibrary = ({
+  routines,
+  searchQuery,
+  onSearchChange,
+  addButtonDropdownItems: dropdownItems,
+  onDelete,
+  onToggleActive,
+}: RoutineLibraryProps) => {
   return (
     <View className="flex-1 px-4">
       {/* Search Bar */}
@@ -52,30 +58,13 @@ export const RoutineLibrary = ({ routines, searchQuery, onSearchChange, dropdown
             <Text className="text-muted-foreground text-center">Keine Trainingspläne gefunden</Text>
           </View>
         ) : (
-          routines.map((routine) => (
-            <ClickableCard
-              key={routine.id}
-              title={routine.name}
-              description={routine.description}
-              className="mb-4"
-              footer={
-                <View className="flex-row items-center space-x-4">
-                  <View className="flex-row items-center space-x-1">
-                    <Text className="text-sm font-medium">{routine.workouts.length}</Text>
-                    <Text className="text-sm text-muted-foreground">Workouts</Text>
-                  </View>
-                  <View className="w-1 h-1 rounded-full bg-border" />
-                  <View className="flex-row items-center space-x-1">
-                    <Text className="text-sm font-medium">{routine.frequency}x</Text>
-                    <Text className="text-sm text-muted-foreground">pro Woche</Text>
-                  </View>
-                </View>
-              }
-              onPress={() => {
-                router.push(`/workout/${routine.id}`);
-              }}
-            />
-          ))
+          routines
+            .sort((a, b) => {
+              return (b.active ? 1 : 0) - (a.active ? 1 : 0) || a.name.localeCompare(b.name);
+            })
+            .map((routine) => (
+              <RoutineCard key={routine.id} routine={routine} onDelete={onDelete} onToggleActive={onToggleActive} />
+            ))
         )}
       </ScrollView>
     </View>

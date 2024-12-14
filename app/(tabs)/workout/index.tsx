@@ -52,6 +52,33 @@ export default function RoutineScreen() {
     },
   ];
 
+  const handleDelete = async (id: number) => {
+    await userStore.removeRoutine(id);
+    setRoutines(routines.filter((routine) => routine.id !== id));
+  };
+
+  const handleToggleActive = async (id: number) => {
+    const routineToUpdate = routines.find((routine) => routine.id === id);
+    if (!routineToUpdate) return;
+
+    const updatedRoutine = {
+      ...routineToUpdate,
+      active: !routineToUpdate.active,
+    };
+
+    let updatedRoutines = routines.map((routine) => {
+      if (updatedRoutine.active) {
+        return routine.id === id ? updatedRoutine : { ...routine, active: false };
+      } else {
+        return routine.id === id ? updatedRoutine : routine;
+      }
+    });
+
+    await userStore.updateUserData(updatedRoutines);
+
+    setRoutines(updatedRoutines);
+  };
+
   if (showForm) {
     return <WorkoutForm onRoutineCreated={handleRoutineCreation} />;
   }
@@ -77,7 +104,9 @@ export default function RoutineScreen() {
                 routines={filteredRoutines}
                 searchQuery={searchQuery}
                 onSearchChange={setSearchQuery}
-                dropdownItems={dropdownItems}
+                addButtonDropdownItems={dropdownItems}
+                onDelete={handleDelete}
+                onToggleActive={handleToggleActive}
               />
             </TabsContent>
 

@@ -94,6 +94,7 @@ export interface Routine {
   workouts: Workout[];
   description?: string;
   frequency: number;
+  active: boolean;
 }
 
 export interface UserProfile {
@@ -152,10 +153,6 @@ interface Exercise {
   variations?: string[];
   commonMistakes?: string[];
   warmup?: string[];
-}
-
-interface ExerciseMetadata {
-  id: string;
   instructions: string[];
   description: string;
   media: string[];
