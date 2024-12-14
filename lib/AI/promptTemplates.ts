@@ -156,51 +156,28 @@ export const prompts = {
        - Rest and recovery needs
        - Equipment availability
    
-  a. Generate a localized routine in this JSON format and wrap it in <routine> tags:
+    2. Finally, provide the routine data in this exact JSON format, wrapped in <routine> tags:
       {
-          "id": number,
-          "name": "Routine Name",
-          "description": "Routine description",
-          "frequency": number,
-          "workouts": [
+        "name": "Routine Name",
+        "description": "Brief description of the routine's focus and benefits",
+        "frequency": number, // weekly training frequency
+        "workouts": [
           {
-              "id": number,
-              "name": "Workout Name",
-              "description": "Workout description",
-              "duration": number,
-              "exercises": [
+            "name": "Workout Name (e.g., 'Upper Body Day 1')",
+            "description": "Brief description of this workout's focus",
+            "duration": number, // estimated minutes
+            "exercises": [
               {
-                  "exerciseId": number,
-                  "alternatives": [number],
-                  "sets": number,
-                  "reps": number
+                "exerciseId": number, // must match an ID from the exercise list
+                "alternatives": [number], // array of alternative exercise IDs
+                "sets": number,
+                "reps": number,
+                "notes": "Optional exercise-specific instructions"
               }
-              ]
+            ]
           }
-          ]
+        ]
       }
-. Finally, provide the routine data in this exact JSON format, wrapped in <routine> tags:
-    {
-      "name": "Routine Name",
-      "description": "Brief description of the routine's focus and benefits",
-      "frequency": number, // weekly training frequency
-      "workouts": [
-        {
-          "name": "Workout Name (e.g., 'Upper Body Day 1')",
-          "description": "Brief description of this workout's focus",
-          "duration": number, // estimated minutes
-          "exercises": [
-            {
-              "exerciseId": number, // must match an ID from the exercise list
-              "alternatives": [number], // array of alternative exercise IDs
-              "sets": number,
-              "reps": number,
-              "notes": "Optional exercise-specific instructions"
-            }
-          ]
-        }
-      ]
-    }
 
     Guidelines:
     1. Only use exercises from the provided exercise list
