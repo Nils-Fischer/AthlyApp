@@ -1,4 +1,12 @@
 import {
+  PlayCircle,
+  PauseCircle,
+  StopCircle,
+  GripVertical,
+  CheckCircle,
+  Edit,
+  Flame,
+  Play,
   Activity,
   AlertCircle,
   AlertOctagon,
@@ -61,6 +69,14 @@ import { iconWithClassName } from "./iconWithClassName";
 import { BarChart } from "./BarChartIcon";
 
 iconWithClassName([
+  PlayCircle,
+  PauseCircle,
+  StopCircle,
+  GripVertical,
+  CheckCircle,
+  Edit,
+  Flame,
+  Play,
   Activity,
   AlertCircle,
   AlertOctagon,
@@ -122,6 +138,14 @@ iconWithClassName([
 ]);
 
 export {
+  PlayCircle,
+  PauseCircle,
+  StopCircle,
+  GripVertical,
+  CheckCircle,
+  Edit,
+  Flame,
+  Play,
   Activity,
   AlertCircle,
   AlertOctagon,

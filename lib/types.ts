@@ -163,38 +163,32 @@ interface Exercise {
 export interface SetInput {
   reps: number;
   weight: number;
-  isCompleted?: boolean;
-  previousWeight?: number;
-  previousReps?: number;
 }
-export interface WorkoutHistoryEntry {
-  date: string;
+
+export interface ExerciseRecord {
+  exerciseId: number;
   sets: SetInput[];
-  volume?: number;
+  intensity: number;
+  isCompleted: boolean;
 }
+
+export interface WorkoutSession {
+  date: Date;
+  entries: ExerciseRecord[];
+  workoutId?: number;
+}
+
 export interface WorkoutHistory {
-  [exerciseId: number]: WorkoutHistoryEntry;
+  sessions: WorkoutSession[];
 }
 
 export interface WorkoutHistoryStore {
   history: WorkoutHistory;
   addWorkoutHistory: (exerciseId: number, sets: SetInput[]) => Promise<void>;
-  getLastWorkout: (exerciseId: number) => WorkoutHistoryEntry | undefined;
+  getLastWorkout: (exerciseId: number) => ExerciseRecord | undefined;
   init: () => Promise<void>;
 }
 
-export interface WarmUpSet {
-  percentage: number;
-  weight: number;
-  reps: number;
-  isCompleted: boolean;
-}
-
-export interface PreviousWorkout {
-  date: string;
-  sets: SetInput[];
-  volume: number;
-}
 export interface ExerciseModalProps {
   isVisible: boolean;
   onClose: () => void;
@@ -202,36 +196,8 @@ export interface ExerciseModalProps {
   workoutExercise: WorkoutExercise;
   isWorkoutStarted: boolean;
   onSave: (sets: SetInput[]) => void;
-  previousWorkout?: WorkoutHistoryEntry;
+  previousWorkout?: ExerciseRecord;
   mode?: "planning" | "workout";
-}
-
-// In deiner bestehenden types.ts, nach den anderen Interfaces
-
-export interface WorkoutPerformance {
-  date: string;
-  volume: number;
-  intensity: number;
-  completedSets: number;
-  totalSets: number;
-  duration: number;
-  exercises: {
-    id: number;
-    performance: number; // Prozentuale Leistung (0-100)
-    improvement: number; // Verbesserung zum letzten Mal
-  }[];
-}
-
-export interface WorkoutTrend {
-  lastFive: WorkoutPerformance[];
-  average: {
-    volume: number;
-    intensity: number;
-    completion: number; // Prozent der completed Sets
-  };
-  bestPerformance: WorkoutPerformance;
-  consistency: number; // Trainings-Konstanz (0-100)
-  currentStreak: number;
 }
 
 export interface RecoveryRecommendation {
@@ -244,12 +210,6 @@ export interface RecoveryRecommendation {
   }[];
 }
 
-export interface WorkoutProgressStore {
-  performances: WorkoutPerformance[];
-  addPerformance: (performance: WorkoutPerformance) => void;
-  getTrend: () => WorkoutTrend;
-  getRecoveryRecommendation: () => RecoveryRecommendation;
-}
 export interface IntelligentFeedback {
   type: "performance" | "recovery" | "motivation";
   message: string;

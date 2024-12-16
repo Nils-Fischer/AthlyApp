@@ -11,6 +11,7 @@ interface UserStore {
   addRoutine: (routine: Routine) => Promise<void>;
   removeRoutine: (routineId: number) => Promise<void>;
   updateRoutine: (updatedRoutine: Routine) => Promise<void>;
+  getActiveRoutine: () => Routine | null;
 }
 
 export const useUserStore = create<UserStore>((set, get) => ({
@@ -138,9 +139,7 @@ export const useUserStore = create<UserStore>((set, get) => ({
 
       const updatedData: UserData = {
         ...currentData,
-        routines: currentData.routines.map(routine => 
-          routine.id === updatedRoutine.id ? updatedRoutine : routine
-        ),
+        routines: currentData.routines.map((routine) => (routine.id === updatedRoutine.id ? updatedRoutine : routine)),
         last_updated: new Date().toISOString(),
       };
 
@@ -154,5 +153,13 @@ export const useUserStore = create<UserStore>((set, get) => ({
         isLoading: false,
       });
     }
+  },
+  getActiveRoutine: () => {
+    const currentData = get().userData;
+    if (!currentData) {
+      console.log("❌ No user data found");
+      return null;
+    }
+    return currentData.routines.find((routine) => routine.active) || null;
   },
 }));

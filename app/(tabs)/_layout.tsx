@@ -16,8 +16,8 @@ interface Route {
 
 const routes: Route[] = [
   {
-    name: "Home",
-    label: "index",
+    name: "Dashboard",
+    label: "(dashboard)",
     icon: {
       outlined: Home,
       filled: HomeFilled,

@@ -3,13 +3,14 @@ import { supabase } from "~/lib/supabase";
 import { Exercise } from "~/lib/types";
 
 interface ExerciseState {
-  exercises: Exercise[];
+  exercises: Exercise[] | null;
   isLoading: boolean;
   error: Error | null;
   fetchInitialData: () => Promise<void>;
+  getExerciseById: (exerciseId: number) => Exercise | null;
 }
 
-export const useExerciseStore = create<ExerciseState>((set) => ({
+export const useExerciseStore = create<ExerciseState>((set, get) => ({
   exercises: [],
   isLoading: false,
   error: null,
@@ -34,5 +35,10 @@ export const useExerciseStore = create<ExerciseState>((set) => ({
         isLoading: false,
       });
     }
+  },
+  getExerciseById: (exerciseId: number) => {
+    const exercises = get().exercises;
+    if (!exercises) return null;
+    return exercises.find((exercise) => exercise.id === exerciseId) || null;
   },
 }));
