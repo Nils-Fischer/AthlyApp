@@ -125,7 +125,7 @@ export const ExerciseDetail: React.FC<{ exercise: Exercise; navigateToExercise: 
         <ScrollView horizontal showsHorizontalScrollIndicator={false} className="-mx-4 px-4">
           <View className="flex-row gap-4">
             {exerciseStore.exercises
-              .filter(
+              ?.filter(
                 (e) =>
                   e.id !== exercise.id && e.primaryMuscles.some((muscle) => exercise.primaryMuscles.includes(muscle))
               )

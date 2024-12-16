@@ -76,7 +76,7 @@ export function WorkoutForm({ onRoutineCreated }: WorkoutFormProps) {
 
   const finishCustomRoutine = () => {
     const routine = createRoutine(
-      exercises,
+      exercises || [],
       frequency || 1,
       duration || 45,
       level || Level.Beginner,

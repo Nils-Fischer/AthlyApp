@@ -1,4 +1,5 @@
 import {
+  CheckSquare,
   PlayCircle,
   PauseCircle,
   StopCircle,
@@ -69,6 +70,7 @@ import { iconWithClassName } from "./iconWithClassName";
 import { BarChart } from "./BarChartIcon";
 
 iconWithClassName([
+  CheckSquare,
   PlayCircle,
   PauseCircle,
   StopCircle,
@@ -138,6 +140,7 @@ iconWithClassName([
 ]);
 
 export {
+  CheckSquare,
   PlayCircle,
   PauseCircle,
   StopCircle,

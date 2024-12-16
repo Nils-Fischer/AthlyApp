@@ -42,7 +42,7 @@ export default function Screen() {
       setMessages(newMessages);
       setIsTyping(true);
 
-      const answer = await getAnswer(newMessages, summary, exerciseStore.exercises);
+      const answer = await getAnswer(newMessages, summary, exerciseStore.exercises ?? []);
       setSummary(answer.content.find((section) => section.tag === "summary")?.content as string);
 
       setMessages((prev) => [...prev, answer]);

@@ -10,10 +10,10 @@ type Props = {
   useLocalSearchParams?: () => { id: string };
 };
 
-export default function ExerciseDetailScreen({ useLocalSearchParams: paramsFn }: Props = {}) {
+export default function ExerciseDetailScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
   const exerciseStore = useExerciseStore();
-  const exercise = exerciseStore.exercises.find((ex) => ex.id === Number(id));
+  const exercise = exerciseStore.getExerciseById(Number(id));
 
   if (!exercise) {
     return (

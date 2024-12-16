@@ -36,8 +36,8 @@ export function AIRoutineCreationDialog({ open, onOpenChange, onCreate }: AIRout
     setIsLoading(true);
     try {
       // Generate AI prompt from form data
-      const exerciseList = exerciseStore.exercises.map((exercise) => exercise.name).join("\n");
-      const prompt = prompts.promptForRoutineCreationWithForm(formData, exerciseList);
+      const exerciseList = exerciseStore.exercises?.map((exercise) => exercise.name).join("\n");
+      const prompt = prompts.promptForRoutineCreationWithForm(formData, exerciseList ?? "");
 
       setLoadingStatus("Erstelle Trainingsplan...");
       const response = await createAPICall("anthropic", prompt);

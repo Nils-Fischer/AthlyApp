@@ -16,16 +16,18 @@ export const ExerciseLibrary = ({ onPress }: ExerciseLibraryProps) => {
   const [selectedCategory, setSelectedCategory] = useState("all");
 
   const categories = useMemo(() => {
-    const uniqueCategories = ["all", ...new Set(exercises.map((ex) => ex.category))];
+    const uniqueCategories = ["all", ...new Set(exercises?.map((ex) => ex.category) ?? [])];
     return uniqueCategories;
   }, [exercises]);
 
   const filteredExercises = useMemo(() => {
-    return exercises.filter((exercise) => {
-      const matchesSearch = exercise.name.toLowerCase().includes(searchQuery.toLowerCase());
-      const matchesCategory = selectedCategory === "all" || exercise.category === selectedCategory;
-      return matchesSearch && matchesCategory;
-    });
+    return (
+      exercises?.filter((exercise) => {
+        const matchesSearch = exercise.name.toLowerCase().includes(searchQuery.toLowerCase());
+        const matchesCategory = selectedCategory === "all" || exercise.category === selectedCategory;
+        return matchesSearch && matchesCategory;
+      }) ?? []
+    );
   }, [exercises, searchQuery, selectedCategory]);
 
   return (

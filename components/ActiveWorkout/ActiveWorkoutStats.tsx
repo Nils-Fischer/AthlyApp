@@ -2,7 +2,7 @@ import React from "react";
 import { View } from "react-native";
 import { Text } from "~/components/ui/text";
 import { Card } from "~/components/ui/card";
-import { Timer, Dumbbell, CheckSquare } from "lucide-react-native";
+import { Timer, Dumbbell, CheckSquare } from "~/lib/icons/Icons";
 import { cn } from "~/lib/utils";
 import { useActiveWorkoutStore } from "~/stores/activeWorkoutStore";
 

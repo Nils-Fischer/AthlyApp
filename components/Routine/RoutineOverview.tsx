@@ -14,11 +14,11 @@ import { CustomDropdownMenu } from "~/components/ui/custom-dropdown-menu";
 export function RoutineOverview({
   routine: initialRoutine,
   handleExercisePress,
-  isEditMode,
+  isEditMode = false,
 }: {
   routine: Routine;
   handleExercisePress?: (exerciseId: number) => void;
-  isEditMode: boolean;
+  isEditMode?: boolean;
 }) {
   const [routine, setRoutine] = useState(initialRoutine);
   const [activeTab, setActiveTab] = useState(routine?.workouts[0]?.id.toString() || "0");

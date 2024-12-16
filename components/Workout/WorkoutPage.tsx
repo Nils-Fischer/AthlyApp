@@ -17,10 +17,6 @@ import { WorkoutExerciseItem } from "./WorkoutExerciseItem";
 
 registerSheet("sheet-with-router", ExerciseBottomSheetEditor);
 
-const getFullExercise = (workoutExercise: WorkoutExercise, exercises: Exercise[]) => {
-  return exercises.find((ex) => ex.id === workoutExercise.exerciseId);
-};
-
 interface WorkoutPageProps {
   workout: Workout;
   onExercisePress?: (exerciseId: number) => void;
@@ -93,7 +89,7 @@ export function WorkoutPage({
   ) => {
     const result = await SheetManager.show("sheet-with-router", {
       payload: {
-        exercise: getFullExercise(workoutExercise, exerciseStore.exercises)!,
+        exercise: exerciseStore.getExerciseById(workoutExercise.exerciseId)!,
         workoutExercise: workoutExercise,
         initalRoute: "main-edit-route",
       },
@@ -117,7 +113,7 @@ export function WorkoutPage({
   };
 
   const renderItem = ({ item: workoutExercise, drag, isActive }: RenderItemParams<WorkoutExercise>) => {
-    const exercise = getFullExercise(workoutExercise, exerciseStore.exercises);
+    const exercise = exerciseStore.getExerciseById(workoutExercise.exerciseId);
     if (!exercise) return null;
 
     return (

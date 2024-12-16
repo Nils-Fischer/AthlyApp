@@ -19,9 +19,8 @@ export const ExerciseEditAlternatives: React.FC<ExerciseEditAlternativesProps> =
   const exerciseStore = useExerciseStore();
   const [selectedExercise, setSelectedExercise] = useState<Exercise | null>(null);
 
-  const alternativeExercises: Exercise[] = exerciseStore.exercises.filter((ex) =>
-    workoutExercise.alternatives.includes(ex.id)
-  );
+  const alternativeExercises: Exercise[] =
+    exerciseStore.exercises?.filter((ex) => workoutExercise.alternatives.includes(ex.id)) ?? [];
 
   const createUpdatedWorkoutExercise = (selected: Exercise): WorkoutExercise => ({
     ...workoutExercise,
