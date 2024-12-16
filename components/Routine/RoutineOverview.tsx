@@ -137,13 +137,12 @@ export function RoutineOverview({
           )}
         </View>
         {routine.workouts.map((workout) => (
-          <TabsContent key={workout.id} value={workout.id.toString()} className="flex-1 px-4">
+          <TabsContent key={workout.id} value={workout.id.toString()} className="flex-1">
             <WorkoutPage
               workout={workout}
               onExercisePress={handleExercisePress}
               onUpdateWorkout={handleUpdateWorkout}
               isEditMode={isEditMode}
-              deleteWorkout={() => deleteWorkout(workout.id)}
             />
           </TabsContent>
         ))}

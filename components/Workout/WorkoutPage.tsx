@@ -1,9 +1,8 @@
-import { Button } from "~/components/ui/button";
 import { useExerciseStore } from "~/stores/exerciseStore";
 import { Pressable, View } from "react-native";
-import { Workout, WorkoutExercise, Exercise } from "~/lib/types";
+import { Workout, WorkoutExercise } from "~/lib/types";
 import { Text } from "~/components/ui/text";
-import { Plus, Trash2 } from "~/lib/icons/Icons";
+import { Plus } from "~/lib/icons/Icons";
 import React, { useState, useEffect } from "react";
 import { Card } from "~/components/ui/card";
 import { ExerciseLibrary } from "~/components/Exercise/ExerciseLibrary";
@@ -20,9 +19,8 @@ registerSheet("sheet-with-router", ExerciseBottomSheetEditor);
 interface WorkoutPageProps {
   workout: Workout;
   onExercisePress?: (exerciseId: number) => void;
-  onUpdateWorkout?: (workout: Workout) => void;
   isEditMode: boolean;
-  deleteWorkout: (workoutId: number) => void;
+  onUpdateWorkout?: (workout: Workout) => void;
 }
 
 export function WorkoutPage({
@@ -30,7 +28,6 @@ export function WorkoutPage({
   onExercisePress,
   onUpdateWorkout,
   isEditMode,
-  deleteWorkout,
 }: WorkoutPageProps) {
   const exerciseStore = useExerciseStore();
   const [workout, setWorkout] = useState(initialWorkout);
@@ -147,7 +144,7 @@ export function WorkoutPage({
   };
 
   return (
-    <View className="flex-1">
+    <View className="flex-1 px-4">
       {isEditMode && (
         <View className="mb-4 flex-row items-center">
           <Pressable onPress={() => setShowAddExercise(true)} className="flex-1">
