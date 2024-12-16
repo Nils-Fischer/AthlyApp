@@ -1,9 +1,8 @@
 import React from "react";
 import { View, TouchableOpacity } from "react-native";
 import { Text } from "~/components/ui/text";
-import { Play, Pause, StopCircle, PlayCircle } from "lucide-react-native";
-import { BlurView } from "expo-blur";
-import Animated, { FadeIn, FadeOut, SlideInDown, SlideOutDown } from "react-native-reanimated";
+import { Play, Pause, StopCircle } from "~/lib/icons/Icons";
+import Animated, { FadeIn, FadeOut, SlideInDown, SlideOutDown, Easing } from "react-native-reanimated";
 
 interface ActiveWorkoutControlsProps {
   isEditMode: boolean;
@@ -27,25 +26,35 @@ export function ActiveWorkoutControls({
   if (isEditMode) return null;
 
   return (
-    <Animated.View entering={SlideInDown} exiting={SlideOutDown} className="absolute bottom-0 w-full">
-      <BlurView intensity={20} className="overflow-hidden">
-        <View className="px-4 py-6 border-t border-border bg-background/80">
-          <View className="flex-row justify-center items-center gap-4">
-            {!isStarted ? (
-              <PrimaryButton onPress={onStart} icon={<PlayCircle size={24} />} label="Start Workout" />
-            ) : (
-              <>
-                <SecondaryButton onPress={onEnd} icon={<StopCircle size={24} />} label="End" />
-                <PrimaryButton
-                  onPress={isPaused ? onResume : onPause}
-                  icon={isPaused ? <Play size={24} /> : <Pause size={24} />}
-                  label={isPaused ? "Resume" : "Pause"}
-                />
-              </>
-            )}
-          </View>
-        </View>
-      </BlurView>
+    <Animated.View
+      entering={SlideInDown.springify().damping(15).mass(0.9).stiffness(100)}
+      exiting={SlideOutDown.duration(150).easing(Easing.ease)}
+      className="absolute bottom-0 w-full px-4 py-10"
+    >
+      <View className="flex-row justify-center items-center gap-4">
+        {!isStarted ? (
+          <PrimaryButton
+            onPress={onStart}
+            icon={<Play className="text-background" size={24} />}
+            label="Start Workout"
+          />
+        ) : (
+          <>
+            <SecondaryButton onPress={onEnd} icon={<StopCircle className="text-background" size={24} />} label="End" />
+            <PrimaryButton
+              onPress={isPaused ? onResume : onPause}
+              icon={
+                isPaused ? (
+                  <Play className="text-background" size={24} />
+                ) : (
+                  <Pause className="text-background" size={24} />
+                )
+              }
+              label={isPaused ? "Resume" : "Pause"}
+            />
+          </>
+        )}
+      </View>
     </Animated.View>
   );
 }
@@ -60,11 +69,15 @@ function PrimaryButton({ onPress, icon, label }: ButtonProps) {
   return (
     <TouchableOpacity
       onPress={onPress}
-      className="bg-primary flex-row items-center px-6 py-3 rounded-full active:opacity-90"
+      className="bg-foreground flex-row items-center px-6 py-3 rounded-full active:opacity-90"
     >
-      <Animated.View entering={FadeIn} exiting={FadeOut} className="flex-row items-center">
-        <View className="mr-2 text-primary-foreground">{icon}</View>
-        <Text className="text-base font-medium text-primary-foreground">{label}</Text>
+      <Animated.View
+        entering={FadeIn.duration(150).springify().damping(12)}
+        exiting={FadeOut.duration(100).easing(Easing.ease)}
+        className="flex-row items-center gap-2"
+      >
+        <View className="text-background">{icon}</View>
+        <Text className="text-base font-medium text-background">{label}</Text>
       </Animated.View>
     </TouchableOpacity>
   );
@@ -74,11 +87,15 @@ function SecondaryButton({ onPress, icon, label }: ButtonProps) {
   return (
     <TouchableOpacity
       onPress={onPress}
-      className="border border-border bg-background/50 flex-row items-center px-6 py-3 rounded-full active:bg-muted"
+      className="bg-destructive flex-row items-center px-6 py-3 rounded-full active:opacity-90"
     >
-      <Animated.View entering={FadeIn} exiting={FadeOut} className="flex-row items-center">
-        <View className="mr-2 text-foreground">{icon}</View>
-        <Text className="text-base font-medium text-foreground">{label}</Text>
+      <Animated.View
+        entering={FadeIn.duration(150).springify().damping(12)}
+        exiting={FadeOut.duration(100).easing(Easing.ease)}
+        className="flex-row items-center gap-2"
+      >
+        <View className="text-background">{icon}</View>
+        <Text className="text-base font-medium text-background">{label}</Text>
       </Animated.View>
     </TouchableOpacity>
   );
