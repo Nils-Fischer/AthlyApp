@@ -1,4 +1,3 @@
-// stores/workoutHistoryStore.ts
 import { create } from "zustand";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { WorkoutSession, ExerciseRecord } from "~/lib/types";
@@ -19,15 +18,20 @@ export const useWorkoutHistoryStore = create<WorkoutHistoryState>((set, get) => 
     try {
       const stored = await AsyncStorage.getItem(STORAGE_KEY);
       if (stored) {
-        const sessions = JSON.parse(stored);
-        // Convert stored date strings back to Date objects
-        sessions.forEach((session: WorkoutSession) => {
-          session.date = new Date(session.date);
-        });
-        set({ sessions });
+        const sessions = JSON.parse(stored) || [];
+        // Only run forEach if sessions exists and is an array
+        if (Array.isArray(sessions)) {
+          sessions.forEach((session: WorkoutSession) => {
+            session.date = new Date(session.date);
+          });
+          set({ sessions });
+        } else {
+          set({ sessions: [] });
+        }
       }
     } catch (e) {
       console.error("Failed to load workout history:", e);
+      set({ sessions: [] });
     }
   },
 

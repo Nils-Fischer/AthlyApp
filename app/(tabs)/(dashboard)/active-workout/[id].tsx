@@ -9,8 +9,7 @@ import { ActiveWorkoutExerciseList } from "~/components/ActiveWorkout/ActiveWork
 import { useUserStore } from "~/stores/userStore";
 import { useActiveWorkoutStore } from "~/stores/activeWorkoutStore";
 import { ChevronLeft } from "~/lib/icons/Icons";
-import { ExerciseModal } from "~/components/dashboard/active-workout/ExerciseModal";
-import { ExerciseRecord, WorkoutExercise } from "~/lib/types";
+import { WorkoutExercise } from "~/lib/types";
 
 export default function ActiveWorkoutScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
@@ -18,13 +17,7 @@ export default function ActiveWorkoutScreen() {
   const activeWorkout = getActiveRoutine()?.workouts.find((workout) => workout.id === parseInt(id));
 
   const [isEditMode, setIsEditMode] = useState(false);
-  const [selectedExercise, setSelectedExercise] = useState<WorkoutExercise | null>(null);
-
   const { isStarted, isPaused, startWorkout, pauseWorkout, resumeWorkout, endWorkout } = useActiveWorkoutStore();
-
-  const saveExercise = (exerciseRecord: ExerciseRecord) => {
-    console.log("saveExercise", exerciseRecord);
-  };
 
   // Loading State
   if (isLoading) {
@@ -69,7 +62,7 @@ export default function ActiveWorkoutScreen() {
           workout={activeWorkout}
           isEditMode={isEditMode}
           isStarted={isStarted}
-          onPressExercise={setSelectedExercise}
+          onPressExercise={(exercise) => router.push(`/active-workout/exercise-logging/${exercise.exerciseId}`)}
         />
 
         <ActiveWorkoutControls
@@ -81,15 +74,6 @@ export default function ActiveWorkoutScreen() {
           onResume={resumeWorkout}
           onEnd={endWorkout}
         />
-
-        {selectedExercise && (
-          <ExerciseModal
-            onClose={() => setSelectedExercise(null)}
-            workoutExercise={selectedExercise}
-            isWorkoutStarted={isStarted}
-            onSave={saveExercise}
-          />
-        )}
       </View>
     </>
   );

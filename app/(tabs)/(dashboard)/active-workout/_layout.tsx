@@ -11,6 +11,7 @@ export default function ActiveWorkoutLayout() {
     >
       <Stack.Screen name="index" options={{ headerShown: true }} />
       <Stack.Screen name="[id]" options={{ headerShown: true }} />
+      <Stack.Screen name="exercise-logging" options={{ headerShown: false }} />
     </Stack>
   );
 }
