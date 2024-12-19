@@ -32,7 +32,7 @@ export function ActiveWorkoutModals({
 
   return (
     <>
-      <ExerciseDetailsSheet
+      <ExerciseTrackingSheet
         exercise={selectedExercise}
         isVisible={!!selectedExerciseId}
         onClose={onExerciseClose}
@@ -51,44 +51,68 @@ interface ExerciseDetailsSheetProps {
   isWorkoutStarted: boolean;
 }
 
-function ExerciseDetailsSheet({ exercise, isVisible, onClose, isWorkoutStarted }: ExerciseDetailsSheetProps) {
+function ExerciseTrackingSheet({ exercise, isVisible, onClose, isWorkoutStarted }: ExerciseDetailsSheetProps) {
   if (!exercise) return null;
 
   return (
     <BottomSheet isOpen={isVisible} onClose={onClose} title={exercise.name} snapPoints={[85]}>
-      <View className="px-4">
-        <View className="flex-row flex-wrap gap-2 mb-4">
-          {exercise.tag.map((tag) => (
-            <View key={tag} className="bg-muted px-2 py-1 rounded-full">
-              <Text className="text-xs text-muted-foreground">{tag}</Text>
-            </View>
-          ))}
+      <ScrollView className="flex-1 p-4">
+        {/* Exercise Info Section */}
+        <View className="mb-6">
+          <MuscleGroup title="Primary" muscles={exercise.primaryMuscles} />
+          <MuscleGroup title="Secondary" muscles={exercise.secondaryMuscles} />
         </View>
 
-        <ScrollView className="space-y-4">
-          <Section title="Target Muscles">
-            <View className="space-y-1">
-              <MuscleGroup title="Primary" muscles={exercise.primaryMuscles} />
-              {exercise.secondaryMuscles.length > 0 && (
-                <MuscleGroup title="Secondary" muscles={exercise.secondaryMuscles} />
-              )}
+        {/* Quick Actions */}
+        <View className="flex-row gap-2 mb-6">
+          <Button variant="outline" className="flex-1" onPress={() => {}} disabled={!isWorkoutStarted}>
+            <View className="flex-row items-center">
+              <ChevronRight size={16} className="mr-2" />
+              <Text>Details</Text>
             </View>
-          </Section>
+          </Button>
+          <Button variant="outline" className="flex-1" onPress={() => {}} disabled={!isWorkoutStarted}>
+            <View className="flex-row items-center">
+              <Trophy size={16} className="mr-2" />
+              <Text>History</Text>
+            </View>
+          </Button>
+        </View>
 
-          <Section title="Instructions">
-            <View className="space-y-2">
-              {exercise.instructions.map((instruction, index) => (
-                <View key={index} className="flex-row">
-                  <Text className="text-muted-foreground mr-2">{index + 1}.</Text>
-                  <Text className="flex-1 text-foreground">{instruction}</Text>
+        {/* Sets Input Section */}
+        <Section title="Sets">
+          <View className="space-y-4">
+            {/* Header */}
+            <View className="flex-row px-4">
+              <Text className="w-12 font-medium">Set</Text>
+              <Text className="flex-1 font-medium text-center">Previous</Text>
+              <Text className="w-20 font-medium text-center">Weight</Text>
+              <Text className="w-16 font-medium text-center">Reps</Text>
+            </View>
+
+            {/* Sample Set Rows (you'll need to implement the actual state management) */}
+            {[1, 2, 3].map((setNumber) => (
+              <View key={setNumber} className="flex-row items-center bg-muted rounded-lg p-4">
+                <Text className="w-12">{setNumber}</Text>
+                <View className="flex-1 items-center">
+                  <Text className="text-muted-foreground">60kg × 12</Text>
                 </View>
-              ))}
-            </View>
-          </Section>
+                <View className="w-20 items-center">
+                  <Text>60</Text>
+                </View>
+                <View className="w-16 items-center">
+                  <Text>12</Text>
+                </View>
+              </View>
+            ))}
 
-          <View className="h-32" />
-        </ScrollView>
-      </View>
+            {/* Add Set Button */}
+            <Button variant="outline" className="w-full" onPress={() => {}} disabled={!isWorkoutStarted}>
+              <Text>Add Set</Text>
+            </Button>
+          </View>
+        </Section>
+      </ScrollView>
     </BottomSheet>
   );
 }

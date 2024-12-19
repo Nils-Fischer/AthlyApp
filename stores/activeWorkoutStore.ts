@@ -25,7 +25,7 @@ interface ActiveWorkoutState {
 
   // Exercise Progress
   updateExerciseRecord: (exerciseId: number, sets: SetInput[]) => void;
-  getExerciseRecord: (exerciseId: number) => ExerciseRecord | undefined;
+  getExerciseRecord: (exerciseId: number) => ExerciseRecord | null;
 
   // Stats
   getCurrentStats: () => {
@@ -34,6 +34,7 @@ interface ActiveWorkoutState {
     completedExercises: number;
     remainingExercises: number;
   };
+  getCompletedSets: (exerciseId: number) => SetInput[] | undefined;
 }
 
 export const useActiveWorkoutStore = create<ActiveWorkoutState>((set, get) => ({
@@ -131,7 +132,7 @@ export const useActiveWorkoutStore = create<ActiveWorkoutState>((set, get) => ({
   },
 
   getExerciseRecord: (exerciseId) => {
-    return get().currentWorkout?.exercises.find((exercise) => exercise.exerciseId === exerciseId);
+    return get().currentWorkout?.exercises.find((exercise) => exercise.exerciseId === exerciseId) || null;
   },
 
   getCurrentStats: () => {
@@ -146,7 +147,7 @@ export const useActiveWorkoutStore = create<ActiveWorkoutState>((set, get) => ({
     }
 
     const totalVolume = currentWorkout.exercises.reduce((acc, exercise) => {
-      return acc + exercise.sets.reduce((setAcc, set) => setAcc + set.weight * set.reps, 0);
+      return acc + exercise.sets.reduce((setAcc, set) => setAcc + (set.weight || 0) * (set.reps || 0), 0);
     }, 0);
 
     return {
@@ -155,5 +156,9 @@ export const useActiveWorkoutStore = create<ActiveWorkoutState>((set, get) => ({
       completedExercises: currentWorkout.exercises.filter((e) => e.isCompleted).length,
       remainingExercises: currentWorkout.exercises.filter((e) => !e.isCompleted).length,
     };
+  },
+  getCompletedSets: (exerciseId: number) => {
+    const exerciseRecord = get().currentWorkout?.exercises.find((exercise) => exercise.exerciseId === exerciseId);
+    return exerciseRecord?.sets;
   },
 }));

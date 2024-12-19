@@ -161,8 +161,8 @@ interface Exercise {
 */
 
 export interface SetInput {
-  reps: number;
-  weight: number;
+  reps: number | null;
+  weight: number | null;
 }
 
 export interface ExerciseRecord {
@@ -178,17 +178,6 @@ export interface WorkoutSession {
   workoutId?: number;
 }
 
-export interface WorkoutHistory {
-  sessions: WorkoutSession[];
-}
-
-export interface WorkoutHistoryStore {
-  history: WorkoutHistory;
-  addWorkoutHistory: (exerciseId: number, sets: SetInput[]) => Promise<void>;
-  getLastWorkout: (exerciseId: number) => ExerciseRecord | undefined;
-  init: () => Promise<void>;
-}
-
 export interface ExerciseModalProps {
   isVisible: boolean;
   onClose: () => void;
@@ -201,7 +190,7 @@ export interface ExerciseModalProps {
 }
 
 export interface RecoveryRecommendation {
-  nextWorkoutIn: number; // Tage
+  nextWorkoutIn: number;
   recommendedIntensity: number;
   tips: {
     type: "nutrition" | "sleep" | "activity";

@@ -1,45 +1,56 @@
 // stores/workoutHistoryStore.ts
-import { create } from 'zustand';
-import AsyncStorage from '@react-native-async-storage/async-storage';
-import { WorkoutHistoryStore, SetInput, WorkoutHistory } from '~/lib/types';
+import { create } from "zustand";
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import { WorkoutSession, ExerciseRecord } from "~/lib/types";
 
-const STORAGE_KEY = '@workout_history';
+interface WorkoutHistoryState {
+  sessions: WorkoutSession[];
+  init: () => Promise<void>;
+  addWorkoutSession: (session: WorkoutSession) => Promise<void>;
+  getLastWorkout: (exerciseId: number) => ExerciseRecord | undefined;
+}
 
-export const useWorkoutHistoryStore = create<WorkoutHistoryStore>((set, get) => ({
-  history: {},
+const STORAGE_KEY = "@workout_history";
+
+export const useWorkoutHistoryStore = create<WorkoutHistoryState>((set, get) => ({
+  sessions: [],
 
   init: async () => {
     try {
       const stored = await AsyncStorage.getItem(STORAGE_KEY);
       if (stored) {
-        set({ history: JSON.parse(stored) });
+        const sessions = JSON.parse(stored);
+        // Convert stored date strings back to Date objects
+        sessions.forEach((session: WorkoutSession) => {
+          session.date = new Date(session.date);
+        });
+        set({ sessions });
       }
     } catch (e) {
-      console.error('Failed to load workout history:', e);
+      console.error("Failed to load workout history:", e);
     }
   },
 
-  addWorkoutHistory: async (exerciseId: number, sets: SetInput[]) => {
+  addWorkoutSession: async (session: WorkoutSession) => {
     try {
-      const newHistory: WorkoutHistory = {
-        ...get().history,
-        [exerciseId]: {
-          date: new Date().toISOString(),
-          sets,
-          volume: sets.reduce((total, set) => 
-            total + (set.weight * set.reps), 0
-          )
-        }
-      };
-
-      await AsyncStorage.setItem(STORAGE_KEY, JSON.stringify(newHistory));
-      set({ history: newHistory });
+      const newSessions = [...get().sessions, session];
+      await AsyncStorage.setItem(STORAGE_KEY, JSON.stringify(newSessions));
+      set({ sessions: newSessions });
     } catch (e) {
-      console.error('Failed to save workout history:', e);
+      console.error("Failed to save workout session:", e);
     }
   },
 
   getLastWorkout: (exerciseId: number) => {
-    return get().history[exerciseId];
+    const { sessions } = get();
+    // Sort sessions by date in descending order
+    const sortedSessions = [...sessions].sort((a, b) => b.date.getTime() - a.date.getTime());
+
+    // Find the last session containing the exercise
+    for (const session of sortedSessions) {
+      const exercise = session.entries.find((entry) => entry.exerciseId === exerciseId);
+      if (exercise) return exercise;
+    }
+    return undefined;
   },
 }));

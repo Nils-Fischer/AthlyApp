@@ -12,14 +12,14 @@ interface ActiveWorkoutExerciseListProps {
   workout: Workout;
   isEditMode: boolean;
   isStarted: boolean;
-  onExerciseSelect: (exerciseId: number) => void;
+  onPressExercise: (exercise: WorkoutExercise) => void;
 }
 
 export function ActiveWorkoutExerciseList({
   workout,
   isEditMode,
   isStarted,
-  onExerciseSelect,
+  onPressExercise: onExerciseSelect,
 }: ActiveWorkoutExerciseListProps) {
   const { getExerciseById } = useExerciseStore();
   const { getExerciseRecord } = useActiveWorkoutStore();
@@ -37,10 +37,10 @@ export function ActiveWorkoutExerciseList({
               key={`${workoutExercise.exerciseId}-${index}`}
               exercise={exercise}
               workoutExercise={workoutExercise}
-              exerciseRecord={exerciseRecord}
+              exerciseRecord={exerciseRecord || undefined}
               isEditMode={isEditMode}
               isStarted={isStarted}
-              onSelect={() => onExerciseSelect(workoutExercise.exerciseId)}
+              onSelect={() => onExerciseSelect(workoutExercise)}
             />
           );
         })}

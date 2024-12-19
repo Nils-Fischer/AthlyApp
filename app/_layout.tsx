@@ -13,6 +13,7 @@ import { setAndroidNavigationBar } from "~/lib/android-navigation-bar";
 import { SessionProvider } from "~/context";
 import { useExerciseStore } from "~/stores/exerciseStore";
 import { useUserStore } from "~/stores/userStore";
+import { useWorkoutHistoryStore } from "~/stores/workoutHistoryStore";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
 import { SheetProvider } from "react-native-actions-sheet";
 import "~/app/sheets";
@@ -72,6 +73,7 @@ export default function RootLayout() {
   const [isReady, setIsReady] = React.useState(false);
   const exerciseStore = useExerciseStore();
   const userStore = useUserStore();
+  const workoutHistoryStore = useWorkoutHistoryStore();
 
   React.useEffect(() => {
     async function initialize() {
@@ -94,7 +96,7 @@ export default function RootLayout() {
         }
 
         await AsyncStorage.setItem("APP_INITIALIZED", "true");
-        await Promise.all([exerciseStore.fetchInitialData(), userStore.fetchUserData()]);
+        await Promise.all([exerciseStore.fetchInitialData(), userStore.fetchUserData(), workoutHistoryStore.init()]);
 
         setIsReady(true);
         SplashScreen.hideAsync();
