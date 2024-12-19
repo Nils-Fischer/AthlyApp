@@ -3,20 +3,8 @@ import { View, ScrollView, Pressable, Modal, TextInput, Platform, ImageBackgroun
 import { Text } from "~/components/ui/text";
 import { Button } from "~/components/ui/button";
 import { Card } from "~/components/ui/card";
-import {
-  Weight,
-  BarChart3,
-  ChevronRight,
-  Users2,
-  Trophy,
-  Info,
-  Plus,
-  Trash2,
-  Check,
-  Dumbbell,
-  ArrowLeft,
-} from "~/lib/icons/Icons";
-import { Exercise, SetInput, WorkoutExercise } from "~/lib/types";
+import { Weight, BarChart3, ChevronRight, Info, Plus, Trash2, Check, Dumbbell, ArrowLeft } from "~/lib/icons/Icons";
+import { Exercise, ExerciseRecord, SetInput, WorkoutExercise } from "~/lib/types";
 import * as Haptics from "expo-haptics";
 import { router } from "expo-router";
 import Animated, { FadeInDown } from "react-native-reanimated";
@@ -26,16 +14,26 @@ import { WorkoutHistoryView } from "../dashboard/active-workout/WorkoutHistoryVi
 interface ExerciseLoggingProps {
   exercise: Exercise;
   workoutExercise: WorkoutExercise;
+  exerciseRecord: ExerciseRecord;
   isWorkoutStarted: boolean;
+  updateExerciseRecord: (record: ExerciseRecord) => void;
 }
 
-export const ExerciseLogging = ({ exercise, workoutExercise, isWorkoutStarted }: ExerciseLoggingProps) => {
+export const ExerciseLogging = ({
+  exercise,
+  workoutExercise,
+  exerciseRecord,
+  isWorkoutStarted,
+  updateExerciseRecord,
+}: ExerciseLoggingProps) => {
   const workoutHistory = useWorkoutHistoryStore();
 
-  const [sets, setSets] = useState<SetInput[]>([{ reps: null, weight: null }]);
+  const [sets, setSets] = useState<SetInput[]>(exerciseRecord.sets);
   const [isDeleteMode, setIsDeleteMode] = useState(false);
   const [rpe, setRpe] = useState<number | null>(null);
   const [showHistory, setShowHistory] = useState(false);
+  const suggestedWeight = workoutHistory.getLastWorkout(exercise.id)?.sets.at(0)?.weight || 0;
+  const suggestedReps = workoutExercise.reps;
 
   const totalVolume = useMemo(() => {
     return sets.reduce((total, set) => {
@@ -75,14 +73,13 @@ export const ExerciseLogging = ({ exercise, workoutExercise, isWorkoutStarted }:
     setSets((prev) => {
       const newSets = [...prev];
       newSets[index] = { ...newSets[index], [field]: numValue };
+      updateExerciseRecord({ ...exerciseRecord, sets: newSets });
       return newSets;
     });
     if (Platform.OS !== "web") {
       Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
     }
   }, []);
-
-  const displayTimesUsed = exercise.timesUsed || "0";
 
   const isSetCompleted = (set: SetInput) => set.reps !== null && set.weight !== null;
 
@@ -108,27 +105,6 @@ export const ExerciseLogging = ({ exercise, workoutExercise, isWorkoutStarted }:
           <Card className="bg-card/95 backdrop-blur-lg border-primary/10 mb-4">
             <View className="p-4">
               <Text className="text-2xl font-bold mb-3">{exercise.name}</Text>
-              <View className="flex-row gap-4 mb-4">
-                <View className="flex-row items-center">
-                  <View className="w-8 h-8 rounded-full bg-primary/10 items-center justify-center mr-2">
-                    <Users2 size={16} className="text-primary" />
-                  </View>
-                  <View>
-                    <Text className="text-sm text-muted-foreground">{displayTimesUsed}x</Text>
-                    <Text className="text-xs text-muted-foreground">verwendet</Text>
-                  </View>
-                </View>
-                <View className="flex-row items-center">
-                  <View className="w-8 h-8 rounded-full bg-primary/10 items-center justify-center mr-2">
-                    <Trophy size={16} className="text-primary" />
-                  </View>
-                  <View>
-                    <Text className="text-sm text-muted-foreground">Top 10</Text>
-                    <Text className="text-xs text-muted-foreground">Übung</Text>
-                  </View>
-                </View>
-              </View>
-
               {/* Quick Stats Grid */}
               <View className="flex-row gap-4">
                 <Card className="flex-1 p-3 border-primary/10">
@@ -138,7 +114,7 @@ export const ExerciseLogging = ({ exercise, workoutExercise, isWorkoutStarted }:
                   </View>
                   <Text className="font-medium mt-1">{exercise.equipment || "Not specified"}</Text>
                 </Card>
-                <Card className="flex-1 p-3 border-primary/10">
+                <Card className="flex-1 p-3 ">
                   <View className="flex-row items-center">
                     <BarChart3 size={16} className="text-primary mr-2" />
                     <Text className="text-sm text-muted-foreground">Level</Text>
@@ -158,7 +134,7 @@ export const ExerciseLogging = ({ exercise, workoutExercise, isWorkoutStarted }:
               }}
             >
               <View className="flex-row items-center">
-                <View className="w-10 h-10 rounded-full bg-primary/10 items-center justify-center mr-3">
+                <View className="w-10 h-10 rounded-full items-center justify-center mr-3">
                   <Info size={20} className="text-primary" />
                 </View>
                 <View>
@@ -177,7 +153,7 @@ export const ExerciseLogging = ({ exercise, workoutExercise, isWorkoutStarted }:
               }}
             >
               <View className="flex-row items-center">
-                <View className="w-10 h-10 rounded-full bg-primary/10 items-center justify-center mr-3">
+                <View className="w-10 h-10 rounded-full items-center justify-center mr-3">
                   <BarChart3 size={20} className="text-primary" />
                 </View>
                 <View>
@@ -195,7 +171,7 @@ export const ExerciseLogging = ({ exercise, workoutExercise, isWorkoutStarted }:
               {/* Warm-up Toggle */}
               <View className="flex-row justify-between items-center mb-6 pb-4 border-b border-border">
                 <View className="flex-row items-center">
-                  <View className="w-10 h-10 rounded-full bg-primary/10 items-center justify-center mr-3">
+                  <View className="w-10 h-10 rounded-full items-center justify-center mr-3">
                     <Dumbbell size={20} className="text-primary" />
                   </View>
                   <View>
@@ -223,7 +199,7 @@ export const ExerciseLogging = ({ exercise, workoutExercise, isWorkoutStarted }:
                       }
                     }}
                   >
-                    <Trash2 size={16} className={isDeleteMode ? "text-destructive" : "text-muted-foreground"} />
+                    <Trash2 size={16} className={isDeleteMode ? "text-destructive" : "text-destructive"} />
                   </Button>
                   <Button
                     variant="ghost"
@@ -236,94 +212,100 @@ export const ExerciseLogging = ({ exercise, workoutExercise, isWorkoutStarted }:
                 </View>
               </View>
 
-              {/* Working Sets List */}
+              {/* Column Headers */}
+              <View className="flex-row items-center px-4 mb-2">
+                <View className="w-10" />
+                <View className="flex-1 mx-2">
+                  <Text className="text-sm text-muted-foreground ml-3">Gewicht (kg)</Text>
+                </View>
+                <View className="flex-1 mx-2">
+                  <Text className="text-sm text-muted-foreground ml-3">Wiederholungen</Text>
+                </View>
+                <View className="w-10" />
+              </View>
+
+              {/* Sets List */}
               <View className="space-y-2">
                 {sets.map((set, index) => (
                   <Animated.View
                     key={index}
                     entering={FadeInDown.delay(index * 50)}
                     className={`
-                      rounded-xl overflow-hidden
-                      ${
-                        isWorkoutStarted && isSetCompleted(set)
-                          ? "border-2 border-primary bg-primary/10"
-                          : "bg-secondary/5"
-                      }
+                      rounded-xl overflow-hidden px-4 py-2
                     `}
                   >
-                    <View className="p-4">
-                      <View className="flex-row items-center">
-                        <View className="w-10 h-10 rounded-full bg-background items-center justify-center">
-                          <Text className="text-base font-medium text-foreground">{index + 1}</Text>
-                        </View>
+                    <View className="flex-row items-center">
+                      {/* Set Number */}
+                      <View className="w-10 h-10 rounded-full bg-card items-center justify-center">
+                        <Text className="text-base font-medium text-foreground">{index + 1}</Text>
+                      </View>
 
-                        <View className="flex-1">
-                          <Text className="text-xs text-muted-foreground mb-1">Gewicht</Text>
-                          <View className="flex-row items-center">
-                            <TextInput
-                              className={`
-                                flex-1 h-10 px-3 rounded-lg text-base
-                                ${isWorkoutStarted && isSetCompleted(set) ? "bg-primary/10" : "bg-background"}
-                              `}
-                              value={set.weight?.toString() || ""}
-                              onChangeText={(value) => updateSet(index, "weight", value)}
-                              keyboardType="numeric"
-                              maxLength={3}
-                              placeholder="0"
-                              placeholderTextColor="#9CA3AF"
-                            />
-                            <Text className="ml-2 text-sm text-muted-foreground">kg</Text>
-                          </View>
-                        </View>
+                      {/* Weight Input */}
+                      <View className="flex-1 mx-2">
+                        <TextInput
+                          className={`
+                            h-10 px-3 rounded-lg text-xl font-medium text-left border border-border
+                            ${isWorkoutStarted && isSetCompleted(set) ? "bg-card" : "bg-card"}
+                          `}
+                          value={set.weight?.toString() || ""}
+                          onChangeText={(value) => updateSet(index, "weight", value)}
+                          keyboardType="numeric"
+                          maxLength={3}
+                          placeholder={suggestedWeight.toString()}
+                          placeholderTextColor={"#9CA3AF"}
+                          style={{ color: "#000000" }}
+                        />
+                      </View>
 
-                        <View className="flex-1">
-                          <Text className="text-xs text-muted-foreground mb-1">Wdh</Text>
-                          <TextInput
+                      {/* Reps Input */}
+                      <View className="flex-1 mx-2">
+                        <TextInput
+                          className={`
+                            h-10 px-3 rounded-lg text-xl font-medium text-left border border-border
+                            ${isWorkoutStarted && isSetCompleted(set) ? "bg-card" : "bg-card"}
+                          `}
+                          value={set.reps?.toString() || ""}
+                          onChangeText={(value) => updateSet(index, "reps", value)}
+                          keyboardType="numeric"
+                          maxLength={2}
+                          placeholder={suggestedReps.toString()}
+                          placeholderTextColor={"#9CA3AF"}
+                          style={{ color: "#000000" }}
+                        />
+                      </View>
+
+                      {/* Action Button */}
+                      {isWorkoutStarted ? (
+                        !isDeleteMode ? (
+                          <View
                             className={`
-                              h-10 px-3 rounded-lg text-base
-                              ${isWorkoutStarted && isSetCompleted(set) ? "bg-primary/10" : "bg-background"}
+                              w-10 h-10 rounded-full items-center justify-center
+                              ${isSetCompleted(set) ? "bg-primary" : "bg-card border border-border"}
                             `}
-                            value={set.reps?.toString() || ""}
-                            onChangeText={(value) => updateSet(index, "reps", value)}
-                            keyboardType="numeric"
-                            maxLength={2}
-                            placeholder="0"
-                            placeholderTextColor="#9CA3AF"
-                          />
-                        </View>
-
-                        {/* Aktions-Buttons basierend auf Modus */}
-                        {isWorkoutStarted ? (
-                          !isDeleteMode ? (
-                            <View
-                              className={`
-                                w-10 h-10 rounded-full items-center justify-center ml-2
-                                ${isSetCompleted(set) ? "bg-primary" : "bg-background"}
-                                ${isSetCompleted(set) ? "border-primary" : "border border-border"}
-                              `}
-                            >
-                              <Check
-                                size={16}
-                                className={isSetCompleted(set) ? "text-primary-foreground" : "text-primary"}
-                              />
-                            </View>
-                          ) : (
-                            <Pressable
-                              onPress={() => handleDeleteSet(index)}
-                              className="w-10 h-10 rounded-full items-center justify-center ml-2 bg-destructive"
-                            >
-                              <Trash2 size={16} className="text-destructive-foreground" />
-                            </Pressable>
-                          )
-                        ) : isDeleteMode ? (
+                          >
+                            <Check
+                              size={16}
+                              className={isSetCompleted(set) ? "text-primary-foreground" : "text-primary"}
+                            />
+                          </View>
+                        ) : (
                           <Pressable
                             onPress={() => handleDeleteSet(index)}
-                            className="w-10 h-10 rounded-full items-center justify-center ml-2 bg-destructive"
+                            className="w-10 h-10 rounded-full items-center justify-center bg-destructive"
                           >
                             <Trash2 size={16} className="text-destructive-foreground" />
                           </Pressable>
-                        ) : null}
-                      </View>
+                        )
+                      ) : isDeleteMode ? (
+                        <Pressable
+                          onPress={() => handleDeleteSet(index)}
+                          className="w-10 h-10 rounded-full items-center justify-center bg-destructive"
+                        >
+                          <Trash2 size={16} className="text-destructive-foreground" />
+                        </Pressable>
+                      ) : (
+                        <View className="w-10" />
+                      )}
                     </View>
                   </Animated.View>
                 ))}
@@ -391,7 +373,7 @@ export const ExerciseLogging = ({ exercise, workoutExercise, isWorkoutStarted }:
       </Modal>
 
       {/* Footer */}
-      <View className="border-t border-border bg-card/95 backdrop-blur-lg">
+      <View className="border-t border-border bg-card/95 backdrop-blur-lg mb-6">
         <View className="p-4">
           <View className="flex-row justify-between">
             <View className="items-center flex-1">

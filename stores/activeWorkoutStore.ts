@@ -1,5 +1,5 @@
 import { create } from "zustand";
-import type { SetInput, Workout, WorkoutSession } from "~/lib/types";
+import type { ExerciseRecord, SetInput, Workout, WorkoutSession } from "~/lib/types";
 
 interface ActiveWorkoutState {
   isStarted: boolean;
@@ -13,13 +13,13 @@ interface ActiveWorkoutState {
   timerInterval: NodeJS.Timeout | null;
 
   setWorkout: (workout: Workout) => void;
+  updateExerciseRecord: (record: ExerciseRecord) => void;
   startWorkout: () => void;
   pauseWorkout: () => void;
   resumeWorkout: () => void;
   cancelWorkout: () => void;
   finishWorkout: () => WorkoutSession | null;
 
-  addSet: (exerciseId: number, newSet: SetInput) => void;
   finishExercise: (exerciseId: number, intensity?: number) => void;
 
   // Stats
@@ -46,6 +46,19 @@ export const useActiveWorkoutStore = create<ActiveWorkoutState>((set, get) => ({
     set({ currentWorkout: workout });
   },
 
+  updateExerciseRecord: (record: ExerciseRecord) => {
+    set((state) => ({
+      currentSession: state.currentSession
+        ? {
+            ...state.currentSession,
+            entries: state.currentSession.entries.map((entry) =>
+              entry.exerciseId === record.exerciseId ? record : entry
+            ),
+          }
+        : null,
+    }));
+  },
+
   startWorkout: () => {
     const workout = get().currentWorkout;
     if (!workout) {
@@ -56,7 +69,7 @@ export const useActiveWorkoutStore = create<ActiveWorkoutState>((set, get) => ({
       date: new Date(),
       entries: workout.exercises.map((exercise) => ({
         exerciseId: exercise.exerciseId,
-        sets: [],
+        sets: Array(exercise.sets).fill({ weight: null, reps: null }),
         intensity: undefined,
         isCompleted: false,
       })),
@@ -130,19 +143,6 @@ export const useActiveWorkoutStore = create<ActiveWorkoutState>((set, get) => ({
     });
 
     return currentSession;
-  },
-
-  addSet: (exerciseId: number, newSet: SetInput) => {
-    set((state) => ({
-      currentSession: state.currentSession
-        ? {
-            ...state.currentSession,
-            entries: state.currentSession.entries.map((entry) =>
-              entry.exerciseId === exerciseId ? { ...entry, sets: [...entry.sets, newSet] } : entry
-            ),
-          }
-        : null,
-    }));
   },
 
   finishExercise: (exerciseId: number, intensity = undefined) => {

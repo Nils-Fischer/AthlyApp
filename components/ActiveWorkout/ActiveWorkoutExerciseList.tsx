@@ -22,14 +22,16 @@ export function ActiveWorkoutExerciseList({
   onPressExercise: onExerciseSelect,
 }: ActiveWorkoutExerciseListProps) {
   const { getExerciseById } = useExerciseStore();
-  const { getExerciseRecord } = useActiveWorkoutStore();
+  const { currentSession } = useActiveWorkoutStore();
 
   return (
     <ScrollView className="flex-1 px-4" showsVerticalScrollIndicator={false}>
       <View className="py-2 space-y-3">
         {workout.exercises.map((workoutExercise, index) => {
           const exercise = getExerciseById(workoutExercise.exerciseId);
-          const exerciseRecord = getExerciseRecord(workoutExercise.exerciseId);
+          const exerciseRecord = currentSession?.entries.find(
+            (entry) => entry.exerciseId === workoutExercise.exerciseId
+          );
           if (!exercise) return null;
 
           return (

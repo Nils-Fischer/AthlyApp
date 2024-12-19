@@ -1,13 +1,15 @@
-import React from "react";
+import React, { useEffect } from "react";
 import { View, ScrollView } from "react-native";
 import { Text } from "~/components/ui/text";
 import { TodayWorkoutWidget } from "~/components/dashboard/active-workout/TodayWorkoutWidget";
 import { useUserStore } from "~/stores/userStore";
 import { format } from "date-fns";
 import { de } from "date-fns/locale";
+import { useActiveWorkoutStore } from "~/stores/activeWorkoutStore";
 
 export default function Index() {
   const userStore = useUserStore();
+  const activeWorkoutStore = useActiveWorkoutStore();
 
   const findActiveWorkout = () => {
     // TODO: proper workout selection
@@ -15,6 +17,11 @@ export default function Index() {
   };
 
   const todaysWorkout = findActiveWorkout();
+
+  useEffect(() => {
+    todaysWorkout && activeWorkoutStore.setWorkout(todaysWorkout);
+  }, [todaysWorkout]);
+
   const today = format(new Date(), "EEEE", { locale: de });
 
   return (

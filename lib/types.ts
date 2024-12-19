@@ -168,14 +168,14 @@ export interface SetInput {
 export interface ExerciseRecord {
   exerciseId: number;
   sets: SetInput[];
-  intensity: number;
+  intensity?: number;
   isCompleted: boolean;
 }
 
 export interface WorkoutSession {
   date: Date;
   entries: ExerciseRecord[];
-  workoutId?: number;
+  workoutId: number;
 }
 
 export interface ExerciseModalProps {

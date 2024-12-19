@@ -1,8 +1,9 @@
 import React from "react";
 import { View, TouchableOpacity } from "react-native";
 import { Text } from "~/components/ui/text";
-import { Play, Pause, StopCircle } from "~/lib/icons/Icons";
+import { Play, Pause, StopCircle, X, Check } from "~/lib/icons/Icons";
 import Animated, { FadeIn, FadeOut, SlideInDown, SlideOutDown, Easing } from "react-native-reanimated";
+import { cn } from "~/lib/utils";
 
 interface ActiveWorkoutControlsProps {
   isEditMode: boolean;
@@ -11,7 +12,8 @@ interface ActiveWorkoutControlsProps {
   onStart: () => void;
   onPause: () => void;
   onResume: () => void;
-  onEnd: () => void;
+  onFinish: () => void;
+  onCancel: () => void;
 }
 
 export function ActiveWorkoutControls({
@@ -21,7 +23,8 @@ export function ActiveWorkoutControls({
   onStart,
   onPause,
   onResume,
-  onEnd,
+  onFinish,
+  onCancel,
 }: ActiveWorkoutControlsProps) {
   if (isEditMode) return null;
 
@@ -33,15 +36,22 @@ export function ActiveWorkoutControls({
     >
       <View className="flex-row justify-center items-center gap-4">
         {!isStarted ? (
-          <PrimaryButton
-            onPress={onStart}
-            icon={<Play className="text-background" size={24} />}
-            label="Start Workout"
-          />
+          <Button onPress={onStart} icon={<Play className="text-background" size={24} />} label="Start Workout" />
         ) : (
-          <>
-            <SecondaryButton onPress={onEnd} icon={<StopCircle className="text-background" size={24} />} label="End" />
-            <PrimaryButton
+          <View className="flex-row items-center gap-4">
+            <Button
+              className="flex-none bg-destructive"
+              onPress={onCancel}
+              icon={<StopCircle className="text-background" size={24} />}
+            />
+            <Button
+              className="flex-1 bg-foreground"
+              onPress={onFinish}
+              icon={<Check className="text-background" size={24} />}
+              label="Finish"
+            />
+            <Button
+              className="flex-none bg-foreground"
               onPress={isPaused ? onResume : onPause}
               icon={
                 isPaused ? (
@@ -50,9 +60,8 @@ export function ActiveWorkoutControls({
                   <Pause className="text-background" size={24} />
                 )
               }
-              label={isPaused ? "Resume" : "Pause"}
             />
-          </>
+          </View>
         )}
       </View>
     </Animated.View>
@@ -62,40 +71,26 @@ export function ActiveWorkoutControls({
 interface ButtonProps {
   onPress: () => void;
   icon: React.ReactNode;
-  label: string;
+  label?: string;
+  className?: string;
 }
 
-function PrimaryButton({ onPress, icon, label }: ButtonProps) {
+function Button({ onPress, icon, label, className }: ButtonProps) {
   return (
     <TouchableOpacity
       onPress={onPress}
-      className="bg-foreground flex-row items-center px-6 py-3 rounded-full active:opacity-90"
+      className={cn(
+        "justify-center flex-row items-center px-6 py-3 rounded-full active:opacity-90 bg-primary",
+        className
+      )}
     >
       <Animated.View
         entering={FadeIn.duration(150).springify().damping(12)}
         exiting={FadeOut.duration(100).easing(Easing.ease)}
         className="flex-row items-center gap-2"
       >
-        <View className="text-background">{icon}</View>
-        <Text className="text-base font-medium text-background">{label}</Text>
-      </Animated.View>
-    </TouchableOpacity>
-  );
-}
-
-function SecondaryButton({ onPress, icon, label }: ButtonProps) {
-  return (
-    <TouchableOpacity
-      onPress={onPress}
-      className="bg-destructive flex-row items-center px-6 py-3 rounded-full active:opacity-90"
-    >
-      <Animated.View
-        entering={FadeIn.duration(150).springify().damping(12)}
-        exiting={FadeOut.duration(100).easing(Easing.ease)}
-        className="flex-row items-center gap-2"
-      >
-        <View className="text-background">{icon}</View>
-        <Text className="text-base font-medium text-background">{label}</Text>
+        {icon}
+        {label && <Text className="text-base font-medium text-background">{label}</Text>}
       </Animated.View>
     </TouchableOpacity>
   );

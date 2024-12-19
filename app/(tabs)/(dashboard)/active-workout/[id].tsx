@@ -9,15 +9,23 @@ import { ActiveWorkoutExerciseList } from "~/components/ActiveWorkout/ActiveWork
 import { useUserStore } from "~/stores/userStore";
 import { useActiveWorkoutStore } from "~/stores/activeWorkoutStore";
 import { ChevronLeft } from "~/lib/icons/Icons";
-import { WorkoutExercise } from "~/lib/types";
+import { useWorkoutHistoryStore } from "~/stores/workoutHistoryStore";
 
 export default function ActiveWorkoutScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
   const { getActiveRoutine, isLoading, error } = useUserStore();
+  const workoutHistoryStore = useWorkoutHistoryStore();
   const activeWorkout = getActiveRoutine()?.workouts.find((workout) => workout.id === parseInt(id));
 
   const [isEditMode, setIsEditMode] = useState(false);
-  const { isStarted, isPaused, startWorkout, pauseWorkout, resumeWorkout, endWorkout } = useActiveWorkoutStore();
+  const { isStarted, isPaused, startWorkout, setWorkout, pauseWorkout, resumeWorkout, finishWorkout, cancelWorkout } =
+    useActiveWorkoutStore();
+
+  const finish = () => {
+    const session = finishWorkout();
+    session && workoutHistoryStore.addWorkoutSession(session);
+    router.back();
+  };
 
   // Loading State
   if (isLoading) {
@@ -69,10 +77,14 @@ export default function ActiveWorkoutScreen() {
           isEditMode={isEditMode}
           isStarted={isStarted}
           isPaused={isPaused}
-          onStart={() => startWorkout(activeWorkout.id, activeWorkout.exercises)}
+          onStart={() => {
+            setWorkout(activeWorkout);
+            startWorkout();
+          }}
           onPause={pauseWorkout}
           onResume={resumeWorkout}
-          onEnd={endWorkout}
+          onFinish={finish}
+          onCancel={cancelWorkout}
         />
       </View>
     </>
