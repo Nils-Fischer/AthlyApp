@@ -32,8 +32,6 @@ export const ExerciseLogging = ({
   const [isDeleteMode, setIsDeleteMode] = useState(false);
   const [rpe, setRpe] = useState<number | null>(null);
   const [showHistory, setShowHistory] = useState(false);
-  const suggestedWeight = workoutHistory.getLastWorkout(exercise.id)?.sets.at(0)?.weight || 0;
-  const suggestedReps = workoutExercise.reps;
 
   const totalVolume = useMemo(() => {
     return sets.reduce((total, set) => {
@@ -42,44 +40,71 @@ export const ExerciseLogging = ({
   }, [sets]);
 
   const handleAddSet = useCallback(() => {
-    setSets((prev) => [...prev, { reps: null, weight: null }]);
+    const newSet = {
+      reps: null,
+      weight: null,
+      targetWeight: sets[0]?.targetWeight || 0,
+      targetReps: workoutExercise.reps,
+    };
+
+    const newSets = [...sets, newSet];
+
+    setSets(newSets);
+    updateExerciseRecord({
+      ...exerciseRecord,
+      sets: newSets,
+    });
+
     if (Platform.OS !== "web") {
       Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
     }
-  }, []);
+  }, [sets, exerciseRecord, workoutExercise.reps, updateExerciseRecord]);
 
-  const handleDeleteSet = useCallback((index: number) => {
-    setSets((prev) => {
+  const handleDeleteSet = useCallback(
+    (index: number) => {
       // Don't allow deleting if only one set remains
-      if (prev.length <= 1) {
+      if (sets.length <= 1) {
         if (Platform.OS !== "web") {
           Haptics.notificationAsync(Haptics.NotificationFeedbackType.Error);
         }
-        return prev;
+        return;
       }
 
-      const newSets = [...prev];
-      newSets.splice(index, 1);
+      const newSets = sets.filter((_, i) => i !== index);
+
+      setSets(newSets);
+      updateExerciseRecord({
+        ...exerciseRecord,
+        sets: newSets,
+      });
 
       if (Platform.OS !== "web") {
         Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
       }
-      return newSets;
-    });
-  }, []);
+    },
+    [sets, exerciseRecord, updateExerciseRecord]
+  );
 
-  const updateSet = useCallback((index: number, field: keyof SetInput, value: string) => {
-    const numValue = value === "" ? null : parseInt(value) || 0;
-    setSets((prev) => {
-      const newSets = [...prev];
-      newSets[index] = { ...newSets[index], [field]: numValue };
-      updateExerciseRecord({ ...exerciseRecord, sets: newSets });
-      return newSets;
-    });
-    if (Platform.OS !== "web") {
-      Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-    }
-  }, []);
+  const updateSet = useCallback(
+    (index: number, field: keyof SetInput, value: string) => {
+      const numValue = value === "" ? null : parseInt(value) || 0;
+
+      // Create new sets array first
+      const newSets = sets.map((set, i) => (i === index ? { ...set, [field]: numValue } : set));
+
+      // Update both local state and store in one go
+      setSets(newSets);
+      updateExerciseRecord({
+        ...exerciseRecord,
+        sets: newSets,
+      });
+
+      if (Platform.OS !== "web") {
+        Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+      }
+    },
+    [sets, exerciseRecord, updateExerciseRecord]
+  );
 
   const isSetCompleted = (set: SetInput) => set.reps !== null && set.weight !== null;
 
@@ -251,7 +276,7 @@ export const ExerciseLogging = ({
                           onChangeText={(value) => updateSet(index, "weight", value)}
                           keyboardType="numeric"
                           maxLength={3}
-                          placeholder={suggestedWeight.toString()}
+                          placeholder={set.targetWeight.toString()}
                           placeholderTextColor={"#9CA3AF"}
                           style={{ color: "#000000" }}
                         />
@@ -268,7 +293,7 @@ export const ExerciseLogging = ({
                           onChangeText={(value) => updateSet(index, "reps", value)}
                           keyboardType="numeric"
                           maxLength={2}
-                          placeholder={suggestedReps.toString()}
+                          placeholder={set.targetReps.toString()}
                           placeholderTextColor={"#9CA3AF"}
                           style={{ color: "#000000" }}
                         />

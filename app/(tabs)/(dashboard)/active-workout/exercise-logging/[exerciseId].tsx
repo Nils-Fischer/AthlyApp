@@ -4,7 +4,6 @@ import { View } from "react-native";
 import { ExerciseLogging } from "~/components/ActiveWorkout/ExerciseLogging";
 import { Button } from "~/components/ui/button";
 import { Text } from "~/components/ui/text";
-import { SetInput } from "~/lib/types";
 import { useActiveWorkoutStore } from "~/stores/activeWorkoutStore";
 import { useExerciseStore } from "~/stores/exerciseStore";
 

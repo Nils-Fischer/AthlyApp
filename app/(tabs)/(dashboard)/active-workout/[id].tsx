@@ -77,10 +77,7 @@ export default function ActiveWorkoutScreen() {
           isEditMode={isEditMode}
           isStarted={isStarted}
           isPaused={isPaused}
-          onStart={() => {
-            setWorkout(activeWorkout);
-            startWorkout();
-          }}
+          onStart={() => startWorkout()}
           onPause={pauseWorkout}
           onResume={resumeWorkout}
           onFinish={finish}

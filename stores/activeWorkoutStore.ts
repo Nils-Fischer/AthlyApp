@@ -1,5 +1,6 @@
 import { create } from "zustand";
-import type { ExerciseRecord, SetInput, Workout, WorkoutSession } from "~/lib/types";
+import type { ExerciseRecord, SetInput, Workout, WorkoutExercise, WorkoutSession } from "~/lib/types";
+import { useWorkoutHistoryStore } from "./workoutHistoryStore";
 
 interface ActiveWorkoutState {
   isStarted: boolean;
@@ -33,17 +34,48 @@ interface ActiveWorkoutState {
   };
 }
 
+const getSetSuggestion = (exercise: WorkoutExercise): SetInput[] => {
+  const workoutHistory = useWorkoutHistoryStore.getState();
+  const lastWorkout = workoutHistory.getLastWorkout(exercise.exerciseId);
+
+  if (lastWorkout?.sets?.length) {
+    return lastWorkout.sets.map((set) => ({
+      weight: null,
+      reps: null,
+      targetWeight: set.weight || 0,
+      targetReps: exercise.reps,
+    }));
+  }
+
+  return Array.from({ length: exercise.sets }, () => ({
+    weight: null,
+    reps: null,
+    targetWeight: 0,
+    targetReps: exercise.reps,
+  }));
+};
+
 export const useActiveWorkoutStore = create<ActiveWorkoutState>((set, get) => ({
   isStarted: false,
   isPaused: false,
   startTime: null,
   elapsedTime: 0,
-  currentWorkout: null,
   timerInterval: null,
+  currentWorkout: null,
   currentSession: null,
 
   setWorkout: (workout: Workout) => {
-    set({ currentWorkout: workout });
+    const session = {
+      date: new Date(),
+      entries: workout.exercises.map((exercise) => ({
+        exerciseId: exercise.exerciseId,
+        sets: getSetSuggestion(exercise),
+        intensity: undefined,
+        isCompleted: false,
+      })),
+      workoutId: workout.id,
+    };
+    set({ currentWorkout: workout, currentSession: session });
   },
 
   updateExerciseRecord: (record: ExerciseRecord) => {
@@ -65,15 +97,23 @@ export const useActiveWorkoutStore = create<ActiveWorkoutState>((set, get) => ({
       console.error("No workout set");
       return;
     }
-    const session: WorkoutSession = {
-      date: new Date(),
-      entries: workout.exercises.map((exercise) => ({
-        exerciseId: exercise.exerciseId,
-        sets: Array(exercise.sets).fill({ weight: null, reps: null }),
-        intensity: undefined,
-        isCompleted: false,
+    const session = get().currentSession;
+    if (!session) {
+      console.error("No session set");
+      return;
+    }
+
+    const newSession: WorkoutSession = {
+      ...session,
+      entries: session.entries.map((entry) => ({
+        ...entry,
+        sets: entry.sets.map((set) => ({
+          weight: null,
+          reps: null,
+          targetWeight: set.weight || 0,
+          targetReps: set.reps || 0,
+        })),
       })),
-      workoutId: workout.id,
     };
 
     const timerInterval = get().timerInterval;
@@ -90,7 +130,7 @@ export const useActiveWorkoutStore = create<ActiveWorkoutState>((set, get) => ({
       isPaused: false,
       startTime: Date.now(),
       elapsedTime: 0,
-      currentSession: session,
+      currentSession: newSession,
       timerInterval: interval,
     });
   },

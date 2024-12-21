@@ -19,7 +19,6 @@ export const useWorkoutHistoryStore = create<WorkoutHistoryState>((set, get) => 
       const stored = await AsyncStorage.getItem(STORAGE_KEY);
       if (stored) {
         const sessions = JSON.parse(stored) || [];
-        // Only run forEach if sessions exists and is an array
         if (Array.isArray(sessions)) {
           sessions.forEach((session: WorkoutSession) => {
             session.date = new Date(session.date);
