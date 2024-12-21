@@ -13,7 +13,6 @@ export default function DashboardLayout() {
         name="active-workout"
         options={{
           headerShown: false,
-          presentation: "fullScreenModal",
         }}
       />
     </Stack>

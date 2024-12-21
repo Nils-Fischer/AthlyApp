@@ -61,6 +61,7 @@ export default function TabLayout() {
   const { colors } = useTheme();
   const pathname = usePathname();
   const isRootPath = pathname.split("/").length <= 2;
+  const hideTabBar = pathname.startsWith("/active-workout");
 
   return (
     <Tabs
@@ -69,6 +70,9 @@ export default function TabLayout() {
         tabBarInactiveTintColor: colors.text + "80",
         headerShown: isRootPath,
         headerRight: isRootPath ? () => <ThemeToggle /> : undefined,
+        tabBarStyle: {
+          display: hideTabBar ? "none" : "flex",
+        },
       }}
     >
       {routes.map((route) => {

@@ -6,7 +6,6 @@ export default function ActiveWorkoutLayout() {
     <Stack
       screenOptions={{
         headerShown: true,
-        presentation: "fullScreenModal",
       }}
     >
       <Stack.Screen name="index" options={{ headerShown: true }} />
