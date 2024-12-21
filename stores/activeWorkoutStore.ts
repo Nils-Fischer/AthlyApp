@@ -20,7 +20,6 @@ interface ActiveWorkoutState {
   resumeWorkout: () => void;
   cancelWorkout: () => void;
   finishWorkout: () => WorkoutSession | null;
-
   finishExercise: (exerciseId: number, intensity?: number) => void;
 
   // Stats

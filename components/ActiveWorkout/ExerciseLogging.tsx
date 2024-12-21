@@ -3,13 +3,25 @@ import { View, ScrollView, Pressable, Modal, TextInput, Platform, ImageBackgroun
 import { Text } from "~/components/ui/text";
 import { Button } from "~/components/ui/button";
 import { Card } from "~/components/ui/card";
-import { Weight, BarChart3, ChevronRight, Info, Plus, Trash2, Check, Dumbbell, ArrowLeft } from "~/lib/icons/Icons";
+import {
+  Weight,
+  BarChart3,
+  ChevronRight,
+  Info,
+  Plus,
+  Trash2,
+  CheckCheck,
+  Dumbbell,
+  ArrowLeft,
+  Check,
+} from "~/lib/icons/Icons";
 import { Exercise, ExerciseRecord, SetInput, WorkoutExercise } from "~/lib/types";
 import * as Haptics from "expo-haptics";
 import { router } from "expo-router";
 import Animated, { FadeInDown } from "react-native-reanimated";
 import { useWorkoutHistoryStore } from "~/stores/workoutHistoryStore";
 import { WorkoutHistoryView } from "../dashboard/active-workout/WorkoutHistoryView";
+import { AnimatedIconButton } from "../ui/animated-icon-button";
 
 interface ExerciseLoggingProps {
   exercise: Exercise;
@@ -17,6 +29,7 @@ interface ExerciseLoggingProps {
   exerciseRecord: ExerciseRecord;
   isWorkoutStarted: boolean;
   updateExerciseRecord: (record: ExerciseRecord) => void;
+  onCompleteExercise: () => void;
 }
 
 export const ExerciseLogging = ({
@@ -25,6 +38,7 @@ export const ExerciseLogging = ({
   exerciseRecord,
   isWorkoutStarted,
   updateExerciseRecord,
+  onCompleteExercise,
 }: ExerciseLoggingProps) => {
   const workoutHistory = useWorkoutHistoryStore();
 
@@ -107,6 +121,9 @@ export const ExerciseLogging = ({
   );
 
   const isSetCompleted = (set: SetInput) => set.reps !== null && set.weight !== null;
+  const isExerciseCompleted = useMemo(() => {
+    return sets.every(isSetCompleted);
+  }, [sets]);
 
   return (
     <View className="flex-1 bg-background">
@@ -397,8 +414,8 @@ export const ExerciseLogging = ({
         </View>
       </Modal>
 
-      {/* Footer */}
-      <View className="border-t border-border bg-card/95 backdrop-blur-lg mb-6">
+      {/* Footer Stats */}
+      <View className={`border-t border-border bg-card/95 backdrop-blur-lg ${!isWorkoutStarted ? "mb-6" : "mb-24"}`}>
         <View className="p-4">
           <View className="flex-row justify-between">
             <View className="items-center flex-1">
@@ -416,6 +433,21 @@ export const ExerciseLogging = ({
           </View>
         </View>
       </View>
+
+      {isWorkoutStarted && (
+        <AnimatedIconButton
+          onPress={() => {
+            if (Platform.OS !== "web") {
+              Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
+            }
+            onCompleteExercise();
+          }}
+          icon={<CheckCheck className="mr-2 h-4 w-4 text-primary-foreground" />}
+          label="Übung abschließen"
+          disabled={!isExerciseCompleted}
+          className="absolute bottom-10 left-4 right-4"
+        />
+      )}
     </View>
   );
 };
