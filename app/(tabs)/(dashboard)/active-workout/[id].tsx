@@ -10,6 +10,16 @@ import { useUserStore } from "~/stores/userStore";
 import { useActiveWorkoutStore } from "~/stores/activeWorkoutStore";
 import { ChevronLeft } from "~/lib/icons/Icons";
 import { useWorkoutHistoryStore } from "~/stores/workoutHistoryStore";
+import {
+  AlertDialog,
+  AlertDialogContent,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogCancel,
+  AlertDialogAction,
+} from "~/components/ui/alert-dialog";
 
 export default function ActiveWorkoutScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
@@ -21,9 +31,17 @@ export default function ActiveWorkoutScreen() {
   const { isStarted, isPaused, startWorkout, setWorkout, pauseWorkout, resumeWorkout, finishWorkout, cancelWorkout } =
     useActiveWorkoutStore();
 
+  const [showCancelDialog, setShowCancelDialog] = useState(false);
+
   const finish = () => {
     const session = finishWorkout();
     session && workoutHistoryStore.addWorkoutSession(session);
+    router.back();
+  };
+
+  const confirmCancel = () => {
+    cancelWorkout();
+    setShowCancelDialog(false);
     router.back();
   };
 
@@ -81,8 +99,29 @@ export default function ActiveWorkoutScreen() {
           onPause={pauseWorkout}
           onResume={resumeWorkout}
           onFinish={finish}
-          onCancel={cancelWorkout}
+          onCancel={() => setShowCancelDialog(true)}
         />
+
+        <AlertDialog open={showCancelDialog} onOpenChange={setShowCancelDialog}>
+          <AlertDialogContent className="w-[90%] max-w-[400px]">
+            <AlertDialogHeader>
+              <AlertDialogTitle className="text-center">Workout abbrechen?</AlertDialogTitle>
+              <AlertDialogDescription>
+                <Text className="text-foreground text-center">
+                  Wenn du das Workout abbrichst, gehen alle Fortschritte verloren.
+                </Text>
+              </AlertDialogDescription>
+            </AlertDialogHeader>
+            <AlertDialogFooter className="flex flex-row justify-center mt-4 gap-3">
+              <AlertDialogCancel className="flex-1 max-w-[160px]">
+                <Text>Zurück</Text>
+              </AlertDialogCancel>
+              <AlertDialogAction className="flex-1 max-w-[160px] bg-destructive" onPress={confirmCancel}>
+                <Text>Beenden</Text>
+              </AlertDialogAction>
+            </AlertDialogFooter>
+          </AlertDialogContent>
+        </AlertDialog>
       </View>
     </>
   );

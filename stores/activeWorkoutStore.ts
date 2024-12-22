@@ -54,6 +54,19 @@ const getSetSuggestion = (exercise: WorkoutExercise): SetInput[] => {
   }));
 };
 
+const getNewSession = (workout: Workout): WorkoutSession => {
+  return {
+    date: new Date(),
+    entries: workout.exercises.map((exercise) => ({
+      exerciseId: exercise.exerciseId,
+      sets: getSetSuggestion(exercise),
+      intensity: undefined,
+      isCompleted: false,
+    })),
+    workoutId: workout.id,
+  };
+};
+
 export const useActiveWorkoutStore = create<ActiveWorkoutState>((set, get) => ({
   isStarted: false,
   isPaused: false,
@@ -64,16 +77,7 @@ export const useActiveWorkoutStore = create<ActiveWorkoutState>((set, get) => ({
   currentSession: null,
 
   setWorkout: (workout: Workout) => {
-    const session = {
-      date: new Date(),
-      entries: workout.exercises.map((exercise) => ({
-        exerciseId: exercise.exerciseId,
-        sets: getSetSuggestion(exercise),
-        intensity: undefined,
-        isCompleted: false,
-      })),
-      workoutId: workout.id,
-    };
+    const session = getNewSession(workout);
     set({ currentWorkout: workout, currentSession: session });
   },
 
@@ -152,12 +156,14 @@ export const useActiveWorkoutStore = create<ActiveWorkoutState>((set, get) => ({
   cancelWorkout: () => {
     const timerInterval = get().timerInterval;
     timerInterval && clearInterval(timerInterval);
+    const currentWorkout = get().currentWorkout;
+    if (!currentWorkout) return;
     set({
       isStarted: false,
       isPaused: false,
       startTime: null,
       elapsedTime: 0,
-      currentSession: null,
+      currentSession: getNewSession(currentWorkout),
       timerInterval: null,
     });
   },

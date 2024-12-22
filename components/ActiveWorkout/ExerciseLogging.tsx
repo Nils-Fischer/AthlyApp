@@ -11,9 +11,9 @@ import {
   Plus,
   Trash2,
   CheckCheck,
-  Dumbbell,
   ArrowLeft,
   Check,
+  HeartPulse,
 } from "~/lib/icons/Icons";
 import { Exercise, ExerciseRecord, SetInput, WorkoutExercise } from "~/lib/types";
 import * as Haptics from "expo-haptics";
@@ -22,6 +22,7 @@ import Animated, { FadeInDown } from "react-native-reanimated";
 import { useWorkoutHistoryStore } from "~/stores/workoutHistoryStore";
 import { WorkoutHistoryView } from "../dashboard/active-workout/WorkoutHistoryView";
 import { AnimatedIconButton } from "../ui/animated-icon-button";
+import { cn } from "~/lib/utils";
 
 interface ExerciseLoggingProps {
   exercise: Exercise;
@@ -46,6 +47,7 @@ export const ExerciseLogging = ({
   const [isDeleteMode, setIsDeleteMode] = useState(false);
   const [rpe, setRpe] = useState<number | null>(null);
   const [showHistory, setShowHistory] = useState(false);
+  const [isWarmupExpanded, setIsWarmupExpanded] = useState(false);
 
   const totalVolume = useMemo(() => {
     return sets.reduce((total, set) => {
@@ -212,16 +214,32 @@ export const ExerciseLogging = ({
             <View className="p-4">
               {/* Warm-up Toggle */}
               <View className="flex-row justify-between items-center mb-6 pb-4 border-b border-border">
-                <View className="flex-row items-center">
-                  <View className="w-10 h-10 rounded-full items-center justify-center mr-3">
-                    <Dumbbell size={20} className="text-primary" />
+                <Pressable className="flex-1" onPress={() => setIsWarmupExpanded(!isWarmupExpanded)}>
+                  <View className="flex-row items-center">
+                    <View className="w-10 h-10 rounded-full items-center justify-center mr-3">
+                      <HeartPulse size={20} className="text-primary" />
+                    </View>
+                    <View>
+                      <Text className="font-medium">Aufwärmen</Text>
+                      <Text className="text-sm text-muted-foreground">Vorbereitung für dein Training</Text>
+                    </View>
                   </View>
-                  <View>
-                    <Text className="font-medium">Aufwärmen</Text>
-                    <Text className="text-sm text-muted-foreground">Vorbereitung für dein Training</Text>
-                  </View>
-                </View>
+                </Pressable>
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="h-9 w-9 rounded-full"
+                  onPress={() => setIsWarmupExpanded(!isWarmupExpanded)}
+                >
+                  <ChevronRight size={20} className={cn("text-muted-foreground", isWarmupExpanded && "rotate-90")} />
+                </Button>
               </View>
+
+              {isWarmupExpanded && (
+                <View className="mb-6 px-4">
+                  <Text className="text-sm text-muted-foreground leading-relaxed">{/* // exercise.warmup */}</Text>
+                </View>
+              )}
 
               {/* Working Sets Header */}
               <View className="flex-row justify-between items-center mb-6">
@@ -350,30 +368,6 @@ export const ExerciseLogging = ({
                       )}
                     </View>
                   </Animated.View>
-                ))}
-              </View>
-            </View>
-          </Card>
-
-          {/* RPE Selector Card */}
-          <Card className="border-primary/10">
-            <View className="p-4">
-              <Text className="font-medium mb-4">RPE (Gefühlte Intensität)</Text>
-              <View className="flex-row justify-between">
-                {[1, 2, 3, 4, 5].map((value) => (
-                  <Pressable
-                    key={value}
-                    onPress={() => setRpe(value)}
-                    className={`w-14 h-14 rounded-2xl items-center justify-center ${
-                      rpe === value ? "bg-primary" : "bg-secondary/10"
-                    }`}
-                  >
-                    <Text
-                      className={`text-lg ${rpe === value ? "text-primary-foreground font-medium" : "text-foreground"}`}
-                    >
-                      {value}
-                    </Text>
-                  </Pressable>
                 ))}
               </View>
             </View>
