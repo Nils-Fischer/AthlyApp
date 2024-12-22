@@ -28,14 +28,24 @@ export default function ActiveWorkoutScreen() {
   const activeWorkout = getActiveRoutine()?.workouts.find((workout) => workout.id === parseInt(id));
 
   const [isEditMode, setIsEditMode] = useState(false);
-  const { isStarted, isPaused, startWorkout, setWorkout, pauseWorkout, resumeWorkout, finishWorkout, cancelWorkout } =
-    useActiveWorkoutStore();
+  const {
+    activeSession,
+    isStarted,
+    isPaused,
+    startWorkout,
+    pauseWorkout,
+    resumeWorkout,
+    finishWorkout,
+    cancelWorkout,
+  } = useActiveWorkoutStore();
 
   const [showCancelDialog, setShowCancelDialog] = useState(false);
+  const [showFinishDialog, setShowFinishDialog] = useState(false);
 
   const finish = () => {
     const session = finishWorkout();
     session && workoutHistoryStore.addWorkoutSession(session);
+    setShowFinishDialog(false);
     router.back();
   };
 
@@ -43,6 +53,14 @@ export default function ActiveWorkoutScreen() {
     cancelWorkout();
     setShowCancelDialog(false);
     router.back();
+  };
+
+  const handleFinishPress = () => {
+    if (activeSession?.entries.some((entry) => !entry.isCompleted)) {
+      setShowFinishDialog(true);
+    } else {
+      finish();
+    }
   };
 
   // Loading State
@@ -98,7 +116,7 @@ export default function ActiveWorkoutScreen() {
           onStart={() => startWorkout()}
           onPause={pauseWorkout}
           onResume={resumeWorkout}
-          onFinish={finish}
+          onFinish={handleFinishPress}
           onCancel={() => setShowCancelDialog(true)}
         />
 
@@ -117,6 +135,27 @@ export default function ActiveWorkoutScreen() {
                 <Text>Zurück</Text>
               </AlertDialogCancel>
               <AlertDialogAction className="flex-1 max-w-[160px] bg-destructive" onPress={confirmCancel}>
+                <Text>Beenden</Text>
+              </AlertDialogAction>
+            </AlertDialogFooter>
+          </AlertDialogContent>
+        </AlertDialog>
+
+        <AlertDialog open={showFinishDialog} onOpenChange={setShowFinishDialog}>
+          <AlertDialogContent className="w-[90%] max-w-[400px]">
+            <AlertDialogHeader>
+              <AlertDialogTitle className="text-center">Workout beenden?</AlertDialogTitle>
+              <AlertDialogDescription>
+                <Text className="text-foreground text-center">
+                  Nicht alle Übungen sind abgeschlossen. Unfertige Übungen werden übersprungen.
+                </Text>
+              </AlertDialogDescription>
+            </AlertDialogHeader>
+            <AlertDialogFooter className="flex flex-row justify-center mt-4 gap-3">
+              <AlertDialogCancel className="flex-1 max-w-[160px]">
+                <Text>Zurück</Text>
+              </AlertDialogCancel>
+              <AlertDialogAction className="flex-1 max-w-[160px]" onPress={finish}>
                 <Text>Beenden</Text>
               </AlertDialogAction>
             </AlertDialogFooter>

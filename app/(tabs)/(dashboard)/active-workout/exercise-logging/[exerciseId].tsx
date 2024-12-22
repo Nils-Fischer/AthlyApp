@@ -16,10 +16,10 @@ export default function ExerciseLoggingScreen() {
   const activeWorkoutStore = useActiveWorkoutStore();
   const workoutStarted = activeWorkoutStore.isStarted;
 
-  const workout = activeWorkoutStore.currentWorkout;
+  const workout = activeWorkoutStore.activeWorkout;
   const exercise = exerciseStore.exercises?.find((ex) => ex.id === exerciseIdNumber);
   const workoutExercise = workout?.exercises.find((ex) => ex.exerciseId === exerciseIdNumber);
-  const exerciseRecord = activeWorkoutStore.currentSession?.entries.find((ex) => ex.exerciseId === exerciseIdNumber);
+  const exerciseRecord = activeWorkoutStore.activeSession?.entries.find((ex) => ex.exerciseId === exerciseIdNumber);
 
   const [showIntensityDialog, setShowIntensityDialog] = useState(false);
   const [selectedIntensity, setSelectedIntensity] = useState<number>(3);

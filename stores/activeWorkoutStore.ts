@@ -8,8 +8,8 @@ interface ActiveWorkoutState {
   startTime: number | null;
   elapsedTime: number;
 
-  currentWorkout: Workout | null;
-  currentSession: WorkoutSession | null;
+  activeWorkout: Workout | null;
+  activeSession: WorkoutSession | null;
 
   timerInterval: NodeJS.Timeout | null;
 
@@ -73,20 +73,20 @@ export const useActiveWorkoutStore = create<ActiveWorkoutState>((set, get) => ({
   startTime: null,
   elapsedTime: 0,
   timerInterval: null,
-  currentWorkout: null,
-  currentSession: null,
+  activeWorkout: null,
+  activeSession: null,
 
   setWorkout: (workout: Workout) => {
     const session = getNewSession(workout);
-    set({ currentWorkout: workout, currentSession: session });
+    set({ activeWorkout: workout, activeSession: session });
   },
 
   updateExerciseRecord: (record: ExerciseRecord) => {
     set((state) => ({
-      currentSession: state.currentSession
+      activeSession: state.activeSession
         ? {
-            ...state.currentSession,
-            entries: state.currentSession.entries.map((entry) =>
+            ...state.activeSession,
+            entries: state.activeSession.entries.map((entry) =>
               entry.exerciseId === record.exerciseId ? record : entry
             ),
           }
@@ -95,12 +95,12 @@ export const useActiveWorkoutStore = create<ActiveWorkoutState>((set, get) => ({
   },
 
   startWorkout: () => {
-    const workout = get().currentWorkout;
+    const workout = get().activeWorkout;
     if (!workout) {
       console.error("No workout set");
       return;
     }
-    const session = get().currentSession;
+    const session = get().activeSession;
     if (!session) {
       console.error("No session set");
       return;
@@ -133,7 +133,7 @@ export const useActiveWorkoutStore = create<ActiveWorkoutState>((set, get) => ({
       isPaused: false,
       startTime: Date.now(),
       elapsedTime: 0,
-      currentSession: newSession,
+      activeSession: newSession,
       timerInterval: interval,
     });
   },
@@ -156,14 +156,14 @@ export const useActiveWorkoutStore = create<ActiveWorkoutState>((set, get) => ({
   cancelWorkout: () => {
     const timerInterval = get().timerInterval;
     timerInterval && clearInterval(timerInterval);
-    const currentWorkout = get().currentWorkout;
+    const currentWorkout = get().activeWorkout;
     if (!currentWorkout) return;
     set({
       isStarted: false,
       isPaused: false,
       startTime: null,
       elapsedTime: 0,
-      currentSession: getNewSession(currentWorkout),
+      activeSession: getNewSession(currentWorkout),
       timerInterval: null,
     });
   },
@@ -172,19 +172,19 @@ export const useActiveWorkoutStore = create<ActiveWorkoutState>((set, get) => ({
     const timerInterval = get().timerInterval;
     timerInterval && clearInterval(timerInterval);
 
-    const currentWorkout = get().currentWorkout;
+    const currentWorkout = get().activeWorkout;
     if (!currentWorkout) return null;
 
-    const currentSession = get().currentSession;
+    const currentSession = get().activeSession;
 
     set({
       isStarted: false,
       isPaused: false,
       startTime: null,
       elapsedTime: 0,
-      currentWorkout: null,
+      activeWorkout: null,
       timerInterval: null,
-      currentSession: null,
+      activeSession: null,
     });
 
     return currentSession;
@@ -192,10 +192,10 @@ export const useActiveWorkoutStore = create<ActiveWorkoutState>((set, get) => ({
 
   finishExercise: (exerciseId: number, intensity = undefined) => {
     set((state) => ({
-      currentSession: state.currentSession
+      activeSession: state.activeSession
         ? {
-            ...state.currentSession,
-            entries: state.currentSession.entries.map((entry) =>
+            ...state.activeSession,
+            entries: state.activeSession.entries.map((entry) =>
               entry.exerciseId === exerciseId ? { ...entry, isCompleted: true, intensity } : entry
             ),
           }
@@ -204,7 +204,7 @@ export const useActiveWorkoutStore = create<ActiveWorkoutState>((set, get) => ({
   },
 
   getCurrentStats: () => {
-    const currentSession = get().currentSession;
+    const currentSession = get().activeSession;
     if (!currentSession) {
       return {
         duration: 0,

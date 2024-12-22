@@ -22,7 +22,7 @@ export function ActiveWorkoutExerciseList({
   onPressExercise: onExerciseSelect,
 }: ActiveWorkoutExerciseListProps) {
   const { getExerciseById } = useExerciseStore();
-  const { currentSession } = useActiveWorkoutStore();
+  const { activeSession: currentSession } = useActiveWorkoutStore();
 
   // Sort exercises by completion status
   const sortedExercises = React.useMemo(() => {
