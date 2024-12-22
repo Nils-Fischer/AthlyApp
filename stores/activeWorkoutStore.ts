@@ -186,11 +186,11 @@ export const useActiveWorkoutStore = create<ActiveWorkoutState>((set, get) => ({
 
   finishExercise: (exerciseId: number, intensity = undefined) => {
     set((state) => ({
-      currentWorkout: state.currentWorkout
+      currentSession: state.currentSession
         ? {
-            ...state.currentWorkout,
-            exercises: state.currentWorkout.exercises.map((exercise) =>
-              exercise.exerciseId === exerciseId ? { ...exercise, isCompleted: true, intensity } : exercise
+            ...state.currentSession,
+            entries: state.currentSession.entries.map((entry) =>
+              entry.exerciseId === exerciseId ? { ...entry, isCompleted: true, intensity } : entry
             ),
           }
         : null,

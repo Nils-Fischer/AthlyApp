@@ -1,7 +1,6 @@
 import React from "react";
 import { View } from "react-native";
 import { Text } from "~/components/ui/text";
-import { Card } from "~/components/ui/card";
 import { Timer, Dumbbell, CheckSquare } from "~/lib/icons/Icons";
 import { cn } from "~/lib/utils";
 import { useActiveWorkoutStore } from "~/stores/activeWorkoutStore";
@@ -32,26 +31,27 @@ export function ActiveWorkoutStats() {
   const stats = getCurrentStats();
 
   return (
-    <View className="px-4 py-3">
-      <Card className={cn("bg-card border-border", isStarted && "bg-card/95 backdrop-blur-sm")}>
-        <View className="flex-row justify-between p-4">
+    <View className="px-4 pt-3">
+      <View className="backdrop-blur-lg">
+        <View className="flex-row justify-between">
           <StatItem
             icon={<Dumbbell size={20} className="text-primary" />}
             value={`${stats.totalVolume}kg`}
-            label="Total Volume"
+            label="Gesamtvolumen"
           />
           <StatItem
             icon={<Timer size={20} className="text-primary" />}
             value={formatTime(elapsedTime / 1000)}
-            label="Workout Time"
+            label="Trainingszeit"
           />
           <StatItem
             icon={<CheckSquare size={20} className="text-primary" />}
             value={stats.completedExercises}
-            label="Completed"
+            label="Abgeschlossen"
           />
         </View>
-      </Card>
+        <View className="h-[1px] bg-border mt-3" />
+      </View>
     </View>
   );
 }

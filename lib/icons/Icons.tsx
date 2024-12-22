@@ -1,5 +1,6 @@
 import {
   CheckCheck,
+  CheckCircle2,
   Activity,
   AlertCircle,
   AlertOctagon,
@@ -73,6 +74,7 @@ import { iconWithClassName } from "./iconWithClassName";
 import { BarChart } from "./BarChartIcon";
 
 iconWithClassName([
+  CheckCircle2,
   CheckCheck,
   Activity,
   AlertCircle,
@@ -146,6 +148,7 @@ iconWithClassName([
 ]);
 
 export {
+  CheckCircle2,
   CheckCheck,
   Activity,
   AlertCircle,

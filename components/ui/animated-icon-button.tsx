@@ -1,7 +1,7 @@
 import React from "react";
 import { TouchableOpacity } from "react-native";
 import { Text } from "~/components/ui/text";
-import Animated, { FadeIn, FadeOut, Easing } from "react-native-reanimated";
+import Animated, { FadeIn, FadeOut } from "react-native-reanimated";
 import { cn } from "~/lib/utils";
 
 interface AnimatedIconButtonProps {
@@ -24,8 +24,7 @@ export function AnimatedIconButton({ onPress, icon, label, className, disabled }
       )}
     >
       <Animated.View
-        entering={FadeIn.duration(200).easing(Easing.bezierFn(0.4, 0, 0.2, 1))}
-        exiting={FadeOut.duration(150).easing(Easing.bezierFn(0.4, 0, 0.2, 1))}
+        entering={FadeIn.duration(200).withInitialValues({ opacity: 0 }).springify()}
         className="flex-row items-center gap-2"
       >
         {icon}

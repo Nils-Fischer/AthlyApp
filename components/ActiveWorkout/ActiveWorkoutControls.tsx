@@ -40,7 +40,7 @@ export function ActiveWorkoutControls({
           <AnimatedIconButton
             onPress={onStart}
             icon={<Play className="text-background" size={24} />}
-            label="Start Workout"
+            label="Workout starten"
           />
         ) : (
           <View className="flex-row items-center gap-4">
@@ -53,7 +53,7 @@ export function ActiveWorkoutControls({
               className="flex-1 bg-foreground"
               onPress={onFinish}
               icon={<Check className="text-background" size={24} />}
-              label="Finish"
+              label="Fertig"
             />
             <AnimatedIconButton
               className="flex-none bg-foreground"
