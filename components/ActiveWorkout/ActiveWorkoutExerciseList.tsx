@@ -10,14 +10,12 @@ import { Image } from "expo-image";
 
 interface ActiveWorkoutExerciseListProps {
   workout: Workout;
-  isEditMode: boolean;
   isStarted: boolean;
   onPressExercise: (exercise: WorkoutExercise) => void;
 }
 
 export function ActiveWorkoutExerciseList({
   workout,
-  isEditMode,
   isStarted,
   onPressExercise: onExerciseSelect,
 }: ActiveWorkoutExerciseListProps) {
@@ -54,7 +52,6 @@ export function ActiveWorkoutExerciseList({
               exercise={exercise}
               workoutExercise={workoutExercise}
               exerciseRecord={exerciseRecord}
-              isEditMode={isEditMode}
               isStarted={isStarted}
               onSelect={() => onExerciseSelect(workoutExercise)}
             />
@@ -70,54 +67,40 @@ interface ExerciseCardProps {
   exercise: Exercise;
   workoutExercise: WorkoutExercise;
   exerciseRecord?: ExerciseRecord;
-  isEditMode: boolean;
   isStarted: boolean;
   onSelect: () => void;
 }
 
-function ExerciseCard({
-  exercise,
-  workoutExercise,
-  exerciseRecord,
-  isEditMode,
-  isStarted,
-  onSelect,
-}: ExerciseCardProps) {
+function ExerciseCard({ exercise, workoutExercise, exerciseRecord, isStarted, onSelect }: ExerciseCardProps) {
   const completedSets = exerciseRecord?.sets.filter((set) => set.reps !== null && set.weight !== null).length || 0;
   const isCompleted = exerciseRecord?.isCompleted || false;
 
   return (
     <Animated.View entering={FadeIn}>
-      <TouchableOpacity onPress={onSelect} disabled={isEditMode} className="active:opacity-90">
+      <TouchableOpacity onPress={onSelect} className="active:opacity-90">
         <View className={`bg-card ${isCompleted ? "opacity-50" : ""}`}>
           <View className="flex-row p-4">
-            {isEditMode ? (
-              <View className="mr-3">
-                <GripVertical size={20} className="text-muted-foreground" />
-              </View>
-            ) : (
-              <View className="mr-4">
-                {exercise.images[0] ? (
-                  <Image
-                    source={{ uri: exercise.images[0] }}
-                    className={`w-16 h-16 rounded-lg bg-muted ${isCompleted ? "opacity-50" : ""}`}
-                    contentFit="cover"
-                    transition={200}
-                    placeholder="L5H2EC=PM+yV0g-mq.wG9c010J}I"
-                    contentPosition="center"
-                    cachePolicy="memory"
-                  />
-                ) : (
-                  <View
-                    className={`w-16 h-16 rounded-lg bg-muted items-center justify-center ${
-                      isCompleted ? "opacity-50" : ""
-                    }`}
-                  >
-                    <Dumbbell size={24} className="text-muted-foreground" />
-                  </View>
-                )}
-              </View>
-            )}
+            <View className="mr-4">
+              {exercise.images[0] ? (
+                <Image
+                  source={{ uri: exercise.images[0] }}
+                  className={`w-16 h-16 rounded-lg bg-muted ${isCompleted ? "opacity-50" : ""}`}
+                  contentFit="cover"
+                  transition={200}
+                  placeholder="L5H2EC=PM+yV0g-mq.wG9c010J}I"
+                  contentPosition="center"
+                  cachePolicy="memory"
+                />
+              ) : (
+                <View
+                  className={`w-16 h-16 rounded-lg bg-muted items-center justify-center ${
+                    isCompleted ? "opacity-50" : ""
+                  }`}
+                >
+                  <Dumbbell size={24} className="text-muted-foreground" />
+                </View>
+              )}
+            </View>
 
             <View className="flex-1">
               <View className="flex-row items-center justify-between">
@@ -144,11 +127,9 @@ function ExerciseCard({
               )}
             </View>
 
-            {!isEditMode && (
-              <View className="justify-center">
-                <ChevronRight size={20} className={`text-muted-foreground ml-2 ${isCompleted ? "opacity-50" : ""}`} />
-              </View>
-            )}
+            <View className="justify-center">
+              <ChevronRight size={20} className={`text-muted-foreground ml-2 ${isCompleted ? "opacity-50" : ""}`} />
+            </View>
           </View>
           <View className="h-[1px] bg-border/10" />
         </View>

@@ -91,12 +91,6 @@ export default function ActiveWorkoutScreen() {
               <ChevronLeft size={24} />
             </Button>
           ),
-          headerRight: () =>
-            activeWorkout ? (
-              <Button variant="ghost" className="mr-2" onPress={() => setIsEditMode(!isEditMode)}>
-                <Text className="text-destructive">{isEditMode ? "Fertig" : "Bearbeiten"}</Text>
-              </Button>
-            ) : null,
         }}
       />
       <View className="flex-1 bg-background">
@@ -104,7 +98,6 @@ export default function ActiveWorkoutScreen() {
 
         <ActiveWorkoutExerciseList
           workout={activeWorkout}
-          isEditMode={isEditMode}
           isStarted={isStarted}
           onPressExercise={(exercise) => router.push(`/active-workout/exercise-logging/${exercise.exerciseId}`)}
         />
