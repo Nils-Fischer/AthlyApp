@@ -6,6 +6,8 @@ import { Button } from "~/components/ui/button";
 import { Text } from "~/components/ui/text";
 import { useActiveWorkoutStore } from "~/stores/activeWorkoutStore";
 import { useExerciseStore } from "~/stores/exerciseStore";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "~/components/ui/dialog";
+import { useState, useCallback } from "react";
 
 export default function ExerciseLoggingScreen() {
   const { exerciseId } = useLocalSearchParams<{ exerciseId: string }>();
@@ -18,6 +20,20 @@ export default function ExerciseLoggingScreen() {
   const exercise = exerciseStore.exercises?.find((ex) => ex.id === exerciseIdNumber);
   const workoutExercise = workout?.exercises.find((ex) => ex.exerciseId === exerciseIdNumber);
   const exerciseRecord = activeWorkoutStore.currentSession?.entries.find((ex) => ex.exerciseId === exerciseIdNumber);
+
+  const [showIntensityDialog, setShowIntensityDialog] = useState(false);
+  const [selectedIntensity, setSelectedIntensity] = useState<number>(3);
+
+  const handleExerciseComplete = useCallback(() => {
+    console.log("Opening dialog...");
+    setShowIntensityDialog(true);
+  }, []);
+
+  const handleIntensitySelect = useCallback(() => {
+    activeWorkoutStore.finishExercise(exerciseIdNumber, selectedIntensity);
+    setShowIntensityDialog(false);
+    router.back();
+  }, [activeWorkoutStore, exerciseIdNumber, selectedIntensity]);
 
   if (!workout || !exercise || !workoutExercise || !exerciseRecord) {
     return (
@@ -37,18 +53,12 @@ export default function ExerciseLoggingScreen() {
   }
 
   return (
-    <>
+    <View className="flex-1">
       <Stack.Screen
         options={{
           title: exercise.name,
           headerLeft: () => (
-            <Button
-              variant="ghost"
-              className="ml-2"
-              onPress={() => {
-                router.back();
-              }}
-            >
+            <Button variant="ghost" className="ml-2" onPress={() => router.back()}>
               <ChevronLeft size={24} />
             </Button>
           ),
@@ -60,7 +70,49 @@ export default function ExerciseLoggingScreen() {
         isWorkoutStarted={workoutStarted}
         exerciseRecord={exerciseRecord}
         updateExerciseRecord={activeWorkoutStore.updateExerciseRecord}
+        onCompleteExercise={handleExerciseComplete}
       />
-    </>
+
+      <Dialog open={showIntensityDialog} onOpenChange={setShowIntensityDialog}>
+        <DialogContent className="p-6">
+          <DialogHeader>
+            <DialogTitle className="text-xl text-center">Wie intensiv war die Übung?</DialogTitle>
+          </DialogHeader>
+
+          <View className="flex-row justify-center gap-3 my-2">
+            {[1, 2, 3, 4, 5].map((intensity) => (
+              <Button
+                key={intensity}
+                variant={selectedIntensity === intensity ? "default" : "outline"}
+                className={`h-16 w-16 rounded-2xl ${
+                  selectedIntensity === intensity ? "bg-primary" : "bg-secondary/10"
+                }`}
+                onPress={() => setSelectedIntensity(intensity)}
+              >
+                <Text
+                  className={
+                    selectedIntensity === intensity
+                      ? "text-primary-foreground text-xl font-semibold"
+                      : "text-foreground text-xl"
+                  }
+                >
+                  {intensity}
+                </Text>
+              </Button>
+            ))}
+          </View>
+
+          <DialogFooter>
+            <Button
+              className="w-full h-14 rounded-xl"
+              disabled={selectedIntensity === null}
+              onPress={handleIntensitySelect}
+            >
+              <Text className="text-primary-foreground text-lg font-medium">Bestätigen</Text>
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+    </View>
   );
 }

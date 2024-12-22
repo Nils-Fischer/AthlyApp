@@ -436,12 +436,7 @@ export const ExerciseLogging = ({
 
       {isWorkoutStarted && (
         <AnimatedIconButton
-          onPress={() => {
-            if (Platform.OS !== "web") {
-              Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
-            }
-            onCompleteExercise();
-          }}
+          onPress={onCompleteExercise}
           icon={<CheckCheck className="mr-2 h-4 w-4 text-primary-foreground" />}
           label="Übung abschließen"
           disabled={!isExerciseCompleted}
