@@ -8,6 +8,7 @@ import { useActiveWorkoutStore } from "~/stores/activeWorkoutStore";
 import { useExerciseStore } from "~/stores/exerciseStore";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "~/components/ui/dialog";
 import { useState, useCallback } from "react";
+import { useWorkoutHistoryStore } from "~/stores/workoutHistoryStore";
 
 export default function ExerciseLoggingScreen() {
   const { exerciseId } = useLocalSearchParams<{ exerciseId: string }>();

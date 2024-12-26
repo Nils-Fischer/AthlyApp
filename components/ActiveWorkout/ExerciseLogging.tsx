@@ -11,7 +11,6 @@ import {
   Plus,
   Trash2,
   CheckCheck,
-  ArrowLeft,
   Check,
   HeartPulse,
   TimerOff,
@@ -21,10 +20,11 @@ import * as Haptics from "expo-haptics";
 import { router } from "expo-router";
 import Animated, { FadeInDown } from "react-native-reanimated";
 import { useWorkoutHistoryStore } from "~/stores/workoutHistoryStore";
-import { WorkoutHistoryView } from "../dashboard/active-workout/WorkoutHistoryView";
 import { AnimatedIconButton } from "../ui/animated-icon-button";
 import { cn, formatTime } from "~/lib/utils";
 import { useActiveWorkoutStore } from "~/stores/activeWorkoutStore";
+import { ExerciseHistory } from "../Exercise/ExerciseHistory";
+import { BottomSheet } from "~/components/ui/bottom-sheet";
 
 interface ExerciseLoggingProps {
   exercise: Exercise;
@@ -48,11 +48,11 @@ export const ExerciseLogging = ({
 
   const [sets, setSets] = useState<SetInput[]>(exerciseRecord.sets);
   const [isDeleteMode, setIsDeleteMode] = useState(false);
-  const [showHistory, setShowHistory] = useState(false);
   const [isWarmupExpanded, setIsWarmupExpanded] = useState(false);
   const [setPerformed, setSetPerformed] = useState<boolean[]>(sets.map(() => false));
 
   const isSetCompleted = (set: SetInput) => set.reps !== null && set.weight !== null;
+  const [showHistory, setShowHistory] = useState(false);
 
   const isExerciseCompleted = useMemo(() => {
     return sets.every(isSetCompleted);
@@ -207,10 +207,7 @@ export const ExerciseLogging = ({
             {/* Neuer Button für Workout History */}
             <Pressable
               className="p-4 flex-row items-center justify-between active:opacity-70"
-              onPress={() => {
-                // Hier Modal mit WorkoutHistoryView öffnen
-                setShowHistory(true);
-              }}
+              onPress={() => setShowHistory(true)}
             >
               <View className="flex-row items-center">
                 <View className="w-10 h-10 rounded-full items-center justify-center mr-3">
@@ -391,39 +388,6 @@ export const ExerciseLogging = ({
         </View>
       </ScrollView>
 
-      {/* History Modal - Keep this as a separate modal */}
-      <Modal
-        visible={showHistory}
-        animationType="slide"
-        presentationStyle="pageSheet"
-        onRequestClose={() => setShowHistory(false)}
-      >
-        <View className="flex-1 bg-background">
-          <View className="pt-7 px-4 pb-4 border-b border-border">
-            <View className="flex-row justify-between items-center">
-              <Button
-                variant="ghost"
-                size="icon"
-                onPress={() => setShowHistory(false)}
-                className="bg-background/80 backdrop-blur-lg rounded-full"
-              >
-                <ArrowLeft size={24} className="text-foreground" />
-              </Button>
-              <Text className="text-xl font-bold">Trainings-Historie</Text>
-              <View style={{ width: 40 }} />
-            </View>
-          </View>
-
-          <WorkoutHistoryView
-            exerciseId={exercise.id}
-            history={Object.values(workoutHistory.sessions)
-              .filter((entry) => entry.entries?.length > 0)
-              .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())}
-            exerciseName={exercise.name}
-          />
-        </View>
-      </Modal>
-
       {/* Footer Stats */}
       <View className={`border-t border-border bg-card/95 backdrop-blur-lg ${!isWorkoutStarted ? "mb-6" : "mb-24"}`}>
         <View className="p-4">
@@ -461,6 +425,17 @@ export const ExerciseLogging = ({
             className="absolute bottom-10 left-4 right-4"
           />
         ))}
+
+      <BottomSheet
+        title="Exercise History"
+        isOpen={showHistory}
+        onClose={() => setShowHistory(false)}
+        snapPoints={[95]}
+      >
+        <View className="flex-1">
+          <ExerciseHistory exercise={exercise} history={workoutHistory.sessions} />
+        </View>
+      </BottomSheet>
     </View>
   );
 };
