@@ -6,7 +6,8 @@ interface WorkoutHistoryState {
   sessions: WorkoutSession[];
   init: () => Promise<void>;
   addWorkoutSession: (session: WorkoutSession) => Promise<void>;
-  getLastWorkout: (exerciseId: number) => ExerciseRecord | undefined;
+  getLastExerciseRecord: (exerciseId: number) => ExerciseRecord | undefined;
+  getLastWorkout: (workoutId: number) => WorkoutSession | undefined;
 }
 
 const STORAGE_KEY = "@workout_history";
@@ -44,7 +45,7 @@ export const useWorkoutHistoryStore = create<WorkoutHistoryState>((set, get) => 
     }
   },
 
-  getLastWorkout: (exerciseId: number) => {
+  getLastExerciseRecord: (exerciseId: number) => {
     const { sessions } = get();
     // Sort sessions by date in descending order
     const sortedSessions = [...sessions].sort((a, b) => b.date.getTime() - a.date.getTime());
@@ -55,5 +56,10 @@ export const useWorkoutHistoryStore = create<WorkoutHistoryState>((set, get) => 
       if (exercise) return exercise;
     }
     return undefined;
+  },
+
+  getLastWorkout: (workoutId: number) => {
+    const { sessions } = get();
+    return sessions.find((session) => session.workoutId === workoutId);
   },
 }));

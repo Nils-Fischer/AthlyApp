@@ -1,4 +1,5 @@
 import {
+  SkipForward,
   HeartPulse,
   TimerOff,
   CheckCheck,
@@ -76,6 +77,7 @@ import { iconWithClassName } from "./iconWithClassName";
 import { BarChart } from "./BarChartIcon";
 
 iconWithClassName([
+  SkipForward,
   TimerOff,
   HeartPulse,
   CheckCircle2,
@@ -152,6 +154,7 @@ iconWithClassName([
 ]);
 
 export {
+  SkipForward,
   TimerOff,
   HeartPulse,
   CheckCircle2,

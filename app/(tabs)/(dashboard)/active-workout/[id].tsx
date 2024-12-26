@@ -22,7 +22,7 @@ import {
 } from "~/components/ui/alert-dialog";
 
 export default function ActiveWorkoutScreen() {
-  const { id } = useLocalSearchParams<{ id: string }>();
+  const { id, start } = useLocalSearchParams<{ id: string; start?: string }>();
   const { getActiveRoutine, isLoading, error } = useUserStore();
   const workoutHistoryStore = useWorkoutHistoryStore();
   const activeWorkout = getActiveRoutine()?.workouts.find((workout) => workout.id === parseInt(id));
@@ -67,6 +67,12 @@ export default function ActiveWorkoutScreen() {
       finish();
     }
   };
+
+  useEffect(() => {
+    if (start === "true") {
+      startWorkout();
+    }
+  }, [start]);
 
   // Loading State
   if (isLoading) {

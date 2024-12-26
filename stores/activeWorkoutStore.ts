@@ -37,7 +37,7 @@ interface ActiveWorkoutState {
 
 const getSetSuggestion = (exercise: WorkoutExercise): SetInput[] => {
   const workoutHistory = useWorkoutHistoryStore.getState();
-  const lastWorkout = workoutHistory.getLastWorkout(exercise.exerciseId);
+  const lastWorkout = workoutHistory.getLastExerciseRecord(exercise.exerciseId);
 
   if (lastWorkout?.sets?.length) {
     return lastWorkout.sets.map((set) => ({
