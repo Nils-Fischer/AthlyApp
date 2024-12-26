@@ -4,9 +4,11 @@ import { useWorkoutHistoryStore } from "./workoutHistoryStore";
 
 interface ActiveWorkoutState {
   isStarted: boolean;
-  isPaused: boolean;
+  isResting: boolean;
   startTime: number | null;
   elapsedTime: number;
+  restStartTime: number | null;
+  remainingRestTime: number;
 
   activeWorkout: Workout | null;
   activeSession: WorkoutSession | null;
@@ -16,8 +18,8 @@ interface ActiveWorkoutState {
   setWorkout: (workout: Workout) => void;
   updateExerciseRecord: (record: ExerciseRecord) => void;
   startWorkout: () => void;
-  pauseWorkout: () => void;
-  resumeWorkout: () => void;
+  startRestTimer: (restTime: number) => void;
+  stopRestTimer: () => void;
   cancelWorkout: () => void;
   finishWorkout: () => WorkoutSession | null;
   finishExercise: (exerciseId: number, intensity?: number) => void;
@@ -69,12 +71,14 @@ const getNewSession = (workout: Workout): WorkoutSession => {
 
 export const useActiveWorkoutStore = create<ActiveWorkoutState>((set, get) => ({
   isStarted: false,
-  isPaused: false,
+  isResting: false,
   startTime: null,
   elapsedTime: 0,
   timerInterval: null,
   activeWorkout: null,
   activeSession: null,
+  restStartTime: null,
+  remainingRestTime: 0,
 
   setWorkout: (workout: Workout) => {
     const session = getNewSession(workout);
@@ -130,27 +134,12 @@ export const useActiveWorkoutStore = create<ActiveWorkoutState>((set, get) => ({
 
     set({
       isStarted: true,
-      isPaused: false,
+      isResting: false,
       startTime: Date.now(),
       elapsedTime: 0,
       activeSession: newSession,
       timerInterval: interval,
     });
-  },
-
-  pauseWorkout: () => {
-    const timerInterval = get().timerInterval;
-    timerInterval && clearInterval(timerInterval);
-    set({ isPaused: true, timerInterval: null });
-  },
-
-  resumeWorkout: () => {
-    const interval = setInterval(() => {
-      set((state) => ({
-        elapsedTime: state.startTime ? Date.now() - state.startTime : 0,
-      }));
-    }, 1000);
-    set({ isPaused: false, timerInterval: interval });
   },
 
   cancelWorkout: () => {
@@ -160,7 +149,7 @@ export const useActiveWorkoutStore = create<ActiveWorkoutState>((set, get) => ({
     if (!currentWorkout) return;
     set({
       isStarted: false,
-      isPaused: false,
+      isResting: false,
       startTime: null,
       elapsedTime: 0,
       activeSession: getNewSession(currentWorkout),
@@ -179,7 +168,7 @@ export const useActiveWorkoutStore = create<ActiveWorkoutState>((set, get) => ({
 
     set({
       isStarted: false,
-      isPaused: false,
+      isResting: false,
       startTime: null,
       elapsedTime: 0,
       activeWorkout: null,
@@ -232,5 +221,40 @@ export const useActiveWorkoutStore = create<ActiveWorkoutState>((set, get) => ({
       completedSets,
       remainingSets: totalTargetSets - completedSets,
     };
+  },
+
+  startRestTimer: (restTime: number) => {
+    const timerInterval = get().timerInterval;
+    timerInterval && clearInterval(timerInterval);
+
+    const interval = setInterval(() => {
+      set((state) => {
+        const elapsed = state.restStartTime ? Date.now() - state.restStartTime : 0;
+        const remaining = restTime * 1000 - elapsed;
+
+        return {
+          remainingRestTime: remaining,
+        };
+      });
+    }, 100);
+
+    set({
+      isResting: true,
+      restStartTime: Date.now(),
+      remainingRestTime: restTime * 1000,
+      timerInterval: interval,
+    });
+  },
+
+  stopRestTimer: () => {
+    const timerInterval = get().timerInterval;
+    timerInterval && clearInterval(timerInterval);
+
+    set({
+      isResting: false,
+      restStartTime: null,
+      remainingRestTime: 0,
+      timerInterval: null,
+    });
   },
 }));

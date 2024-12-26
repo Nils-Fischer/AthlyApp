@@ -2,7 +2,6 @@ import React from "react";
 import { View } from "react-native";
 import { Text } from "~/components/ui/text";
 import { Timer, Dumbbell, CheckSquare } from "~/lib/icons/Icons";
-import { cn } from "~/lib/utils";
 import { useActiveWorkoutStore } from "~/stores/activeWorkoutStore";
 
 interface StatItemProps {
@@ -27,7 +26,7 @@ const formatTime = (seconds: number): string => {
 };
 
 export function ActiveWorkoutStats() {
-  const { isStarted, isPaused, elapsedTime, getCurrentStats } = useActiveWorkoutStore();
+  const { elapsedTime, getCurrentStats } = useActiveWorkoutStore();
   const stats = getCurrentStats();
 
   return (

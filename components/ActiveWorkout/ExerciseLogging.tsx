@@ -1,4 +1,4 @@
-import React, { useState, useCallback, useMemo } from "react";
+import React, { useState, useCallback, useMemo, useEffect } from "react";
 import { View, ScrollView, Pressable, Modal, TextInput, Platform, ImageBackground } from "react-native";
 import { Text } from "~/components/ui/text";
 import { Button } from "~/components/ui/button";
@@ -14,6 +14,7 @@ import {
   ArrowLeft,
   Check,
   HeartPulse,
+  TimerOff,
 } from "~/lib/icons/Icons";
 import { Exercise, ExerciseRecord, SetInput, WorkoutExercise } from "~/lib/types";
 import * as Haptics from "expo-haptics";
@@ -22,7 +23,8 @@ import Animated, { FadeInDown } from "react-native-reanimated";
 import { useWorkoutHistoryStore } from "~/stores/workoutHistoryStore";
 import { WorkoutHistoryView } from "../dashboard/active-workout/WorkoutHistoryView";
 import { AnimatedIconButton } from "../ui/animated-icon-button";
-import { cn } from "~/lib/utils";
+import { cn, formatTime } from "~/lib/utils";
+import { useActiveWorkoutStore } from "~/stores/activeWorkoutStore";
 
 interface ExerciseLoggingProps {
   exercise: Exercise;
@@ -42,12 +44,30 @@ export const ExerciseLogging = ({
   onCompleteExercise,
 }: ExerciseLoggingProps) => {
   const workoutHistory = useWorkoutHistoryStore();
+  const activeWorkoutStore = useActiveWorkoutStore();
 
   const [sets, setSets] = useState<SetInput[]>(exerciseRecord.sets);
   const [isDeleteMode, setIsDeleteMode] = useState(false);
-  const [rpe, setRpe] = useState<number | null>(null);
   const [showHistory, setShowHistory] = useState(false);
   const [isWarmupExpanded, setIsWarmupExpanded] = useState(false);
+  const [setPerformed, setSetPerformed] = useState<boolean[]>(sets.map(() => false));
+
+  const isSetCompleted = (set: SetInput) => set.reps !== null && set.weight !== null;
+
+  const isExerciseCompleted = useMemo(() => {
+    return sets.every(isSetCompleted);
+  }, [sets]);
+
+  useEffect(() => {
+    setPerformed.forEach((set, index) => {
+      if (!set && isSetCompleted(sets[index])) {
+        const newSetPerformed = setPerformed.map((performed, i) => (i === index ? true : performed));
+        setSetPerformed(newSetPerformed);
+        activeWorkoutStore.startRestTimer(workoutExercise.restPeriod || 180);
+        return;
+      }
+    });
+  }, [sets]);
 
   const totalVolume = useMemo(() => {
     return sets.reduce((total, set) => {
@@ -64,6 +84,7 @@ export const ExerciseLogging = ({
     };
 
     const newSets = [...sets, newSet];
+    setSetPerformed([...setPerformed, false]);
 
     setSets(newSets);
     updateExerciseRecord({
@@ -74,7 +95,7 @@ export const ExerciseLogging = ({
     if (Platform.OS !== "web") {
       Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
     }
-  }, [sets, exerciseRecord, workoutExercise.reps, updateExerciseRecord]);
+  }, [sets, exerciseRecord, workoutExercise.reps, updateExerciseRecord, setPerformed]);
 
   const handleDeleteSet = useCallback(
     (index: number) => {
@@ -121,11 +142,6 @@ export const ExerciseLogging = ({
     },
     [sets, exerciseRecord, updateExerciseRecord]
   );
-
-  const isSetCompleted = (set: SetInput) => set.reps !== null && set.weight !== null;
-  const isExerciseCompleted = useMemo(() => {
-    return sets.every(isSetCompleted);
-  }, [sets]);
 
   return (
     <View className="flex-1 bg-background">
@@ -428,15 +444,23 @@ export const ExerciseLogging = ({
         </View>
       </View>
 
-      {isWorkoutStarted && (
-        <AnimatedIconButton
-          onPress={onCompleteExercise}
-          icon={<CheckCheck className="mr-2 h-4 w-4 text-primary-foreground" />}
-          label="Übung abschließen"
-          disabled={!isExerciseCompleted}
-          className="absolute bottom-10 left-4 right-4"
-        />
-      )}
+      {isWorkoutStarted &&
+        (activeWorkoutStore.isResting ? (
+          <AnimatedIconButton
+            onPress={activeWorkoutStore.stopRestTimer}
+            icon={<TimerOff size={20} className="text-primary-foreground" />}
+            label={`${formatTime(activeWorkoutStore.remainingRestTime)}`}
+            className="absolute bottom-10 left-4 right-4"
+          />
+        ) : (
+          <AnimatedIconButton
+            onPress={onCompleteExercise}
+            icon={<CheckCheck className="mr-2 h-4 w-4 text-primary-foreground" />}
+            label="Übung abschließen"
+            disabled={!isExerciseCompleted}
+            className="absolute bottom-10 left-4 right-4"
+          />
+        ))}
     </View>
   );
 };

@@ -27,20 +27,25 @@ export default function ActiveWorkoutScreen() {
   const workoutHistoryStore = useWorkoutHistoryStore();
   const activeWorkout = getActiveRoutine()?.workouts.find((workout) => workout.id === parseInt(id));
 
-  const [isEditMode, setIsEditMode] = useState(false);
   const {
     activeSession,
     isStarted,
-    isPaused,
+    isResting,
+    remainingRestTime,
     startWorkout,
-    pauseWorkout,
-    resumeWorkout,
+    startRestTimer,
+    stopRestTimer,
     finishWorkout,
     cancelWorkout,
   } = useActiveWorkoutStore();
 
   const [showCancelDialog, setShowCancelDialog] = useState(false);
   const [showFinishDialog, setShowFinishDialog] = useState(false);
+
+  const allExercisesCompleted = React.useMemo(
+    () => activeSession?.entries.every((entry) => entry.isCompleted),
+    [activeSession?.entries]
+  );
 
   const finish = () => {
     const session = finishWorkout();
@@ -56,7 +61,7 @@ export default function ActiveWorkoutScreen() {
   };
 
   const handleFinishPress = () => {
-    if (activeSession?.entries.some((entry) => !entry.isCompleted)) {
+    if (!allExercisesCompleted) {
       setShowFinishDialog(true);
     } else {
       finish();
@@ -103,12 +108,13 @@ export default function ActiveWorkoutScreen() {
         />
 
         <ActiveWorkoutControls
-          isEditMode={isEditMode}
           isStarted={isStarted}
-          isPaused={isPaused}
+          isResting={isResting}
+          remainingRestTime={remainingRestTime}
+          allExercisesCompleted={allExercisesCompleted || false}
           onStart={() => startWorkout()}
-          onPause={pauseWorkout}
-          onResume={resumeWorkout}
+          onStartRest={() => startRestTimer(180)}
+          onStopRest={stopRestTimer}
           onFinish={handleFinishPress}
           onCancel={() => setShowCancelDialog(true)}
         />

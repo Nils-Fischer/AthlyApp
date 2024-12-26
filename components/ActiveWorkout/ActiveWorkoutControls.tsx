@@ -1,34 +1,33 @@
 import React from "react";
-import { View, TouchableOpacity } from "react-native";
-import { Text } from "~/components/ui/text";
-import { Play, Pause, StopCircle, X, Check } from "~/lib/icons/Icons";
-import Animated, { FadeIn, FadeOut, SlideInDown, SlideOutDown, Easing } from "react-native-reanimated";
-import { cn } from "~/lib/utils";
+import { View } from "react-native";
+import { Play, StopCircle, Check, CheckCheck, Timer, TimerOff } from "~/lib/icons/Icons";
+import Animated, { SlideInDown, SlideOutDown, Easing } from "react-native-reanimated";
 import { AnimatedIconButton } from "~/components/ui/animated-icon-button";
+import { formatTime } from "~/lib/utils";
 
 interface ActiveWorkoutControlsProps {
-  isEditMode: boolean;
   isStarted: boolean;
-  isPaused: boolean;
+  isResting: boolean;
+  remainingRestTime: number;
+  allExercisesCompleted: boolean;
   onStart: () => void;
-  onPause: () => void;
-  onResume: () => void;
+  onStartRest: () => void;
+  onStopRest: () => void;
   onFinish: () => void;
   onCancel: () => void;
 }
 
 export function ActiveWorkoutControls({
-  isEditMode,
   isStarted,
-  isPaused,
+  isResting,
+  remainingRestTime,
+  allExercisesCompleted,
   onStart,
-  onPause,
-  onResume,
+  onStartRest,
+  onStopRest,
   onFinish,
   onCancel,
 }: ActiveWorkoutControlsProps) {
-  if (isEditMode) return null;
-
   return (
     <Animated.View
       entering={SlideInDown.springify().damping(15).mass(0.9).stiffness(100)}
@@ -49,22 +48,31 @@ export function ActiveWorkoutControls({
               onPress={onCancel}
               icon={<StopCircle className="text-background" size={24} />}
             />
-            <AnimatedIconButton
-              className="flex-1 bg-foreground"
-              onPress={onFinish}
-              icon={<Check className="text-background" size={24} />}
-              label="Fertig"
-            />
+            {allExercisesCompleted ? (
+              <AnimatedIconButton
+                className="flex-1 bg-foreground"
+                onPress={onFinish}
+                icon={<Check className="text-background" size={24} />}
+                label="Fertig"
+              />
+            ) : (
+              <AnimatedIconButton
+                className="flex-1 bg-foreground"
+                onPress={isResting ? onStopRest : onStartRest}
+                icon={
+                  isResting ? (
+                    <TimerOff className="text-background" size={24} />
+                  ) : (
+                    <Timer className="text-background" size={24} />
+                  )
+                }
+                label={isResting ? formatTime(remainingRestTime) : "Pause starten"}
+              />
+            )}
             <AnimatedIconButton
               className="flex-none bg-foreground"
-              onPress={isPaused ? onResume : onPause}
-              icon={
-                isPaused ? (
-                  <Play className="text-background" size={24} />
-                ) : (
-                  <Pause className="text-background" size={24} />
-                )
-              }
+              onPress={onFinish}
+              icon={<CheckCheck className="text-background" size={24} />}
             />
           </View>
         )}
