@@ -26,7 +26,7 @@ import { useActiveWorkoutStore } from "~/stores/activeWorkoutStore";
 import { ExerciseHistory } from "../Exercise/ExerciseHistory";
 import { BottomSheet } from "~/components/ui/bottom-sheet";
 
-interface ExerciseLoggingProps {
+interface ActiveWorkoutExerciseLoggingProps {
   exercise: Exercise;
   workoutExercise: WorkoutExercise;
   exerciseRecord: ExerciseRecord;
@@ -35,14 +35,14 @@ interface ExerciseLoggingProps {
   onCompleteExercise: () => void;
 }
 
-export const ExerciseLogging = ({
+export const ActiveWorkoutExerciseLogging = ({
   exercise,
   workoutExercise,
   exerciseRecord,
   isWorkoutStarted,
   updateExerciseRecord,
   onCompleteExercise,
-}: ExerciseLoggingProps) => {
+}: ActiveWorkoutExerciseLoggingProps) => {
   const workoutHistory = useWorkoutHistoryStore();
   const activeWorkoutStore = useActiveWorkoutStore();
 

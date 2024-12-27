@@ -10,12 +10,12 @@ import * as Haptics from "expo-haptics";
 import { useActiveWorkoutStore } from "~/stores/activeWorkoutStore";
 import { ActiveWorkoutCancelConfirmation } from "~/components/ActiveWorkout/ActiveWorkoutCancelConfirmation";
 
-interface TodayWorkoutWidgetProps {
+interface TodaysWorkoutWidgetProps {
   workout: Workout;
   skipWorkout: () => void;
 }
 
-export const TodayWorkoutWidget = ({ workout, skipWorkout }: TodayWorkoutWidgetProps) => {
+export const TodaysWorkoutWidget = ({ workout, skipWorkout }: TodaysWorkoutWidgetProps) => {
   const router = useRouter();
   const exerciseStore = useExerciseStore();
   const isStarted = useActiveWorkoutStore((state) => state.isStarted);

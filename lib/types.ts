@@ -78,7 +78,6 @@ export interface WorkoutExercise {
   reps: number;
   restPeriod?: number;
   notes?: string;
-  isMarked?: boolean;
 }
 
 export interface Workout {

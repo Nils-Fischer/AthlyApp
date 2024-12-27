@@ -3,7 +3,6 @@ import { View, Pressable } from "react-native";
 import { Text } from "~/components/ui/text";
 import { Image } from "react-native";
 import { Exercise, WorkoutExercise } from "~/lib/types";
-import { AlertOctagon } from "lucide-react-native";
 
 interface ExerciseCardProps {
   exercise: Exercise;
@@ -22,12 +21,6 @@ export const ExerciseOverviewCard = ({ exercise, workoutExercise, onPress }: Exe
           <View className="flex-1 justify-center">
             <View className="flex-row items-center gap-2 mb-1">
               <Text className="font-semibold text-base">{exercise.name}</Text>
-              {workoutExercise?.isMarked && (
-                <View className="bg-primary/10 px-2 py-0.5 rounded-full flex-row items-center">
-                  <AlertOctagon size={12} className="text-primary mr-1" />
-                  <Text className="text-xs text-primary">Markiert</Text>
-                </View>
-              )}
             </View>
             <Text className="text-muted-foreground text-sm mb-2">{exercise.equipment}</Text>
             <View className="flex-row flex-wrap gap-2">

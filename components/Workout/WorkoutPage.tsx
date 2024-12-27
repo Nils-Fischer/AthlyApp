@@ -66,7 +66,6 @@ export function WorkoutPage({
       alternatives: [],
       sets: 3,
       reps: 10,
-      isMarked: false,
     };
 
     if (workout.exercises.map((exercise) => exercise.exerciseId).includes(exerciseId)) return;
