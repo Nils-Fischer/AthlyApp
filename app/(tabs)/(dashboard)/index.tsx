@@ -6,8 +6,8 @@ import { useUserStore } from "~/stores/userStore";
 import { format } from "date-fns";
 import { de } from "date-fns/locale";
 import { useActiveWorkoutStore } from "~/stores/activeWorkoutStore";
-import { Workout } from "~/lib/types";
 import { useWorkoutHistoryStore } from "~/stores/workoutHistoryStore";
+import { Workout } from "~/lib/types";
 
 export default function Index() {
   const userStore = useUserStore();
@@ -18,12 +18,20 @@ export default function Index() {
   const numWorkouts = activeRoutine?.workouts.length || 0;
 
   const [activeWorkoutIndex, setActiveWorkoutIndex] = useState(0);
-  const activeWorkout = activeRoutine?.workouts[activeWorkoutIndex] || null;
+  const [activeWorkout, setActiveWorkout] = useState<Workout | null>(null);
 
   const skipWorkout = () => {
     const nextIndex = (activeWorkoutIndex + 1) % numWorkouts;
     setActiveWorkoutIndex(nextIndex);
   };
+
+  useEffect(() => {
+    const newWorkout = activeRoutine?.workouts[activeWorkoutIndex];
+    if (newWorkout) {
+      setActiveWorkout(newWorkout);
+      activeWorkoutStore.setWorkout(newWorkout);
+    }
+  }, [activeWorkoutIndex]);
 
   useEffect(() => {
     const oldestWorkoutIndex = activeRoutine?.workouts.reduce((oldestIndex, workout, currentIndex, workouts) => {
@@ -36,8 +44,6 @@ export default function Index() {
       return currentWorkoutLastDate < oldestWorkoutLastDate ? currentIndex : oldestIndex;
     }, 0);
     setActiveWorkoutIndex(oldestWorkoutIndex || 0);
-
-    activeWorkout && activeWorkoutStore.setWorkout(activeWorkout);
   }, [activeRoutine, workoutHistoryStore]);
 
   const today = format(new Date(), "EEEE", { locale: de });
