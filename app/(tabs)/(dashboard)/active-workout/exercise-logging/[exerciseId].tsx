@@ -8,7 +8,6 @@ import { useActiveWorkoutStore } from "~/stores/activeWorkoutStore";
 import { useExerciseStore } from "~/stores/exerciseStore";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "~/components/ui/dialog";
 import { useState, useCallback } from "react";
-import { useWorkoutHistoryStore } from "~/stores/workoutHistoryStore";
 
 export default function ExerciseLoggingScreen() {
   const { exerciseId } = useLocalSearchParams<{ exerciseId: string }>();
@@ -37,6 +36,7 @@ export default function ExerciseLoggingScreen() {
   }, [activeWorkoutStore, exerciseIdNumber, selectedIntensity]);
 
   if (!workout || !exercise || !workoutExercise || !exerciseRecord) {
+    console.log(workout, exercise, workoutExercise, exerciseRecord);
     return (
       <View className="flex-1 justify-center items-center p-4 bg-background">
         <Text className="text-lg text-destructive mb-4">Error: Exercise not found</Text>

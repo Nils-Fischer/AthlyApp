@@ -20,6 +20,7 @@ import {
   AlertDialogCancel,
   AlertDialogAction,
 } from "~/components/ui/alert-dialog";
+import { ActiveWorkoutCancelConfirmation } from "~/components/ActiveWorkout/ActiveWorkoutCancelConfirmation";
 
 export default function ActiveWorkoutScreen() {
   const { id, start } = useLocalSearchParams<{ id: string; start?: string }>();
@@ -125,26 +126,11 @@ export default function ActiveWorkoutScreen() {
           onCancel={() => setShowCancelDialog(true)}
         />
 
-        <AlertDialog open={showCancelDialog} onOpenChange={setShowCancelDialog}>
-          <AlertDialogContent className="w-[90%] max-w-[400px]">
-            <AlertDialogHeader>
-              <AlertDialogTitle className="text-center">Workout abbrechen?</AlertDialogTitle>
-              <AlertDialogDescription>
-                <Text className="text-foreground text-center">
-                  Wenn du das Workout abbrichst, gehen alle Fortschritte verloren.
-                </Text>
-              </AlertDialogDescription>
-            </AlertDialogHeader>
-            <AlertDialogFooter className="flex flex-row justify-center mt-4 gap-3">
-              <AlertDialogCancel className="flex-1 max-w-[160px]">
-                <Text>Zurück</Text>
-              </AlertDialogCancel>
-              <AlertDialogAction className="flex-1 max-w-[160px] bg-destructive" onPress={confirmCancel}>
-                <Text>Beenden</Text>
-              </AlertDialogAction>
-            </AlertDialogFooter>
-          </AlertDialogContent>
-        </AlertDialog>
+        <ActiveWorkoutCancelConfirmation
+          showCancelDialog={showCancelDialog}
+          setShowCancelDialog={setShowCancelDialog}
+          confirmCancel={confirmCancel}
+        />
 
         <AlertDialog open={showFinishDialog} onOpenChange={setShowFinishDialog}>
           <AlertDialogContent className="w-[90%] max-w-[400px]">
