@@ -4,6 +4,7 @@ import { Text } from "~/components/ui/text";
 import { Button } from "~/components/ui/button";
 import { Exercise, WorkoutExercise } from "~/lib/types";
 import { useExerciseStore } from "~/stores/exerciseStore";
+import { getThumbnail } from "~/lib/utils";
 
 export interface ExerciseEditAlternativesProps {
   workoutExercise: WorkoutExercise;
@@ -46,50 +47,49 @@ export const ExerciseEditAlternatives: React.FC<ExerciseEditAlternativesProps> =
       <ScrollView className="flex-1 p-4 pb-24">
         {alternativeExercises.length > 0 ? (
           <View className="gap-4">
-            {alternativeExercises.map((alternativeExercise) => (
-              <Pressable
-                key={alternativeExercise.id}
-                onPress={() => handleExerciseSelection(alternativeExercise)}
-                className="active:opacity-70"
-              >
-                <View
-                  className={`bg-card rounded-xl p-4 ${
-                    withConfirmation
-                      ? `border ${selectedExercise?.id === alternativeExercise.id ? "border-primary" : "border-border"}`
-                      : ""
-                  }`}
+            {alternativeExercises.map((alternativeExercise) => {
+              const imageUrl = getThumbnail(alternativeExercise);
+              return (
+                <Pressable
+                  key={alternativeExercise.id}
+                  onPress={() => handleExerciseSelection(alternativeExercise)}
+                  className="active:opacity-70"
                 >
-                  <View className="flex-row gap-3">
-                    <View className="w-16 h-16 bg-muted rounded-lg items-center justify-center overflow-hidden">
-                      {alternativeExercise.images?.[0] ? (
-                        <Image
-                          source={{ uri: alternativeExercise.images[0] }}
-                          alt={alternativeExercise.name}
-                          className="w-full h-full object-cover"
-                        />
-                      ) : (
-                        <Image
-                          source={{ uri: "/api/placeholder/64/64" }}
-                          alt={alternativeExercise.name}
-                          className="w-full h-full object-cover"
-                        />
-                      )}
-                    </View>
-                    <View className="flex-1">
-                      <Text className="font-medium mb-1">{alternativeExercise.name}</Text>
-                      <Text className="text-sm text-muted-foreground mb-2">{alternativeExercise.equipment}</Text>
-                      <View className="flex-row flex-wrap gap-2">
-                        {alternativeExercise.primaryMuscles.map((muscle, index) => (
-                          <View key={index} className="bg-primary/10 rounded-full px-2 py-0.5">
-                            <Text className="text-xs text-primary">{muscle}</Text>
-                          </View>
-                        ))}
+                  <View
+                    className={`bg-card rounded-xl p-4 ${
+                      withConfirmation
+                        ? `border ${
+                            selectedExercise?.id === alternativeExercise.id ? "border-primary" : "border-border"
+                          }`
+                        : ""
+                    }`}
+                  >
+                    <View className="flex-row gap-3">
+                      <View className="w-16 h-16 bg-muted rounded-lg items-center justify-center overflow-hidden">
+                        {imageUrl && (
+                          <Image
+                            source={{ uri: imageUrl }}
+                            alt={alternativeExercise.name}
+                            className="w-full h-full object-cover"
+                          />
+                        )}
+                      </View>
+                      <View className="flex-1">
+                        <Text className="font-medium mb-1">{alternativeExercise.name}</Text>
+                        <Text className="text-sm text-muted-foreground mb-2">{alternativeExercise.equipment}</Text>
+                        <View className="flex-row flex-wrap gap-2">
+                          {alternativeExercise.primaryMuscles.map((muscle, index) => (
+                            <View key={index} className="bg-primary/10 rounded-full px-2 py-0.5">
+                              <Text className="text-xs text-primary">{muscle}</Text>
+                            </View>
+                          ))}
+                        </View>
                       </View>
                     </View>
                   </View>
-                </View>
-              </Pressable>
-            ))}
+                </Pressable>
+              );
+            })}
           </View>
         ) : (
           <View className="flex-1 items-center justify-center py-8">

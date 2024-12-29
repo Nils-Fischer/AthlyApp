@@ -5,6 +5,7 @@ import { MoreHorizontal, Trash2, Edit3, Repeat, X } from "~/lib/icons/Icons";
 import { Exercise, WorkoutExercise } from "~/lib/types";
 import { DeleteConfirmation } from "../DeleteConfirmation";
 import { CustomDropdownMenu } from "~/components/ui/custom-dropdown-menu";
+import { getThumbnail } from "~/lib/utils";
 
 interface WorkoutExerciseItemProps {
   workoutExercise: WorkoutExercise;
@@ -60,19 +61,15 @@ export function WorkoutExerciseItem({
     },
   ];
 
+  const image = getThumbnail(exercise);
+
   return (
     <TouchableOpacity onPress={onPress} onLongPress={onLongPress} className={`mb-3 ${isActive ? "bg-muted" : ""}`}>
       <View className="bg-card rounded-xl p-4 border border-border">
         <View className="flex-row justify-between items-start">
           <View className="flex-row gap-3 flex-1">
             <View className="w-12 h-12 bg-muted rounded-lg items-center justify-center overflow-hidden">
-              {exercise.images?.[0] && (
-                <Image
-                  source={{ uri: exercise.images[0] }}
-                  alt={exercise.name}
-                  className="w-full h-full object-cover"
-                />
-              )}
+              {image && <Image source={{ uri: image }} alt={exercise.name} className="w-full h-full object-cover" />}
             </View>
             <View className="flex-1">
               <Text className="font-medium mb-1">{exercise.name}</Text>

@@ -3,6 +3,7 @@ import { View, Pressable } from "react-native";
 import { Text } from "~/components/ui/text";
 import { Image } from "react-native";
 import { Exercise, WorkoutExercise } from "~/lib/types";
+import { getThumbnail } from "~/lib/utils";
 
 interface ExerciseCardProps {
   exercise: Exercise;
@@ -11,12 +12,13 @@ interface ExerciseCardProps {
 }
 
 export const ExerciseOverviewCard = ({ exercise, workoutExercise, onPress }: ExerciseCardProps) => {
+  const image = getThumbnail(exercise);
   return (
     <Pressable onPress={() => onPress?.(exercise.id)} className="active:opacity-70">
       <View className="bg-card/60 backdrop-blur-lg rounded-2xl p-4 border border-border/50">
         <View className="flex-row gap-4">
           <View className="w-16 h-16 bg-muted rounded-xl items-center justify-center overflow-hidden">
-            <Image source={{ uri: exercise.images[0] }} alt={exercise.name} className="w-full h-full" />
+            {image && <Image source={{ uri: image }} alt={exercise.name} className="w-full h-full" />}
           </View>
           <View className="flex-1 justify-center">
             <View className="flex-row items-center gap-2 mb-1">

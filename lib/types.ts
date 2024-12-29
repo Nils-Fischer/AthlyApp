@@ -48,23 +48,6 @@ export interface NutritionProgress {
   goals: NutritionGoals;
 }
 
-export interface Exercise {
-  alternatives: never[];
-  timesUsed: string;
-  id: number;
-  name: string;
-  level: string;
-  mechanic: string;
-  equipment: string;
-  primaryMuscles: string[];
-  secondaryMuscles: string[];
-  instructions: string[];
-  category: string;
-  images: string[];
-  tag: string[];
-  priority: number;
-}
-
 export enum Gender {
   Male = "Male",
   Female = "Female",
@@ -109,55 +92,109 @@ export interface UserData {
   created_at: string;
   last_updated: string;
 }
-/* 
 
-enum EquipmentType {
-  Barbell = "Barbell",
-  Dumbbell = "Dumbbell",
-  Machine = "Machine",
-  Cable = "Cable",
-  Bodyweight = "Bodyweight",
-  Specialty = "Specialty",
+enum ExerciseType {
+  Weight = "Gewicht",
+  Bodyweight = "Körpergewicht",
+  Cardio = "Kardio",
+  Mobility = "Mobilität",
+  Stretching = "Dehnen",
+  Balance = "Balance",
 }
 
-enum MuscleGroup {
-  Chest = "Chest",
-  Back = "Back",
-  Shoulders = "Shoulders",
-  Biceps = "Biceps",
-  Triceps = "Triceps",
-  Core = "Core",
-  Legs = "Legs",
+enum EquipmentType {
+  Barbell = "Langhantel",
+  Dumbbell = "Kurzhantel",
+  Machine = "Maschine",
+  Cable = "Kabelzug",
+  Bodyweight = "Körpergewicht",
+  Specialty = "Spezialgeräte",
 }
 
 enum Difficulty {
-  Beginner = "Beginner",
-  Intermediate = "Intermediate",
-  Advanced = "Advanced",
+  Beginner = "Anfänger",
+  Intermediate = "Fortgeschritten",
+  Advanced = "Profi",
 }
 
 enum Mechanic {
-  Compound = "Compound",
-  Isolation = "Isolation",
+  Compound = "Grundübung",
+  Isolation = "Isolationsübung",
 }
 
-interface Exercise {
-  id: string;
+export enum MuscleGroup {
+  Chest = "Brust",
+  Back = "Rücken",
+  Shoulders = "Schultern",
+  Biceps = "Bizeps",
+  Triceps = "Trizeps",
+  Forearms = "Unterarme",
+  Legs = "Beine",
+  Core = "Bauch",
+}
+
+export enum Muscle {
+  // Chest
+  UpperChest = "Obere Brust",
+  MiddleChest = "Mittlere Brust",
+  LowerChest = "Untere Brust",
+  // Back
+  Latissimus = "Latissimus",
+  UpperTraps = "Oberer Trapezmuskel",
+  LowerTraps = "Unterer Trapezmuskel",
+  Rhomboids = "Rhomboiden",
+  TeresMajor = "Teres Major",
+  ErectorSpinae = "Rückenstrecker",
+  // Shoulders
+  FrontDelts = "Vordere Schulter",
+  SideDelts = "Seitliche Schulter",
+  RearDelts = "Hintere Schulter",
+  RotatorCuff = "Rotatorenmanschette",
+  // Biceps
+  LongHeadBiceps = "Langer Bizepskopf",
+  ShortHeadBiceps = "Kurzer Bizepskopf",
+  Brachialis = "Brachialis",
+  // Triceps
+  LongHeadTriceps = "Langer Trizepskopf",
+  LateralHeadTriceps = "Lateraler Trizepskopf",
+  ShortHeadTriceps = "Kurzer Trizepskopf",
+  // Forearms
+  ForearmExtensors = "Unterarmstrecker",
+  ForearmFlexors = "Unterarmbeuger",
+  Brachioradialis = "Brachioradialis",
+  // Legs
+  Quadriceps = "Oberschenkel",
+  Hamstrings = "Hamstrings",
+  Glutes = "Gesäß",
+  Calves = "Waden",
+  Abductors = "Abduktoren",
+  Adductors = "Adduktoren",
+  // Core
+  Serratus = "Sägemuskel",
+  UpperAbs = "Oberer Bauch",
+  LowerAbs = "Unterer Bauch",
+  Obliques = "Seitlicher Bauch",
+  LowerBack = "Unterer Rücken",
+}
+
+export interface Exercise {
+  id: number;
   name: string;
+  type: ExerciseType;
   equipment: EquipmentType;
-  primaryMuscleGroup: MuscleGroup;
-  secondaryMuscleGroups?: MuscleGroup[];
+  primaryMuscles: Muscle[];
+  secondaryMuscles: Muscle[];
+  stabilizingMuscles: Muscle[];
   difficulty: Difficulty;
-  tag: string; // type of exercise
   mechanic: Mechanic;
-  variations?: string[];
-  commonMistakes?: string[];
-  warmup?: string[];
-  instructions: string[];
   description: string;
   media: string[];
+  instructions: string[];
+  variations?: string[];
+  commonMistakes?: string[];
+  formCues?: string[];
+  warmup?: string;
 }
-*/
 
 export interface SetInput {
   reps: number | null;

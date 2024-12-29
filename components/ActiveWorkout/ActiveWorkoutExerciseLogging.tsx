@@ -21,7 +21,7 @@ import { router } from "expo-router";
 import Animated, { FadeInDown } from "react-native-reanimated";
 import { useWorkoutHistoryStore } from "~/stores/workoutHistoryStore";
 import { AnimatedIconButton } from "../ui/animated-icon-button";
-import { cn, formatTime } from "~/lib/utils";
+import { cn, formatTime, getThumbnail } from "~/lib/utils";
 import { useActiveWorkoutStore } from "~/stores/activeWorkoutStore";
 import { ExerciseHistory } from "../Exercise/ExerciseHistory";
 import { BottomSheet } from "~/components/ui/bottom-sheet";
@@ -151,7 +151,7 @@ export const ActiveWorkoutExerciseLogging = ({
           <ImageBackground
             source={{
               uri:
-                exercise.images?.[0] ||
+                getThumbnail(exercise) ||
                 "https://media.istockphoto.com/id/542197916/photo/running-on-treadmill.jpg?s=612x612&w=0&k=20&c=CYywmb71uOepSHWa534hG9230AzawSa4i3sA89o4qCQ=",
             }}
             className="w-full h-full"
@@ -179,7 +179,7 @@ export const ActiveWorkoutExerciseLogging = ({
                     <BarChart3 size={16} className="text-primary mr-2" />
                     <Text className="text-sm text-muted-foreground">Level</Text>
                   </View>
-                  <Text className="font-medium mt-1">{exercise.level || "Not specified"}</Text>
+                  <Text className="font-medium mt-1">{exercise.difficulty || "Not specified"}</Text>
                 </Card>
               </View>
             </View>
@@ -248,9 +248,9 @@ export const ActiveWorkoutExerciseLogging = ({
                 </Button>
               </View>
 
-              {isWarmupExpanded && (
+              {isWarmupExpanded && exercise.warmup && (
                 <View className="mb-6 px-4">
-                  <Text className="text-sm text-muted-foreground leading-relaxed">{/* // exercise.warmup */}</Text>
+                  <Text className="text-sm text-muted-foreground leading-relaxed">{exercise.warmup}</Text>
                 </View>
               )}
 

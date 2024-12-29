@@ -1,11 +1,12 @@
 import React from "react";
 import { ScrollView, View, Pressable } from "react-native";
 import { Text } from "~/components/ui/text";
+import { MuscleGroup } from "~/lib/types";
 
 interface CategoryFilterProps {
-  categories: string[];
-  selectedCategory: string;
-  onSelectCategory: (category: string) => void;
+  categories: (MuscleGroup | "all")[];
+  selectedCategory: MuscleGroup | "all";
+  onSelectCategory: (category: MuscleGroup | "all") => void;
 }
 
 export const ExerciseLibraryFilter = ({ categories, selectedCategory, onSelectCategory }: CategoryFilterProps) => {

@@ -1,9 +1,8 @@
 import { Exercise } from "~/lib/types";
 import { Image } from "react-native";
-import { Carousel, MediaItem } from "~/components/Carousel";
+import { Carousel, MediaItem, MediaType } from "~/components/Carousel";
 import { View, ScrollView, Pressable } from "react-native";
 import Animated, { FadeInDown, useAnimatedScrollHandler, useSharedValue } from "react-native-reanimated";
-import { Trophy, Users2 } from "~/lib/icons/Icons";
 import { Text } from "~/components/ui/text";
 import { useExerciseStore } from "~/stores/exerciseStore";
 
@@ -18,7 +17,10 @@ export const ExerciseDetail: React.FC<{ exercise: Exercise; navigateToExercise: 
 }) => {
   const exerciseStore = useExerciseStore();
   const mediaItems: MediaItem[] = [
-    ...(exercise?.images?.map((url) => ({ type: "image" as const, url })) || []),
+    ...(exercise?.media?.map((url) => {
+      const type = url.endsWith(".jpg") || url.endsWith(".png") ? "image" : "video";
+      return { type: type as MediaType, url };
+    }) || []),
     { type: "image" as const, url: "https://images.pexels.com/photos/841130/pexels-photo-841130.jpeg" },
     { type: "video" as const, url: "https://videos.pexels.com/video-files/4065388/4065388-uhd_2560_1440_30fps.mp4" },
   ];
@@ -44,18 +46,6 @@ export const ExerciseDetail: React.FC<{ exercise: Exercise; navigateToExercise: 
           <Text className="text-2xl font-bold mb-2">{exercise.name}</Text>
           <Text className="text-muted-foreground mb-2">{exercise.equipment}</Text>
 
-          {/* Analytics Integration - Add right after equipment text */}
-          <View className="flex-row gap-2 mb-6">
-            <View className="flex-row items-center">
-              <Users2 className="h-4 w-4 text-muted-foreground mr-1" />
-              <Text className="text-sm text-muted-foreground">{exercise.timesUsed || "150"}x verwendet</Text>
-            </View>
-            <View className="flex-row items-center">
-              <Trophy className="h-4 w-4 text-muted-foreground mr-1" />
-              <Text className="text-sm text-muted-foreground">Top 10 Übung</Text>
-            </View>
-          </View>
-
           {/* Enhanced Stats Section */}
           <View className="flex-row gap-4 mb-6">
             <Animated.View
@@ -63,7 +53,7 @@ export const ExerciseDetail: React.FC<{ exercise: Exercise; navigateToExercise: 
               className="flex-1 bg-muted/50 rounded-2xl p-4"
             >
               <Text className="text-sm text-muted-foreground mb-1">Level</Text>
-              <Text className="font-semibold">{exercise.level}</Text>
+              <Text className="font-semibold">{exercise.difficulty}</Text>
             </Animated.View>
             <Animated.View
               entering={FadeInDown.delay(ANIMATION_BASE_DELAY).springify()}
@@ -117,6 +107,70 @@ export const ExerciseDetail: React.FC<{ exercise: Exercise; navigateToExercise: 
               ))}
             </View>
           </Animated.View>
+
+          {/* Common Mistakes Section */}
+          {exercise.commonMistakes && exercise.commonMistakes.length > 0 && (
+            <Animated.View
+              entering={FadeInDown.delay(ANIMATION_BASE_DELAY + STAGGER_DELAY * 3).springify()}
+              className="mt-6"
+            >
+              <Text className="font-semibold text-lg mb-3">Häufige Fehler</Text>
+              <View className="gap-3">
+                {exercise.commonMistakes.map((mistake, index) => (
+                  <View key={index} className="bg-destructive/10 rounded-2xl p-4 flex-row gap-4">
+                    <Text className="flex-1 text-sm leading-relaxed">{mistake}</Text>
+                  </View>
+                ))}
+              </View>
+            </Animated.View>
+          )}
+
+          {/* Form Cues Section */}
+          {exercise.formCues && exercise.formCues.length > 0 && (
+            <Animated.View
+              entering={FadeInDown.delay(ANIMATION_BASE_DELAY + STAGGER_DELAY * 4).springify()}
+              className="mt-6"
+            >
+              <Text className="font-semibold text-lg mb-3">Form-Hinweise</Text>
+              <View className="gap-3">
+                {exercise.formCues.map((cue, index) => (
+                  <View key={index} className="bg-primary/10 rounded-2xl p-4">
+                    <Text className="text-sm leading-relaxed">{cue}</Text>
+                  </View>
+                ))}
+              </View>
+            </Animated.View>
+          )}
+
+          {/* Warmup Section */}
+          {exercise.warmup && (
+            <Animated.View
+              entering={FadeInDown.delay(ANIMATION_BASE_DELAY + STAGGER_DELAY * 5).springify()}
+              className="mt-6"
+            >
+              <Text className="font-semibold text-lg mb-3">Aufwärmen</Text>
+              <View className="bg-warning/10 rounded-2xl p-4">
+                <Text className="text-sm leading-relaxed">{exercise.warmup}</Text>
+              </View>
+            </Animated.View>
+          )}
+
+          {/* Stabilizing Muscles Section */}
+          {exercise.stabilizingMuscles && exercise.stabilizingMuscles.length > 0 && (
+            <Animated.View
+              entering={FadeInDown.delay(ANIMATION_BASE_DELAY + STAGGER_DELAY * 6).springify()}
+              className="mt-6"
+            >
+              <Text className="font-semibold text-lg mb-3">Stabilisierende Muskeln</Text>
+              <View className="flex-row flex-wrap gap-2">
+                {exercise.stabilizingMuscles.map((muscle, index) => (
+                  <View key={index} className="bg-muted/70 rounded-full px-3 py-1.5">
+                    <Text className="text-xs text-muted-foreground font-medium">{muscle}</Text>
+                  </View>
+                ))}
+              </View>
+            </Animated.View>
+          )}
         </Animated.View>
       </View>
       {/* Related Exercises */}
@@ -138,7 +192,9 @@ export const ExerciseDetail: React.FC<{ exercise: Exercise; navigateToExercise: 
                 >
                   <View className="bg-muted/50 rounded-xl overflow-hidden">
                     <Image
-                      source={{ uri: relatedExercise.images?.[0] || "/api/placeholder/192/128" }}
+                      source={{
+                        uri: relatedExercise.media.find((media) => media.endsWith(".jpg") || media.endsWith(".png")),
+                      }}
                       className="w-full h-32"
                     />
                     <View className="p-3">

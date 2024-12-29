@@ -5,6 +5,8 @@ import { useExerciseStore } from "~/stores/exerciseStore";
 import { ExerciseLibraryFilter } from "~/components/Exercise/ExerciseLibraryFilter";
 import { ExerciseLibraryList } from "~/components/Exercise/ExerciseLibraryList";
 import { Search } from "~/lib/icons/Icons";
+import { getMuscleGroup } from "~/lib/utils";
+import { MuscleGroup } from "~/lib/types";
 
 interface ExerciseLibraryProps {
   onPress?: (exerciseId: number) => void;
@@ -13,18 +15,16 @@ interface ExerciseLibraryProps {
 export const ExerciseLibrary = ({ onPress }: ExerciseLibraryProps) => {
   const { exercises, isLoading } = useExerciseStore();
   const [searchQuery, setSearchQuery] = useState("");
-  const [selectedCategory, setSelectedCategory] = useState("all");
-
-  const categories = useMemo(() => {
-    const uniqueCategories = ["all", ...new Set(exercises?.map((ex) => ex.category) ?? [])];
-    return uniqueCategories;
-  }, [exercises]);
+  const [selectedCategory, setSelectedCategory] = useState<MuscleGroup | "all">("all");
+  const categories: (MuscleGroup | "all")[] = ["all", ...Object.values(MuscleGroup)];
 
   const filteredExercises = useMemo(() => {
     return (
       exercises?.filter((exercise) => {
         const matchesSearch = exercise.name.toLowerCase().includes(searchQuery.toLowerCase());
-        const matchesCategory = selectedCategory === "all" || exercise.category === selectedCategory;
+        const matchesCategory =
+          selectedCategory === "all" ||
+          exercise.primaryMuscles.map(getMuscleGroup).includes(selectedCategory as MuscleGroup);
         return matchesSearch && matchesCategory;
       }) ?? []
     );

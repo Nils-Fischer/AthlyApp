@@ -7,6 +7,7 @@ import type { Workout, WorkoutExercise, Exercise, ExerciseRecord } from "~/lib/t
 import { useExerciseStore } from "~/stores/exerciseStore";
 import { useActiveWorkoutStore } from "~/stores/activeWorkoutStore";
 import { Image } from "expo-image";
+import { getThumbnail } from "~/lib/utils";
 
 interface ActiveWorkoutExerciseListProps {
   workout: Workout;
@@ -74,6 +75,7 @@ interface ExerciseCardProps {
 function ExerciseCard({ exercise, workoutExercise, exerciseRecord, isStarted, onSelect }: ExerciseCardProps) {
   const completedSets = exerciseRecord?.sets.filter((set) => set.reps !== null && set.weight !== null).length || 0;
   const isCompleted = exerciseRecord?.isCompleted || false;
+  const imageUrl = getThumbnail(exercise);
 
   return (
     <Animated.View entering={FadeIn}>
@@ -81,9 +83,9 @@ function ExerciseCard({ exercise, workoutExercise, exerciseRecord, isStarted, on
         <View className={`bg-card border-b border-border/30 ${isCompleted ? "opacity-50" : ""}`}>
           <View className="flex-row p-4">
             <View className="mr-4">
-              {exercise.images[0] ? (
+              {imageUrl ? (
                 <Image
-                  source={{ uri: exercise.images[0] }}
+                  source={{ uri: imageUrl }}
                   className={`w-16 h-16 rounded-lg bg-muted ${isCompleted ? "opacity-50" : ""}`}
                   contentFit="cover"
                   transition={200}
