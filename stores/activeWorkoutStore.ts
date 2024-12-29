@@ -117,8 +117,8 @@ export const useActiveWorkoutStore = create<ActiveWorkoutState>((set, get) => ({
         sets: entry.sets.map((set) => ({
           weight: null,
           reps: null,
-          targetWeight: set.weight || 0,
-          targetReps: set.reps || 0,
+          targetWeight: set.weight || set.targetWeight || 0,
+          targetReps: set.reps || set.targetReps || 0,
         })),
       })),
     };
