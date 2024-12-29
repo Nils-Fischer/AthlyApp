@@ -1,13 +1,13 @@
 import { router, Stack, useLocalSearchParams } from "expo-router";
 import { ChevronLeft } from "lucide-react-native";
 import { View } from "react-native";
-import { ExerciseLogging } from "~/components/ActiveWorkout/ExerciseLogging";
 import { Button } from "~/components/ui/button";
 import { Text } from "~/components/ui/text";
 import { useActiveWorkoutStore } from "~/stores/activeWorkoutStore";
 import { useExerciseStore } from "~/stores/exerciseStore";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "~/components/ui/dialog";
 import { useState, useCallback } from "react";
+import { ActiveWorkoutExerciseLogging } from "~/components/ActiveWorkout/ActiveWorkoutExerciseLogging";
 
 export default function ExerciseLoggingScreen() {
   const { exerciseId } = useLocalSearchParams<{ exerciseId: string }>();
@@ -65,7 +65,7 @@ export default function ExerciseLoggingScreen() {
           ),
         }}
       />
-      <ExerciseLogging
+      <ActiveWorkoutExerciseLogging
         exercise={exercise}
         workoutExercise={workoutExercise}
         isWorkoutStarted={workoutStarted}

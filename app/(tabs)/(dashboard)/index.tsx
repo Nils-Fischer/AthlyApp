@@ -1,13 +1,13 @@
 import React, { useEffect, useState } from "react";
 import { View, ScrollView } from "react-native";
 import { Text } from "~/components/ui/text";
-import { TodayWorkoutWidget } from "~/components/dashboard/active-workout/TodayWorkoutWidget";
 import { useUserStore } from "~/stores/userStore";
 import { format } from "date-fns";
 import { de } from "date-fns/locale";
 import { useActiveWorkoutStore } from "~/stores/activeWorkoutStore";
 import { useWorkoutHistoryStore } from "~/stores/workoutHistoryStore";
 import { Workout } from "~/lib/types";
+import { TodaysWorkoutWidget } from "~/components/dashboard/TodaysWorkoutWidget";
 
 export default function Index() {
   const userStore = useUserStore();
@@ -59,7 +59,7 @@ export default function Index() {
 
         {/* Workout Widget */}
         {activeWorkout ? (
-          <TodayWorkoutWidget workout={activeWorkout} skipWorkout={skipWorkout} />
+          <TodaysWorkoutWidget workout={activeWorkout} skipWorkout={skipWorkout} />
         ) : (
           <View className="bg-card p-4 rounded-lg mb-6">
             <Text className="text-center text-muted-foreground">Kein Training für heute geplant</Text>

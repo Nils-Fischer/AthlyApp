@@ -78,7 +78,7 @@ function ExerciseCard({ exercise, workoutExercise, exerciseRecord, isStarted, on
   return (
     <Animated.View entering={FadeIn}>
       <TouchableOpacity onPress={onSelect} className="active:opacity-90">
-        <View className={`bg-card ${isCompleted ? "opacity-50" : ""}`}>
+        <View className={`bg-card border-b border-border/30 ${isCompleted ? "opacity-50" : ""}`}>
           <View className="flex-row p-4">
             <View className="mr-4">
               {exercise.images[0] ? (
@@ -117,14 +117,7 @@ function ExerciseCard({ exercise, workoutExercise, exerciseRecord, isStarted, on
                   {workoutExercise.sets} {workoutExercise.sets > 1 ? "Sätze" : "Satz"} × {workoutExercise.reps}{" "}
                   {workoutExercise.reps > 1 ? "Wiederholungen" : "Wiederholung"}
                 </Text>
-                {workoutExercise.restPeriod && (
-                  <Text className="text-sm text-muted-foreground ml-2">• {workoutExercise.restPeriod}s Pause</Text>
-                )}
               </View>
-
-              {workoutExercise.notes && (
-                <Text className="text-sm text-muted-foreground mt-1 italic">{workoutExercise.notes}</Text>
-              )}
             </View>
 
             <View className="justify-center">
