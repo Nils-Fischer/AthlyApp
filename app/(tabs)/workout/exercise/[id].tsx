@@ -1,14 +1,12 @@
 // TrainTechApp/app/workout/exercise/[id].tsx
 import React from "react";
 import { Text } from "~/components/ui/text";
-import { router, useLocalSearchParams } from "expo-router";
+import { router, Stack, useLocalSearchParams } from "expo-router";
 import { useExerciseStore } from "~/stores/exerciseStore";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { ExerciseDetail } from "~/components/Exercise/ExerciseDetail";
-
-type Props = {
-  useLocalSearchParams?: () => { id: string };
-};
+import { Button } from "~/components/ui/button";
+import { ChevronLeft } from "~/lib/icons/Icons";
 
 export default function ExerciseDetailScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
@@ -24,9 +22,21 @@ export default function ExerciseDetailScreen() {
   }
 
   return (
-    <ExerciseDetail
-      exercise={exercise}
-      navigateToExercise={(exercise) => router.push(`/workout/exercise/${exercise.id}`)}
-    />
+    <>
+      <Stack.Screen
+        options={{
+          title: exercise.name,
+          headerLeft: () => (
+            <Button variant="ghost" className="ml-2" onPress={() => router.back()}>
+              <ChevronLeft size={24} />
+            </Button>
+          ),
+        }}
+      />
+      <ExerciseDetail
+        exercise={exercise}
+        navigateToExercise={(exercise) => router.push(`/workout/exercise/${exercise.id}`)}
+      />
+    </>
   );
 }

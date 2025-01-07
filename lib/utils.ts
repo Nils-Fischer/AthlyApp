@@ -1,6 +1,6 @@
 import { clsx, type ClassValue } from "clsx";
 import { twMerge } from "tailwind-merge";
-import { Exercise, Muscle, MuscleGroup } from "./types";
+import { Difficulty, Exercise, Muscle, MuscleGroup } from "./types";
 
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
@@ -79,4 +79,8 @@ export function getMuscleGroup(muscle: Muscle): MuscleGroup {
     case Muscle.LowerBack:
       return MuscleGroup.Core;
   }
+}
+
+export function difficultyAsNumber(difficulty: Difficulty): number {
+  return difficulty === Difficulty.Beginner ? 0 : difficulty === Difficulty.Intermediate ? 1 : 2;
 }

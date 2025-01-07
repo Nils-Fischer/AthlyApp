@@ -19,7 +19,7 @@ export const RoutineCard = ({ routine, onPress, onDelete, onToggleActive, showDr
     {
       name: routine.active ? "Set Inactive" : "Set Active",
       icon: ({ size, className }) => (
-        <Ionicons name={routine.active ? "radio-button-off" : "radio-button-on"} size={size} className={className} />
+        <Ionicons name={routine.active ? "radio-button-on" : "radio-button-off"} size={size} className={className} />
       ),
       onPress: () => onToggleActive?.(routine.id),
     },

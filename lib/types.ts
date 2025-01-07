@@ -1,9 +1,3 @@
-export enum Level {
-  Beginner = 1,
-  Intermediate = 2,
-  Expert = 3,
-}
-
 export enum TrainingGoal {
   Strength,
   Hypertrophy,
@@ -14,12 +8,14 @@ export enum LocationType {
   Home,
   Gym,
 }
+
 export interface Message {
   id: number;
   isAI: boolean;
   message: string;
   time: string;
 }
+
 export interface NutritionGoals {
   calories: number;
   protein: number;
@@ -111,13 +107,13 @@ enum EquipmentType {
   Specialty = "Spezialgeräte",
 }
 
-enum Difficulty {
+export enum Difficulty {
   Beginner = "Anfänger",
   Intermediate = "Fortgeschritten",
   Advanced = "Profi",
 }
 
-enum Mechanic {
+export enum Mechanic {
   Compound = "Grundübung",
   Isolation = "Isolationsübung",
 }

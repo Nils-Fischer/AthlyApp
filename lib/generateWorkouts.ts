@@ -1,335 +1,486 @@
-import { type Exercise, Routine, TrainingGoal, WorkoutExercise } from "./types";
-import { Level } from "./types";
+import { useExerciseStore } from "~/stores/exerciseStore";
+import { type Exercise, Difficulty, Mechanic, Routine, TrainingGoal, Workout, WorkoutExercise } from "./types";
+import { generateId, difficultyAsNumber } from "./utils";
 
-export function capitalize(string: string): string {
-  return string.charAt(0).toUpperCase() + string.slice(1);
-}
+const adjustExerciseForGoal = (exercise: WorkoutExercise, goal: TrainingGoal): WorkoutExercise => {
+  const exerciseStore = useExerciseStore();
+  const isCompound = exerciseStore.getExerciseById(exercise.exerciseId)?.mechanic === Mechanic.Compound;
+  const adjusted = { ...exercise };
 
-export interface ExerciseDescription {
-  priority: number;
-  tags: string[];
-  sets: number;
-  reps: [number, number];
-  warmup: boolean;
-  optional: boolean;
-}
+  switch (goal) {
+    case TrainingGoal.Strength:
+      adjusted.sets = exercise.sets + (isCompound ? 1 : 0);
+      adjusted.reps = Math.max(4, exercise.reps - 4);
+      adjusted.restPeriod = exercise.restPeriod! + 60;
+      break;
 
-export const PUSH: ExerciseDescription[] = [
-  { priority: 1, tags: ["brust", "mittlere", "push"], sets: 4, reps: [8, 10], warmup: true, optional: false },
-  { priority: 8, tags: ["brust", "mittlere", "abduktion"], sets: 3, reps: [8, 12], warmup: false, optional: true },
-  { priority: 3, tags: ["brust", "obere", "push"], sets: 3, reps: [8, 10], warmup: true, optional: false },
-  { priority: 7, tags: ["schulter", "vordere", "push"], sets: 3, reps: [8, 10], warmup: false, optional: true },
-  { priority: 4, tags: ["brust", "untere", "abduktion"], sets: 3, reps: [10, 12], warmup: false, optional: false },
-  { priority: 9, tags: ["brust", "untere", "push"], sets: 3, reps: [8, 10], warmup: false, optional: false },
-  { priority: 5, tags: ["schulter", "seitliche", "abduktion"], sets: 4, reps: [10, 12], warmup: true, optional: false },
-  { priority: 2, tags: ["trizeps", "lange"], sets: 3, reps: [10, 12], warmup: true, optional: false },
-  { priority: 6, tags: ["trizeps", "kurze"], sets: 3, reps: [10, 12], warmup: false, optional: false },
-  { priority: 10, tags: ["trizeps", "kurze"], sets: 2, reps: [10, 12], warmup: false, optional: true },
-];
+    case TrainingGoal.Hypertrophy:
+      break;
 
-export const PULL: ExerciseDescription[] = [
-  { priority: 1, tags: ["rücken", "vertikal", "breite"], sets: 4, reps: [8, 10], warmup: true, optional: false },
-  { priority: 3, tags: ["rücken", "horizontal", "enge"], sets: 3, reps: [8, 10], warmup: true, optional: false },
-  { priority: 7, tags: ["rücken", "vertikal", "enge"], sets: 2, reps: [10, 12], warmup: false, optional: true },
-  { priority: 8, tags: ["rücken", "horizontal", "breite"], sets: 2, reps: [10, 12], warmup: false, optional: true },
-  { priority: 6, tags: ["rücken", "adduktion"], sets: 3, reps: [10, 12], warmup: false, optional: true },
-  { priority: 4, tags: ["schulter", "hintere", "abduktion"], sets: 4, reps: [10, 12], warmup: true, optional: false },
-  { priority: 2, tags: ["bizeps", "breite"], sets: 3, reps: [8, 12], warmup: true, optional: false },
-  { priority: 5, tags: ["bizeps", "enge"], sets: 3, reps: [10, 12], warmup: false, optional: false },
-  { priority: 9, tags: ["bizeps", "enge"], sets: 2, reps: [10, 12], warmup: false, optional: true },
-];
+    case TrainingGoal.Endurance:
+      adjusted.sets = exercise.sets + (isCompound ? 1 : 2);
+      adjusted.reps = exercise.reps + 6;
+      adjusted.restPeriod = Math.max(30, exercise.restPeriod! - 30);
+      break;
+  }
 
-export const BEINE: ExerciseDescription[] = [
-  { priority: 1, tags: ["beine", "push"], sets: 4, reps: [8, 10], warmup: true, optional: false },
-  { priority: 5, tags: ["beine", "pull"], sets: 3, reps: [8, 10], warmup: true, optional: false },
-  { priority: 2, tags: ["beine", "hamstrings"], sets: 3, reps: [10, 12], warmup: false, optional: false },
-  { priority: 3, tags: ["beine", "quadrizeps"], sets: 3, reps: [10, 12], warmup: false, optional: false },
-  { priority: 4, tags: ["beine", "waden"], sets: 4, reps: [10, 15], warmup: true, optional: false },
-  { priority: 8, tags: ["beine", "push"], sets: 3, reps: [10, 12], warmup: false, optional: true },
-  { priority: 6, tags: ["bauch", "untere"], sets: 4, reps: [10, 15], warmup: false, optional: false },
-  { priority: 7, tags: ["bauch", "obere"], sets: 4, reps: [10, 15], warmup: false, optional: false },
-];
+  return adjusted;
+};
 
-export const OBERKOERPER: ExerciseDescription[] = [
-  { priority: 1, tags: ["brust", "mittlere", "push"], sets: 3, reps: [8, 10], warmup: true, optional: false },
-  { priority: 2, tags: ["rücken", "vertikal", "breite"], sets: 3, reps: [8, 10], warmup: true, optional: false },
-  { priority: 4, tags: ["brust", "obere", "push"], sets: 3, reps: [8, 12], warmup: true, optional: false },
-  { priority: 8, tags: ["rücken", "horizontal", "enge"], sets: 3, reps: [8, 12], warmup: false, optional: false },
-  { priority: 9, tags: ["brust", "untere", "abduktion"], sets: 3, reps: [10, 12], warmup: false, optional: false },
-  { priority: 12, tags: ["rücken", "adduktion"], sets: 3, reps: [10, 12], warmup: false, optional: true },
-  { priority: 13, tags: ["schulter", "vordere", "push"], sets: 3, reps: [10, 12], warmup: false, optional: true },
+const adjustExerciseForDifficulty = (exercise: WorkoutExercise, difficulty: Difficulty): WorkoutExercise => {
+  const exerciseStore = useExerciseStore();
+  const exerciseDifficulty = exerciseStore.getExerciseById(exercise.exerciseId)?.difficulty;
+  if (!exerciseDifficulty) {
+    return exercise;
+  }
+  const isTooDifficult = difficultyAsNumber(exerciseDifficulty) > difficultyAsNumber(difficulty);
+  if (!isTooDifficult) return exercise;
+  const easierExercise = exercise.alternatives.find(
+    (id) =>
+      difficultyAsNumber(exerciseStore.getExerciseById(id)?.difficulty || Difficulty.Beginner) <
+      difficultyAsNumber(difficulty)
+  );
+  if (!easierExercise) return exercise;
+  return { ...exercise, exerciseId: easierExercise, alternatives: [...exercise.alternatives, exercise.exerciseId] };
+};
+
+const basePushWorkout: WorkoutExercise[] = [
   {
-    priority: 3,
-    tags: ["schulter", "seitliche", "abduktion"],
+    exerciseId: 1, // Bankdrücken (Barbell)
+    alternatives: [5, 12, 14], // Dumbbell bench press, Smith machine bench press, Chest press machine
     sets: 4,
-    reps: [10, 12],
-    warmup: false,
-    optional: false,
+    reps: 8,
+    restPeriod: 90,
   },
-  { priority: 5, tags: ["schulter", "hintere", "abduktion"], sets: 3, reps: [10, 12], warmup: false, optional: false },
-  { priority: 6, tags: ["bizeps", "breite"], sets: 3, reps: [10, 12], warmup: false, optional: false },
-  { priority: 7, tags: ["trizeps", "lange"], sets: 3, reps: [10, 12], warmup: false, optional: false },
-  { priority: 10, tags: ["bizeps", "enge"], sets: 2, reps: [10, 12], warmup: false, optional: false },
-  { priority: 11, tags: ["trizeps", "kurze"], sets: 2, reps: [10, 12], warmup: false, optional: true },
-];
-
-export const UNTERKOERPER: ExerciseDescription[] = [
-  { priority: 1, tags: ["beine", "push"], sets: 3, reps: [8, 10], warmup: true, optional: false },
-  { priority: 2, tags: ["beine", "pull"], sets: 3, reps: [8, 10], warmup: true, optional: false },
-  { priority: 3, tags: ["beine", "hamstrings"], sets: 3, reps: [10, 12], warmup: false, optional: false },
-  { priority: 4, tags: ["beine", "quadrizeps"], sets: 3, reps: [10, 12], warmup: false, optional: false },
-  { priority: 5, tags: ["waden"], sets: 4, reps: [10, 12], warmup: false, optional: false },
-  { priority: 9, tags: ["beine", "hamstrings"], sets: 2, reps: [10, 12], warmup: false, optional: true },
-  { priority: 10, tags: ["beine", "quadrizeps"], sets: 2, reps: [10, 12], warmup: false, optional: true },
-  { priority: 7, tags: ["beine", "push"], sets: 3, reps: [10, 12], warmup: false, optional: true },
-  { priority: 6, tags: ["bauch", "untere"], sets: 3, reps: [10, 15], warmup: false, optional: false },
-  { priority: 8, tags: ["bauch", "obere"], sets: 3, reps: [10, 15], warmup: false, optional: false },
-];
-
-export const GANZKOERPER: ExerciseDescription[] = [
-  { priority: 1, tags: ["beine", "push"], sets: 3, reps: [8, 10], warmup: true, optional: false },
-  { priority: 11, tags: ["beine", "pull"], sets: 3, reps: [8, 10], warmup: true, optional: false },
-  { priority: 13, tags: ["beine", "quadrizeps"], sets: 3, reps: [10, 12], warmup: false, optional: false },
-  { priority: 14, tags: ["beine", "hamstrings"], sets: 3, reps: [10, 12], warmup: false, optional: false },
-  { priority: 15, tags: ["waden"], sets: 3, reps: [10, 12], warmup: false, optional: false },
-  { priority: 2, tags: ["brust", "mittlere", "push"], sets: 3, reps: [8, 10], warmup: true, optional: false },
-  { priority: 4, tags: ["brust", "obere", "brust"], sets: 3, reps: [10, 12], warmup: true, optional: false },
-  { priority: 3, tags: ["rücken", "vertikal", "breite"], sets: 3, reps: [8, 10], warmup: true, optional: false },
-  { priority: 6, tags: ["rücken", "horizontal", "enge"], sets: 3, reps: [10, 12], warmup: false, optional: false },
-  { priority: 10, tags: ["brust", "untere", "abduktion"], sets: 3, reps: [10, 12], warmup: false, optional: false },
-  { priority: 16, tags: ["rücken", "adduktion"], sets: 3, reps: [10, 12], warmup: false, optional: true },
-  { priority: 17, tags: ["schulter", "vordere", "push"], sets: 3, reps: [10, 12], warmup: false, optional: true },
   {
-    priority: 5,
-    tags: ["schulter", "seitliche", "abduktion"],
+    exerciseId: 16, // Butterfly (Pec Deck)
+    alternatives: [8, 53], // Dumbbell flys, Cable flys
     sets: 3,
-    reps: [10, 12],
-    warmup: false,
-    optional: false,
+    reps: 12,
+    restPeriod: 60,
   },
-  { priority: 9, tags: ["schulter", "hintere", "abduktion"], sets: 3, reps: [10, 12], warmup: false, optional: false },
-  { priority: 7, tags: ["bizeps", "breite"], sets: 3, reps: [10, 12], warmup: false, optional: false },
-  { priority: 8, tags: ["trizeps", "lange"], sets: 3, reps: [10, 12], warmup: false, optional: false },
-  { priority: 19, tags: ["bizeps", "enge"], sets: 3, reps: [10, 12], warmup: false, optional: true },
-  { priority: 20, tags: ["trizeps", "kurze"], sets: 3, reps: [10, 12], warmup: false, optional: true },
-  { priority: 18, tags: ["bauch", "untere"], sets: 3, reps: [10, 12], warmup: false, optional: false },
+  {
+    exerciseId: 2, // Bankdrücken Schrägbank
+    alternatives: [6, 13, 15], // Dumbbell incline press, Smith incline press, Incline machine press
+    sets: 3,
+    reps: 10,
+    restPeriod: 90,
+  },
+  {
+    exerciseId: 63, // Militärpress
+    alternatives: [66, 74, 75], // Dumbbell shoulder press, Smith machine shoulder press, Shoulder press machine
+    sets: 3,
+    reps: 10,
+    restPeriod: 90,
+  },
+  {
+    exerciseId: 22, // Vertikaler Butterfly
+    alternatives: [],
+    sets: 3,
+    reps: 12,
+    restPeriod: 60,
+  },
+  {
+    exerciseId: 28, // Dips (Brustversion)
+    alternatives: [21], // Dip machine
+    sets: 3,
+    reps: 12,
+    restPeriod: 60,
+  },
+  {
+    exerciseId: 68, // Seitheben
+    alternatives: [71, 76, 80], // Cable lateral raises, Lateral raise machine, Resistance band lateral raises
+    sets: 3,
+    reps: 15,
+    restPeriod: 60,
+  },
+  {
+    exerciseId: 101, // Überkopf Trizepsdrücken
+    alternatives: [99, 105, 109, 115], // Skullcrusher, Single-arm dumbbell overhead extension, Cable overhead extension, Band overhead extension
+    sets: 3,
+    reps: 12,
+    restPeriod: 60,
+  },
+  {
+    exerciseId: 100, // Close-Grip Bankdrücken
+    alternatives: [103], // Lying triceps extension
+    sets: 3,
+    reps: 10,
+    restPeriod: 90,
+  },
+  {
+    exerciseId: 106, // Trizeps Pushdown
+    alternatives: [107, 112, 114], // Rope pushdown, Pushdown machine, Band pushdown
+    sets: 3,
+    reps: 12,
+    restPeriod: 60,
+  },
 ];
 
-interface ExercisePlan {
-  name: string;
-  frequency: number;
-  exercises: WorkoutExercise[];
-}
+export const createPushWorkout = (duration: 45 | 60 | 90, goal: TrainingGoal, difficulty: Difficulty): Workout => {
+  const idByPriority = [1, 16, 2, 101, 68, 106, 63, 22, 100, 28];
+  const filter = duration === 45 ? idByPriority.slice(0, 4) : duration === 60 ? idByPriority.slice(0, 7) : idByPriority;
 
-export function createRoutine(
-  exercises: Exercise[],
-  daysAWeek: number,
-  availableTime: number,
-  level: Level,
-  goal: TrainingGoal
-): Routine {
-  const plans = selectRoutine(exercises, daysAWeek, availableTime, level, goal);
+  const exercises = basePushWorkout
+    .filter((exercise) => filter.includes(exercise.exerciseId))
+    .map((exercise) => adjustExerciseForGoal(exercise, goal))
+    .map((exercise) => adjustExerciseForDifficulty(exercise, difficulty));
+
   return {
-    id: Math.floor(Math.random() * 1000000), // or use a proper ID generation method
-    name: `${daysAWeek}-Day Split`,
-    workouts: plans.map((plan) => ({
-      id: Math.floor(Math.random() * 1000000),
-      name: plan.name,
-      exercises: plan.exercises,
-      duration: availableTime,
-      description: `${plan.frequency}x per week`,
-    })),
-    description: `${daysAWeek} day split for ${Level[level]} level`,
-    frequency: daysAWeek,
+    id: generateId(),
+    name: "Push",
+    exercises,
+    description: "Push workout",
+    duration,
   };
-}
+};
 
-function selectRoutine(
-  exercises: Exercise[],
-  daysAWeek: number,
-  availableTime: number,
-  level: Level,
-  goal: TrainingGoal
-): ExercisePlan[] {
-  switch (daysAWeek) {
-    case 1:
-      return oneDaySplit(exercises, availableTime, level, goal);
-    case 2:
-      return twoDaySplit(exercises, availableTime, level, goal);
-    case 3:
-      return threeDaySplit(exercises, availableTime, level, goal);
-    case 4:
-      return fourDaySplit(exercises, availableTime, level, goal);
-    case 5:
-      return fiveDaySplit(exercises, availableTime, level, goal);
-    case 6:
-      return sixDaySplit(exercises, availableTime, level, goal);
-    default:
-      return sevenDaySplit(exercises, availableTime, level, goal);
-  }
-}
+const basePullWorkout: WorkoutExercise[] = [
+  {
+    exerciseId: 46, // Latzug (Breiter Griff)
+    alternatives: [50, 56, 52], // Latzug Maschine, Klimmzug, Klimzugmaschine
+    sets: 4,
+    reps: 10,
+    restPeriod: 90,
+  },
+  {
+    exerciseId: 42, // Sitzrudern am Kabelzug
+    alternatives: [48, 51], // Hammer Strength Rudern, Low Row Machine
+    sets: 3,
+    reps: 12,
+    restPeriod: 90,
+  },
+  {
+    exerciseId: 45, // Latziehen mit engem Griff
+    alternatives: [47], // Einarmiger Lat Pulldown
+    sets: 3,
+    reps: 12,
+    restPeriod: 90,
+  },
+  {
+    exerciseId: 32, // T-Bar Rudern
+    alternatives: [31, 49, 166], // Vorgebeugtes Rudern, Smith Machine Rudern
+    sets: 3,
+    reps: 10,
+    restPeriod: 90,
+  },
+  {
+    exerciseId: 44, // Straight Arm Pulldown (Pullover)
+    alternatives: [],
+    sets: 3,
+    reps: 12,
+    restPeriod: 60,
+  },
+  {
+    exerciseId: 165, // Reverse Butterfly
+    alternatives: [40, 53], // Kurzhantel Reverse Flys, Reverse Cable Flys
+    sets: 3,
+    reps: 15,
+    restPeriod: 60,
+  },
+  {
+    exerciseId: 43, // Face Pull
+    alternatives: [70], // Cuban Press
+    sets: 3,
+    reps: 15,
+    restPeriod: 60,
+  },
+  {
+    exerciseId: 82, // Langhantel Curl
+    alternatives: [83, 85], // Preacher Curl, Spider Curl
+    sets: 3,
+    reps: 12,
+    restPeriod: 60,
+  },
+  {
+    exerciseId: 86, // Kurzhantel Curl
+    alternatives: [88, 89], // Schrägbank Curl, Konzentrationscurl
+    sets: 3,
+    reps: 12,
+    restPeriod: 60,
+  },
+  {
+    exerciseId: 87, // Hammer Curl
+    alternatives: [93, 98], // Rope Hammer Curl, Kettlebell-Curl
+    sets: 3,
+    reps: 12,
+    restPeriod: 60,
+  },
+];
 
-function oneDaySplit(exercises: Exercise[], time: number, level: Level, goal: TrainingGoal): ExercisePlan[] {
-  const fullBody = selectExercises(exercises, GANZKOERPER, time, level, goal);
-  return [{ name: "Ganzkörper", frequency: 1, exercises: fullBody }];
-}
+export const createPullWorkout = (duration: 45 | 60 | 90, goal: TrainingGoal, difficulty: Difficulty): Workout => {
+  const idByPriority = [46, 42, 44, 82, 32, 43, 86, 45, 165, 87];
+  const filter = duration === 45 ? idByPriority.slice(0, 4) : duration === 60 ? idByPriority.slice(0, 7) : idByPriority;
 
-function twoDaySplit(exercises: Exercise[], time: number, level: Level, goal: TrainingGoal): ExercisePlan[] {
-  const lowerBody = selectExercises(exercises, UNTERKOERPER, time, level, goal);
-  const upperBody = selectExercises(exercises, OBERKOERPER, time, level, goal);
-  return [
-    { name: "Unterkörper", frequency: 2, exercises: lowerBody },
-    { name: "Oberkörper", frequency: 2, exercises: upperBody },
-  ];
-}
+  const exercises = basePullWorkout
+    .filter((exercise) => filter.includes(exercise.exerciseId))
+    .map((exercise) => adjustExerciseForGoal(exercise, goal))
+    .map((exercise) => adjustExerciseForDifficulty(exercise, difficulty));
 
-function threeDaySplit(exercises: Exercise[], time: number, level: Level, goal: TrainingGoal): ExercisePlan[] {
-  const push = selectExercises(exercises, PUSH, time, level, goal);
-  const pull = selectExercises(exercises, PULL, time, level, goal);
-  const beine = selectExercises(exercises, BEINE, time, level, goal);
-  return [
-    { name: "Push", frequency: 1, exercises: push },
-    { name: "Pull", frequency: 1, exercises: pull },
-    { name: "Beine", frequency: 1, exercises: beine },
-  ];
-}
+  return {
+    id: generateId(),
+    name: "Pull",
+    exercises,
+    description: "Pull workout",
+    duration,
+  };
+};
 
-function fourDaySplit(exercises: Exercise[], time: number, level: Level, goal: TrainingGoal): ExercisePlan[] {
-  const lowerBody = selectExercises(exercises, UNTERKOERPER, time, level, goal);
-  const upperBody = selectExercises(exercises, OBERKOERPER, time, level, goal);
-  return [
-    { name: "Unterkörper", frequency: 2, exercises: lowerBody },
-    { name: "Oberkörper", frequency: 2, exercises: upperBody },
-  ];
-}
+const baseLegsExercises = [
+  {
+    exerciseId: 143, // Kniebeuge
+    alternatives: [154, 144, 155], // Hackenschmidt-Kniebeuge, Frontkniebeuge, Smith Machine Kniebeuge
+    sets: 4,
+    reps: 10,
+    restPeriod: 120,
+  },
+  {
+    exerciseId: 153, // Beinpresse
+    alternatives: [],
+    sets: 3,
+    reps: 10,
+    restPeriod: 90,
+  },
+  {
+    exerciseId: 145, // Romanian Deadlift
+    alternatives: [149], // Rumänisches Kreuzheben mit Kurzhanteln
+    sets: 4,
+    reps: 10,
+    restPeriod: 90,
+  },
+  {
+    exerciseId: 150, // Bulgarian Split Squat
+    alternatives: [151, 152], // Ausfallschritte im Gehen, Step-Up
+    sets: 3,
+    reps: 12,
+    restPeriod: 60,
+  },
+  {
+    exerciseId: 156, // Beinstrecker
+    alternatives: [],
+    sets: 3,
+    reps: 15,
+    restPeriod: 60,
+  },
+  {
+    exerciseId: 157, // Beincurls
+    alternatives: [],
+    sets: 3,
+    reps: 12,
+    restPeriod: 60,
+  },
+  {
+    exerciseId: 147, // Wadenheben
+    alternatives: [158], // Wadenheben an der Maschine
+    sets: 3,
+    reps: 15,
+    restPeriod: 45,
+  },
+  {
+    exerciseId: 167, // Beinheben
+    alternatives: [130, 126], // V-Ups
+    sets: 3,
+    reps: 15,
+    restPeriod: 45,
+  },
+  {
+    exerciseId: 131, // Crunch
+    alternatives: [132, 133], // Decline Crunch, Kabelzug Crunch
+    sets: 3,
+    reps: 15,
+    restPeriod: 45,
+  },
+];
 
-function fiveDaySplit(exercises: Exercise[], time: number, level: Level, goal: TrainingGoal): ExercisePlan[] {
-  const lowerBody = selectExercises(exercises, UNTERKOERPER, time, level, goal);
-  const upperBody = selectExercises(exercises, OBERKOERPER, time, level, goal);
-  const push = selectExercises(exercises, PUSH, time, level, goal);
-  const pull = selectExercises(exercises, PULL, time, level, goal);
-  const beine = selectExercises(exercises, BEINE, time, level, goal);
-  return [
-    { name: "Push", frequency: 1, exercises: push },
-    { name: "Pull", frequency: 1, exercises: pull },
-    { name: "Beine", frequency: 1, exercises: beine },
-    { name: "Unterkörper", frequency: 1, exercises: lowerBody },
-    { name: "Oberkörper", frequency: 1, exercises: upperBody },
-  ];
-}
+export const createLegsWorkout = (duration: 45 | 60 | 90, goal: TrainingGoal, difficulty: Difficulty): Workout => {
+  const idByPriority = [143, 145, 156, 157, 150, 147, 167, 131, 153];
+  const filter = duration === 45 ? idByPriority.slice(0, 4) : duration === 60 ? idByPriority.slice(0, 7) : idByPriority;
 
-function sixDaySplit(exercises: Exercise[], time: number, level: Level, goal: TrainingGoal): ExercisePlan[] {
-  const push = selectExercises(exercises, PUSH, time, level, goal);
-  const pull = selectExercises(exercises, PULL, time, level, goal);
-  const beine = selectExercises(exercises, BEINE, time, level, goal);
-  return [
-    { name: "Push", frequency: 2, exercises: push },
-    { name: "Pull", frequency: 2, exercises: pull },
-    { name: "Beine", frequency: 2, exercises: beine },
-  ];
-}
+  const exercises = baseLegsExercises
+    .filter((exercise) => filter.includes(exercise.exerciseId))
+    .map((exercise) => adjustExerciseForGoal(exercise, goal))
+    .map((exercise) => adjustExerciseForDifficulty(exercise, difficulty));
 
-function sevenDaySplit(exercises: Exercise[], time: number, level: Level, goal: TrainingGoal): ExercisePlan[] {
-  const push = selectExercises(exercises, PUSH, time, level, goal);
-  const pull = selectExercises(exercises, PULL, time, level, goal);
-  const beine = selectExercises(exercises, BEINE, time, level, goal);
-  const fullBody = selectExercises(exercises, GANZKOERPER, time, level, goal);
-  return [
-    { name: "Push", frequency: 2, exercises: push },
-    { name: "Pull", frequency: 2, exercises: pull },
-    { name: "Beine", frequency: 2, exercises: beine },
-    { name: "Ganzkörper", frequency: 1, exercises: fullBody },
-  ];
-}
+  return {
+    id: generateId(),
+    name: "Beine",
+    exercises,
+    description: "Beine workout",
+    duration,
+  };
+};
 
-function selectExercises(
-  exercises: Exercise[],
-  split: ExerciseDescription[],
-  availableTime: number,
-  level: Level,
-  goal: TrainingGoal
-): WorkoutExercise[] {
-  const results: [number, WorkoutExercise][] = split.map((description) => {
-    const tags = description.tags;
-    const matches = exercises
-      .filter((exercise) => tags.every((tag) => exercise.tag.includes(tag)) && levelFromString(exercise.level) <= level)
-      .sort((a, b) => a.priority - b.priority);
+const baseUpperBodyExercises = [
+  {
+    exerciseId: 1, // Bankdrücken
+    alternatives: [5, 14, 2], // Kurzhantel Bankdrücken (Flach), Brustpresse, Bankdrücken Schrägbank
+    sets: 3,
+    reps: 10,
+    restPeriod: 90,
+  },
+  {
+    exerciseId: 56, // Klimmzug
+    alternatives: [46, 50], // Latziehen (Breiter Griff), Latzug Maschine
+    sets: 3,
+    reps: 10,
+    restPeriod: 90,
+  },
+  {
+    exerciseId: 63, // Militärpresse
+    alternatives: [66, 75, 67], // Kurzhantel Schulterdrücken, Schulterpresse (Maschine), Arnold Press
+    sets: 3,
+    reps: 10,
+    restPeriod: 90,
+  },
+  {
+    exerciseId: 32, // T-Bar Rudern
+    alternatives: [31, 48, 166], // Vorgebeugtes Rudern, Hammer Strength Rudern, Sitzendes Rudern (Breit)
+    sets: 3,
+    reps: 10,
+    restPeriod: 90,
+  },
+  {
+    exerciseId: 18, // Kabelkreuzen
+    alternatives: [16, 8, 20], // Butterfly (Pec Deck), Kurzhantel Flys (Flach), Hoher Kabelzug
+    sets: 3,
+    reps: 12,
+    restPeriod: 90,
+  },
+  {
+    exerciseId: 68, // Seitheben
+    alternatives: [71, 76, 69], // Kabelzug Seitheben, Seitheben-Maschine, Frontheben
+    sets: 3,
+    reps: 15,
+    restPeriod: 60,
+  },
+  {
+    exerciseId: 43, // Face Pull
+    alternatives: [165, 70], // Reverse Butterfly, Cuban Press
+    sets: 3,
+    reps: 15,
+    restPeriod: 60,
+  },
+  {
+    exerciseId: 82, // Langhantel Curl
+    alternatives: [86, 91, 83], // Kurzhantel Curl, Cable Curl, Preacher Curl
+    sets: 3,
+    reps: 12,
+    restPeriod: 90,
+  },
+  {
+    exerciseId: 106, // Trizeps Pushdown
+    alternatives: [107, 112, 101, 99], // Trizeps-Seildrücken, Trizeps-Pushdown-Maschine, Überkopf Trizepsdrücken, Skullcrusher
+    sets: 3,
+    reps: 12,
+    restPeriod: 90,
+  },
+];
 
-    if (matches.length === 0) {
-      console.error(`No exercises found for ${description.tags}`);
-    }
+export const createUpperBodyWorkout = (duration: 45 | 60 | 90, goal: TrainingGoal, difficulty: Difficulty): Workout => {
+  const idByPriority = [1, 56, 63, 32, 68, 43, 106, 18, 82];
+  const filter = duration === 45 ? idByPriority.slice(0, 4) : duration === 60 ? idByPriority.slice(0, 7) : idByPriority;
 
-    const mainExercise = matches[0];
-    const alternatives = matches.slice(1).map((ex) => ex.id);
+  const exercises = baseUpperBodyExercises
+    .filter((exercise) => filter.includes(exercise.exerciseId))
+    .map((exercise) => adjustExerciseForGoal(exercise, goal))
+    .map((exercise) => adjustExerciseForDifficulty(exercise, difficulty));
 
-    const exercise: WorkoutExercise = {
-      exerciseId: mainExercise.id,
-      alternatives: alternatives,
-      sets: determineNumSets(mainExercise, level, goal, description.sets),
-      reps: determineNumReps(mainExercise, goal)[1], // Using the upper range
-      restPeriod: determineRestTime(mainExercise, goal),
-      notes: description.warmup ? "Include warmup set" : undefined,
-    };
+  return {
+    id: generateId(),
+    name: "Oberkörper",
+    exercises,
+    description: "Oberkörper workout",
+    duration,
+  };
+};
 
-    return [description.priority, exercise];
-  });
+const baseFullBodyExercises = [
+  {
+    exerciseId: 143, // Kniebeuge
+    alternatives: [148, 153, 154], // Goblet Squat, Beinpresse, Hackenschmidt-Kniebeuge
+    sets: 4,
+    reps: 8,
+    restPeriod: 120,
+  },
+  {
+    exerciseId: 1, // Bankdrücken
+    alternatives: [5, 14, 2], // Kurzhantel Bankdrücken (Flach), Brustpresse, Bankdrücken Schrägbank
+    sets: 4,
+    reps: 8,
+    restPeriod: 120,
+  },
+  {
+    exerciseId: 56, // Klimmzug
+    alternatives: [46, 50, 52], // Latziehen (Breiter Griff), Latzug Maschine, Klimmzug Maschine
+    sets: 4,
+    reps: 8,
+    restPeriod: 120,
+  },
+  {
+    exerciseId: 145, // Romanian Deadlift
+    alternatives: [149, 146], // Rumänisches Kreuzheben mit Kurzhanteln, Hip Thrust
+    sets: 4,
+    reps: 10,
+    restPeriod: 120,
+  },
+  {
+    exerciseId: 63, // Militärpresse
+    alternatives: [66, 75, 67], // Kurzhantel Schulterdrücken, Schulterpresse (Maschine), Arnold Press
+    sets: 3,
+    reps: 10,
+    restPeriod: 90,
+  },
+  {
+    exerciseId: 166, // Sitzendes Rudern
+    alternatives: [31, 48, 32], // Vorgebeugtes Rudern, Hammer Strength Rudern, T-Bar Rudern
+    sets: 3,
+    reps: 10,
+    restPeriod: 90,
+  },
+  {
+    exerciseId: 68, // Seitheben
+    alternatives: [71, 76, 69], // Kabelzug Seitheben, Seitheben-Maschine, Frontheben
+    sets: 3,
+    reps: 15,
+    restPeriod: 60,
+  },
+  {
+    exerciseId: 106, // Trizeps Pushdown
+    alternatives: [107, 112, 101], // Trizeps-Seildrücken, Trizeps-Pushdown-Maschine, Überkopf Trizepsdrücken
+    sets: 3,
+    reps: 12,
+    restPeriod: 60,
+  },
+  {
+    exerciseId: 82, // Langhantel Curl
+    alternatives: [86, 91, 83], // Kurzhantel Curl, Cable Curl, Preacher Curl
+    sets: 3,
+    reps: 12,
+    restPeriod: 60,
+  },
+  {
+    exerciseId: 43, // Face Pull
+    alternatives: [70], // Cuban Press
+    sets: 3,
+    reps: 15,
+    restPeriod: 60,
+  },
+];
 
-  let numExercises = 0;
-  let timeInGym = 0;
+export const createFullBodyWorkout = (duration: 45 | 60 | 90, goal: TrainingGoal, difficulty: Difficulty): Workout => {
+  const idByPriority = [143, 1, 56, 145, 63, 166, 68, 106, 82, 43];
+  const filter = duration === 45 ? idByPriority.slice(0, 4) : duration === 60 ? idByPriority.slice(0, 7) : idByPriority;
 
-  for (const [_, exercise] of [...results].sort((a, b) => a[0] - b[0])) {
-    if (!exercise) continue;
-    const exerciseTime = (exercise.sets + (exercise.notes?.includes("warmup") ? 1 : 0)) * 3;
-    timeInGym += exerciseTime;
-    if (timeInGym <= Math.ceil(availableTime)) numExercises++;
-    else break;
-  }
+  const exercises = baseFullBodyExercises
+    .filter((exercise) => filter.includes(exercise.exerciseId))
+    .map((exercise) => adjustExerciseForGoal(exercise, goal))
+    .map((exercise) => adjustExerciseForDifficulty(exercise, difficulty));
 
-  return results
-    .filter(([prio, exercise]) => prio <= numExercises && exercise !== null)
-    .map(([_, exercise]) => exercise);
-}
-
-function levelFromString(level: string): Level {
-  switch (level.toLowerCase()) {
-    case "beginner":
-    case "anfänger":
-      return Level.Beginner;
-    case "intermediate":
-    case "fortgeschritten":
-      return Level.Intermediate;
-    case "expert":
-    case "experte":
-      return Level.Expert;
-    default:
-      throw new Error(`level: ${level}, is not defined`);
-  }
-}
-
-function determineNumSets(exercise: Exercise, level: Level, goal: TrainingGoal, sets: number): number {
-  if (level === Level.Beginner) {
-    return Math.max(sets, 3);
-  } else if (level === Level.Intermediate) {
-    return Math.max(sets, 4);
-  } else {
-    return goal === TrainingGoal.Strength && exercise.mechanic == "compound" ? sets + 1 : sets;
-  }
-}
-
-function determineNumReps(exercise: Exercise, goal: TrainingGoal): [number, number] {
-  const isCompound = exercise.mechanic.toLowerCase() === "compound";
-  if (goal === TrainingGoal.Hypertrophy) {
-    return isCompound ? [8, 10] : [10, 12];
-  } else if (goal === TrainingGoal.Strength) {
-    return isCompound ? [4, 6] : [8, 10];
-  } else return [10, 15];
-}
-
-function determineRestTime(exercise: Exercise, goal: TrainingGoal): number {
-  const isCompound = exercise.mechanic.toLowerCase() === "compound";
-  if (goal === TrainingGoal.Hypertrophy) {
-    return isCompound ? 3 : 2.5;
-  } else if (goal === TrainingGoal.Strength) {
-    return isCompound ? 3.5 : 3;
-  } else return isCompound ? 2.5 : 2;
-}
+  return {
+    id: generateId(),
+    name: "Ganzkörper",
+    exercises,
+    description: "Ganzkörper workout",
+    duration,
+  };
+};

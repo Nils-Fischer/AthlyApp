@@ -1,75 +1,106 @@
 import React from "react";
 import { View, ScrollView } from "react-native";
 import { Text } from "~/components/ui/text";
-import { Routine } from "~/lib/types";
+import { Difficulty, Routine, TrainingGoal } from "~/lib/types";
 import { RoutineCard } from "../Routine/RoutineCard";
 import Animated, { FadeInDown } from "react-native-reanimated";
 import { generateId } from "~/lib/utils";
+import {
+  createFullBodyWorkout,
+  createLegsWorkout,
+  createPullWorkout,
+  createPushWorkout,
+  createUpperBodyWorkout,
+} from "~/lib/generateWorkouts";
 
-const TRAINING_SPLITS: Record<number, Routine[]> = {
-  1: [
-    {
-      id: generateId(),
-      name: "Ganzkörper-Training",
-      description: "Maximale Effizienz in einer Session",
-      workouts: [],
-      frequency: 1,
-      active: false,
-    },
-  ],
-  2: [
-    {
-      id: generateId(),
-      name: "Push Pull Legs Split",
-      description: "Der Klassiker für gezielte Muskelentwicklung",
-      workouts: [],
-      frequency: 3,
-      active: false,
-    },
-    {
-      id: generateId(),
-      name: "Ganzkörper 2x Split",
-      description: "Optimale Trainingsfrequenz für konstante Fortschritte",
-      workouts: [],
-      frequency: 2,
-      active: false,
-    },
-    {
-      id: generateId(),
-      name: "Upper/Lower Split",
-      description: "Effektive Aufteilung für gezielten Muskelaufbau",
-      workouts: [],
-      frequency: 3,
-      active: false,
-    },
-  ],
-  3: [
-    {
-      id: generateId(),
-      name: "Upper/Lower 4-Tage Split",
-      description: "Intensive Trainingsfrequenz für maximale Resultate",
-      workouts: [],
-      frequency: 4,
-      active: false,
-    },
-    {
-      id: generateId(),
-      name: "5-Tage Power Split",
-      description: "Fortgeschrittenes Training für maximale Intensität",
-      workouts: [],
-      frequency: 5,
-      active: false,
-    },
-    {
-      id: generateId(),
-      name: "Push Pull Legs 2x",
-      description: "Maximales Trainingsvolumen für optimale Ergebnisse",
-      workouts: [],
-      frequency: 6,
-      active: false,
-    },
-  ],
-};
+function createPreviewRoutines(
+  frequency: 1 | 2 | 3,
+  duration: 45 | 60 | 90,
+  goal: TrainingGoal,
+  difficulty: Difficulty
+) {
+  switch (frequency) {
+    case 1:
+      return [
+        {
+          id: generateId(),
+          name: "Ganzkörper-Training",
+          description: "Maximale Effizienz in einer Session",
+          workouts: [createFullBodyWorkout(duration, goal, difficulty)],
+          frequency: 1,
+          active: false,
+        },
+      ];
+    case 2:
+      return [
+        {
+          id: generateId(),
+          name: "Push Pull Legs Split",
+          description: "Der Klassiker für gezielte Muskelentwicklung",
+          workouts: [
+            createPushWorkout(duration, goal, difficulty),
+            createPullWorkout(duration, goal, difficulty),
+            createLegsWorkout(duration, goal, difficulty),
+          ],
+          frequency: 3,
+          active: false,
+        },
+        {
+          id: generateId(),
+          name: "Ganzkörper 2x Split",
+          description: "Optimale Trainingsfrequenz für konstante Fortschritte",
+          workouts: [createFullBodyWorkout(duration, goal, difficulty)],
+          frequency: 2,
+          active: false,
+        },
+        {
+          id: generateId(),
+          name: "Upper/Lower Split",
+          description: "Effektive Aufteilung für gezielten Muskelaufbau",
+          workouts: [createUpperBodyWorkout(duration, goal, difficulty), createLegsWorkout(duration, goal, difficulty)],
+          frequency: 3,
+          active: false,
+        },
+      ];
+    case 3:
+      return [
+        {
+          id: generateId(),
+          name: "Upper/Lower 4-Tage Split",
+          description: "Intensive Trainingsfrequenz für maximale Resultate",
+          workouts: [createUpperBodyWorkout(duration, goal, difficulty), createLegsWorkout(duration, goal, difficulty)],
+          frequency: 4,
+          active: false,
+        },
+        {
+          id: generateId(),
+          name: "5-Tage Power Split",
+          description: "Fortgeschrittenes Training für maximale Intensität",
+          workouts: [
+            createUpperBodyWorkout(duration, goal, difficulty),
+            { ...createLegsWorkout(duration, goal, difficulty), name: "Beine #1" },
+            createPullWorkout(duration, goal, difficulty),
+            createPushWorkout(duration, goal, difficulty),
+            { ...createLegsWorkout(duration, goal, difficulty), name: "Beine #2" },
+          ],
+          frequency: 5,
+          active: false,
+        },
+        {
+          id: generateId(),
+          name: "Push Pull Legs 2x",
+          description: "Maximales Trainingsvolumen für optimale Ergebnisse",
+          workouts: [
+            createPushWorkout(duration, goal, difficulty),
+            createPullWorkout(duration, goal, difficulty),
+            createLegsWorkout(duration, goal, difficulty),
+          ],
+          frequency: 6,
+          active: false,
+        },
+      ];
+  }
+}
 
 interface AnimatedRoutineCardProps {
   index: number;
@@ -100,13 +131,23 @@ const AnimatedRoutineCard = ({ index, routine, isSelected, onSelect }: AnimatedR
 };
 
 interface RoutinePreviewProps {
-  frequency: number;
-  selectedRoutine: number | null;
-  onRoutineSelect: (routineId: number) => void;
+  frequency: 1 | 2 | 3;
+  duration: 45 | 60 | 90;
+  goal: TrainingGoal;
+  difficulty: Difficulty;
+  selectedRoutine: Routine | null;
+  onRoutineSelect: (routine: Routine) => void;
 }
 
-export function RoutinePreview({ frequency, selectedRoutine, onRoutineSelect }: RoutinePreviewProps) {
-  const availableRoutines = TRAINING_SPLITS[frequency] || [];
+export function RoutinePreview({
+  frequency,
+  duration,
+  goal,
+  difficulty,
+  selectedRoutine,
+  onRoutineSelect,
+}: RoutinePreviewProps) {
+  const availableRoutines = createPreviewRoutines(frequency, duration, goal, difficulty);
 
   return (
     <View className="flex-1">
@@ -126,8 +167,8 @@ export function RoutinePreview({ frequency, selectedRoutine, onRoutineSelect }: 
               key={routine.id}
               index={index}
               routine={routine}
-              isSelected={selectedRoutine === routine.id}
-              onSelect={onRoutineSelect}
+              isSelected={selectedRoutine?.id === routine.id}
+              onSelect={() => onRoutineSelect(routine)}
             />
           ))}
         </View>

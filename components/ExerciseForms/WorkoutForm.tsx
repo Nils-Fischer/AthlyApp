@@ -4,7 +4,7 @@ import { Text } from "~/components/ui/text";
 import { Button } from "~/components/ui/button";
 import { Progress } from "~/components/ui/progress";
 import { ExperienceLevel } from "./ExperienceLevel";
-import { Level, LocationType, Routine, TrainingGoal } from "~/lib/types";
+import { Difficulty, LocationType, Routine, TrainingGoal } from "~/lib/types";
 import { WeeklyFrequency } from "./WeeklyFrequency";
 import { TrainingDuration } from "./TrainingDuration";
 import { MainGoal } from "./MainGoal";
@@ -13,7 +13,6 @@ import { TrainingLocation } from "./TrainingLocation";
 import { ChevronLeft } from "~/lib/icons/Icons";
 import { cn } from "~/lib/utils";
 import { RoutinePreview } from "./RoutinePreview";
-import { createRoutine } from "~/lib/generateWorkouts";
 import { useExerciseStore } from "~/stores/exerciseStore";
 
 interface WorkoutFormProps {
@@ -22,13 +21,13 @@ interface WorkoutFormProps {
 
 export function WorkoutForm({ onRoutineCreated }: WorkoutFormProps) {
   const [currentStep, setCurrentStep] = useState(1);
-  const [level, setLevel] = useState<Level | null>(null);
-  const [frequency, setFrequency] = useState<number | null>(null);
-  const [duration, setDuration] = useState<number | null>(null);
+  const [difficulty, setDifficulty] = useState<Difficulty | null>(null);
+  const [frequency, setFrequency] = useState<1 | 2 | 3 | null>(null);
+  const [duration, setDuration] = useState<45 | 60 | 90 | null>(null);
   const [goal, setGoal] = useState<TrainingGoal | null>(null);
   const [selectedGoals, setSelectedGoals] = useState<string[]>([]);
   const [location, setLocation] = useState<LocationType | null>(null);
-  const [selectedRoutine, setSelectedRoutine] = useState<number | null>(null);
+  const [selectedRoutine, setSelectedRoutine] = useState<Routine | null>(null);
   const exercises = useExerciseStore.getState().exercises;
 
   const TOTAL_STEPS = 7;
@@ -56,7 +55,7 @@ export function WorkoutForm({ onRoutineCreated }: WorkoutFormProps) {
   const isStepValid = (step: number): boolean => {
     switch (step) {
       case 1:
-        return level !== null;
+        return difficulty !== null;
       case 2:
         return frequency !== null;
       case 3:
@@ -75,14 +74,9 @@ export function WorkoutForm({ onRoutineCreated }: WorkoutFormProps) {
   };
 
   const finishCustomRoutine = () => {
-    const routine = createRoutine(
-      exercises || [],
-      frequency || 1,
-      duration || 45,
-      level || Level.Beginner,
-      goal || TrainingGoal.Hypertrophy
-    );
-    onRoutineCreated?.(routine);
+    if (selectedRoutine) {
+      onRoutineCreated?.(selectedRoutine);
+    }
   };
 
   return (
@@ -99,7 +93,7 @@ export function WorkoutForm({ onRoutineCreated }: WorkoutFormProps) {
       </View>
 
       <View className="flex-1">
-        {currentStep === 1 && <ExperienceLevel level={level} onLevelChange={setLevel} />}
+        {currentStep === 1 && <ExperienceLevel difficulty={difficulty} onDifficultyChange={setDifficulty} />}
         {currentStep === 2 && <WeeklyFrequency frequency={frequency} onFrequencyChange={setFrequency} />}
         {currentStep === 3 && <TrainingDuration duration={duration} onDurationChange={setDuration} />}
         {currentStep === 4 && <MainGoal goal={goal} onGoalChange={setGoal} />}
@@ -108,6 +102,9 @@ export function WorkoutForm({ onRoutineCreated }: WorkoutFormProps) {
         {currentStep === 7 && (
           <RoutinePreview
             frequency={frequency!}
+            duration={duration!}
+            goal={goal!}
+            difficulty={difficulty!}
             selectedRoutine={selectedRoutine}
             onRoutineSelect={setSelectedRoutine}
           />

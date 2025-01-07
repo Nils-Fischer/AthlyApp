@@ -6,14 +6,11 @@ import { Clock, Hourglass, Timer } from "~/lib/icons/Icons";
 import { cn } from "~/lib/utils";
 
 interface TrainingDurationProps {
-  duration: number | null;
-  onDurationChange: (duration: number) => void;
+  duration: 45 | 60 | 90 | null;
+  onDurationChange: (duration: 45 | 60 | 90) => void;
 }
 
-export function TrainingDuration({
-  duration,
-  onDurationChange,
-}: TrainingDurationProps) {
+export function TrainingDuration({ duration, onDurationChange }: TrainingDurationProps) {
   const options = [
     {
       value: 45,
@@ -43,9 +40,7 @@ export function TrainingDuration({
 
   return (
     <View className="flex-1 w-full px-4 min-w-[350]">
-      <Text className="text-2xl font-bold">
-        Wie lange möchtest du trainieren?
-      </Text>
+      <Text className="text-2xl font-bold">Wie lange möchtest du trainieren?</Text>
       <Text className="text-base text-muted-foreground mb-6">
         Wähle eine für dich optimale Länge für deine Trainingseinheiten.
       </Text>
@@ -59,24 +54,16 @@ export function TrainingDuration({
               "w-full h-auto p-4 flex-row items-center justify-between",
               duration === option.value && "bg-primary"
             )}
-            onPress={() => onDurationChange(option.value)}
+            onPress={() => onDurationChange(option.value as 45 | 60 | 90)}
           >
             <View className="flex-row items-center gap-3 flex-1">
               <option.icon
                 size={24}
-                className={cn(
-                  "text-foreground",
-                  duration === option.value && "text-primary-foreground"
-                )}
+                className={cn("text-foreground", duration === option.value && "text-primary-foreground")}
               />
               <View className="flex-1 gap-0 mr-3">
                 <View className="flex-row items-center gap-2">
-                  <Text
-                    className={cn(
-                      "font-semibold",
-                      duration === option.value && "text-primary-foreground"
-                    )}
-                  >
+                  <Text className={cn("font-semibold", duration === option.value && "text-primary-foreground")}>
                     {option.title}
                   </Text>
                 </View>

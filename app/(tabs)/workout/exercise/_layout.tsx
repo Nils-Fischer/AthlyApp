@@ -5,9 +5,8 @@ export default function ExerciseLayout() {
   return (
     <Stack
       screenOptions={{
-        headerShown: false,
-        presentation: 'modal',  // Wichtig für modales Verhalten
-        animation: 'slide_from_right'
+        headerShown: true,
+        animation: "slide_from_right",
       }}
     >
       <Stack.Screen name="[id]" />
