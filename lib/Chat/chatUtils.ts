@@ -50,10 +50,11 @@ function generateResponse(messages: Message[], summary: string, exercises: Exerc
   switch (context.type) {
     case "knowledge":
       const knowledgePrompt = prompts.promptForKnowledgeQuery(messageContent, summary);
-      return createAPICall("openai", knowledgePrompt);
+      return createAPICall("google", knowledgePrompt);
     case "routine_creation":
       const routineCreationPrompt = prompts.promptForRoutineCreation(messageContent, summary, exerciseList);
-      return createAPICall("openai", routineCreationPrompt);
+      console.log("routineCreationPrompt", routineCreationPrompt);
+      return createAPICall("google", routineCreationPrompt);
     default:
       throw Error("Invalid context type");
   }

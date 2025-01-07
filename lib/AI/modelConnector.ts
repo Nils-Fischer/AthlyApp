@@ -2,8 +2,14 @@ import Anthropic from "@anthropic-ai/sdk";
 import OpenAI from "openai";
 import { APIPromise } from "openai/core";
 import { APIPromise as AnthropicAPIPromise } from "@anthropic-ai/sdk/core";
+import { GenerateContentResult, GoogleGenerativeAI, Schema } from "@google/generative-ai";
 
-export async function createAPICall(provider: "openai" | "anthropic", prompt: string): Promise<string> {
+export async function createAPICall(
+  provider: "openai" | "anthropic" | "google",
+  prompt: string,
+  context?: string,
+  schema?: Schema
+): Promise<string> {
   const errorMessage = "Etwas ist schief gelaufen. Bitte versuche es erneut.";
   try {
     switch (provider) {
@@ -22,11 +28,48 @@ export async function createAPICall(provider: "openai" | "anthropic", prompt: st
           console.error("Tool use error");
           return errorMessage;
         }
+      case "google":
+        const googleAnswer = await createGoogleRequest(prompt, context, schema);
+        return googleAnswer.response.text();
     }
   } catch (error) {
     console.error("Error generating AI response:", error);
     return errorMessage;
   }
+}
+
+function createGoogleRequest(prompt: string, context?: string, schema?: Schema): Promise<GenerateContentResult> {
+  const api_key = process.env.EXPO_PUBLIC_GOOGLE_API_KEY;
+  if (!api_key) {
+    console.error("Missing Google API key");
+    throw Error("Google API Key missing");
+  }
+  const genAI = new GoogleGenerativeAI(api_key);
+  const model = genAI.getGenerativeModel({ model: "gemini-2.0-flash-exp" });
+
+  const generationConfig = {
+    temperature: 1,
+    topP: 0.95,
+    topK: 40,
+    maxOutputTokens: 32768,
+    responseMimeType: schema ? "application/json" : "text/plain",
+    responseSchema: schema ? schema : undefined,
+  };
+
+  const chat = model.startChat({
+    generationConfig,
+    history: [
+      {
+        role: "user",
+        parts: [
+          { text: context ? context : "You are Alex, a knowledgeable and friendly personal trainer AI." },
+          { text: prompt },
+        ],
+      },
+    ],
+  });
+  const result = chat.sendMessage(prompt);
+  return result;
 }
 
 function createOpenAIRequest(prompt: string): APIPromise<OpenAI.Chat.Completions.ChatCompletion> {

@@ -6,12 +6,11 @@ import { Textarea } from "~/components/ui/textarea";
 import { Text } from "~/components/ui/text";
 import { ScrollView } from "react-native-gesture-handler";
 import { Routine } from "~/lib/types";
-import { generateId } from "~/lib/utils";
+import { generateId, parseJSON } from "~/lib/utils";
 import { Input } from "../ui/input";
 import { createAPICall } from "~/lib/AI/modelConnector";
-import { prompts } from "~/lib/AI/promptTemplates";
 import { useExerciseStore } from "~/stores/exerciseStore";
-import { extractRoutineFromResponse } from "~/lib/AI/responseUtils";
+import { googlePrompts } from "~/lib/AI/googlePrompts";
 
 interface AIRoutineCreationDialogProps {
   open: boolean;
@@ -36,15 +35,17 @@ export function AIRoutineCreationDialog({ open, onOpenChange, onCreate }: AIRout
     setIsLoading(true);
     try {
       // Generate AI prompt from form data
-      const exerciseList = exerciseStore.exercises?.map((exercise) => exercise.name).join("\n");
-      const prompt = prompts.promptForRoutineCreationWithForm(formData, exerciseList ?? "");
+      const exerciseList = exerciseStore.exercises?.map((exercise) => `${exercise.id} - ${exercise.name}`).join("\n");
+      const prompt = googlePrompts.promptForRoutineCreationWithForm(formData);
+      const context = googlePrompts.context(exerciseList ?? "");
+      const schema = googlePrompts.routineCreationSchema;
 
       setLoadingStatus("Erstelle Trainingsplan...");
-      const response = await createAPICall("anthropic", prompt);
+      const response = await createAPICall("google", prompt, context, schema);
       console.log("response", response);
 
       setLoadingStatus("Verarbeite Antwort...");
-      const routine = extractRoutineFromResponse(response);
+      const routine = parseJSON<Routine>(response);
       if (!routine) {
         throw new Error("Failed to parse routine data");
       }
@@ -163,17 +164,17 @@ export function AIRoutineCreationDialog({ open, onOpenChange, onCreate }: AIRout
 
 /*
 Main Prompt:
-"Ich trainiere seit einem Jahr und suche einen Split-Trainingsplan für das Fitnessstudio. Fokus auf Muskelaufbau und Kraft."
+Ich trainiere seit einem Jahr und suche einen Split-Trainingsplan für das Fitnessstudio. Fokus auf Muskelaufbau und Kraft.
 
 Goals:
-"Muskelaufbau, besonders Oberkörper. Bankdrücken verbessern."
+Muskelaufbau, besonders Oberkörper. Bankdrücken verbessern.
 
 Equipment:
-"Volles Fitnessstudio mit allen Geräten verfügbar"
+Volles Fitnessstudio mit allen Geräten verfügbar
 
 Frequency:
-"4 mal pro Woche, 60-90 Minuten pro Einheit"
+4 mal pro Woche, 60-90 Minuten pro Einheit
 
 Limitations:
-"Leichte Schulterprobleme bei Überkopfübungen"
+Leichte Schulterprobleme bei Überkopfübungen
 */

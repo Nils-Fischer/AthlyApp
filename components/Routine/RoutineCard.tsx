@@ -17,14 +17,14 @@ interface RoutineCardProps {
 export const RoutineCard = ({ routine, onPress, onDelete, onToggleActive, showDropdown = true }: RoutineCardProps) => {
   const dropdownItems: DropdownItem[] = [
     {
-      name: routine.active ? "Set Inactive" : "Set Active",
+      name: routine.active ? "Deaktivieren" : "Aktivieren",
       icon: ({ size, className }) => (
         <Ionicons name={routine.active ? "radio-button-on" : "radio-button-off"} size={size} className={className} />
       ),
       onPress: () => onToggleActive?.(routine.id),
     },
     {
-      name: "Delete Routine",
+      name: "Routine Löschen",
       icon: ({ size, className }) => <Trash2 size={size} className={className} />,
       onPress: () => onDelete?.(routine.id),
       destructive: true,
