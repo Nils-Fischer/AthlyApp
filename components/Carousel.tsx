@@ -1,8 +1,8 @@
 import React from "react";
 import { View, Dimensions, Pressable, Image } from "react-native";
 import { Video, ResizeMode } from "expo-av";
-import { Play } from "lucide-react-native";
 import RNCarousel from "react-native-reanimated-carousel";
+import { PlayFilled } from "~/lib/icons/FilledIcons";
 
 const SCREEN_WIDTH = Dimensions.get("window").width;
 
@@ -76,8 +76,8 @@ export function Carousel({ mediaItems }: CarouselProps) {
                   }}
                 >
                   {!isPlaying && (
-                    <View className="bg-background/80 backdrop-blur-sm rounded-full p-4">
-                      <Play className="h-8 w-8 text-primary" />
+                    <View className="bg-foreground/40 backdrop-blur-sm rounded-full p-4">
+                      <PlayFilled className="h-8 w-8 text-background" />
                     </View>
                   )}
                 </Pressable>

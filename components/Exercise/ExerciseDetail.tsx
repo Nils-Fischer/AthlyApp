@@ -5,6 +5,18 @@ import { View, ScrollView, Pressable } from "react-native";
 import Animated, { FadeInDown, useAnimatedScrollHandler, useSharedValue } from "react-native-reanimated";
 import { Text } from "~/components/ui/text";
 import { useExerciseStore } from "~/stores/exerciseStore";
+import {
+  Activity,
+  AlertTriangle,
+  BicepsFlexed,
+  Check,
+  CheckCircle,
+  CircleAlert,
+  ClipboardList,
+  Dumbbell,
+} from "~/lib/icons/Icons";
+import { getMuscleGroup } from "~/lib/utils";
+import { Badge } from "~/components/ui/badge";
 
 const AnimatedScrollView = Animated.createAnimatedComponent(ScrollView);
 
@@ -17,12 +29,12 @@ export const ExerciseDetail: React.FC<{ exercise: Exercise; navigateToExercise: 
 }) => {
   const exerciseStore = useExerciseStore();
   const mediaItems: MediaItem[] = [
+    { type: "image" as const, url: "https://images.pexels.com/photos/841130/pexels-photo-841130.jpeg" },
+    { type: "video" as const, url: "https://videos.pexels.com/video-files/4065388/4065388-uhd_2560_1440_30fps.mp4" },
     ...(exercise?.media?.map((url) => {
       const type = url.endsWith(".jpg") || url.endsWith(".png") ? "image" : "video";
       return { type: type as MediaType, url };
     }) || []),
-    { type: "image" as const, url: "https://images.pexels.com/photos/841130/pexels-photo-841130.jpeg" },
-    { type: "video" as const, url: "https://videos.pexels.com/video-files/4065388/4065388-uhd_2560_1440_30fps.mp4" },
   ];
 
   const scrollY = useSharedValue(0);
@@ -44,7 +56,13 @@ export const ExerciseDetail: React.FC<{ exercise: Exercise; navigateToExercise: 
           className="bg-card rounded-3xl p-6 border border-border/50 shadow-lg"
         >
           <Text className="text-2xl font-bold mb-2">{exercise.name}</Text>
-          <Text className="text-muted-foreground mb-2">{exercise.equipment}</Text>
+          <View className="flex-row gap-2 mb-2">
+            {[...new Set(exercise.primaryMuscles.map(getMuscleGroup))].map((muscle, index) => (
+              <Badge key={index} variant="default">
+                <Text className="text-md">{muscle}</Text>
+              </Badge>
+            ))}
+          </View>
 
           {/* Enhanced Stats Section */}
           <View className="flex-row gap-4 mb-6">
@@ -64,9 +82,40 @@ export const ExerciseDetail: React.FC<{ exercise: Exercise; navigateToExercise: 
             </Animated.View>
           </View>
 
+          {/* Equipment Section */}
+          <Animated.View
+            entering={FadeInDown.delay(ANIMATION_BASE_DELAY + STAGGER_DELAY).springify()}
+            className="mb-6 gap-2"
+          >
+            <View className="flex-row items-center gap-2 mb-3">
+              <Dumbbell size={20} className="text-foreground" />
+              <Text className="font-semibold text-lg">Ausrüstung</Text>
+            </View>
+            <View className="flex-row flex-wrap">
+              <Badge variant="secondary">
+                <Text className="text-sm">{exercise.equipment}</Text>
+              </Badge>
+            </View>
+            {exercise.variations && exercise.variations.length > 0 && (
+              <View className="mt-2">
+                <Text className="text-sm text-muted-foreground mb-2">Varianten der Übung</Text>
+                <View className="flex-row flex-wrap gap-2">
+                  {exercise.variations.map((variation, index) => (
+                    <View key={index} className="bg-muted/50 rounded-full px-3 py-1.5">
+                      <Text className="text-xs text-muted-foreground font-medium">{variation}</Text>
+                    </View>
+                  ))}
+                </View>
+              </View>
+            )}
+          </Animated.View>
+
           {/* Muscles Section */}
           <Animated.View entering={FadeInDown.delay(ANIMATION_BASE_DELAY + STAGGER_DELAY).springify()} className="mb-6">
-            <Text className="font-semibold text-lg mb-3">Trainierte Muskeln</Text>
+            <View className="flex-row items-center gap-2 mb-3">
+              <BicepsFlexed size={20} className="text-foreground" />
+              <Text className="font-semibold text-lg">Trainierte Muskeln</Text>
+            </View>
             <View className="gap-4">
               <View>
                 <Text className="text-sm text-muted-foreground mb-2">Primär</Text>
@@ -90,12 +139,41 @@ export const ExerciseDetail: React.FC<{ exercise: Exercise; navigateToExercise: 
                   </View>
                 </View>
               )}
+              {exercise.stabilizingMuscles && exercise.stabilizingMuscles.length > 0 && (
+                <View>
+                  <Text className="text-sm text-muted-foreground mb-2">Stabilisierend</Text>
+                  <View className="flex-row flex-wrap gap-2">
+                    {exercise.stabilizingMuscles.map((muscle, index) => (
+                      <View key={index} className="bg-muted/70 rounded-full px-3 py-1.5">
+                        <Text className="text-xs text-muted-foreground font-medium">{muscle}</Text>
+                      </View>
+                    ))}
+                  </View>
+                </View>
+              )}
             </View>
           </Animated.View>
 
+          {/* Warmup Section */}
+          {exercise.warmup && (
+            <Animated.View
+              entering={FadeInDown.delay(ANIMATION_BASE_DELAY + STAGGER_DELAY * 2).springify()}
+              className="mb-6"
+            >
+              <View className="flex-row items-center gap-2 mb-3">
+                <Activity size={20} className="text-foreground" />
+                <Text className="font-semibold text-lg">Aufwärmen</Text>
+              </View>
+              <Text className="flex-1 text-sm leading-relaxed">{exercise.warmup}</Text>
+            </Animated.View>
+          )}
+
           {/* Instructions Section */}
-          <Animated.View entering={FadeInDown.delay(ANIMATION_BASE_DELAY + STAGGER_DELAY * 2).springify()}>
-            <Text className="font-semibold text-lg mb-3">Ausführung</Text>
+          <Animated.View entering={FadeInDown.delay(ANIMATION_BASE_DELAY + STAGGER_DELAY * 3).springify()}>
+            <View className="flex-row items-center gap-2 mb-3">
+              <ClipboardList size={20} className="text-foreground" />
+              <Text className="font-semibold text-lg">Ausführung</Text>
+            </View>
             <View className="gap-4">
               {exercise.instructions.map((instruction, index) => (
                 <View key={index} className="bg-muted/50 rounded-2xl p-4 flex-row gap-4">
@@ -108,69 +186,49 @@ export const ExerciseDetail: React.FC<{ exercise: Exercise; navigateToExercise: 
             </View>
           </Animated.View>
 
-          {/* Common Mistakes Section */}
-          {exercise.commonMistakes && exercise.commonMistakes.length > 0 && (
-            <Animated.View
-              entering={FadeInDown.delay(ANIMATION_BASE_DELAY + STAGGER_DELAY * 3).springify()}
-              className="mt-6"
-            >
-              <Text className="font-semibold text-lg mb-3">Häufige Fehler</Text>
-              <View className="gap-3">
-                {exercise.commonMistakes.map((mistake, index) => (
-                  <View key={index} className="bg-destructive/10 rounded-2xl p-4 flex-row gap-4">
-                    <Text className="flex-1 text-sm leading-relaxed">{mistake}</Text>
+          {/* Common Mistakes and Form Cues Section */}
+          <Animated.View
+            entering={FadeInDown.delay(ANIMATION_BASE_DELAY + STAGGER_DELAY * 4).springify()}
+            className="mt-6"
+          >
+            <View className="flex-row gap-4">
+              {/* Common Mistakes */}
+              {exercise.commonMistakes && exercise.commonMistakes.length > 0 && (
+                <View className="flex-1">
+                  <View className="flex-row items-center gap-2 mb-3">
+                    <CircleAlert size={20} className="text-foreground" />
+                    <Text className="font-semibold text-lg">Häufige Fehler</Text>
                   </View>
-                ))}
-              </View>
-            </Animated.View>
-          )}
-
-          {/* Form Cues Section */}
-          {exercise.formCues && exercise.formCues.length > 0 && (
-            <Animated.View
-              entering={FadeInDown.delay(ANIMATION_BASE_DELAY + STAGGER_DELAY * 4).springify()}
-              className="mt-6"
-            >
-              <Text className="font-semibold text-lg mb-3">Form-Hinweise</Text>
-              <View className="gap-3">
-                {exercise.formCues.map((cue, index) => (
-                  <View key={index} className="bg-primary/10 rounded-2xl p-4">
-                    <Text className="text-sm leading-relaxed">{cue}</Text>
+                  <View className="gap-2">
+                    {exercise.commonMistakes.map((mistake, index) => (
+                      <View key={index} className="p-1 flex-row items-center gap-2">
+                        <AlertTriangle className="text-destructive" size={16} />
+                        <Text className="flex-1 text-xs">{mistake}</Text>
+                      </View>
+                    ))}
                   </View>
-                ))}
-              </View>
-            </Animated.View>
-          )}
+                </View>
+              )}
 
-          {/* Warmup Section */}
-          {exercise.warmup && (
-            <Animated.View
-              entering={FadeInDown.delay(ANIMATION_BASE_DELAY + STAGGER_DELAY * 5).springify()}
-              className="mt-6"
-            >
-              <Text className="font-semibold text-lg mb-3">Aufwärmen</Text>
-              <View className="bg-warning/10 rounded-2xl p-4">
-                <Text className="text-sm leading-relaxed">{exercise.warmup}</Text>
-              </View>
-            </Animated.View>
-          )}
-
-          {/* Stabilizing Muscles Section */}
-          {exercise.stabilizingMuscles && exercise.stabilizingMuscles.length > 0 && (
-            <Animated.View
-              entering={FadeInDown.delay(ANIMATION_BASE_DELAY + STAGGER_DELAY * 6).springify()}
-              className="mt-6"
-            >
-              <Text className="font-semibold text-lg mb-3">Stabilisierende Muskeln</Text>
-              <View className="flex-row flex-wrap gap-2">
-                {exercise.stabilizingMuscles.map((muscle, index) => (
-                  <View key={index} className="bg-muted/70 rounded-full px-3 py-1.5">
-                    <Text className="text-xs text-muted-foreground font-medium">{muscle}</Text>
+              {/* Form Cues */}
+              {exercise.formCues && exercise.formCues.length > 0 && (
+                <View className="flex-1">
+                  <View className="flex-row items-center gap-2 mb-3">
+                    <CheckCircle size={20} className="text-foreground" />
+                    <Text className="font-semibold text-lg">Form-Hinweise</Text>
                   </View>
-                ))}
-              </View>
-            </Animated.View>
-          )}
+                  <View className="gap-2">
+                    {exercise.formCues.map((cue, index) => (
+                      <View key={index} className="p-1 flex-row items-center gap-2">
+                        <Check className="text-primary" size={16} />
+                        <Text className="flex-1 text-xs">{cue}</Text>
+                      </View>
+                    ))}
+                  </View>
+                </View>
+              )}
+            </View>
+          </Animated.View>
         </Animated.View>
       </View>
       {/* Related Exercises */}
