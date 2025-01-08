@@ -42,3 +42,22 @@ yarn-error.*
 
 expo-env.d.ts
 # @end expo-cli
+
+# Expo & React Native specific
+ios/
+android/
+.idea/
+.gradle/
+local.properties
+*.iml
+
+# Temporary files
+*.log
+*.tmp
+*.temp
+
+# Build files
+build/
+*.apk
+*.aab
+*.ipa
