@@ -54,6 +54,7 @@ export function AIRoutineCreationDialog({ open, onOpenChange, onCreate }: AIRout
       const finalRoutine: Routine = {
         ...routine,
         id: generateId(),
+        active: false,
         workouts: routine.workouts.map((workout) => ({ ...workout, id: generateId() })),
       };
 

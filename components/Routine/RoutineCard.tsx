@@ -1,7 +1,6 @@
 import React from "react";
 import { View, Text, Pressable } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
-import { router } from "expo-router";
 import { Routine } from "~/lib/types";
 import { CustomDropdownMenu, DropdownItem } from "../ui/custom-dropdown-menu";
 import { MoreHorizontal, Trash2 } from "~/lib/icons/Icons";
