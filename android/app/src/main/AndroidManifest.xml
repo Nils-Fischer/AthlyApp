@@ -28,7 +28,7 @@
         <category android:name="android.intent.category.BROWSABLE"/>
         <data android:scheme="myapp"/>
         <data android:scheme="com.anonymous.traintech"/>
-        <data android:scheme="exp+train-tech"/>
+        <data android:scheme="exp+athly"/>
       </intent-filter>
     </activity>
   </application>
