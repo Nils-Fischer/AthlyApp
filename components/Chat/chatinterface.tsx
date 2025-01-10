@@ -1,5 +1,5 @@
 import * as React from "react";
-import { View, ScrollView, TextInput, KeyboardAvoidingView, Platform, Keyboard } from "react-native";
+import { View, ScrollView, TextInput, KeyboardAvoidingView, Platform, Keyboard, Image as RNImage } from "react-native";
 import { Button } from "~/components/ui/button";
 import { Text } from "~/components/ui/text";
 import { ChatMessage } from "./ChatMessage";
@@ -13,7 +13,7 @@ import { CameraView } from "./CameraView";
 interface ChatInterfaceProps {
   messages: Message[];
   isTyping: boolean;
-  onSendMessage: (message: string) => void;
+  onSendMessage: (message: string, image?: string) => void;
   showRoutine?: (routine: Routine) => void;
 }
 
@@ -22,6 +22,7 @@ export default function ChatInterface({ messages, isTyping, onSendMessage, showR
   const scrollViewRef = React.useRef<ScrollView>(null);
   const inputRef = React.useRef<TextInput>(null);
   const [showCamera, setShowCamera] = React.useState(false);
+  const [capturedImage, setCapturedImage] = React.useState<string | null>(null);
 
   // Keyboard handling
   React.useEffect(() => {
@@ -67,9 +68,8 @@ export default function ChatInterface({ messages, isTyping, onSendMessage, showR
 
   const handleTakePicture = (uri: string) => {
     setShowCamera(false);
-    // Here you can handle the captured image URI
-    // For example, you might want to send it as a message
-    // onSendMessage(uri);
+    setCapturedImage(uri);
+    // Handle the captured image URI
   };
 
   if (showCamera) {
@@ -95,7 +95,22 @@ export default function ChatInterface({ messages, isTyping, onSendMessage, showR
           {isTyping && <TypingIndicator />}
         </ScrollView>
 
-        <View className="px-4 py-2 border-t border-border bg-background">
+        <View className="px-4 py-2 border-t border-border bg-background rounded-t-2xl">
+          {capturedImage && (
+            <View className="mb-2 flex-row items-center">
+              <View className="relative">
+                <RNImage source={{ uri: capturedImage }} className="w-20 h-20 rounded-lg" />
+                <Button
+                  size="icon"
+                  variant="default"
+                  className="absolute -top-2 -right-2 w-6 h-6"
+                  onPress={() => setCapturedImage(null)}
+                >
+                  <Text className="text-xs">✕</Text>
+                </Button>
+              </View>
+            </View>
+          )}
           <View className="flex-row items-center gap-2">
             <CustomDropdownMenu
               items={imageOptions}
