@@ -1,5 +1,8 @@
 import {
+  ArrowRightLeft,
   Activity,
+  Camera,
+  Image,
   AlertCircle,
   AlertOctagon,
   AlertTriangle,
@@ -80,6 +83,9 @@ import { iconWithClassName } from "./iconWithClassName";
 import { BarChart } from "./BarChartIcon";
 
 iconWithClassName([
+  ArrowRightLeft,
+  Camera,
+  Image,
   BicepsFlexed,
   CircleAlert,
   Activity,
@@ -160,6 +166,9 @@ iconWithClassName([
 ]);
 
 export {
+  ArrowRightLeft,
+  Camera,
+  Image,
   AlertTriangle,
   BicepsFlexed,
   CircleAlert,
