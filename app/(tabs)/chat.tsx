@@ -35,7 +35,7 @@ export default function Screen() {
   };
 
   const handleSendMessage = React.useCallback(
-    async (content: string) => {
+    async (content: string, image?: string) => {
       const userMessage: Message = createTextMessage(content, "user");
       const newMessages = [...messages, userMessage];
 

@@ -9,6 +9,7 @@ import { Routine } from "~/lib/types";
 import { CustomDropdownMenu } from "~/components/ui/custom-dropdown-menu";
 import { Camera, Image, Plus } from "~/lib/icons/Icons";
 import { CameraView } from "./CameraView";
+import * as ImagePicker from "expo-image-picker";
 
 interface ChatInterfaceProps {
   messages: Message[];
@@ -60,8 +61,19 @@ export default function ChatInterface({ messages, isTyping, onSendMessage, showR
     {
       name: "Upload Image",
       icon: Image,
-      onPress: () => {
-        // TODO: Implement image picker
+      onPress: async () => {
+        const result = await ImagePicker.launchImageLibraryAsync({
+          mediaTypes: ["images"],
+          allowsEditing: false,
+          quality: 1,
+          exif: false,
+          base64: false,
+          allowsMultipleSelection: false,
+        });
+
+        if (!result.canceled) {
+          setCapturedImage(result.assets[0].uri);
+        }
       },
     },
   ];
