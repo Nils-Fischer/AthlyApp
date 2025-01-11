@@ -61,31 +61,39 @@ export default function ChatInterface({ messages, isTyping, onSendMessage, showR
     {
       name: "Upload Image",
       icon: Image,
-      onPress: async () => {
-        const result = await ImagePicker.launchImageLibraryAsync({
-          mediaTypes: ["images"],
-          allowsEditing: false,
-          quality: 1,
-          exif: false,
-          base64: false,
-          allowsMultipleSelection: false,
-        });
-
-        if (!result.canceled) {
-          setCapturedImage(result.assets[0].uri);
-        }
-      },
+      onPress: openGallery,
     },
   ];
+
+  async function openGallery() {
+    const result = await ImagePicker.launchImageLibraryAsync({
+      mediaTypes: ["images"],
+      allowsEditing: false,
+      quality: 1,
+      exif: false,
+      allowsMultipleSelection: false,
+    });
+    if (!result.canceled) {
+      setCapturedImage(result.assets[0].uri);
+    }
+  }
 
   const handleTakePicture = (uri: string) => {
     setShowCamera(false);
     setCapturedImage(uri);
-    // Handle the captured image URI
   };
 
   if (showCamera) {
-    return <CameraView onCancel={() => setShowCamera(false)} onUsePhoto={handleTakePicture} />;
+    return (
+      <CameraView
+        onCancel={() => setShowCamera(false)}
+        onUsePhoto={handleTakePicture}
+        switchToGallery={() => {
+          setShowCamera(false);
+          openGallery();
+        }}
+      />
+    );
   }
 
   return (
