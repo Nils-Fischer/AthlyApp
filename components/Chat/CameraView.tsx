@@ -1,4 +1,9 @@
-import { Camera, useCameraDevice, useCameraPermission } from "react-native-vision-camera";
+import {
+  CameraView as ExpoCameraView,
+  CameraType as ExpoCameraType,
+  useCameraPermissions,
+  PermissionStatus,
+} from "expo-camera";
 import { StyleSheet, View, Pressable, Animated, Image, ActivityIndicator } from "react-native";
 import { Text } from "~/components/ui/text";
 import { Button } from "~/components/ui/button";
@@ -15,48 +20,53 @@ export function CameraView({
   switchToGallery,
 }: {
   onCancel: () => void;
-  onUsePhoto: (uri: string) => void;
+  onUsePhoto: (base64: string) => void;
   switchToGallery: () => void;
 }) {
-  const camera = useRef<Camera>(null);
-  const [cameraType, setCameraType] = useState<"back" | "front">("back");
-  const device = useCameraDevice(cameraType);
-  const { hasPermission, requestPermission } = useCameraPermission();
-  const scaleAnim = useRef(new Animated.Value(1)).current;
-  const [photo, setPhoto] = useState<{ path: string } | null>(null);
+  const camera = useRef<ExpoCameraView>(null);
+  const [cameraDirection, setCameraDirection] = useState<ExpoCameraType>("back");
+  const [permission, requestPermission] = useCameraPermissions();
+  const [hasPermission, setHasPermission] = useState<boolean | null>(null);
+  const [photo, setPhoto] = useState<string | null>(null);
   const [galleryPreview, setGalleryPreview] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(true);
 
+  const scaleAnim = useRef(new Animated.Value(1)).current;
+
   const onTakePhoto = useCallback(async () => {
-    try {
-      const photo = await camera.current?.takePhoto({
-        flash: "off",
-      });
-      if (photo) {
-        setPhoto(photo);
+    if (camera.current) {
+      try {
+        const photoData = await camera.current.takePictureAsync({
+          quality: 0.5,
+          base64: true,
+          skipProcessing: false,
+        });
+        if (photoData?.base64) {
+          setPhoto(photoData.base64);
+        }
+      } catch (error) {
+        console.error("Failed to take photo:", error);
       }
-    } catch (error) {
-      console.error("Failed to take photo:", error);
     }
-  }, [camera]);
+  }, []);
 
   const onRetakePhoto = useCallback(() => {
     setPhoto(null);
   }, []);
 
-  const toggleCameraType = () => {
-    setCameraType((prevType) => (prevType === "back" ? "front" : "back"));
+  const toggleCameraDirection = () => {
+    setCameraDirection((prevDirection) => (prevDirection === "back" ? "front" : "back"));
   };
 
-  const handlePressIn = (anim: Animated.Value) => {
-    Animated.spring(anim, {
+  const handlePressIn = () => {
+    Animated.spring(scaleAnim, {
       toValue: 0.9,
       useNativeDriver: true,
     }).start();
   };
 
-  const handlePressOut = (anim: Animated.Value) => {
-    Animated.spring(anim, {
+  const handlePressOut = () => {
+    Animated.spring(scaleAnim, {
       toValue: 1,
       useNativeDriver: true,
     }).start();
@@ -76,21 +86,28 @@ export function CameraView({
     }
   }, []);
 
-  const onCameraInitialized = useCallback(() => {
+  const onCameraReady = useCallback(() => {
     setIsLoading(false);
   }, []);
 
   useEffect(() => {
     loadLastPhoto();
-  }, [loadLastPhoto]);
-
-  useEffect(() => {
-    if (!hasPermission) {
+    if (!permission) {
       requestPermission();
+    } else {
+      setHasPermission(permission.status === PermissionStatus.GRANTED);
     }
-  }, [hasPermission]);
+  }, [permission, requestPermission]);
 
-  if (!hasPermission)
+  if (hasPermission === null) {
+    return (
+      <View className="absolute inset-0 justify-center items-center bg-background p-4">
+        <ActivityIndicator size="large" className="text-foreground" />
+      </View>
+    );
+  }
+
+  if (hasPermission === false) {
     return (
       <View className="absolute inset-0 justify-center items-center bg-background p-4 gap-4">
         <Text className="text-lg text-foreground text-center">
@@ -101,24 +118,17 @@ export function CameraView({
         </Button>
       </View>
     );
-
-  if (device == null)
-    return (
-      <View className="absolute inset-0 justify-center items-center bg-background p-4">
-        <Text className="text-lg text-foreground text-center">No camera device found on this device.</Text>
-      </View>
-    );
+  }
 
   return (
     <FullWindowOverlay>
-      <Camera
+      <ExpoCameraView
         ref={camera}
         style={StyleSheet.absoluteFill}
-        device={device}
-        isActive={!photo}
-        photo={true}
+        facing={cameraDirection}
+        ratio="16:9"
+        onCameraReady={onCameraReady}
         className="flex-1"
-        onInitialized={onCameraInitialized}
       />
 
       {isLoading && (
@@ -129,7 +139,7 @@ export function CameraView({
 
       {!isLoading && photo ? (
         <>
-          <Image source={{ uri: `file://${photo.path}` }} className="absolute inset-0 w-full h-full" />
+          <Image source={{ uri: `data:image/jpeg;base64,${photo}` }} className="absolute inset-0 w-full h-full" />
           <View className="absolute top-14 left-4">
             <AnimatedIconButton
               onPress={onCancel}
@@ -146,7 +156,7 @@ export function CameraView({
             />
             <AnimatedIconButton
               className="flex-none bg-primary"
-              onPress={() => onUsePhoto(photo.path)}
+              onPress={() => onUsePhoto(photo)}
               icon={<Check className="text-background" size={24} />}
               label="Verwenden"
             />
@@ -178,11 +188,7 @@ export function CameraView({
                 </View>
               )}
             </Pressable>
-            <Pressable
-              onPressIn={() => handlePressIn(scaleAnim)}
-              onPressOut={() => handlePressOut(scaleAnim)}
-              onPress={onTakePhoto}
-            >
+            <Pressable onPressIn={handlePressIn} onPressOut={handlePressOut} onPress={onTakePhoto}>
               <Animated.View
                 style={{
                   transform: [{ scale: scaleAnim }],
@@ -194,7 +200,7 @@ export function CameraView({
               </Animated.View>
             </Pressable>
             <Pressable
-              onPress={toggleCameraType}
+              onPress={toggleCameraDirection}
               className="h-14 w-14 rounded-full bg-black/50 items-center justify-center"
             >
               <SymbolView
@@ -211,3 +217,7 @@ export function CameraView({
     </FullWindowOverlay>
   );
 }
+
+const styles = StyleSheet.create({
+  // Add any necessary styles or remove if using nativewind exclusively
+});
