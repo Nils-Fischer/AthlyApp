@@ -1,5 +1,5 @@
 import * as React from "react";
-import { View } from "react-native";
+import { View, Image } from "react-native";
 import Animated, { FadeInUp } from "react-native-reanimated";
 import { Card } from "~/components/ui/card";
 import { Text } from "~/components/ui/text";
@@ -22,7 +22,7 @@ export const ChatMessage = React.memo<{
     >
       <View className={`flex-row max-w-[85%] ${isAI ? "flex-row" : "flex-row-reverse"}`}>
         {isAI && (
-          <View className={`${isAI ? "mr-2" : "ml-2"} justify-end`}>
+          <View className={`${isAI ? "mr-2" : "ml-2"} justify-start`}>
             <MessageAvatar isAI={isAI} />
             <Text className="text-xs text-muted-foreground">
               {timestamp.toLocaleTimeString("de-DE", {
@@ -32,8 +32,18 @@ export const ChatMessage = React.memo<{
             </Text>
           </View>
         )}
-        <View>
-          <Card className={`${isAI ? "bg-secondary/30" : "bg-primary"} max-w-[250px] border-0 shadow-sm p-4`}>
+        <View className="gap-y-1">
+          <View className="flex-row flex-wrap items-end justify-end gap-x-1">
+            {message.content.map((section) => {
+              if (typeof section === "object" && "uri" in section) {
+                return (
+                  <Image source={{ uri: `data:image/jpeg;base64,${section.uri}` }} className="w-20 h-20 rounded-lg" />
+                );
+              }
+              return null;
+            })}
+          </View>
+          <Card className={`${isAI ? "bg-secondary/30" : "bg-primary"}  border-0 shadow-sm p-4`}>
             <View className="flex-col">
               <View className="flex-row flex-wrap  items-end justify-end gap-x-2">
                 <Text className={`${isAI ? "text-foreground" : "text-primary-foreground"}`}>
