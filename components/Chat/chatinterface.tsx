@@ -10,11 +10,12 @@ import { CustomDropdownMenu } from "~/components/ui/custom-dropdown-menu";
 import { Camera, Image, Plus } from "~/lib/icons/Icons";
 import { CameraView } from "./CameraView";
 import * as ImagePicker from "expo-image-picker";
+import { Image as ImageType } from "~/lib/types";
 
 interface ChatInterfaceProps {
   messages: Message[];
   isTyping: boolean;
-  onSendMessage: (message: string, image?: string) => void;
+  onSendMessage: (message: string, image?: ImageType) => Promise<void>;
   showRoutine?: (routine: Routine) => void;
 }
 

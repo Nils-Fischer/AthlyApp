@@ -9,13 +9,6 @@ export enum LocationType {
   Gym,
 }
 
-export interface Message {
-  id: number;
-  isAI: boolean;
-  message: string;
-  time: string;
-}
-
 export interface NutritionGoals {
   calories: number;
   protein: number;
@@ -248,4 +241,9 @@ export interface CoachResponse {
     intensity: number;
     recoveryTime: number;
   };
+}
+
+export interface Image {
+  uri: string;
+  type: "jpeg" | "png" | "heic" | "webp" | "heif";
 }

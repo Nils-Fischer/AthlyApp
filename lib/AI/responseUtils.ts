@@ -1,14 +1,14 @@
-import { TaggedSection } from "~/lib/Chat/types";
+import { Content, Context } from "~/lib/Chat/types";
 import { Routine } from "../types";
 import { generateId, parseJSON } from "../utils";
 
-export function parseTaggedResponse(text: string): TaggedSection[] {
+export function parseTaggedResponse(text: string): [string, Content[]] {
   const regex = /<(.*?)>([^]*?)<\/.*?>/g;
 
-  return Array.from(text.matchAll(regex))
+  const matches = Array.from(text.matchAll(regex))
     .filter((match) => match[1] && match[2])
-    .map((match): TaggedSection => {
-      const tag = match[1] as "text" | "routine" | "analysis" | "summary";
+    .map((match): Content | null => {
+      const tag = match[1] as "text" | "routine" | "analysis" | "context";
       const content = match[2].trim();
 
       switch (tag) {
@@ -17,20 +17,22 @@ export function parseTaggedResponse(text: string): TaggedSection[] {
           if (routine) {
             routine.id = generateId();
           }
-          return { tag, content: routine ?? null };
+          return routine;
         case "text":
+          return content;
         case "analysis":
-        case "summary":
-          return { tag, content };
+          console.log("analysis", content);
+          return null;
+        case "context":
+          return { context: content } as Context;
         default:
           console.error("Invalid tag in response:", tag);
-          return { tag: "unknown", content } as TaggedSection;
+          return null;
       }
-    });
-}
+    })
+    .filter((content) => content !== null);
 
-export function extractRoutineFromResponse(response: string): Routine | null {
-  const sections = parseTaggedResponse(response);
-  const routineSection = sections.find((section) => section.tag === "routine");
-  return routineSection?.content as Routine | null;
+  const message = matches.find((match) => typeof match === "string") as string | undefined;
+  const content = matches.filter((match) => typeof match !== "string") as Content[];
+  return [message || "", content];
 }

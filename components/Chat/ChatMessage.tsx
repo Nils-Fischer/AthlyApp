@@ -6,7 +6,7 @@ import { P } from "~/components/ui/typography";
 import { Text } from "~/components/ui/text";
 import { MessageAvatar } from "./MessageAvatar";
 import { Button } from "~/components/ui/button";
-import type { Message, TaggedSection } from "../../lib/Chat/types";
+import type { Message, Content } from "../../lib/Chat/types";
 import { Routine } from "~/lib/types";
 
 export const ChatMessage = React.memo<{
@@ -29,7 +29,7 @@ export const ChatMessage = React.memo<{
           <Card className={`${isAI ? "bg-secondary/30" : "bg-primary"} border-0 shadow-sm`}>
             <View className="px-4 py-2.5">
               {Array.isArray(message.content) ? (
-                message.content.map((section: TaggedSection, index: number) => {
+                message.content.map((section: Content, index: number) => {
                   if (section.tag === "text") {
                     return (
                       <P key={index} className={`${isAI ? "text-foreground" : "text-primary-foreground"}`}>

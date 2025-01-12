@@ -1,31 +1,16 @@
-import { Routine } from "~/lib/types";
+import { Image, Exercise, Routine } from "~/lib/types";
 
 export interface Message {
   id: string;
-  content: TaggedSection[];
+  message: string;
+  content: Content[];
   sender: "user" | "ai";
-  timestamp: string;
+  timestamp: Date;
+  status: "sent" | "sending" | "failed";
 }
 
-type TextContent = string;
-type AnalysisContent = string;
-type SummaryContent = string;
-type RoutineContent = Routine | null;
-type UnknownContent = string;
+export type Content = string | Routine | Exercise | Image | Context;
 
-export type TaggedSection =
-  | { tag: "text"; content: TextContent }
-  | { tag: "routine"; content: RoutineContent }
-  | { tag: "analysis"; content: AnalysisContent }
-  | { tag: "summary"; content: SummaryContent }
-  | { tag: "unknown"; content: UnknownContent };
-
-export interface ChatContext {
-  type: "knowledge" | "routine_creation";
-  confidence: number;
-  requiresData: {
-    userProfile: boolean;
-    exerciseDatabse: boolean;
-    existingRoutines: boolean;
-  };
+export interface Context {
+  context: string;
 }

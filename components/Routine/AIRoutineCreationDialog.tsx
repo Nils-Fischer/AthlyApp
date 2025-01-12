@@ -41,7 +41,7 @@ export function AIRoutineCreationDialog({ open, onOpenChange, onCreate }: AIRout
       const schema = googlePrompts.routineCreationSchema;
 
       setLoadingStatus("Erstelle Trainingsplan...");
-      const response = await createAPICall("google", prompt, context, schema);
+      const response = await createAPICall("google", prompt, context, undefined, schema);
       console.log("response", response);
 
       setLoadingStatus("Verarbeite Antwort...");
