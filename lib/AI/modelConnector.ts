@@ -110,6 +110,20 @@ function createGeminiTextRequest(
   return result;
 }
 
+export async function createJSONAPICall(
+  provider: "google",
+  prompt: string,
+  schema: Schema,
+  context?: string
+): Promise<string> {
+  switch (provider) {
+    case "google":
+      return createGoogleJsonRequest(prompt, context, schema).then((response) => response.response.text());
+    default:
+      throw Error("Invalid provider");
+  }
+}
+
 function createGoogleJsonRequest(prompt: string, context?: string, schema?: Schema): Promise<GenerateContentResult> {
   const api_key = process.env.EXPO_PUBLIC_GOOGLE_API_KEY;
   if (!api_key) {

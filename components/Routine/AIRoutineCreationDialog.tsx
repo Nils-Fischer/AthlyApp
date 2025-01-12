@@ -8,9 +8,9 @@ import { ScrollView } from "react-native-gesture-handler";
 import { Routine } from "~/lib/types";
 import { generateId, parseJSON } from "~/lib/utils";
 import { Input } from "../ui/input";
-import { createAPICall } from "~/lib/AI/modelConnector";
 import { useExerciseStore } from "~/stores/exerciseStore";
 import { googlePrompts } from "~/lib/AI/googlePrompts";
+import { createJSONAPICall } from "~/lib/AI/modelConnector";
 
 interface AIRoutineCreationDialogProps {
   open: boolean;
@@ -41,7 +41,7 @@ export function AIRoutineCreationDialog({ open, onOpenChange, onCreate }: AIRout
       const schema = googlePrompts.routineCreationSchema;
 
       setLoadingStatus("Erstelle Trainingsplan...");
-      const response = await createAPICall("google", prompt, context, undefined, schema);
+      const response = await createJSONAPICall("google", prompt, schema, context);
       console.log("response", response);
 
       setLoadingStatus("Verarbeite Antwort...");
