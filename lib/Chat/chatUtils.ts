@@ -10,7 +10,7 @@ export function createMessage(message: string, content: Content[], sender: "user
     message,
     content,
     sender,
-    timestamp: new Date(),
+    timestamp: new Date().toISOString(),
     status: "sent",
   };
 }

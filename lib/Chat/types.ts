@@ -5,7 +5,7 @@ export interface Message {
   message: string;
   content: Content[];
   sender: "user" | "ai";
-  timestamp: Date;
+  timestamp: string;
   status: "sent" | "sending" | "failed";
 }
 
