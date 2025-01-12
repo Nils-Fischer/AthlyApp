@@ -1,4 +1,4 @@
-import { Message, Content, Context } from "~/lib/Chat/types";
+import { Message, Content } from "~/lib/Chat/types";
 import { getChatResponse } from "~/lib/AI/modelConnector";
 import { generateId } from "~/lib/utils";
 import { parseTaggedResponse } from "~/lib/AI/responseUtils";
@@ -15,10 +15,9 @@ export function createMessage(message: string, content: Content[], sender: "user
   };
 }
 
-export async function sendMessage(messages: Message[]): Promise<Message> {
-  const { context, setContext } = useChatStore();
+export async function sendMessage(messages: Message[], exerciseList: string, context?: string): Promise<Message> {
   const lastMessages = messages.slice(-3);
-  const response = await getChatResponse("google", lastMessages, context);
+  const response = await getChatResponse("google", lastMessages, exerciseList, context);
   const [message, content] = parseTaggedResponse(response);
   return createMessage(message, content, "ai");
 }

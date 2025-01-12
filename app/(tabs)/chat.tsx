@@ -13,10 +13,13 @@ import { useUserStore } from "~/stores/userStore";
 import Animated, { FadeOut, FadeIn } from "react-native-reanimated";
 import { useChatStore } from "~/stores/chatStore";
 import { Image } from "~/lib/types";
+import { useExerciseStore } from "~/stores/exerciseStore";
 
 export default function Screen() {
   const actionSheetRef = useRef<ActionSheetRef>(null);
-  const { messages, addMessage, updateMessageStatus } = useChatStore();
+  const { messages, addMessage, updateMessageStatus, clearMessages, context } = useChatStore();
+  const { exercises } = useExerciseStore();
+  const exerciseList = exercises?.map((exercise) => `${exercise.id} - ${exercise.name}`).join("\n") || "";
   const [isTyping, setIsTyping] = React.useState(false);
   const [routine, setRoutine] = React.useState<Routine | null>(null);
   const [isAdded, setIsAdded] = React.useState(false);
@@ -29,15 +32,19 @@ export default function Screen() {
   };
 
   const handleSendMessage = async (message: string, image?: Image): Promise<void> => {
+    console.log("Sending message:", message);
     const newMessage = createMessage(message, image ? [image] : [], "user");
+    console.log("New message:", newMessage);
     addMessage(newMessage);
     setIsTyping(true);
     try {
-      const answerPromise = sendMessage(messages);
       updateMessageStatus(newMessage.id, "sent");
-      const answer = await answerPromise;
+      const updatedMessages = [...messages, newMessage];
+      const answer = await sendMessage(updatedMessages, exerciseList, context);
+      console.log("Answer:", answer);
       addMessage(answer);
     } catch (error) {
+      console.error("Error sending message:", error);
       updateMessageStatus(newMessage.id, "failed");
     }
     setIsTyping(false);

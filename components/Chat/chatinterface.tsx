@@ -46,8 +46,9 @@ export default function ChatInterface({ messages, isTyping, onSendMessage, showR
 
   const handleSend = React.useCallback(() => {
     if (!inputMessage.trim()) return;
-    onSendMessage(inputMessage.trim());
+    onSendMessage(inputMessage.trim(), capturedImage ? { uri: capturedImage, type: "jpeg" } : undefined);
     setInputMessage("");
+    setCapturedImage(null);
     inputRef.current?.blur();
   }, [inputMessage, onSendMessage]);
 
@@ -70,12 +71,13 @@ export default function ChatInterface({ messages, isTyping, onSendMessage, showR
     const result = await ImagePicker.launchImageLibraryAsync({
       mediaTypes: ["images"],
       allowsEditing: false,
-      quality: 1,
+      quality: 0.5,
+      base64: true,
       exif: false,
       allowsMultipleSelection: false,
     });
-    if (!result.canceled) {
-      setCapturedImage(result.assets[0].uri);
+    if (!result.canceled && result.assets && result.assets.length > 0 && result.assets[0].base64) {
+      setCapturedImage(result.assets[0].base64);
     }
   }
 
@@ -120,7 +122,7 @@ export default function ChatInterface({ messages, isTyping, onSendMessage, showR
           {capturedImage && (
             <View className="mb-2 flex-row items-center">
               <View className="relative">
-                <RNImage source={{ uri: capturedImage }} className="w-20 h-20 rounded-lg" />
+                <RNImage source={{ uri: `data:image/jpeg;base64,${capturedImage}` }} className="w-20 h-20 rounded-lg" />
                 <Button
                   size="icon"
                   variant="default"

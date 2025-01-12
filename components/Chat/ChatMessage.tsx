@@ -28,23 +28,17 @@ export const ChatMessage = React.memo<{
         <View>
           <Card className={`${isAI ? "bg-secondary/30" : "bg-primary"} border-0 shadow-sm`}>
             <View className="px-4 py-2.5">
+              <P className={`${isAI ? "text-foreground" : "text-primary-foreground"}`}>{message.message}</P>
               {Array.isArray(message.content) ? (
                 message.content.map((section: Content, index: number) => {
-                  if (section.tag === "text") {
-                    return (
-                      <P key={index} className={`${isAI ? "text-foreground" : "text-primary-foreground"}`}>
-                        {(section.content || "").toString()}
-                      </P>
-                    );
-                  }
-                  if (section.tag === "routine") {
+                  if (typeof section === "object" && "workouts" in section) {
                     return (
                       <Button
                         key={index}
                         variant="secondary"
                         className="mt-2"
                         onPress={() => {
-                          section.content && showRoutine?.(section.content as Routine);
+                          section && showRoutine?.(section as Routine);
                         }}
                       >
                         <Text>Routine ansehen</Text>
@@ -58,7 +52,14 @@ export const ChatMessage = React.memo<{
               )}
             </View>
           </Card>
-          <Text className="text-xs text-muted-foreground mt-1 ml-1">{message.timestamp}</Text>
+          <Text className="text-xs text-muted-foreground mt-1 ml-1">
+            {message.timestamp.toLocaleString("de-DE", {
+              month: "short",
+              day: "numeric",
+              hour: "2-digit",
+              minute: "2-digit",
+            })}
+          </Text>
         </View>
       </View>
     </Animated.View>

@@ -2,11 +2,9 @@ import Anthropic from "@anthropic-ai/sdk";
 import OpenAI from "openai";
 import { APIPromise } from "openai/core";
 import { APIPromise as AnthropicAPIPromise } from "@anthropic-ai/sdk/core";
-import { GenerateContentResult, GoogleGenerativeAI, Part, Schema } from "@google/generative-ai";
+import { GenerateContentResult, GoogleGenerativeAI, InlineDataPart, Part, Schema } from "@google/generative-ai";
 import { prompts } from "./promptTemplates";
-import { useExerciseStore } from "~/stores/exerciseStore";
 import { Message } from "../Chat/types";
-import { GoogleAIFileManager } from "@google/generative-ai/server";
 import { Image as ImageType } from "~/lib/types";
 
 function isImage(content: any): content is ImageType {
@@ -16,14 +14,17 @@ function isImage(content: any): content is ImageType {
 export async function getChatResponse(
   provider: "openai" | "anthropic" | "google",
   messages: Message[],
-  context: string
+  exerciseList: string,
+  context?: string
 ): Promise<string> {
-  const errorMessage = "Etwas ist schief gelaufen. Bitte versuche es erneut.";
+  const errorMessage = "<text>Etwas ist schief gelaufen. Bitte versuche es erneut.</text>";
   try {
     switch (provider) {
       case "google":
-        const googleAnswer = await createGeminiTextRequest(messages, context);
-        return googleAnswer.response.text();
+        const googleAnswer = await createGeminiTextRequest(messages, exerciseList, context).then((response) =>
+          response.response.text()
+        );
+        return googleAnswer;
       case "openai":
         return "Not implemented";
       case "anthropic":
@@ -37,17 +38,11 @@ export async function getChatResponse(
   }
 }
 
-async function uploadToGemini(fileManager: GoogleAIFileManager, path: string, mimeType: string) {
-  const uploadResult = await fileManager.uploadFile(path, {
-    mimeType,
-    displayName: path,
-  });
-  const file = uploadResult.file;
-  console.log(`Uploaded file ${file.displayName} as: ${file.name}`);
-  return file;
-}
-
-async function createGeminiTextRequest(messages: Message[], context?: string): Promise<GenerateContentResult> {
+function createGeminiTextRequest(
+  messages: Message[],
+  exerciseList: string,
+  context?: string
+): Promise<GenerateContentResult> {
   const api_key = process.env.EXPO_PUBLIC_GOOGLE_API_KEY;
   if (!api_key) {
     console.error("Missing Google API key");
@@ -63,8 +58,6 @@ async function createGeminiTextRequest(messages: Message[], context?: string): P
     maxOutputTokens: 32768,
   };
 
-  const { exercises } = useExerciseStore();
-  const exerciseList = exercises?.map((exercise) => `${exercise.id} - ${exercise.name}`).join("\n") || "";
   const prompt = prompts.promptForChatAnswer(exerciseList);
   const initalParts: Part[] = [{ text: prompt }];
 
@@ -72,16 +65,24 @@ async function createGeminiTextRequest(messages: Message[], context?: string): P
     initalParts.push({ text: context });
   }
 
+  if (messages.length === 0) {
+    throw Error("No messages provided");
+  }
+
   const oldMessages = messages.slice(0, -1);
   const newMessage = messages.at(-1);
   if (!newMessage) throw Error("No new message found");
 
-  const fileManager = new GoogleAIFileManager(api_key);
-  const images = await Promise.all(
-    newMessage.content
-      .filter(isImage)
-      .map((content) => uploadToGemini(fileManager, content.uri, `image/${content.type}`))
+  const images = newMessage.content.filter(isImage).map(
+    (image) =>
+      ({
+        inlineData: {
+          data: image.uri.replace(/^data:image\/\w+;base64,/, ""),
+          mimeType: "image/jpeg",
+        },
+      } as InlineDataPart)
   );
+  console.log("Images:", images);
 
   const chat = model.startChat({
     generationConfig,
@@ -94,10 +95,14 @@ async function createGeminiTextRequest(messages: Message[], context?: string): P
         role: message.sender == "ai" ? "model" : "user",
         parts: [{ text: message.message + message.content.map((content) => content.toString()).join("\n") }],
       })),
-      {
-        role: "user",
-        parts: [...images.map((image) => ({ fileData: { mimeType: image.mimeType, fileUri: image.uri } }))],
-      },
+      ...(images.length > 0
+        ? [
+            {
+              role: "user",
+              parts: images,
+            },
+          ]
+        : []),
     ],
   });
 

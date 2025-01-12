@@ -1,4 +1,4 @@
-import { Camera, CameraDevice, useCameraDevice, useCameraPermission } from "react-native-vision-camera";
+import { Camera, useCameraDevice, useCameraPermission } from "react-native-vision-camera";
 import { StyleSheet, View, Pressable, Animated, Image, ActivityIndicator } from "react-native";
 import { Text } from "~/components/ui/text";
 import { Button } from "~/components/ui/button";
