@@ -11,6 +11,8 @@ import { Camera, Image, Plus } from "~/lib/icons/Icons";
 import { CameraView } from "./CameraView";
 import * as ImagePicker from "expo-image-picker";
 import { Image as ImageType } from "~/lib/types";
+import * as ImageManipulator from "expo-image-manipulator";
+import { LOADING_SPINNER } from "~/assets/svgs";
 
 interface ChatInterfaceProps {
   messages: Message[];
@@ -72,25 +74,39 @@ export default function ChatInterface({ messages, isTyping, onSendMessage, showR
       mediaTypes: ["images"],
       allowsEditing: false,
       quality: 0.5,
-      base64: true,
       exif: false,
       allowsMultipleSelection: false,
     });
-    if (!result.canceled && result.assets && result.assets.length > 0 && result.assets[0].base64) {
-      setCapturedImage(result.assets[0].base64);
+    if (!result.canceled && result.assets && result.assets.length > 0) {
+      addPictureToMessage(result.assets[0].uri);
     }
   }
 
-  const handleTakePicture = (uri: string) => {
-    setShowCamera(false);
+  const addPictureToMessage = async (uri: string) => {
     setCapturedImage(uri);
+    try {
+      const manipResult = await ImageManipulator.manipulateAsync(uri, [{ resize: { width: 800 } }], {
+        compress: 0.7,
+        format: ImageManipulator.SaveFormat.JPEG,
+        base64: true,
+      });
+      if (!manipResult.base64) throw new Error("Image compression failed");
+
+      setCapturedImage(`data:image/jpeg;base64,${manipResult.base64}`);
+    } catch (error) {
+      setCapturedImage(null);
+      console.error("Image manipulation failed", error);
+    }
   };
 
   if (showCamera) {
     return (
       <CameraView
         onCancel={() => setShowCamera(false)}
-        onUsePhoto={handleTakePicture}
+        onUsePhoto={(uri) => {
+          setShowCamera(false);
+          addPictureToMessage(uri);
+        }}
         switchToGallery={() => {
           setShowCamera(false);
           openGallery();
@@ -122,7 +138,12 @@ export default function ChatInterface({ messages, isTyping, onSendMessage, showR
           {capturedImage && (
             <View className="mb-2 flex-row items-center">
               <View className="relative">
-                <RNImage source={{ uri: `data:image/jpeg;base64,${capturedImage}` }} className="w-20 h-20 rounded-lg" />
+                <RNImage
+                  source={{
+                    uri: capturedImage !== "" ? capturedImage : LOADING_SPINNER,
+                  }}
+                  className="w-20 h-20 rounded-lg"
+                />
                 <Button
                   size="icon"
                   variant="default"
@@ -165,7 +186,7 @@ export default function ChatInterface({ messages, isTyping, onSendMessage, showR
               size="icon"
               variant={inputMessage.trim() ? "default" : "secondary"}
               onPress={handleSend}
-              disabled={isTyping || !inputMessage.trim()}
+              disabled={isTyping || !inputMessage.trim() || capturedImage === ""}
             >
               <Text className={`text-lg ${!inputMessage.trim() ? "opacity-50" : ""}`}>➤</Text>
             </Button>

@@ -20,7 +20,7 @@ export function CameraView({
   switchToGallery,
 }: {
   onCancel: () => void;
-  onUsePhoto: (base64: string) => void;
+  onUsePhoto: (uri: string) => void;
   switchToGallery: () => void;
 }) {
   const camera = useRef<ExpoCameraView>(null);
@@ -37,15 +37,16 @@ export function CameraView({
     if (camera.current) {
       try {
         const photoData = await camera.current.takePictureAsync({
-          quality: 0.5,
-          base64: true,
+          quality: 1,
+          base64: false,
           skipProcessing: false,
         });
-        if (photoData?.base64) {
-          setPhoto(photoData.base64);
+
+        if (photoData?.uri) {
+          setPhoto(photoData.uri);
         }
       } catch (error) {
-        console.error("Failed to take photo:", error);
+        console.error("Failed to take and compress photo:", error);
       }
     }
   }, []);

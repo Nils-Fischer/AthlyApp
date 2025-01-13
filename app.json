@@ -47,7 +47,7 @@
       "expo-router",
       "expo-secure-store",
       [
-        "react-native-vision-camera",
+        "expo-camera",
         {
           "cameraPermissionText": "$(PRODUCT_NAME) needs access to your Camera."
         }
