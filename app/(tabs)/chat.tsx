@@ -70,28 +70,29 @@ export default function Screen() {
 
       <ActionSheet
         ref={actionSheetRef}
-        snapPoints={[20, 40, 75, 95]}
-        initialSnapIndex={2}
+        snapPoints={[95]}
+        initialSnapIndex={0}
         gestureEnabled={true}
         closeOnTouchBackdrop={true}
         elevation={2}
       >
-        <ScrollView className="p-4 bg-background min-h-full">
-          <H1 className="text-xl font-semibold text-foreground m-4">Trainingsplan Vorschau</H1>
+        <View className="p-4 bg-background min-h-full">
+          <View className="flex-row justify-between items-center mb-4 mx-2">
+            <H1 className="text-xl font-semibold text-foreground">Trainingsplan Vorschau</H1>
+            {routine && !(isAdded || userStore.userData?.routines.find((r) => r.id === routine.id)) ? (
+              <Button variant="ghost" size="icon" className="w-24" onPress={() => handleAddRoutine(routine)}>
+                <Text className="text-lg font-semibold text-destructive">Speichern</Text>
+              </Button>
+            ) : (
+              <Button variant="ghost" size="icon" className="w-24" disabled>
+                <Text className="text-green-500 text-center text-lg">Gespeichert</Text>
+              </Button>
+            )}
+          </View>
+
           {routine ? (
-            <View className="space-y-4">
+            <View className="space-y-4 flex-1">
               <RoutineOverview routine={routine} />
-              {isAdded || userStore.userData?.routines.find((r) => r.id === routine.id) ? (
-                <Animated.View entering={FadeIn} className="px-4 pb-4">
-                  <Text className="text-green-500 text-center font-medium">✓ Bereits in deinem Profil</Text>
-                </Animated.View>
-              ) : (
-                <Animated.View exiting={FadeOut} className="px-4 pb-4">
-                  <Button className="w-full" onPress={() => handleAddRoutine(routine)}>
-                    <Text className="text-primary-foreground font-medium">Zum Profil hinzufügen</Text>
-                  </Button>
-                </Animated.View>
-              )}
             </View>
           ) : (
             <View className="p-4 items-center justify-center">
@@ -100,7 +101,7 @@ export default function Screen() {
               </Text>
             </View>
           )}
-        </ScrollView>
+        </View>
       </ActionSheet>
     </View>
   );

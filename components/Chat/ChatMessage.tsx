@@ -34,10 +34,14 @@ export const ChatMessage = React.memo<{
         )}
         <View className="gap-y-1">
           <View className="flex-row flex-wrap items-end justify-end gap-x-1">
-            {message.content.map((section) => {
+            {message.content.map((section, index) => {
               if (typeof section === "object" && "uri" in section) {
                 return (
-                  <Image source={{ uri: `data:image/jpeg;base64,${section.uri}` }} className="w-20 h-20 rounded-lg" />
+                  <Image
+                    key={`image-${index}`}
+                    source={{ uri: `data:image/jpeg;base64,${section.uri}` }}
+                    className="w-20 h-20 rounded-lg"
+                  />
                 );
               }
               return null;

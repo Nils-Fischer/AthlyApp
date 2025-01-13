@@ -54,7 +54,6 @@ export default function Index() {
         {/* Header */}
         <View className="mb-6">
           <Text className="text-4xl font-bold capitalize">{today}</Text>
-          <Text className="text-muted-foreground">Lass uns trainieren! 💪</Text>
         </View>
 
         {/* Workout Widget */}
