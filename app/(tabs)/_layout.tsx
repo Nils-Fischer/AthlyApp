@@ -2,8 +2,8 @@ import { Tabs, usePathname } from "expo-router";
 import { BarChart, BarChartFilled } from "~/lib/icons/BarChartIcon";
 import { ThemeToggle } from "~/components/ThemeToggle";
 import { useTheme } from "@react-navigation/native";
-import { Apple, ChevronLeft, Dumbbell, Home, MessageCircle } from "~/lib/icons/Icons";
-import { AppleFilled, DumbbellFilled, HomeFilled, MessageCircleFilled } from "~/lib/icons/FilledIcons";
+import { Apple, ChevronLeft, Dumbbell, Home, MessageCircle,MessageSquare } from "~/lib/icons/Icons";
+import { AppleFilled, DumbbellFilled, HomeFilled, MessageCircleFilled, MessageSquareFilled } from "~/lib/icons/FilledIcons";
 
 interface Route {
   name: string;
@@ -47,14 +47,17 @@ const routes: Route[] = [
       filled: AppleFilled,
     },
   },
+  
+  
   {
-    name: "Stats",
-    label: "stats",
+    name: "Feedback",
+    label: "feedback",
     icon: {
-      outlined: BarChart,
-      filled: BarChartFilled,
+      outlined: MessageSquare,
+      filled: MessageSquareFilled,
     },
   },
+  
 ];
 
 export default function TabLayout() {

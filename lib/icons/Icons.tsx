@@ -1,4 +1,5 @@
 import {
+  MessageSquare,
   ArrowRightLeft,
   Activity,
   Camera,
@@ -83,6 +84,7 @@ import { iconWithClassName } from "./iconWithClassName";
 import { BarChart } from "./BarChartIcon";
 
 iconWithClassName([
+  MessageSquare,
   ArrowRightLeft,
   Camera,
   Image,
@@ -166,6 +168,7 @@ iconWithClassName([
 ]);
 
 export {
+  MessageSquare,
   ArrowRightLeft,
   Camera,
   Image,
