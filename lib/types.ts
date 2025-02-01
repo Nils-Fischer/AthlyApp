@@ -74,6 +74,8 @@ export interface UserProfile {
   lastName: string;
   age: number;
   gender: Gender;
+  height: number;
+  weight: number;
 }
 
 export interface UserData {

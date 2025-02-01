@@ -17,6 +17,8 @@ import { useWorkoutHistoryStore } from "~/stores/workoutHistoryStore";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
 import { SheetProvider } from "react-native-actions-sheet";
 import "~/app/sheets";
+import { WelcomeScreen } from "~/components/WelcomeScreen";
+import { useUserProfileStore } from "~/stores/userProfileStore";
 
 const LIGHT_THEME: Theme = {
   dark: false,
@@ -71,9 +73,22 @@ SplashScreen.preventAutoHideAsync();
 export default function RootLayout() {
   const { colorScheme, setColorScheme, isDarkColorScheme } = useColorScheme();
   const [isReady, setIsReady] = React.useState(false);
+  const [firstLaunch, setFirstLaunch] = React.useState(false);
+  const { setProfile } = useUserProfileStore();
   const exerciseStore = useExerciseStore();
   const userStore = useUserStore();
   const workoutHistoryStore = useWorkoutHistoryStore();
+
+  const checkFirstLaunch = async () => {
+    await AsyncStorage.removeItem("FIRST_LAUNCH"); // remove after implementation
+    const __first_launch = await AsyncStorage.getItem("FIRST_LAUNCH");
+    if (!__first_launch) {
+      console.log("First launch");
+      setFirstLaunch(true);
+    } else {
+      setFirstLaunch(false);
+    }
+  };
 
   React.useEffect(() => {
     async function initialize() {
@@ -108,6 +123,7 @@ export default function RootLayout() {
     }
 
     initialize();
+    checkFirstLaunch();
   }, []);
 
   if (!isReady) {
@@ -115,6 +131,19 @@ export default function RootLayout() {
       <GestureHandlerRootView style={{ flex: 1 }}>
         <SessionProvider>{null}</SessionProvider>
       </GestureHandlerRootView>
+    );
+  }
+
+  if (firstLaunch) {
+    return (
+      <SessionProvider>
+        <WelcomeScreen
+          finish={(profile) => {
+            setProfile(profile);
+            AsyncStorage.setItem("FIRST_LAUNCH", "Done");
+          }}
+        />
+      </SessionProvider>
     );
   }
 
