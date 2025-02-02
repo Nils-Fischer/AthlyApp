@@ -1,3 +1,5 @@
+import { ReactNode } from "react";
+
 export enum TrainingGoal {
   Strength,
   Hypertrophy,
@@ -202,6 +204,7 @@ export interface ExerciseRecord {
 }
 
 export interface WorkoutSession {
+  summary: ReactNode;
   date: Date;
   entries: ExerciseRecord[];
   workoutId: number;

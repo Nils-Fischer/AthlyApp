@@ -138,9 +138,10 @@ export default function RootLayout() {
     return (
       <SessionProvider>
         <WelcomeScreen
-          finish={(profile) => {
-            setProfile(profile);
-            AsyncStorage.setItem("FIRST_LAUNCH", "Done");
+          finish={async (profile) => {
+            await setProfile(profile);
+            await AsyncStorage.setItem("FIRST_LAUNCH", "Done");
+            setFirstLaunch(false);  // Dies wird die App neu rendern und zur Hauptansicht navigieren
           }}
         />
       </SessionProvider>

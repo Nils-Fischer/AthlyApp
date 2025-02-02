@@ -96,18 +96,6 @@ export const ExerciseDetail: React.FC<{ exercise: Exercise; navigateToExercise: 
                 <Text className="text-sm">{exercise.equipment}</Text>
               </Badge>
             </View>
-            {exercise.variations && exercise.variations.length > 0 && (
-              <View className="mt-2">
-                <Text className="text-sm text-muted-foreground mb-2">Varianten der Übung</Text>
-                <View className="flex-row flex-wrap gap-2">
-                  {exercise.variations.map((variation, index) => (
-                    <View key={index} className="bg-muted/50 rounded-full px-3 py-1.5">
-                      <Text className="text-xs text-muted-foreground font-medium">{variation}</Text>
-                    </View>
-                  ))}
-                </View>
-              </View>
-            )}
           </Animated.View>
 
           {/* Muscles Section */}
@@ -139,32 +127,20 @@ export const ExerciseDetail: React.FC<{ exercise: Exercise; navigateToExercise: 
                   </View>
                 </View>
               )}
-              {exercise.stabilizingMuscles && exercise.stabilizingMuscles.length > 0 && (
-                <View>
-                  <Text className="text-sm text-muted-foreground mb-2">Stabilisierend</Text>
-                  <View className="flex-row flex-wrap gap-2">
-                    {exercise.stabilizingMuscles.map((muscle, index) => (
-                      <View key={index} className="bg-muted/70 rounded-full px-3 py-1.5">
-                        <Text className="text-xs text-muted-foreground font-medium">{muscle}</Text>
-                      </View>
-                    ))}
-                  </View>
-                </View>
-              )}
             </View>
           </Animated.View>
 
-          {/* Warmup Section */}
-          {exercise.warmup && (
+          {/* Description Section */}
+          {exercise.description && (
             <Animated.View
               entering={FadeInDown.delay(ANIMATION_BASE_DELAY + STAGGER_DELAY * 2).springify()}
               className="mb-6"
             >
               <View className="flex-row items-center gap-2 mb-3">
-                <Activity size={20} className="text-foreground" />
-                <Text className="font-semibold text-lg">Aufwärmen</Text>
+                <ClipboardList size={20} className="text-foreground" />
+                <Text className="font-semibold text-lg">Beschreibung</Text>
               </View>
-              <Text className="flex-1 text-sm leading-relaxed">{exercise.warmup}</Text>
+              <Text className="flex-1 text-sm leading-relaxed">{exercise.description}</Text>
             </Animated.View>
           )}
 

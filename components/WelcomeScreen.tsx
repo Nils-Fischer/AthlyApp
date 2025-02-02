@@ -1,36 +1,33 @@
-import { View } from "react-native";
-import { Text } from "~/components/ui/text";
-import { Button } from "~/components/ui/button";
-import { Gender, UserProfile } from "~/lib/types";
+import { ScrollView, View } from "react-native";
+import { UserProfile } from "~/lib/types";
 import { useState } from "react";
+import { Info } from "~/components/WelcomeScreen/Info";
+import { Formular } from "~/components/WelcomeScreen/Formular";
 
-export const WelcomeScreen = ({ finish }: { finish: (profile: UserProfile) => void }) => {
-  const [firstName, setFirstName] = useState<string | null>(null);
-  const [lastName, setLastName] = useState<string | null>(null);
-  const [age, setAge] = useState<number | null>(null);
-  const [gender, setGender] = useState<Gender | null>(null);
-  const [height, setHeight] = useState<number | null>(null);
-  const [weight, setWeight] = useState<number | null>(null);
+interface WelcomeScreenProps {
+  finish: (profile: UserProfile) => void;
+}
 
-  const handleFinish = () => {
-    if (firstName && lastName && age && gender && height && weight) {
-      finish({
-        firstName: firstName!,
-        lastName: lastName!,
-        age: age!,
-        gender: gender!,
-        height: height!,
-        weight: weight!,
-      });
-    }
+export const WelcomeScreen = ({ finish }: WelcomeScreenProps) => {
+  const [step, setStep] = useState<'info' | 'form'>('info');
+
+  // Diese handleFinish Funktion wird direkt an Formular weitergegeben
+  // und verwendet die finish prop von der übergeordneten Komponente
+  const handleFinish = (profile: UserProfile) => {
+    finish(profile);
   };
 
   return (
-    <View className="flex-1 items-center justify-center">
-      <Text>Welcome to the app</Text>
-      <Button disabled={!firstName || !lastName || !age || !gender || !height || !weight} onPress={handleFinish}>
-        <Text>Fertig</Text>
-      </Button>
-    </View>
+    <ScrollView className="flex-1 bg-white">
+      <View className="flex-1 items-center justify-start p-8 pt-16 mb-8">
+        {step === 'info' ? (
+          <Info onNext={() => setStep('form')} />
+        ) : (
+          <Formular 
+            onFinish={handleFinish}
+          />
+        )}
+      </View>
+    </ScrollView>
   );
 };
