@@ -1,26 +1,22 @@
 import React, { useEffect, useState } from "react";
 import { View, ScrollView } from "react-native";
 import { Text } from "~/components/ui/text";
-import { useUserStore } from "~/stores/userStore";
-import { format, startOfWeek, isWithinInterval } from "date-fns";
+import { format } from "date-fns";
 import { de } from "date-fns/locale";
 import { useActiveWorkoutStore } from "~/stores/activeWorkoutStore";
 import { useWorkoutHistoryStore } from "~/stores/workoutHistoryStore";
 import { useUserProfileStore } from "~/stores/userProfileStore";
 import { Workout } from "~/lib/types";
 import { TodaysWorkoutWidget } from "~/components/dashboard/TodaysWorkoutWidget";
-import { Button } from "~/components/ui/button";
-import { Plus, CalendarCheck } from "~/lib/icons/Icons";
+import { useUserRoutineStore } from "~/stores/userRoutineStore";
 
 export default function Index() {
-  const userStore = useUserStore();
   const workoutHistoryStore = useWorkoutHistoryStore();
   const activeWorkoutStore = useActiveWorkoutStore();
   const { profile } = useUserProfileStore();
+  const { routines } = useUserRoutineStore();
 
-  const activeRoutine = userStore.userData?.routines.find(
-    (routine) => routine.active
-  );
+  const activeRoutine = routines.find((routine) => routine.active);
   const numWorkouts = activeRoutine?.workouts.length || 0;
 
   const [activeWorkoutIndex, setActiveWorkoutIndex] = useState(0);
@@ -60,22 +56,15 @@ export default function Index() {
   }, [activeWorkoutIndex]);
 
   useEffect(() => {
-    const oldestWorkoutIndex = activeRoutine?.workouts.reduce(
-      (oldestIndex, workout, currentIndex, workouts) => {
-        const currentWorkoutLastDate =
-          workoutHistoryStore.getLastWorkout(workout.id)?.date;
-        const oldestWorkoutLastDate =
-          workoutHistoryStore.getLastWorkout(workouts[oldestIndex].id)?.date;
+    const oldestWorkoutIndex = activeRoutine?.workouts.reduce((oldestIndex, workout, currentIndex, workouts) => {
+      const currentWorkoutLastDate = workoutHistoryStore.getLastWorkout(workout.id)?.date;
+      const oldestWorkoutLastDate = workoutHistoryStore.getLastWorkout(workouts[oldestIndex].id)?.date;
 
-        if (!currentWorkoutLastDate) return oldestIndex;
-        if (!oldestWorkoutLastDate) return currentIndex;
+      if (!currentWorkoutLastDate) return oldestIndex;
+      if (!oldestWorkoutLastDate) return currentIndex;
 
-        return currentWorkoutLastDate < oldestWorkoutLastDate
-          ? currentIndex
-          : oldestIndex;
-      },
-      0
-    );
+      return currentWorkoutLastDate < oldestWorkoutLastDate ? currentIndex : oldestIndex;
+    }, 0);
     setActiveWorkoutIndex(oldestWorkoutIndex || 0);
   }, [activeRoutine, workoutHistoryStore]);
 
@@ -91,9 +80,7 @@ export default function Index() {
           </Text>
           <View className="flex-row items-baseline gap-2 mt-1">
             <Text className="text-4xl font-bold capitalize">{today}</Text>
-            <Text className="text-sm text-muted-foreground">
-              {format(new Date(), "dd. MMMM", { locale: de })}
-            </Text>
+            <Text className="text-sm text-muted-foreground">{format(new Date(), "dd. MMMM", { locale: de })}</Text>
           </View>
         </View>
 
@@ -102,22 +89,14 @@ export default function Index() {
           <TodaysWorkoutWidget workout={activeWorkout} skipWorkout={skipWorkout} />
         ) : (
           <View className="bg-card p-6 rounded-xl border border-border/50 mb-6">
-            <Text className="text-center text-muted-foreground text-lg">
-              Kein Training für heute geplant 🛋️
-            </Text>
+            <Text className="text-center text-muted-foreground text-lg">Kein Training für heute geplant 🛋️</Text>
           </View>
         )}
 
         {/* Motivationswidget */}
         <View className="bg-card p-6 rounded-xl border border-border/50">
           <Text className="text-center italic text-lg">
-            "
-            {
-              motivationQuotes[
-                Math.floor(Math.random() * motivationQuotes.length)
-              ]
-            }
-            "
+            "{motivationQuotes[Math.floor(Math.random() * motivationQuotes.length)]}"
           </Text>
         </View>
       </View>

@@ -1,12 +1,11 @@
 import React, { useEffect, useState } from "react";
-import { View, ActivityIndicator } from "react-native";
+import { View } from "react-native";
 import { useLocalSearchParams, router, Stack } from "expo-router";
 import { Text } from "~/components/ui/text";
 import { Button } from "~/components/ui/button";
 import { ActiveWorkoutStats } from "~/components/ActiveWorkout/ActiveWorkoutStats";
 import { ActiveWorkoutControls } from "~/components/ActiveWorkout/ActiveWorkoutControls";
 import { ActiveWorkoutExerciseList } from "~/components/ActiveWorkout/ActiveWorkoutExerciseList";
-import { useUserStore } from "~/stores/userStore";
 import { useActiveWorkoutStore } from "~/stores/activeWorkoutStore";
 import { ChevronLeft } from "~/lib/icons/Icons";
 import { useWorkoutHistoryStore } from "~/stores/workoutHistoryStore";
@@ -21,11 +20,12 @@ import {
   AlertDialogAction,
 } from "~/components/ui/alert-dialog";
 import { ActiveWorkoutCancelConfirmation } from "~/components/ActiveWorkout/ActiveWorkoutCancelConfirmation";
+import { useUserRoutineStore } from "~/stores/userRoutineStore";
 
 export default function ActiveWorkoutScreen() {
   const { id, start } = useLocalSearchParams<{ id: string; start?: string }>();
-  const { getActiveRoutine, isLoading, error } = useUserStore();
   const workoutHistoryStore = useWorkoutHistoryStore();
+  const { getActiveRoutine } = useUserRoutineStore();
   const activeWorkout = getActiveRoutine()?.workouts.find((workout) => workout.id === parseInt(id));
 
   const {
@@ -75,17 +75,8 @@ export default function ActiveWorkoutScreen() {
     }
   }, [start]);
 
-  // Loading State
-  if (isLoading) {
-    return (
-      <View className="flex-1 items-center justify-center bg-background">
-        <ActivityIndicator size="large" />
-      </View>
-    );
-  }
-
   // Error State
-  if (error || !activeWorkout) {
+  if (!activeWorkout) {
     return (
       <View className="flex-1 items-center justify-center bg-background">
         <Text className="text-destructive">Workout nicht gefunden</Text>

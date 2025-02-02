@@ -9,22 +9,20 @@ import { H1 } from "~/components/ui/typography";
 import { Text } from "~/components/ui/text";
 import { RoutineOverview } from "~/components/Routine/RoutineOverview";
 import { Button } from "~/components/ui/button";
-import { useUserStore } from "~/stores/userStore";
-import Animated, { FadeOut, FadeIn } from "react-native-reanimated";
 import { useChatStore } from "~/stores/chatStore";
 import { Image } from "~/lib/types";
 import { useExerciseStore } from "~/stores/exerciseStore";
+import { useUserRoutineStore } from "~/stores/userRoutineStore";
 
 export default function Screen() {
   const actionSheetRef = useRef<ActionSheetRef>(null);
   const { messages, addMessage, updateMessageStatus, clearMessages, context } = useChatStore();
   const { exercises } = useExerciseStore();
+  const { routines, addRoutine } = useUserRoutineStore();
   const exerciseList = exercises?.map((exercise) => `${exercise.id} - ${exercise.name}`).join("\n") || "";
   const [isTyping, setIsTyping] = React.useState(false);
   const [routine, setRoutine] = React.useState<Routine | null>(null);
   const [isAdded, setIsAdded] = React.useState(false);
-
-  const userStore = useUserStore();
 
   const previewRoutine = (routine: Routine) => {
     setRoutine(routine);
@@ -51,7 +49,7 @@ export default function Screen() {
   };
 
   const handleAddRoutine = async (routine: Routine) => {
-    await userStore.addRoutine(routine);
+    addRoutine(routine);
     setIsAdded(true);
   };
 
@@ -79,7 +77,7 @@ export default function Screen() {
         <View className="p-4 bg-background min-h-full">
           <View className="flex-row justify-between items-center mb-4 mx-2">
             <H1 className="text-xl font-semibold text-foreground">Trainingsplan Vorschau</H1>
-            {routine && !(isAdded || userStore.userData?.routines.find((r) => r.id === routine.id)) ? (
+            {routine && !(isAdded || routines.find((r) => r.id === routine.id)) ? (
               <Button variant="ghost" size="icon" className="w-24" onPress={() => handleAddRoutine(routine)}>
                 <Text className="text-lg font-semibold text-destructive">Speichern</Text>
               </Button>

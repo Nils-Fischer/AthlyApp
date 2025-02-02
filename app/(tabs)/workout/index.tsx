@@ -3,7 +3,6 @@ import * as React from "react";
 import { View } from "react-native";
 import { WorkoutForm } from "~/components/ExerciseForms/WorkoutForm";
 import { Routine } from "~/lib/types";
-import { useUserStore } from "~/stores/userStore";
 import { Text } from "~/components/ui/text";
 import { useRouter } from "expo-router";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "~/components/ui/tabs";
@@ -12,11 +11,11 @@ import { ClipboardList, PlusCircle, Sparkles } from "~/lib/icons/Icons";
 import { RoutineCreationDialog } from "~/components/Routine/RoutineCreationDialog";
 import { RoutineLibrary } from "~/components/Routine/RoutineLibrary";
 import { AIRoutineCreationDialog } from "~/components/Routine/AIRoutineCreationDialog";
+import { useUserRoutineStore } from "~/stores/userRoutineStore";
 
 export default function RoutineScreen() {
-  const userStore = useUserStore();
+  const { routines, addRoutine, deleteRoutine, toggleRoutineActive } = useUserRoutineStore();
   const router = useRouter();
-  const [routines, setRoutines] = React.useState<Routine[]>(userStore.userData?.routines || []);
   const [searchQuery, setSearchQuery] = React.useState("");
   const [showForm, setShowForm] = React.useState(routines.length === 0);
   const [activeTab, setActiveTab] = React.useState("routines");
@@ -25,8 +24,7 @@ export default function RoutineScreen() {
 
   const handleRoutineCreation = (routine: Routine) => {
     console.log("🚀 Created routine:", routine);
-    userStore.addRoutine(routine);
-    setRoutines([...routines, routine]);
+    addRoutine(routine);
     setShowForm(false);
   };
 
@@ -53,30 +51,11 @@ export default function RoutineScreen() {
   ];
 
   const handleDelete = async (id: number) => {
-    await userStore.removeRoutine(id);
-    setRoutines(routines.filter((routine) => routine.id !== id));
+    deleteRoutine(id);
   };
 
   const handleToggleActive = async (id: number) => {
-    const routineToUpdate = routines.find((routine) => routine.id === id);
-    if (!routineToUpdate) return;
-
-    const updatedRoutine = {
-      ...routineToUpdate,
-      active: !routineToUpdate.active,
-    };
-
-    let updatedRoutines = routines.map((routine) => {
-      if (updatedRoutine.active) {
-        return routine.id === id ? updatedRoutine : { ...routine, active: false };
-      } else {
-        return routine.id === id ? updatedRoutine : routine;
-      }
-    });
-
-    await userStore.updateUserData(updatedRoutines);
-
-    setRoutines(updatedRoutines);
+    toggleRoutineActive(id);
   };
 
   if (showForm) {
@@ -121,8 +100,7 @@ export default function RoutineScreen() {
         open={showRoutineCreationDialog}
         onOpenChange={setShowRoutineCreationDialog}
         onCreate={(routine) => {
-          userStore.addRoutine(routine);
-          setRoutines([...routines, routine]);
+          addRoutine(routine);
           setShowRoutineCreationDialog(false);
           router.push(`/workout/${routine.id}`);
         }}
@@ -132,8 +110,7 @@ export default function RoutineScreen() {
         open={showAIRoutineDialog}
         onOpenChange={setShowAIRoutineDialog}
         onCreate={(routine) => {
-          userStore.addRoutine(routine);
-          setRoutines([...routines, routine]);
+          addRoutine(routine);
           setShowAIRoutineDialog(false);
           router.push(`/workout/${routine.id}`);
         }}

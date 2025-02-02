@@ -1,17 +1,17 @@
 import React, { useState, useEffect } from "react";
 import { router, useLocalSearchParams, Stack, useNavigation } from "expo-router";
 import { Text } from "~/components/ui/text";
-import { useUserStore } from "~/stores/userStore";
 import { Routine } from "~/lib/types";
 import { RoutineOverview } from "~/components/Routine/RoutineOverview";
 import { ChevronLeft } from "~/lib/icons/Icons";
 import { Button } from "~/components/ui/button";
 import { TextInput, View } from "react-native";
+import { useUserRoutineStore } from "~/stores/userRoutineStore";
 
 export default function RoutineDetails() {
   const { id } = useLocalSearchParams<{ id: string }>();
-  const userStore = useUserStore();
-  const routine: Routine | undefined = userStore.userData?.routines.find((p) => p.id === Number(id));
+  const { routines } = useUserRoutineStore();
+  const routine: Routine | undefined = routines.find((p) => p.id === Number(id));
   const [isEditMode, setIsEditMode] = useState(
     () => routine?.workouts.length === 1 && routine.workouts[0].exercises.length === 0
   );

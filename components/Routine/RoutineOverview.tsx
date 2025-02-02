@@ -4,12 +4,12 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "~/components/ui/tabs";
 import { Text } from "~/components/ui/text";
 import { Routine, Workout } from "~/lib/types";
 import { WorkoutPage } from "~/components/Workout/WorkoutPage";
-import { useUserStore } from "~/stores/userStore";
 import { Button } from "~/components/ui/button";
 import { MoreHorizontal } from "lucide-react-native";
 import { generateId } from "~/lib/utils";
 import { Plus, Trash2 } from "~/lib/icons/Icons";
 import { CustomDropdownMenu } from "~/components/ui/custom-dropdown-menu";
+import { useUserRoutineStore } from "~/stores/userRoutineStore";
 
 export function RoutineOverview({
   routine: initialRoutine,
@@ -20,9 +20,9 @@ export function RoutineOverview({
   handleExercisePress?: (exerciseId: number) => void;
   isEditMode?: boolean;
 }) {
+  const { updateRoutine } = useUserRoutineStore();
   const [routine, setRoutine] = useState(initialRoutine);
   const [activeTab, setActiveTab] = useState(routine?.workouts[0]?.id.toString() || "0");
-  const userStore = useUserStore();
 
   useEffect(() => {
     setRoutine(initialRoutine);
@@ -34,12 +34,12 @@ export function RoutineOverview({
       workouts: routine.workouts.map((workout) => (workout.id === updatedWorkout.id ? updatedWorkout : workout)),
     };
     setRoutine(updatedRoutine);
-    await userStore.updateRoutine(updatedRoutine);
+    await updateRoutine(updatedRoutine);
   };
 
   const handleUpdateRoutine = async (updatedRoutine: Routine) => {
     setRoutine(updatedRoutine);
-    await userStore.updateRoutine(updatedRoutine);
+    await updateRoutine(updatedRoutine);
   };
 
   const handleAddWorkout = async () => {
@@ -64,7 +64,7 @@ export function RoutineOverview({
       workouts: routine.workouts.filter((workout) => workout.id !== workoutId),
     };
     setRoutine(updatedRoutine);
-    await userStore.updateRoutine(updatedRoutine);
+    await updateRoutine(updatedRoutine);
   };
 
   if (!routine || !routine.workouts.length) {

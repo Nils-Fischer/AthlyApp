@@ -12,7 +12,6 @@ import { PortalHost } from "@rn-primitives/portal";
 import { setAndroidNavigationBar } from "~/lib/android-navigation-bar";
 import { SessionProvider } from "~/context";
 import { useExerciseStore } from "~/stores/exerciseStore";
-import { useUserStore } from "~/stores/userStore";
 import { useWorkoutHistoryStore } from "~/stores/workoutHistoryStore";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
 import { SheetProvider } from "react-native-actions-sheet";
@@ -76,7 +75,6 @@ export default function RootLayout() {
   const [firstLaunch, setFirstLaunch] = React.useState(false);
   const { setProfile } = useUserProfileStore();
   const exerciseStore = useExerciseStore();
-  const userStore = useUserStore();
   const workoutHistoryStore = useWorkoutHistoryStore();
 
   const checkFirstLaunch = async () => {
@@ -111,7 +109,7 @@ export default function RootLayout() {
         }
 
         await AsyncStorage.setItem("APP_INITIALIZED", "true");
-        await Promise.all([exerciseStore.fetchInitialData(), userStore.fetchUserData(), workoutHistoryStore.init()]);
+        await Promise.all([exerciseStore.fetchInitialData(), workoutHistoryStore.init()]);
 
         setIsReady(true);
         SplashScreen.hideAsync();
