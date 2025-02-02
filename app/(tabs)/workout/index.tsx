@@ -17,7 +17,7 @@ export default function RoutineScreen() {
   const { routines, addRoutine, deleteRoutine, toggleRoutineActive } = useUserRoutineStore();
   const router = useRouter();
   const [searchQuery, setSearchQuery] = React.useState("");
-  const [showForm, setShowForm] = React.useState(routines.length === 0);
+  const [showForm, setShowForm] = React.useState(false);
   const [activeTab, setActiveTab] = React.useState("routines");
   const [showRoutineCreationDialog, setShowRoutineCreationDialog] = React.useState(false);
   const [showAIRoutineDialog, setShowAIRoutineDialog] = React.useState(false);

@@ -33,6 +33,7 @@ export function RoutineCreationDialog({ onCreate, trigger, open, onOpenChange }:
     description: newRoutineDescription,
     workouts: [{ id: generateId(), name: "New Workout", exercises: [] }],
     frequency: 1,
+    active: false,
   });
 
   return (

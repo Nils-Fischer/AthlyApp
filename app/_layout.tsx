@@ -12,7 +12,6 @@ import { PortalHost } from "@rn-primitives/portal";
 import { setAndroidNavigationBar } from "~/lib/android-navigation-bar";
 import { SessionProvider } from "~/context";
 import { useExerciseStore } from "~/stores/exerciseStore";
-import { useWorkoutHistoryStore } from "~/stores/workoutHistoryStore";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
 import { SheetProvider } from "react-native-actions-sheet";
 import "~/app/sheets";
@@ -75,7 +74,6 @@ export default function RootLayout() {
   const [firstLaunch, setFirstLaunch] = React.useState(false);
   const { setProfile } = useUserProfileStore();
   const exerciseStore = useExerciseStore();
-  const workoutHistoryStore = useWorkoutHistoryStore();
 
   const checkFirstLaunch = async () => {
     await AsyncStorage.removeItem("FIRST_LAUNCH"); // remove after implementation
@@ -109,7 +107,7 @@ export default function RootLayout() {
         }
 
         await AsyncStorage.setItem("APP_INITIALIZED", "true");
-        await Promise.all([exerciseStore.fetchInitialData(), workoutHistoryStore.init()]);
+        await Promise.all([exerciseStore.fetchInitialData()]);
 
         setIsReady(true);
         SplashScreen.hideAsync();
@@ -139,7 +137,7 @@ export default function RootLayout() {
           finish={async (profile) => {
             await setProfile(profile);
             await AsyncStorage.setItem("FIRST_LAUNCH", "Done");
-            setFirstLaunch(false);  // Dies wird die App neu rendern und zur Hauptansicht navigieren
+            setFirstLaunch(false);
           }}
         />
       </SessionProvider>
