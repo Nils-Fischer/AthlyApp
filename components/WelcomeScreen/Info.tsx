@@ -130,14 +130,9 @@ export const Info: React.FC<InfoProps> = ({ onNext }) => {
             onPress={onNext}
           >
             <Text className="text-white font-semibold text-lg">
-              Erstelle dein Profil
+              Weiter
             </Text>
           </Button>
-
-          <Text className="text-gray-500 text-center text-sm px-4">
-            Mit einem Klick auf "Erstelle dein Profil" können wir deinen 
-            persönlichen Trainingsplan optimal auf dich abstimmen.
-          </Text>
         </Animated.View>
       </View>
     </View>

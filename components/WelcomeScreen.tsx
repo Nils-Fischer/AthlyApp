@@ -2,6 +2,7 @@ import { ScrollView, View } from "react-native";
 import { UserProfile } from "~/lib/types";
 import { useState } from "react";
 import { Info } from "~/components/WelcomeScreen/Info";
+import { Tutorial } from "~/components/WelcomeScreen/Tutorial";
 import { Formular } from "~/components/WelcomeScreen/Formular";
 
 interface WelcomeScreenProps {
@@ -9,10 +10,9 @@ interface WelcomeScreenProps {
 }
 
 export const WelcomeScreen = ({ finish }: WelcomeScreenProps) => {
-  const [step, setStep] = useState<'info' | 'form'>('info');
+  // Neuer Schritt 'tutorial' wird eingefügt
+  const [step, setStep] = useState<'info' | 'tutorial' | 'form'>('info');
 
-  // Diese handleFinish Funktion wird direkt an Formular weitergegeben
-  // und verwendet die finish prop von der übergeordneten Komponente
   const handleFinish = (profile: UserProfile) => {
     finish(profile);
   };
@@ -21,11 +21,11 @@ export const WelcomeScreen = ({ finish }: WelcomeScreenProps) => {
     <ScrollView className="flex-1 bg-white">
       <View className="flex-1 items-center justify-start p-8 pt-16 mb-8">
         {step === 'info' ? (
-          <Info onNext={() => setStep('form')} />
+          <Info onNext={() => setStep('tutorial')} />
+        ) : step === 'tutorial' ? (
+          <Tutorial onNext={() => setStep('form')} />
         ) : (
-          <Formular 
-            onFinish={handleFinish}
-          />
+          <Formular onFinish={handleFinish} />
         )}
       </View>
     </ScrollView>
