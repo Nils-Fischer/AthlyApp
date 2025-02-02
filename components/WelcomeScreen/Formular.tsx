@@ -3,51 +3,15 @@ import { Text } from "~/components/ui/text";
 import { Button } from "~/components/ui/button";
 import { Gender, UserProfile } from "~/lib/types";
 import { useState } from "react";
-import Animated, { 
+import Animated, {
   FadeInDown,
-  FadeIn,
   useSharedValue,
   useAnimatedStyle,
   withTiming,
-  withDelay,
-  withSequence,
   runOnJS,
-  Easing,
   interpolate,
-  Extrapolate
-} from 'react-native-reanimated';
-import { Svg, Circle } from 'react-native-svg';
-
-// Neue Animationskomponente für den Lade-Indikator
-const LoadingIndicator = ({ progress }: { progress: Animated.SharedValue<number> }) => {
-  const animatedStyle = useAnimatedStyle(() => ({
-    opacity: interpolate(progress.value, [0, 1], [1, 0]),
-    transform: [{
-      rotate: `${interpolate(progress.value, [0, 1], [0, 360])}deg`
-    }]
-  }));
-
-  return (
-    <Animated.View 
-      className="absolute top-0 left-0 right-0 bottom-0 items-center justify-center bg-white/90"
-      style={animatedStyle}
-    >
-      <Svg width={60} height={60}>
-        <Circle
-          cx="30"
-          cy="30"
-          r="24"
-          stroke="#16A34A"
-          strokeWidth="4"
-          fill="transparent"
-          strokeDasharray="150.8"
-          strokeLinecap="round"
-        />
-      </Svg>
-    </Animated.View>
-  );
-};
-
+} from "react-native-reanimated";
+import { randomUUID } from "expo-crypto";
 
 interface FormularProps {
   onFinish: (profile: UserProfile) => void;
@@ -65,12 +29,12 @@ type FormState = {
 export const Formular: React.FC<FormularProps> = ({ onFinish }) => {
   // State mit expliziten Typen
   const [formState, setFormState] = useState<FormState>({
-    firstName: '',
-    lastName: '',
-    age: '',
+    firstName: "",
+    lastName: "",
+    age: "",
     gender: null,
-    height: '',
-    weight: ''
+    height: "",
+    weight: "",
   });
 
   // State für die Fehlermeldung
@@ -85,20 +49,17 @@ export const Formular: React.FC<FormularProps> = ({ onFinish }) => {
 
   const animatedContainerStyle = useAnimatedStyle(() => ({
     opacity: interpolate(animationProgress.value, [0, 1], [1, 0]),
-    transform: [
-      { translateY: interpolate(animationProgress.value, [0, 1], [0, -50]) },
-      { scale: contentScale.value }
-    ]
+    transform: [{ translateY: interpolate(animationProgress.value, [0, 1], [0, -50]) }, { scale: contentScale.value }],
   }));
 
   const animatedButtonStyle = useAnimatedStyle(() => ({
-    transform: [{ scale: buttonScale.value }]
+    transform: [{ scale: buttonScale.value }],
   }));
 
   // Animationsstil
   const animatedStyle = useAnimatedStyle(() => ({
     opacity: opacity.value,
-    transform: [{ translateY: translateY.value }]
+    transform: [{ translateY: translateY.value }],
   }));
 
   // Validierung der numerischen Felder
@@ -122,12 +83,13 @@ export const Formular: React.FC<FormularProps> = ({ onFinish }) => {
       weight !== null
     ) {
       const profile: UserProfile = {
+        id: randomUUID(),
         firstName: formState.firstName,
         lastName: formState.lastName,
         age,
         gender: formState.gender,
         height,
-        weight
+        weight,
       };
 
       // Exit-Animation
@@ -147,49 +109,44 @@ export const Formular: React.FC<FormularProps> = ({ onFinish }) => {
     numeric: boolean;
     placeholder: string;
   }[] = [
-    { 
-      key: 'firstName',
-      label: 'Vorname',
+    {
+      key: "firstName",
+      label: "Vorname",
       numeric: false,
-      placeholder: 'Max'
+      placeholder: "Max",
     },
     {
-      key: 'lastName',
-      label: 'Nachname', 
+      key: "lastName",
+      label: "Nachname",
       numeric: false,
-      placeholder: 'Mustermann'
+      placeholder: "Mustermann",
     },
     {
-      key: 'age',
-      label: 'Alter',
+      key: "age",
+      label: "Alter",
       numeric: true,
-      placeholder: '30'
+      placeholder: "30",
     },
     {
-      key: 'height',
-      label: 'Größe (cm)',
+      key: "height",
+      label: "Größe (cm)",
       numeric: true,
-      placeholder: '180'
+      placeholder: "180",
     },
     {
-      key: 'weight',
-      label: 'Gewicht (kg)',
+      key: "weight",
+      label: "Gewicht (kg)",
       numeric: true,
-      placeholder: '75'
-    }
+      placeholder: "75",
+    },
   ];
 
   return (
     <Animated.View className="flex-1 w-full" style={animatedStyle}>
       {/* Error Message */}
-      {errorMessage && (
-        <Text className="text-red-500 text-center mb-4">{errorMessage}</Text>
-      )}
+      {errorMessage && <Text className="text-red-500 text-center mb-4">{errorMessage}</Text>}
       {/* Header */}
-      <Animated.View 
-        className="items-center mb-8"
-        entering={FadeInDown.duration(200)}
-      >
+      <Animated.View className="items-center mb-8" entering={FadeInDown.duration(200)}>
         <Text className="text-2xl font-semibold mb-2">Dein Profil</Text>
         <Text className="text-gray-600 text-center px-4">
           Lass uns dein Profil erstellen, damit wir deinen Trainingsplan perfekt auf dich abstimmen können.
@@ -199,18 +156,13 @@ export const Formular: React.FC<FormularProps> = ({ onFinish }) => {
       {/* Formularfelder */}
       <View className="space-y-6">
         {textFields.map(({ key, label, numeric, placeholder }, index) => (
-          <Animated.View 
-            key={key}
-            entering={FadeInDown.duration(400).delay(100 + index * 50)}
-          >
+          <Animated.View key={key} entering={FadeInDown.duration(400).delay(100 + index * 50)}>
             <Text className="text-lg mb-2">{label}</Text>
             <TextInput
               className="w-full bg-gray-100 rounded-lg p-4 text-base"
-              value={formState[key] ?? ''}
-              onChangeText={(text) => 
-                setFormState(prev => ({ ...prev, [key]: text }))
-              }
-              keyboardType={numeric ? 'numeric' : 'default'}
+              value={formState[key] ?? ""}
+              onChangeText={(text) => setFormState((prev) => ({ ...prev, [key]: text }))}
+              keyboardType={numeric ? "numeric" : "default"}
               placeholder={`${placeholder} eingeben`}
               placeholderTextColor="#9CA3AF"
             />
@@ -222,22 +174,19 @@ export const Formular: React.FC<FormularProps> = ({ onFinish }) => {
           <Text className="text-lg mb-2">Geschlecht</Text>
           <View className="flex-row justify-between gap-2">
             {Object.values(Gender).map((gender, index) => (
-              <Animated.View 
-                key={gender}
-                entering={FadeInDown.duration(400).delay(400 + index * 50)}
-              >
+              <Animated.View key={gender} entering={FadeInDown.duration(400).delay(400 + index * 50)}>
                 <Button
-                  className={`min-w-[110px] py-4 ${
-                    formState.gender === gender ? 'bg-black' : 'bg-gray-100'
-                  }`}
-                  onPress={() => setFormState(prev => ({ ...prev, gender }))}
+                  className={`min-w-[110px] py-4 ${formState.gender === gender ? "bg-black" : "bg-gray-100"}`}
+                  onPress={() => setFormState((prev) => ({ ...prev, gender }))}
                 >
                   <Text className={formState.gender === gender ? "text-white" : "text-gray-700"}>
-                    {{
-                      [Gender.Male]: 'Männlich',
-                      [Gender.Female]: 'Weiblich',
-                      [Gender.Other]: 'Divers'
-                    }[gender]}
+                    {
+                      {
+                        [Gender.Male]: "Männlich",
+                        [Gender.Female]: "Weiblich",
+                        [Gender.Other]: "Divers",
+                      }[gender]
+                    }
                   </Text>
                 </Button>
               </Animated.View>
@@ -247,18 +196,20 @@ export const Formular: React.FC<FormularProps> = ({ onFinish }) => {
       </View>
 
       {/* Abschicken-Button */}
-      <Animated.View 
-        className="mt-8"
-        entering={FadeInDown.duration(200).delay(450)}
-      >
+      <Animated.View className="mt-8" entering={FadeInDown.duration(200).delay(450)}>
         <Button
           className="w-full bg-black py-4"
           onPress={handleSubmit}
-          disabled={!formState.firstName || !formState.lastName || !formState.age || !formState.gender || !formState.height || !formState.weight} // Disable button if fields are empty
+          disabled={
+            !formState.firstName ||
+            !formState.lastName ||
+            !formState.age ||
+            !formState.gender ||
+            !formState.height ||
+            !formState.weight
+          } // Disable button if fields are empty
         >
-          <Text className="text-white text-base font-medium">
-            Los geht's! 💪
-          </Text>
+          <Text className="text-white text-base font-medium">Los geht's! 💪</Text>
         </Button>
       </Animated.View>
     </Animated.View>
