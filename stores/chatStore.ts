@@ -8,7 +8,7 @@ const INITIAL_MESSAGE: Message = {
   message: "Hey! Ich bin Alex dein AI Coach. Wie kann ich dir helfen?",
   content: [],
   sender: "ai",
-  timestamp: new Date(),
+  timestamp: new Date().toISOString(),
   status: "sent",
 };
 
