@@ -108,8 +108,11 @@ export const ActiveWorkoutExerciseLogging = ({
       }
 
       const newSets = sets.filter((_, i) => i !== index);
+      // Also filter the setPerformed array to maintain sync
+      const newSetPerformed = setPerformed.filter((_, i) => i !== index);
 
       setSets(newSets);
+      setSetPerformed(newSetPerformed);
       updateExerciseRecord({
         ...exerciseRecord,
         sets: newSets,
@@ -119,7 +122,7 @@ export const ActiveWorkoutExerciseLogging = ({
         Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
       }
     },
-    [sets, exerciseRecord, updateExerciseRecord]
+    [sets, exerciseRecord, updateExerciseRecord, setPerformed]
   );
 
   const updateSet = useCallback(
