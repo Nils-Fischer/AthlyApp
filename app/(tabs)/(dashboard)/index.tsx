@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import { View, ScrollView } from "react-native";
 import { Text } from "~/components/ui/text";
 import { format } from "date-fns";
@@ -6,7 +6,6 @@ import { de } from "date-fns/locale";
 import { useActiveWorkoutStore } from "~/stores/activeWorkoutStore";
 import { useWorkoutHistoryStore } from "~/stores/workoutHistoryStore";
 import { useUserProfileStore } from "~/stores/userProfileStore";
-import { Workout } from "~/lib/types";
 import { TodaysWorkoutWidget } from "~/components/dashboard/TodaysWorkoutWidget";
 import { useUserRoutineStore } from "~/stores/userRoutineStore";
 
@@ -14,13 +13,45 @@ export default function Index() {
   const workoutHistoryStore = useWorkoutHistoryStore();
   const activeWorkoutStore = useActiveWorkoutStore();
   const { profile } = useUserProfileStore();
-  const { routines } = useUserRoutineStore();
+  const { routines, getActiveRoutine } = useUserRoutineStore();
+  const activeRoutine = useMemo(() => {
+    const activeRoutine = getActiveRoutine();
+    if (activeRoutine) {
+      console.log("New activeRoutine", activeRoutine?.name);
+    }
+    return activeRoutine;
+  }, [routines]);
 
-  const activeRoutine = routines.find((routine) => routine.active);
-  const numWorkouts = activeRoutine?.workouts.length || 0;
+  const numWorkouts = useMemo(() => activeRoutine?.workouts.length || 0, [activeRoutine]);
 
-  const [activeWorkoutIndex, setActiveWorkoutIndex] = useState(0);
-  const [activeWorkout, setActiveWorkout] = useState<Workout | null>(null);
+  const latestWorkoutIndex = () => {
+    const oldestWorkoutIndex = activeRoutine?.workouts.reduce((oldestIndex, workout, currentIndex, workouts) => {
+      const currentWorkoutLastDate = workoutHistoryStore.getLastWorkout(workout.id)?.date;
+      const oldestWorkoutLastDate = workoutHistoryStore.getLastWorkout(workouts[oldestIndex].id)?.date;
+
+      if (!currentWorkoutLastDate) return oldestIndex;
+      if (!oldestWorkoutLastDate) return currentIndex;
+
+      return currentWorkoutLastDate < oldestWorkoutLastDate ? currentIndex : oldestIndex;
+    }, 0);
+    return oldestWorkoutIndex || 0;
+  };
+
+  const [activeWorkoutOffset, setActiveWorkoutOffset] = useState<number>(0);
+
+  const activeWorkout = useMemo(() => {
+    const newWorkout = activeRoutine?.workouts[latestWorkoutIndex() + activeWorkoutOffset];
+    console.log("New activeWorkout", newWorkout?.name);
+    return newWorkout;
+  }, [activeRoutine, activeWorkoutOffset]);
+
+  useEffect(() => {
+    if (activeWorkout) {
+      activeWorkoutStore.setWorkout(activeWorkout);
+    } else {
+      activeWorkoutStore.cancelWorkout();
+    }
+  }, [activeWorkout]);
 
   // Persönliche Begrüßung
   const getGreeting = () => {
@@ -43,30 +74,8 @@ export default function Index() {
   ];
 
   const skipWorkout = () => {
-    const nextIndex = (activeWorkoutIndex + 1) % numWorkouts;
-    setActiveWorkoutIndex(nextIndex);
+    setActiveWorkoutOffset((activeWorkoutOffset + 1) % numWorkouts);
   };
-
-  useEffect(() => {
-    const newWorkout = activeRoutine?.workouts[activeWorkoutIndex];
-    if (newWorkout) {
-      setActiveWorkout(newWorkout);
-      activeWorkoutStore.setWorkout(newWorkout);
-    }
-  }, [activeWorkoutIndex]);
-
-  useEffect(() => {
-    const oldestWorkoutIndex = activeRoutine?.workouts.reduce((oldestIndex, workout, currentIndex, workouts) => {
-      const currentWorkoutLastDate = workoutHistoryStore.getLastWorkout(workout.id)?.date;
-      const oldestWorkoutLastDate = workoutHistoryStore.getLastWorkout(workouts[oldestIndex].id)?.date;
-
-      if (!currentWorkoutLastDate) return oldestIndex;
-      if (!oldestWorkoutLastDate) return currentIndex;
-
-      return currentWorkoutLastDate < oldestWorkoutLastDate ? currentIndex : oldestIndex;
-    }, 0);
-    setActiveWorkoutIndex(oldestWorkoutIndex || 0);
-  }, [activeRoutine, workoutHistoryStore]);
 
   const today = format(new Date(), "EEEE", { locale: de });
 

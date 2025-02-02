@@ -59,6 +59,7 @@ const getSetSuggestion = (exercise: WorkoutExercise): SetInput[] => {
 const getNewSession = (workout: Workout): WorkoutSession => {
   return {
     date: new Date(),
+    summary: "",
     entries: workout.exercises.map((exercise) => ({
       exerciseId: exercise.exerciseId,
       sets: getSetSuggestion(exercise),
