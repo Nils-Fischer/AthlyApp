@@ -1,65 +1,62 @@
 import { create } from "zustand";
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import { persist, createJSONStorage } from "zustand/middleware";
 import { WorkoutSession, ExerciseRecord } from "~/lib/types";
 
 interface WorkoutHistoryState {
   sessions: WorkoutSession[];
-  init: () => Promise<void>;
   addWorkoutSession: (session: WorkoutSession) => Promise<void>;
   getLastExerciseRecord: (exerciseId: number) => ExerciseRecord | undefined;
   getLastWorkout: (workoutId: number) => WorkoutSession | undefined;
 }
 
-const STORAGE_KEY = "@workout_history";
+export const useWorkoutHistoryStore = create<WorkoutHistoryState>()(
+  persist(
+    (set, get) => ({
+      sessions: [],
 
-export const useWorkoutHistoryStore = create<WorkoutHistoryState>((set, get) => ({
-  sessions: [],
+      addWorkoutSession: async (session: WorkoutSession) => {
+        const newSessions = [...get().sessions, session];
+        set({ sessions: newSessions });
+      },
 
-  init: async () => {
-    try {
-      const stored = await AsyncStorage.getItem(STORAGE_KEY);
-      if (stored) {
-        const sessions = JSON.parse(stored) || [];
-        if (Array.isArray(sessions)) {
-          sessions.forEach((session: WorkoutSession) => {
-            session.date = new Date(session.date);
-          });
-          set({ sessions });
-        } else {
-          set({ sessions: [] });
+      getLastExerciseRecord: (exerciseId: number) => {
+        const { sessions } = get();
+        // Sort sessions by date in descending order
+        const sortedSessions = [...sessions].sort((a, b) => b.date.getTime() - a.date.getTime());
+
+        // Find the last session containing the exercise
+        for (const session of sortedSessions) {
+          const exercise = session.entries.find((entry) => entry.exerciseId === exerciseId);
+          if (exercise) return exercise;
         }
-      }
-    } catch (e) {
-      console.error("Failed to load workout history:", e);
-      set({ sessions: [] });
+        return undefined;
+      },
+
+      getLastWorkout: (workoutId: number) => {
+        const { sessions } = get();
+        return sessions.find((session) => session.workoutId === workoutId);
+      },
+    }),
+    {
+      name: "workout-history",
+      storage: createJSONStorage(() => AsyncStorage, {
+        reviver: (_key: string, value: any): any => {
+          if (value && typeof value === "object" && "type" in value && value.type === "date") {
+            return new Date(value.value);
+          }
+          return value;
+        },
+        replacer: (_key: string, value: any): any => {
+          if (value instanceof Date) {
+            return {
+              type: "date" as const,
+              value: value.toISOString(),
+            };
+          }
+          return value;
+        },
+      }),
     }
-  },
-
-  addWorkoutSession: async (session: WorkoutSession) => {
-    try {
-      const newSessions = [...get().sessions, session];
-      await AsyncStorage.setItem(STORAGE_KEY, JSON.stringify(newSessions));
-      set({ sessions: newSessions });
-    } catch (e) {
-      console.error("Failed to save workout session:", e);
-    }
-  },
-
-  getLastExerciseRecord: (exerciseId: number) => {
-    const { sessions } = get();
-    // Sort sessions by date in descending order
-    const sortedSessions = [...sessions].sort((a, b) => b.date.getTime() - a.date.getTime());
-
-    // Find the last session containing the exercise
-    for (const session of sortedSessions) {
-      const exercise = session.entries.find((entry) => entry.exerciseId === exerciseId);
-      if (exercise) return exercise;
-    }
-    return undefined;
-  },
-
-  getLastWorkout: (workoutId: number) => {
-    const { sessions } = get();
-    return sessions.find((session) => session.workoutId === workoutId);
-  },
-}));
+  )
+);
