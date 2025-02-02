@@ -23,6 +23,7 @@ interface UserProfileState {
 }
 
 const initialProfile: UserProfile = {
+  id: "",
   firstName: "",
   lastName: "",
   age: 0,

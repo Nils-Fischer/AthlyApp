@@ -17,7 +17,6 @@ import { CustomDropdownMenu } from "~/components/ui/custom-dropdown-menu";
 import { Camera, Image, Plus, X, CheckCircle } from "~/lib/icons/Icons"; // Ensure CheckCircle is imported
 import {
   Select,
-  SelectLabel,
   SelectContent,
   SelectGroup,
   SelectItem,
@@ -26,9 +25,11 @@ import {
   type Option,
 } from "~/components/ui/select";
 import { BlurView } from "expo-blur";
-import { cn } from "~/lib/utils";
 import { useColorScheme } from "nativewind";
 import Animated, { FadeIn, FadeOut } from "react-native-reanimated";
+import { CameraView } from "~/components/Chat/CameraView";
+import { supabase } from "~/lib/supabase";
+import { useUserProfileStore } from "~/stores/userProfileStore";
 
 const CATEGORIES = [
   { value: "bug", label: "Problem melden", icon: "🐞" },
@@ -41,19 +42,21 @@ export default function FeedbackScreen() {
   const [feedbackData, setFeedbackData] = useState<{
     category: Option;
     message: string;
-    image: any;
+    images: string[];
     isSubmitting: boolean;
     showSuccess: boolean;
   }>({
     category: CATEGORIES[1],
     message: "",
-    image: null,
+    images: [],
     isSubmitting: false,
     showSuccess: false,
   });
 
   const { colorScheme } = useColorScheme();
   const insets = useSafeAreaInsets();
+  const [showCamera, setShowCamera] = React.useState(false);
+  const { profile } = useUserProfileStore();
 
   // Reset success message after 3 seconds
   useEffect(() => {
@@ -65,68 +68,54 @@ export default function FeedbackScreen() {
     }
   }, [feedbackData.showSuccess]);
 
-  async function openCamera() {
-    const { status } = await ImagePicker.requestCameraPermissionsAsync();
-    if (status !== "granted") return;
-
-    const result = await ImagePicker.launchCameraAsync({
-      mediaTypes: ImagePicker.MediaTypeOptions.Images,
-      allowsEditing: false,
-      quality: 0.7,
-    });
-
-    if (!result.canceled && result.assets?.[0]?.uri) {
-      await processImage(result.assets[0].uri);
-    }
-  }
+  const imageOptions = [
+    {
+      name: "Take Photo",
+      icon: Camera,
+      onPress: () => {
+        setShowCamera(true);
+      },
+    },
+    {
+      name: "Upload Image",
+      icon: Image,
+      onPress: openGallery,
+    },
+  ];
 
   async function openGallery() {
     const result = await ImagePicker.launchImageLibraryAsync({
-      mediaTypes: ImagePicker.MediaTypeOptions.Images,
+      mediaTypes: ["images"],
       allowsEditing: false,
       quality: 0.5,
-      allowsMultipleSelection: false,
+      exif: false,
+      allowsMultipleSelection: true,
+      selectionLimit: 5 - feedbackData.images.length,
     });
-
-    if (!result.canceled && result.assets?.[0]?.uri) {
-      await processImage(result.assets[0].uri);
+    if (!result.canceled && result.assets && result.assets.length > 0) {
+      result.assets.forEach((asset) => {
+        addPictureToMessage(asset.uri);
+      });
     }
   }
 
-  const processImage = async (uri: string) => {
+  const addPictureToMessage = async (uri: string) => {
     try {
       const manipResult = await ImageManipulator.manipulateAsync(uri, [{ resize: { width: 800 } }], {
         compress: 0.7,
         format: ImageManipulator.SaveFormat.JPEG,
         base64: true,
       });
-
-      if (!manipResult.base64) throw new Error("Image processing failed");
+      if (!manipResult.base64) throw new Error("Image compression failed");
 
       setFeedbackData((prev) => ({
         ...prev,
-        image: {
-          uri: `data:image/jpeg;base64,${manipResult.base64}`,
-          base64: manipResult.base64,
-        },
+        images: [...prev.images, `data:image/jpeg;base64,${manipResult.base64}`],
       }));
     } catch (error) {
-      console.error("Image processing failed", error);
+      console.error("Image manipulation failed", error);
     }
   };
-
-  const imageOptions = [
-    {
-      name: "Foto aufnehmen",
-      icon: Camera,
-      onPress: openCamera,
-    },
-    {
-      name: "Bild hochladen",
-      icon: Image,
-      onPress: openGallery,
-    },
-  ];
 
   const handleSubmit = async () => {
     try {
@@ -134,17 +123,21 @@ export default function FeedbackScreen() {
 
       if (!feedbackData.message.trim()) return;
 
-      // Simulate successful submission
-      console.log("Simulating successful submission");
-      await new Promise((resolve) => setTimeout(resolve, 1000));
-
-      console.log("Setting showSuccess to true");
+      if (profile) {
+        const { error } = await supabase.from("feedback").insert({
+          user_id: profile.id,
+          category: feedbackData.category?.value || "",
+          message: feedbackData.message,
+          images: feedbackData.images,
+        });
+        if (error) throw error;
+      }
 
       setFeedbackData((prev) => ({
         ...prev,
         category: CATEGORIES[1],
         message: "",
-        image: null,
+        images: [],
         isSubmitting: false,
         showSuccess: true,
       }));
@@ -159,8 +152,24 @@ export default function FeedbackScreen() {
     }
   };
 
+  if (showCamera) {
+    return (
+      <CameraView
+        onCancel={() => setShowCamera(false)}
+        onUsePhoto={(uri) => {
+          setShowCamera(false);
+          addPictureToMessage(uri);
+        }}
+        switchToGallery={() => {
+          setShowCamera(false);
+          openGallery();
+        }}
+      />
+    );
+  }
+
   return (
-    <SafeAreaView className="flex-1 bg-background">
+    <View className="flex-1 bg-background pt-5">
       {/* Success Overlay */}
       {feedbackData.showSuccess && (
         <Animated.View
@@ -231,21 +240,13 @@ export default function FeedbackScreen() {
                 insets={{ top: insets.top, bottom: insets.bottom }}
                 className="w-full rounded-xl overflow-hidden"
               >
-                <BlurView intensity={90} className={cn("rounded-xl", Platform.OS === "android" && "bg-card/90")}>
-                  <SelectGroup>
-                    {CATEGORIES.map((category) => (
-                      <SelectItem
-                        key={category.value}
-                        value={category.value}
-                        label={category.label}
-                        className="flex-row items-center py-3"
-                      >
-                        <Text className="text-xl mr-3">{category.icon}</Text>
-                        <Text className="text-foreground text-base">{category.label}</Text>
-                      </SelectItem>
-                    ))}
-                  </SelectGroup>
-                </BlurView>
+                <SelectGroup>
+                  {CATEGORIES.map((category) => (
+                    <SelectItem key={category.value} value={category.value} label={category.label}>
+                      <Text className="text-foreground text-base">{category.label}</Text>
+                    </SelectItem>
+                  ))}
+                </SelectGroup>
               </SelectContent>
             </Select>
           </View>
@@ -275,7 +276,7 @@ export default function FeedbackScreen() {
               <CustomDropdownMenu
                 items={imageOptions}
                 trigger={
-                  <Button size="icon" variant="outline" className="h-10 w-10 bg-card/50 border-border">
+                  <Button disabled={feedbackData.images.length >= 5} size="icon" className="h-10 w-10 bg-card/50">
                     <Plus size={20} className="text-foreground" />
                   </Button>
                 }
@@ -284,15 +285,26 @@ export default function FeedbackScreen() {
               />
             </View>
 
-            {feedbackData.image && (
-              <View className="relative rounded-xl overflow-hidden border border-border">
-                <RNImage source={{ uri: feedbackData.image.uri }} className="w-full aspect-square" />
-                <TouchableOpacity
-                  onPress={() => setFeedbackData((prev) => ({ ...prev, image: null }))}
-                  className="absolute top-2 right-2 bg-foreground/80 rounded-full p-1.5"
-                >
-                  <X size={16} className="text-background" />
-                </TouchableOpacity>
+            {feedbackData.images.length > 0 && (
+              <View className="flex-row flex-wrap gap-2">
+                {feedbackData.images.map((imageUri, index) => (
+                  <View key={index} className="relative">
+                    <RNImage source={{ uri: imageUri }} className="w-20 h-20 rounded-lg" />
+                    <Button
+                      size="icon"
+                      variant="default"
+                      className="absolute -top-2 -right-2 w-6 h-6"
+                      onPress={() => {
+                        setFeedbackData((prev) => ({
+                          ...prev,
+                          images: prev.images.filter((_, i) => i !== index),
+                        }));
+                      }}
+                    >
+                      <X size={12} className="text-background" />
+                    </Button>
+                  </View>
+                ))}
               </View>
             )}
           </View>
@@ -312,6 +324,6 @@ export default function FeedbackScreen() {
           )}
         </Button>
       </View>
-    </SafeAreaView>
+    </View>
   );
 }

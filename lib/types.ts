@@ -72,6 +72,7 @@ export interface Routine {
 }
 
 export interface UserProfile {
+  id: string;
   firstName: string;
   lastName: string;
   age: number;
