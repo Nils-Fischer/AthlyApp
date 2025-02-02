@@ -4,7 +4,7 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 import { UserProfile, Gender } from "~/lib/types";
 
 interface UserProfileState {
-  profile: UserProfile | null;
+  profile: UserProfile;
   isLoading: boolean;
   error: string | null;
 
@@ -35,7 +35,7 @@ const initialProfile: UserProfile = {
 export const useUserProfileStore = create<UserProfileState>()(
   persist(
     (set) => ({
-      profile: null,
+      profile: initialProfile,
       isLoading: false,
       error: null,
 
@@ -47,7 +47,7 @@ export const useUserProfileStore = create<UserProfileState>()(
           error: null,
         })),
 
-      resetProfile: () => set({ profile: null, error: null }),
+      resetProfile: () => set({ profile: initialProfile, error: null }),
 
       setFirstName: (firstName) =>
         set((state) => ({

@@ -13,12 +13,14 @@ import { useChatStore } from "~/stores/chatStore";
 import { Image } from "~/lib/types";
 import { useExerciseStore } from "~/stores/exerciseStore";
 import { useUserRoutineStore } from "~/stores/userRoutineStore";
+import { useUserProfileStore } from "~/stores/userProfileStore";
 
 export default function Screen() {
   const actionSheetRef = useRef<ActionSheetRef>(null);
-  const { messages, addMessage, updateMessageStatus, clearMessages, context } = useChatStore();
+  const { messages, addMessage, updateMessageStatus, context } = useChatStore();
   const { exercises } = useExerciseStore();
   const { routines, addRoutine } = useUserRoutineStore();
+  const { profile } = useUserProfileStore();
   const exerciseList = exercises?.map((exercise) => `${exercise.id} - ${exercise.name}`).join("\n") || "";
   const [isTyping, setIsTyping] = React.useState(false);
   const [routine, setRoutine] = React.useState<Routine | null>(null);
@@ -38,7 +40,7 @@ export default function Screen() {
     try {
       updateMessageStatus(newMessage.id, "sent");
       const updatedMessages = [...messages, newMessage];
-      const answer = await sendMessage(updatedMessages, exerciseList, context);
+      const answer = await sendMessage(updatedMessages, exerciseList, routines, profile, context);
       console.log("Answer:", answer);
       addMessage(answer);
     } catch (error) {

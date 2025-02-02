@@ -32,7 +32,7 @@ export function parseTaggedResponse(text: string): [string, Content[]] {
     })
     .filter((content) => content !== null);
 
-  const message = matches.find((match) => typeof match === "string") as string | undefined;
+  const message = matches.filter((match) => typeof match === "string").join("\n");
   const content = matches.filter((match) => typeof match !== "string") as Content[];
   return [message || "", content];
 }

@@ -5,7 +5,7 @@ import { APIPromise as AnthropicAPIPromise } from "@anthropic-ai/sdk/core";
 import { GenerateContentResult, GoogleGenerativeAI, InlineDataPart, Part, Schema } from "@google/generative-ai";
 import { prompts } from "./promptTemplates";
 import { Message } from "../Chat/types";
-import { Image as ImageType } from "~/lib/types";
+import { Image as ImageType, Routine, UserProfile } from "~/lib/types";
 
 function isImage(content: any): content is ImageType {
   return content && "uri" in content;
@@ -15,14 +15,16 @@ export async function getChatResponse(
   provider: "openai" | "anthropic" | "google",
   messages: Message[],
   exerciseList: string,
+  routines: Routine[],
+  profile: UserProfile,
   context?: string
 ): Promise<string> {
   const errorMessage = "<text>Etwas ist schief gelaufen. Bitte versuche es erneut.</text>";
   try {
     switch (provider) {
       case "google":
-        const googleAnswer = await createGeminiTextRequest(messages, exerciseList, context).then((response) =>
-          response.response.text()
+        const googleAnswer = await createGeminiTextRequest(messages, exerciseList, routines, profile, context).then(
+          (response) => response.response.text()
         );
         return googleAnswer;
       case "openai":
@@ -41,6 +43,8 @@ export async function getChatResponse(
 function createGeminiTextRequest(
   messages: Message[],
   exerciseList: string,
+  routines: Routine[],
+  profile: UserProfile,
   context?: string
 ): Promise<GenerateContentResult> {
   const api_key = process.env.EXPO_PUBLIC_GOOGLE_API_KEY;
@@ -59,7 +63,8 @@ function createGeminiTextRequest(
   };
 
   const prompt = prompts.promptForChatAnswer(exerciseList);
-  const initalParts: Part[] = [{ text: prompt }];
+  const userContextPrompt = prompts.userContextPrompt(routines, profile);
+  const initalParts: Part[] = [{ text: prompt }, { text: userContextPrompt }];
 
   if (context) {
     initalParts.push({ text: context });

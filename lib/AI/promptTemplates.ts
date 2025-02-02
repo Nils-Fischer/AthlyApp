@@ -1,3 +1,5 @@
+import { Routine, UserProfile } from "../types";
+
 export interface RoutineFormData {
   mainPrompt: string;
   goals?: string;
@@ -103,6 +105,12 @@ export const prompts = {
   - Answer in the user's language
   `;
   },
+
+  userContextPrompt: (routines: Routine[], profile: UserProfile): string => `
+  This is the user context:
+  ${JSON.stringify(routines)}
+  ${JSON.stringify(profile)}
+  `,
 
   promptForRoutineCreationWithForm: (formData: RoutineFormData, exerciseList: string): string => `
     You are Alex, a knowledgeable and friendly personal trainer AI. Your task is to create a personalized workout routine based on the user's specific requirements.

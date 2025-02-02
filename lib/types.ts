@@ -81,12 +81,6 @@ export interface UserProfile {
   weight: number;
 }
 
-export interface UserData {
-  routines: Routine[];
-  created_at: string;
-  last_updated: string;
-}
-
 enum ExerciseType {
   Weight = "Gewicht",
   Bodyweight = "Körpergewicht",
