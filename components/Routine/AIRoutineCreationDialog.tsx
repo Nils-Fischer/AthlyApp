@@ -9,8 +9,8 @@ import { Routine } from "~/lib/types";
 import { generateId, parseJSON } from "~/lib/utils";
 import { Input } from "../ui/input";
 import { useExerciseStore } from "~/stores/exerciseStore";
-import { googlePrompts } from "~/lib/AI/googlePrompts";
-import { createJSONAPICall } from "~/lib/AI/modelConnector";
+
+const API_URL = "https://api-proxy-worker.nils-fischer7.workers.dev";
 
 interface AIRoutineCreationDialogProps {
   open: boolean;
@@ -35,17 +35,35 @@ export function AIRoutineCreationDialog({ open, onOpenChange, onCreate }: AIRout
     setIsLoading(true);
     try {
       // Generate AI prompt from form data
-      const exerciseList = exerciseStore.exercises?.map((exercise) => `${exercise.id} - ${exercise.name}`).join("\n");
-      const prompt = googlePrompts.promptForRoutineCreationWithForm(formData);
-      const context = googlePrompts.context(exerciseList ?? "");
-      const schema = googlePrompts.routineCreationSchema;
+      const response: Response = await fetch(`${API_URL}/api/chat`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "Accept-Encoding": "gzip, deflate",
+        },
+        body: JSON.stringify({
+          provider: "google",
+          mainPrompt: formData.mainPrompt,
+          goals: formData.goals,
+          equipment: formData.equipment,
+          frequency: formData.frequency,
+          limitations: formData.limitations,
+        }),
+      });
+
+      if (!response.ok) {
+        const errorText = await response.text();
+        setLoadingStatus(errorText || "Fehler beim Erstellen des Trainingsplans");
+        setIsLoading(false);
+        return;
+      }
 
       setLoadingStatus("Erstelle Trainingsplan...");
-      const response = await createJSONAPICall("google", prompt, schema, context);
       console.log("response", response);
 
       setLoadingStatus("Verarbeite Antwort...");
-      const routine = parseJSON<Routine>(response);
+      const responseText = await response.text();
+      const routine = parseJSON<Routine>(responseText);
       if (!routine) {
         throw new Error("Failed to parse routine data");
       }
