@@ -1,4 +1,5 @@
 import { ReactNode } from "react";
+import { CoreMessage } from "ai";
 
 export enum TrainingGoal {
   Strength,
@@ -247,3 +248,9 @@ export interface Image {
   uri: string;
   type: "jpeg" | "png" | "heic" | "webp" | "heif";
 }
+
+export type ChatMessage = CoreMessage & {
+  id: string;
+  createdAt: Date;
+  status: "sent" | "sending" | "failed";
+};

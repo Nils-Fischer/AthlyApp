@@ -1,27 +1,22 @@
 import * as React from "react";
-import { View, ScrollView } from "react-native";
+import { View } from "react-native";
 import { useRef } from "react";
 import ActionSheet, { ActionSheetRef } from "react-native-actions-sheet";
 import ChatInterface from "~/components/Chat/chatinterface";
-import { createMessage, sendMessage } from "~/lib/Chat/chatUtils";
 import { Routine } from "~/lib/types";
 import { H1 } from "~/components/ui/typography";
 import { Text } from "~/components/ui/text";
 import { RoutineOverview } from "~/components/Routine/RoutineOverview";
 import { Button } from "~/components/ui/button";
 import { useChatStore } from "~/stores/chatStore";
-import { Image } from "~/lib/types";
-import { useExerciseStore } from "~/stores/exerciseStore";
 import { useUserRoutineStore } from "~/stores/userRoutineStore";
 import { useUserProfileStore } from "~/stores/userProfileStore";
 
-export default function Screen() {
+export default function ChatScreen() {
   const actionSheetRef = useRef<ActionSheetRef>(null);
-  const { messages, addMessage, updateMessageStatus, context } = useChatStore();
-  const { exercises } = useExerciseStore();
+  const { messages, sendMessage, clearMessages } = useChatStore();
   const { routines, addRoutine } = useUserRoutineStore();
   const { profile } = useUserProfileStore();
-  const exerciseList = exercises?.map((exercise) => `${exercise.id} - ${exercise.name}`).join("\n") || "";
   const [isTyping, setIsTyping] = React.useState(false);
   const [routine, setRoutine] = React.useState<Routine | null>(null);
   const [isAdded, setIsAdded] = React.useState(false);
@@ -31,23 +26,15 @@ export default function Screen() {
     actionSheetRef.current?.show();
   };
 
-  const handleSendMessage = async (message: string, image?: Image): Promise<void> => {
-    console.log("Sending message:", message);
-    const newMessage = createMessage(message, image ? [image] : [], "user");
-    console.log("New message:", newMessage);
-    addMessage(newMessage);
-    setIsTyping(true);
+  const handleSendMessage = async (message: string, images: string[]): Promise<void> => {
     try {
-      updateMessageStatus(newMessage.id, "sent");
-      const updatedMessages = [...messages, newMessage];
-      const answer = await sendMessage(updatedMessages, exerciseList, routines, profile, context);
-      console.log("Answer:", answer);
-      addMessage(answer);
+      setIsTyping(true);
+      await sendMessage(message, images || [], { routines, profile });
     } catch (error) {
       console.error("Error sending message:", error);
-      updateMessageStatus(newMessage.id, "failed");
+    } finally {
+      setIsTyping(false);
     }
-    setIsTyping(false);
   };
 
   const handleAddRoutine = async (routine: Routine) => {
@@ -57,6 +44,7 @@ export default function Screen() {
 
   React.useEffect(() => {
     setIsAdded(false);
+    clearMessages();
   }, [routine]);
 
   return (

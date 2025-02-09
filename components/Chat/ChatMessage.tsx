@@ -5,15 +5,29 @@ import { Card } from "~/components/ui/card";
 import { Text } from "~/components/ui/text";
 import { MessageAvatar } from "./MessageAvatar";
 import { Button } from "~/components/ui/button";
-import type { Message, Content } from "../../lib/Chat/types";
 import { Routine } from "~/lib/types";
+import { ChatMessage as ChatMessageType } from "~/lib/types";
+import { extractAssistantContent, extractUserContent } from "~/lib/Chat/chatUtils";
+import { DataContent } from "ai";
 
 export const ChatMessage = React.memo<{
-  message: Message;
-  showRoutine?: (routine: Routine) => void;
+  message: ChatMessageType;
+  showRoutine: (routine: Routine) => void;
 }>(({ message, showRoutine }) => {
-  const isAI = message.sender === "ai";
-  const timestamp = new Date(message.timestamp);
+  const isAI = message.role === "assistant";
+  const timestamp = new Date(message.createdAt);
+  let messageContent: string = "";
+  let images: (DataContent | URL)[] = [];
+  let newRoutine: Routine | undefined = undefined;
+  if (isAI) {
+    const { message: messageResult, newRoutine: routine } = extractAssistantContent(message);
+    messageContent = messageResult;
+    newRoutine = routine;
+  } else if (message.role === "user") {
+    const { message: messageResult, images: imagesResult } = extractUserContent(message);
+    messageContent = messageResult;
+    images = imagesResult;
+  }
 
   return (
     <Animated.View
@@ -34,15 +48,9 @@ export const ChatMessage = React.memo<{
         )}
         <View className="gap-y-1">
           <View className="flex-row flex-wrap items-end justify-end gap-x-1">
-            {message.content.map((section, index) => {
-              if (typeof section === "object" && "uri" in section) {
-                return (
-                  <Image
-                    key={`image-${index}`}
-                    source={{ uri: `data:image/jpeg;base64,${section.uri}` }}
-                    className="w-20 h-20 rounded-lg"
-                  />
-                );
+            {images.map((image, index) => {
+              if (typeof image === "string") {
+                return <Image key={`image-${index}`} source={{ uri: image }} className="w-20 h-20 rounded-lg" />;
               }
               return null;
             })}
@@ -50,31 +58,19 @@ export const ChatMessage = React.memo<{
           <Card className={`${isAI ? "bg-secondary/30" : "bg-primary"}  border-0 shadow-sm p-4`}>
             <View className="flex-col">
               <View className="flex-row flex-wrap  items-end justify-end gap-x-2">
-                <Text className={`${isAI ? "text-foreground" : "text-primary-foreground"}`}>
-                  {message.message.trim()}
-                </Text>
+                <Text className={`${isAI ? "text-foreground" : "text-primary-foreground"}`}>{messageContent}</Text>
               </View>
 
-              {Array.isArray(message.content) ? (
-                message.content.map((section: Content, index: number) => {
-                  if (typeof section === "object" && "workouts" in section) {
-                    return (
-                      <Button
-                        key={index}
-                        variant="secondary"
-                        className="mt-2"
-                        onPress={() => {
-                          section && showRoutine?.(section as Routine);
-                        }}
-                      >
-                        <Text>Routine ansehen</Text>
-                      </Button>
-                    );
-                  }
-                  return null;
-                })
-              ) : (
-                <Text className={`${isAI ? "text-foreground" : "text-primary-foreground"}`}>{message.content}</Text>
+              {newRoutine && (
+                <Button
+                  variant="secondary"
+                  className="mt-2"
+                  onPress={() => {
+                    newRoutine && showRoutine(newRoutine);
+                  }}
+                >
+                  <Text>Routine ansehen</Text>
+                </Button>
               )}
             </View>
           </Card>

@@ -1,23 +1,22 @@
 import * as React from "react";
 import { View, ScrollView, TextInput, KeyboardAvoidingView, Platform, Keyboard, Image as RNImage } from "react-native";
+import { ChatMessage } from "~/lib/types";
 import { Button } from "~/components/ui/button";
 import { Text } from "~/components/ui/text";
-import { ChatMessage } from "./ChatMessage";
 import { TypingIndicator } from "./TypingIndicator";
-import type { Message } from "../../lib/Chat/types";
 import { Routine } from "~/lib/types";
 import { CustomDropdownMenu } from "~/components/ui/custom-dropdown-menu";
 import { Camera, Image, Plus } from "~/lib/icons/Icons";
 import { CameraView } from "./CameraView";
 import * as ImagePicker from "expo-image-picker";
-import { Image as ImageType } from "~/lib/types";
 import * as ImageManipulator from "expo-image-manipulator";
 import { LOADING_SPINNER } from "~/assets/svgs";
+import { ChatMessage as ChatMessageUI } from "./ChatMessage";
 
 interface ChatInterfaceProps {
-  messages: Message[];
+  messages: ChatMessage[];
   isTyping: boolean;
-  onSendMessage: (message: string, image?: ImageType) => Promise<void>;
+  onSendMessage: (message: string, image: string[]) => Promise<void>;
   showRoutine?: (routine: Routine) => void;
 }
 
@@ -48,7 +47,7 @@ export default function ChatInterface({ messages, isTyping, onSendMessage, showR
 
   const handleSend = React.useCallback(() => {
     if (!inputMessage.trim()) return;
-    onSendMessage(inputMessage.trim(), capturedImage ? { uri: capturedImage, type: "jpeg" } : undefined);
+    onSendMessage(inputMessage.trim(), capturedImage ? [capturedImage] : []);
     setInputMessage("");
     setCapturedImage(null);
     inputRef.current?.blur();
@@ -129,7 +128,7 @@ export default function ChatInterface({ messages, isTyping, onSendMessage, showR
           contentContainerStyle={{ paddingTop: 20, paddingBottom: 20 }}
         >
           {messages.map((message) => (
-            <ChatMessage key={message.id} message={message} showRoutine={showRoutine} />
+            <ChatMessageUI key={message.id} message={message} showRoutine={showRoutine ?? (() => {})} />
           ))}
           {isTyping && <TypingIndicator />}
         </ScrollView>
