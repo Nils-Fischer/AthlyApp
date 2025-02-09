@@ -33,36 +33,15 @@ export function createUserMessage(message: string, images: string[]): ChatMessag
   };
 }
 
-function extractMessageContent(message: CoreMessage): string {
+export function extractMessageContent(message: CoreMessage): string[] {
   if (message.role !== "assistant" && message.role !== "user") {
     throw new Error("Message is not an assistant or user message");
   }
-  return message.content instanceof Array
-    ? message.content
-        .filter((content) => content.type === "text")
-        .map((content) => content.text.trim())
-        .join("\n")
-    : message.content;
-}
-
-export function extractAssistantContent(assistantMessage: CoreAssistantMessage): {
-  message: string;
-  newRoutine: Routine | undefined;
-} {
-  if (assistantMessage.role !== "assistant") {
-    throw new Error("Message is not an assistant message");
-  }
-  const message = extractMessageContent(assistantMessage);
-  const newRoutine =
-    assistantMessage.role === "assistant" && assistantMessage.content instanceof Array
-      ? ((
-          assistantMessage.content.find(
-            (content) => content.type === "tool-call" && content.toolName === "createRoutine"
-          ) as ToolCallPart | undefined
-        )?.args as Routine | undefined)
-      : undefined;
-
-  return { message, newRoutine };
+  const content =
+    message.content instanceof Array
+      ? message.content.filter((content) => content.type === "text").map((content) => content.text.trim())
+      : [message.content];
+  return content.map((content) => content.replaceAll(/<\/?(?:analysis|text|createRoutine)>/g, "").trim());
 }
 
 export function extractUserContent(userMessage: CoreUserMessage): {
@@ -76,5 +55,5 @@ export function extractUserContent(userMessage: CoreUserMessage): {
     userMessage.role === "user" && userMessage.content instanceof Array
       ? (userMessage.content.filter((content) => content.type === "image") as ImagePart[]).map((image) => image.image)
       : [];
-  return { message: extractMessageContent(userMessage), images };
+  return { message: extractMessageContent(userMessage).join("\n"), images };
 }

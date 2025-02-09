@@ -44,7 +44,6 @@ export default function ChatScreen() {
 
   React.useEffect(() => {
     setIsAdded(false);
-    clearMessages();
   }, [routine]);
 
   return (

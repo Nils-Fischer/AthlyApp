@@ -3,7 +3,7 @@ import { createJSONStorage, persist } from "zustand/middleware";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { CoreAssistantMessage } from "ai";
 import { ChatMessage } from "~/lib/types";
-import { createUserMessage, extractAssistantContent, toChatMessage } from "~/lib/Chat/chatUtils";
+import { createUserMessage, toChatMessage } from "~/lib/Chat/chatUtils";
 import { randomUUID } from "expo-crypto";
 
 const API_URL = "https://api-proxy-worker.nils-fischer7.workers.dev";
@@ -11,7 +11,10 @@ const API_URL = "https://api-proxy-worker.nils-fischer7.workers.dev";
 const INITIAL_MESSAGE: ChatMessage = {
   id: randomUUID(),
   role: "assistant",
-  content: [{ type: "text", text: "Hey! Ich bin Alex, dein AI Coach. Wie kann ich dir helfen?" }],
+  content: [
+    { type: "text", text: "No Analysis" },
+    { type: "text", text: "Hey! Ich bin Alex, dein AI Coach. Wie kann ich dir helfen?" },
+  ],
   createdAt: new Date(),
   status: "sent",
 };
@@ -61,6 +64,7 @@ export const useChatStore = create<ChatState>()(
           context,
         }),
       sendMessage: async (message: string, images: string[], data: MessageData) => {
+        console.log("sendMessage called with message:", message);
         get().setError(null);
 
         const chatMessage = createUserMessage(message, images);
@@ -70,12 +74,13 @@ export const useChatStore = create<ChatState>()(
 
         try {
           set({ isLoading: true });
+          console.log("setIsLoading(true) in sendMessage");
 
+          console.log("Fetching API with message:", message, "and context:", get().context);
           const response = await fetch(`${API_URL}/api/chat`, {
             method: "POST",
             headers: {
               "Content-Type": "application/json",
-              "Accept-Encoding": "gzip, deflate",
             },
             body: JSON.stringify({
               provider: "google",
@@ -84,10 +89,13 @@ export const useChatStore = create<ChatState>()(
               context: get().context,
             }),
           });
+          console.log("API response received:", response);
+
+          const responseBody = await response.text();
 
           if (!response.ok) {
-            const errorText = await response.text();
-            set({ error: errorText || "Failed to send message" });
+            console.error("API error response:", response.status, responseBody);
+            set({ error: responseBody || "Failed to send message" });
             set((state) => ({
               messages: state.messages.map((msg) => (msg.id === chatMessage.id ? { ...msg, status: "failed" } : msg)),
             }));
@@ -95,10 +103,8 @@ export const useChatStore = create<ChatState>()(
             return;
           }
 
-          const responseText = await response.text();
-          console.log("responseText", responseText);
-          const result = JSON.parse(responseText).response as CoreAssistantMessage;
-          console.log(extractAssistantContent(result));
+          console.log("responseText", responseBody);
+          const result = JSON.parse(responseBody).response as CoreAssistantMessage;
           set((state) => ({
             messages: [...state.messages, toChatMessage(result)],
           }));
@@ -106,6 +112,7 @@ export const useChatStore = create<ChatState>()(
           get().updateMessageStatus(chatMessage.id, "sent");
         } catch (error) {
           const errorMsg = error instanceof Error ? error.message : "Unexpected error occurred";
+          console.error("sendMessage error:", errorMsg, error);
           set({ error: errorMsg });
           set((state) => ({
             messages: state.messages.map((msg) => (msg.id === chatMessage.id ? { ...msg, status: "failed" } : msg)),
@@ -113,6 +120,7 @@ export const useChatStore = create<ChatState>()(
           console.error("Failed to send message:", error);
         } finally {
           set({ isLoading: false });
+          console.log("setIsLoading(false) in finally block");
         }
       },
     }),

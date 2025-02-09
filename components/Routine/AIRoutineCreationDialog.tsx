@@ -29,8 +29,6 @@ export function AIRoutineCreationDialog({ open, onOpenChange, onCreate }: AIRout
     limitations: "",
   });
 
-  const exerciseStore = useExerciseStore();
-
   const handleSubmit = async () => {
     setIsLoading(true);
     try {
