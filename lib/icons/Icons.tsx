@@ -1,5 +1,6 @@
 import {
   MessageSquare,
+  CircleX,
   ArrowRightLeft,
   Activity,
   Camera,
@@ -84,6 +85,7 @@ import { iconWithClassName } from "./iconWithClassName";
 import { BarChart } from "./BarChartIcon";
 
 iconWithClassName([
+  CircleX,
   MessageSquare,
   ArrowRightLeft,
   Camera,
@@ -249,4 +251,5 @@ export {
   Weight,
   X,
   Zap,
+  CircleX,
 };

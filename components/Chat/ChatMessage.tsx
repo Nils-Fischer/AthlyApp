@@ -10,6 +10,7 @@ import { ChatMessage as ChatMessageType } from "~/lib/types";
 import { extractMessageContent, extractUserContent } from "~/lib/Chat/chatUtils";
 import { DataContent } from "ai";
 import { parseJSON } from "~/lib/utils";
+import { CircleX } from "~/lib/icons/Icons";
 
 export const ChatMessage = React.memo<{
   message: ChatMessageType;
@@ -57,25 +58,32 @@ export const ChatMessage = React.memo<{
               return null;
             })}
           </View>
-          <Card className={`${isAI ? "bg-secondary/30" : "bg-primary"}  border-0 shadow-sm p-4`}>
-            <View className="flex-col">
-              <View className="flex-row flex-wrap  items-end justify-end gap-x-2">
-                <Text className={`${isAI ? "text-foreground" : "text-primary-foreground"}`}>{messageContent}</Text>
-              </View>
+          <View className="flex-row justify-end items-center">
+            <Card className={`${isAI ? "bg-secondary/30" : "bg-primary"}  border-0 shadow-sm p-4`}>
+              <View className="flex-col">
+                <View className="flex-row flex-wrap  items-end justify-end gap-x-2">
+                  <Text className={`${isAI ? "text-foreground" : "text-primary-foreground"}`}>{messageContent}</Text>
+                </View>
 
-              {newRoutine && (
-                <Button
-                  variant="secondary"
-                  className="mt-2"
-                  onPress={() => {
-                    newRoutine && showRoutine(newRoutine);
-                  }}
-                >
-                  <Text>Routine ansehen</Text>
-                </Button>
-              )}
-            </View>
-          </Card>
+                {newRoutine && (
+                  <Button
+                    variant="secondary"
+                    className="mt-2"
+                    onPress={() => {
+                      newRoutine && showRoutine(newRoutine);
+                    }}
+                  >
+                    <Text>Routine ansehen</Text>
+                  </Button>
+                )}
+              </View>
+            </Card>
+            {message.role === "user" && message.status === "failed" && (
+              <Button variant="ghost" className="px-1">
+                <CircleX className="text-destructive" />
+              </Button>
+            )}
+          </View>
         </View>
       </View>
     </Animated.View>

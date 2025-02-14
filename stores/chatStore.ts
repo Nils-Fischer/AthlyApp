@@ -77,6 +77,7 @@ export const useChatStore = create<ChatState>()(
           console.log("setIsLoading(true) in sendMessage");
 
           console.log("Fetching API with message:", message, "and context:", get().context);
+          const lastMessages = get().messages.slice(-5);
           const response = await fetch(`${API_URL}/api/chat`, {
             method: "POST",
             headers: {
@@ -84,7 +85,7 @@ export const useChatStore = create<ChatState>()(
             },
             body: JSON.stringify({
               provider: "google",
-              messages: get().messages.slice(-5),
+              messages: lastMessages,
               data: data,
               context: get().context,
             }),
@@ -109,7 +110,7 @@ export const useChatStore = create<ChatState>()(
             messages: [...state.messages, toChatMessage(result)],
           }));
 
-          get().updateMessageStatus(chatMessage.id, "sent");
+          lastMessages.forEach((message) => get().updateMessageStatus(message.id, "sent"));
         } catch (error) {
           const errorMsg = error instanceof Error ? error.message : "Unexpected error occurred";
           console.error("sendMessage error:", errorMsg, error);
