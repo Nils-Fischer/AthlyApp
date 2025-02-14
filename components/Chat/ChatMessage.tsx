@@ -11,11 +11,15 @@ import { extractMessageContent, extractUserContent } from "~/lib/Chat/chatUtils"
 import { DataContent } from "ai";
 import { parseJSON } from "~/lib/utils";
 import { CircleX } from "~/lib/icons/Icons";
+import { CustomDropdownMenu } from "~/components/ui/custom-dropdown-menu";
+import { RefreshCw, Trash2 } from "~/lib/icons/Icons";
 
 export const ChatMessage = React.memo<{
   message: ChatMessageType;
   showRoutine: (routine: Routine) => void;
-}>(({ message, showRoutine }) => {
+  deleteMessage: () => void;
+  resendMessage: () => void;
+}>(({ message, showRoutine, deleteMessage, resendMessage }) => {
   const isAI = message.role === "assistant";
   const timestamp = new Date(message.createdAt);
   let messageContent: string = "";
@@ -79,9 +83,28 @@ export const ChatMessage = React.memo<{
               </View>
             </Card>
             {message.role === "user" && message.status === "failed" && (
-              <Button variant="ghost" className="px-1">
-                <CircleX className="text-destructive" />
-              </Button>
+              <CustomDropdownMenu
+                items={[
+                  {
+                    name: "Resend",
+                    icon: RefreshCw,
+                    onPress: resendMessage,
+                  },
+                  {
+                    name: "Delete",
+                    icon: Trash2,
+                    onPress: deleteMessage,
+                    destructive: true,
+                  },
+                ]}
+                trigger={
+                  <Button variant="ghost" className="px-1">
+                    <CircleX className="text-destructive mr-2" />
+                  </Button>
+                }
+                align="end"
+                side="top"
+              />
             )}
           </View>
         </View>

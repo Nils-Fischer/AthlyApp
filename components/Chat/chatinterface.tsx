@@ -18,9 +18,18 @@ interface ChatInterfaceProps {
   isTyping: boolean;
   onSendMessage: (message: string, image: string[]) => Promise<void>;
   showRoutine?: (routine: Routine) => void;
+  deleteMessage: (messageId: string) => void;
+  resendMessage: (messageId: string) => void;
 }
 
-export default function ChatInterface({ messages, isTyping, onSendMessage, showRoutine }: ChatInterfaceProps) {
+export default function ChatInterface({
+  messages,
+  isTyping,
+  onSendMessage,
+  showRoutine,
+  deleteMessage,
+  resendMessage,
+}: ChatInterfaceProps) {
   const [inputMessage, setInputMessage] = React.useState("");
   const scrollViewRef = React.useRef<ScrollView>(null);
   const inputRef = React.useRef<TextInput>(null);
@@ -127,8 +136,14 @@ export default function ChatInterface({ messages, isTyping, onSendMessage, showR
           showsVerticalScrollIndicator={false}
           contentContainerStyle={{ paddingTop: 20, paddingBottom: 20 }}
         >
-          {messages.map((message) => (
-            <ChatMessageUI key={message.id} message={message} showRoutine={showRoutine ?? (() => {})} />
+          {messages.map((message, index) => (
+            <ChatMessageUI
+              key={message.id}
+              message={message}
+              showRoutine={showRoutine ?? (() => {})}
+              deleteMessage={() => deleteMessage(message.id)}
+              resendMessage={() => resendMessage(message.id)}
+            />
           ))}
           {isTyping && <TypingIndicator />}
         </ScrollView>
@@ -178,7 +193,10 @@ export default function ChatInterface({ messages, isTyping, onSendMessage, showR
                 style={{ maxHeight: 120 }}
                 keyboardType="default"
                 returnKeyType="send"
-                onSubmitEditing={handleSend}
+                onSubmitEditing={() => {
+                  if (isTyping || !inputMessage.trim() || capturedImage === "") return;
+                  handleSend();
+                }}
               />
             </View>
             <Button

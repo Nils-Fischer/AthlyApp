@@ -9,6 +9,7 @@ import {
   ImagePart,
   TextPart,
   ToolCallPart,
+  UserContent,
 } from "ai";
 import { randomUUID } from "expo-crypto";
 
@@ -31,6 +32,22 @@ export function createUserMessage(message: string, images: string[]): ChatMessag
     content: [text, ...image],
     status: "sent",
   };
+}
+
+export function unwrapUserMessage(message: CoreMessage): {
+  message: string;
+  images: string[];
+} {
+  if (message.role !== "user") {
+    throw new Error("Message is not a user message");
+  }
+  const content = message.content as UserContent;
+  if (typeof content === "string") {
+    return { message: content, images: [] };
+  }
+  const text = content.filter((content) => content.type === "text").map((content) => content.text.trim());
+  const images = content.filter((content) => content.type === "image").map((content) => content.image.toString());
+  return { message: text.join("\n"), images };
 }
 
 export function extractMessageContent(message: CoreMessage): string[] {

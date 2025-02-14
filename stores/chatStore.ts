@@ -3,7 +3,7 @@ import { createJSONStorage, persist } from "zustand/middleware";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { CoreAssistantMessage } from "ai";
 import { ChatMessage } from "~/lib/types";
-import { createUserMessage, toChatMessage } from "~/lib/Chat/chatUtils";
+import { createUserMessage, toChatMessage, unwrapUserMessage } from "~/lib/Chat/chatUtils";
 import { randomUUID } from "expo-crypto";
 
 const API_URL = "https://api-proxy-worker.nils-fischer7.workers.dev";
@@ -34,6 +34,8 @@ interface ChatState {
   clearMessages: () => void;
   setContext: (context: string) => void;
   setError: (error: string | null) => void;
+  deleteMessage: (messageId: string) => void;
+  resendMessage: (messageId: string, data: MessageData) => void;
 }
 
 export const useChatStore = create<ChatState>()(
@@ -63,6 +65,18 @@ export const useChatStore = create<ChatState>()(
         set({
           context,
         }),
+      deleteMessage: (messageId) =>
+        set((state) => ({
+          messages: state.messages.filter((message) => message.id !== messageId),
+        })),
+      resendMessage: (messageId, data: MessageData) => {
+        const messageToResend = get().messages.find((m) => m.id === messageId);
+        if (!messageToResend) return;
+
+        get().deleteMessage(messageId);
+        const { message, images } = unwrapUserMessage(messageToResend);
+        get().sendMessage(message, images, data);
+      },
       sendMessage: async (message: string, images: string[], data: MessageData) => {
         console.log("sendMessage called with message:", message);
         get().setError(null);
