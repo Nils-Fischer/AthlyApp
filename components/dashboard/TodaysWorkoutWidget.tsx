@@ -9,6 +9,7 @@ import { useExerciseStore } from "~/stores/exerciseStore";
 import * as Haptics from "expo-haptics";
 import { useActiveWorkoutStore } from "~/stores/activeWorkoutStore";
 import { ActiveWorkoutCancelConfirmation } from "~/components/ActiveWorkout/ActiveWorkoutCancelConfirmation";
+import { getRepsRange } from "~/lib/utils";
 
 interface TodaysWorkoutWidgetProps {
   workout: Workout;
@@ -101,7 +102,7 @@ export const TodaysWorkoutWidget = ({ workout, skipWorkout }: TodaysWorkoutWidge
                   <View className="flex-1">
                     <Text className="font-medium text-foreground">{exercise.name}</Text>
                     <Text className="text-sm text-muted-foreground">
-                      {workoutExercise.sets} Sätze • {workoutExercise.reps} Wdh
+                      {workoutExercise.sets.length} Sätze • {getRepsRange(workoutExercise)}
                     </Text>
                   </View>
                   <View className="h-8 w-8 rounded-full border border-primary/20 items-center justify-center">

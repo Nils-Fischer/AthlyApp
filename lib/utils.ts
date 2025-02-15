@@ -1,6 +1,6 @@
 import { clsx, type ClassValue } from "clsx";
 import { twMerge } from "tailwind-merge";
-import { Difficulty, Exercise, Muscle, MuscleGroup } from "./types";
+import { Difficulty, Exercise, Muscle, MuscleGroup, WorkoutExercise } from "./types";
 
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
@@ -83,4 +83,12 @@ export function getMuscleGroup(muscle: Muscle): MuscleGroup {
 
 export function difficultyAsNumber(difficulty: Difficulty): number {
   return difficulty === Difficulty.Beginner ? 0 : difficulty === Difficulty.Intermediate ? 1 : 2;
+}
+
+export function getRepsRange(exercise: WorkoutExercise): string {
+  if (exercise.sets.length === 1 || exercise.sets.every((set) => set.reps === exercise.sets[0].reps))
+    return `${exercise.sets[0].reps} Wdh.`;
+  return `${Math.min(...exercise.sets.map((set) => set.reps))}-${Math.max(
+    ...exercise.sets.map((set) => set.reps)
+  )} Wdh.`;
 }

@@ -9,8 +9,15 @@ const adjustExerciseForGoal = (exercise: WorkoutExercise, goal: TrainingGoal): W
 
   switch (goal) {
     case TrainingGoal.Strength:
-      adjusted.sets = exercise.sets + (isCompound ? 1 : 0);
-      adjusted.reps = Math.max(4, exercise.reps - 4);
+      adjusted.sets = exercise.sets.map((set) => ({
+        ...set,
+        reps: Math.max(4, set.reps - 4),
+      }));
+
+      if (isCompound) {
+        const newSet = { reps: Math.max(4, exercise.sets[0].reps - 4) };
+        adjusted.sets.push(newSet);
+      }
       adjusted.restPeriod = exercise.restPeriod! + 60;
       break;
 
@@ -18,8 +25,15 @@ const adjustExerciseForGoal = (exercise: WorkoutExercise, goal: TrainingGoal): W
       break;
 
     case TrainingGoal.Endurance:
-      adjusted.sets = exercise.sets + (isCompound ? 1 : 2);
-      adjusted.reps = exercise.reps + 6;
+      adjusted.sets = exercise.sets.map((set) => ({
+        ...set,
+        reps: set.reps + 6,
+      }));
+
+      const newSets = Array(isCompound ? 1 : 2).fill({
+        reps: exercise.sets[0].reps + 6,
+      });
+      adjusted.sets.push(...newSets);
       adjusted.restPeriod = Math.max(30, exercise.restPeriod! - 30);
       break;
   }
@@ -48,71 +62,61 @@ const basePushWorkout: WorkoutExercise[] = [
   {
     exerciseId: 1, // Bankdrücken (Barbell)
     alternatives: [5, 12, 14], // Dumbbell bench press, Smith machine bench press, Chest press machine
-    sets: 4,
-    reps: 8,
+    sets: Array(4).fill({ reps: 8 }),
     restPeriod: 90,
   },
   {
     exerciseId: 16, // Butterfly (Pec Deck)
     alternatives: [8, 53], // Dumbbell flys, Cable flys
-    sets: 3,
-    reps: 12,
+    sets: Array(3).fill({ reps: 12 }),
     restPeriod: 60,
   },
   {
     exerciseId: 2, // Bankdrücken Schrägbank
     alternatives: [6, 13, 15], // Dumbbell incline press, Smith incline press, Incline machine press
-    sets: 3,
-    reps: 10,
+    sets: Array(3).fill({ reps: 10 }),
     restPeriod: 90,
   },
   {
     exerciseId: 63, // Militärpress
     alternatives: [66, 74, 75], // Dumbbell shoulder press, Smith machine shoulder press, Shoulder press machine
-    sets: 3,
-    reps: 10,
+    sets: Array(3).fill({ reps: 10 }),
     restPeriod: 90,
   },
   {
     exerciseId: 22, // Vertikaler Butterfly
     alternatives: [],
-    sets: 3,
-    reps: 12,
+    sets: Array(3).fill({ reps: 12 }),
     restPeriod: 60,
   },
   {
     exerciseId: 28, // Dips (Brustversion)
     alternatives: [21], // Dip machine
-    sets: 3,
-    reps: 12,
+    sets: Array(3).fill({ reps: 12 }),
     restPeriod: 60,
   },
   {
     exerciseId: 68, // Seitheben
     alternatives: [71, 76, 80], // Cable lateral raises, Lateral raise machine, Resistance band lateral raises
-    sets: 3,
-    reps: 15,
+    sets: Array(3).fill({ reps: 15 }),
     restPeriod: 60,
   },
   {
     exerciseId: 101, // Überkopf Trizepsdrücken
     alternatives: [99, 105, 109, 115], // Skullcrusher, Single-arm dumbbell overhead extension, Cable overhead extension, Band overhead extension
-    sets: 3,
-    reps: 12,
+    sets: Array(3).fill({ reps: 12 }),
     restPeriod: 60,
   },
   {
     exerciseId: 100, // Close-Grip Bankdrücken
     alternatives: [103], // Lying triceps extension
-    sets: 3,
-    reps: 10,
+    sets: Array(3).fill({ reps: 10 }),
     restPeriod: 90,
   },
   {
     exerciseId: 106, // Trizeps Pushdown
     alternatives: [107, 112, 114], // Rope pushdown, Pushdown machine, Band pushdown
-    sets: 3,
-    reps: 12,
+    sets: Array(3).fill({ reps: 12 }),
     restPeriod: 60,
   },
 ];
@@ -139,71 +143,61 @@ const basePullWorkout: WorkoutExercise[] = [
   {
     exerciseId: 46, // Latzug (Breiter Griff)
     alternatives: [50, 56, 52], // Latzug Maschine, Klimmzug, Klimzugmaschine
-    sets: 4,
-    reps: 10,
+    sets: Array(4).fill({ reps: 10 }),
     restPeriod: 90,
   },
   {
     exerciseId: 42, // Sitzrudern am Kabelzug
     alternatives: [48, 51], // Hammer Strength Rudern, Low Row Machine
-    sets: 3,
-    reps: 12,
+    sets: Array(3).fill({ reps: 12 }),
     restPeriod: 90,
   },
   {
     exerciseId: 45, // Latziehen mit engem Griff
     alternatives: [47], // Einarmiger Lat Pulldown
-    sets: 3,
-    reps: 12,
+    sets: Array(3).fill({ reps: 12 }),
     restPeriod: 90,
   },
   {
     exerciseId: 32, // T-Bar Rudern
     alternatives: [31, 49, 166], // Vorgebeugtes Rudern, Smith Machine Rudern
-    sets: 3,
-    reps: 10,
+    sets: Array(3).fill({ reps: 10 }),
     restPeriod: 90,
   },
   {
     exerciseId: 44, // Straight Arm Pulldown (Pullover)
     alternatives: [],
-    sets: 3,
-    reps: 12,
+    sets: Array(3).fill({ reps: 12 }),
     restPeriod: 60,
   },
   {
     exerciseId: 165, // Reverse Butterfly
     alternatives: [40, 53], // Kurzhantel Reverse Flys, Reverse Cable Flys
-    sets: 3,
-    reps: 15,
+    sets: Array(3).fill({ reps: 15 }),
     restPeriod: 60,
   },
   {
     exerciseId: 43, // Face Pull
     alternatives: [70], // Cuban Press
-    sets: 3,
-    reps: 15,
+    sets: Array(3).fill({ reps: 15 }),
     restPeriod: 60,
   },
   {
     exerciseId: 82, // Langhantel Curl
     alternatives: [83, 85], // Preacher Curl, Spider Curl
-    sets: 3,
-    reps: 12,
+    sets: Array(3).fill({ reps: 12 }),
     restPeriod: 60,
   },
   {
     exerciseId: 86, // Kurzhantel Curl
     alternatives: [88, 89], // Schrägbank Curl, Konzentrationscurl
-    sets: 3,
-    reps: 12,
+    sets: Array(3).fill({ reps: 12 }),
     restPeriod: 60,
   },
   {
     exerciseId: 87, // Hammer Curl
     alternatives: [93, 98], // Rope Hammer Curl, Kettlebell-Curl
-    sets: 3,
-    reps: 12,
+    sets: Array(3).fill({ reps: 12 }),
     restPeriod: 60,
   },
 ];
@@ -230,64 +224,55 @@ const baseLegsExercises = [
   {
     exerciseId: 143, // Kniebeuge
     alternatives: [154, 144, 155], // Hackenschmidt-Kniebeuge, Frontkniebeuge, Smith Machine Kniebeuge
-    sets: 4,
-    reps: 10,
+    sets: Array(4).fill({ reps: 10 }),
     restPeriod: 120,
   },
   {
     exerciseId: 153, // Beinpresse
     alternatives: [],
-    sets: 3,
-    reps: 10,
+    sets: Array(3).fill({ reps: 10 }),
     restPeriod: 90,
   },
   {
     exerciseId: 145, // Romanian Deadlift
     alternatives: [149], // Rumänisches Kreuzheben mit Kurzhanteln
-    sets: 4,
-    reps: 10,
+    sets: Array(4).fill({ reps: 10 }),
     restPeriod: 90,
   },
   {
     exerciseId: 150, // Bulgarian Split Squat
     alternatives: [151, 152], // Ausfallschritte im Gehen, Step-Up
-    sets: 3,
-    reps: 12,
+    sets: Array(3).fill({ reps: 12 }),
     restPeriod: 60,
   },
   {
     exerciseId: 156, // Beinstrecker
     alternatives: [],
-    sets: 3,
-    reps: 15,
+    sets: Array(3).fill({ reps: 15 }),
     restPeriod: 60,
   },
   {
     exerciseId: 157, // Beincurls
     alternatives: [],
-    sets: 3,
-    reps: 12,
+    sets: Array(3).fill({ reps: 12 }),
     restPeriod: 60,
   },
   {
     exerciseId: 147, // Wadenheben
     alternatives: [158], // Wadenheben an der Maschine
-    sets: 3,
-    reps: 15,
+    sets: Array(3).fill({ reps: 15 }),
     restPeriod: 45,
   },
   {
     exerciseId: 167, // Beinheben
     alternatives: [130, 126], // V-Ups
-    sets: 3,
-    reps: 15,
+    sets: Array(3).fill({ reps: 15 }),
     restPeriod: 45,
   },
   {
     exerciseId: 131, // Crunch
     alternatives: [132, 133], // Decline Crunch, Kabelzug Crunch
-    sets: 3,
-    reps: 15,
+    sets: Array(3).fill({ reps: 15 }),
     restPeriod: 45,
   },
 ];
@@ -314,64 +299,55 @@ const baseUpperBodyExercises = [
   {
     exerciseId: 1, // Bankdrücken
     alternatives: [5, 14, 2], // Kurzhantel Bankdrücken (Flach), Brustpresse, Bankdrücken Schrägbank
-    sets: 3,
-    reps: 10,
+    sets: Array(3).fill({ reps: 10 }),
     restPeriod: 90,
   },
   {
     exerciseId: 56, // Klimmzug
     alternatives: [46, 50], // Latziehen (Breiter Griff), Latzug Maschine
-    sets: 3,
-    reps: 10,
+    sets: Array(3).fill({ reps: 10 }),
     restPeriod: 90,
   },
   {
     exerciseId: 63, // Militärpresse
     alternatives: [66, 75, 67], // Kurzhantel Schulterdrücken, Schulterpresse (Maschine), Arnold Press
-    sets: 3,
-    reps: 10,
+    sets: Array(3).fill({ reps: 10 }),
     restPeriod: 90,
   },
   {
     exerciseId: 32, // T-Bar Rudern
     alternatives: [31, 48, 166], // Vorgebeugtes Rudern, Hammer Strength Rudern, Sitzendes Rudern (Breit)
-    sets: 3,
-    reps: 10,
+    sets: Array(3).fill({ reps: 10 }),
     restPeriod: 90,
   },
   {
     exerciseId: 18, // Kabelkreuzen
     alternatives: [16, 8, 20], // Butterfly (Pec Deck), Kurzhantel Flys (Flach), Hoher Kabelzug
-    sets: 3,
-    reps: 12,
+    sets: Array(3).fill({ reps: 12 }),
     restPeriod: 90,
   },
   {
     exerciseId: 68, // Seitheben
     alternatives: [71, 76, 69], // Kabelzug Seitheben, Seitheben-Maschine, Frontheben
-    sets: 3,
-    reps: 15,
+    sets: Array(3).fill({ reps: 15 }),
     restPeriod: 60,
   },
   {
     exerciseId: 43, // Face Pull
     alternatives: [165, 70], // Reverse Butterfly, Cuban Press
-    sets: 3,
-    reps: 15,
+    sets: Array(3).fill({ reps: 15 }),
     restPeriod: 60,
   },
   {
     exerciseId: 82, // Langhantel Curl
     alternatives: [86, 91, 83], // Kurzhantel Curl, Cable Curl, Preacher Curl
-    sets: 3,
-    reps: 12,
+    sets: Array(3).fill({ reps: 12 }),
     restPeriod: 90,
   },
   {
     exerciseId: 106, // Trizeps Pushdown
     alternatives: [107, 112, 101, 99], // Trizeps-Seildrücken, Trizeps-Pushdown-Maschine, Überkopf Trizepsdrücken, Skullcrusher
-    sets: 3,
-    reps: 12,
+    sets: Array(3).fill({ reps: 12 }),
     restPeriod: 90,
   },
 ];
@@ -398,71 +374,61 @@ const baseFullBodyExercises = [
   {
     exerciseId: 143, // Kniebeuge
     alternatives: [148, 153, 154], // Goblet Squat, Beinpresse, Hackenschmidt-Kniebeuge
-    sets: 4,
-    reps: 8,
+    sets: Array(4).fill({ reps: 8 }),
     restPeriod: 120,
   },
   {
     exerciseId: 1, // Bankdrücken
     alternatives: [5, 14, 2], // Kurzhantel Bankdrücken (Flach), Brustpresse, Bankdrücken Schrägbank
-    sets: 4,
-    reps: 8,
+    sets: Array(4).fill({ reps: 8 }),
     restPeriod: 120,
   },
   {
     exerciseId: 56, // Klimmzug
     alternatives: [46, 50, 52], // Latziehen (Breiter Griff), Latzug Maschine, Klimmzug Maschine
-    sets: 4,
-    reps: 8,
+    sets: Array(4).fill({ reps: 8 }),
     restPeriod: 120,
   },
   {
     exerciseId: 145, // Romanian Deadlift
     alternatives: [149, 146], // Rumänisches Kreuzheben mit Kurzhanteln, Hip Thrust
-    sets: 4,
-    reps: 10,
+    sets: Array(4).fill({ reps: 10 }),
     restPeriod: 120,
   },
   {
     exerciseId: 63, // Militärpresse
     alternatives: [66, 75, 67], // Kurzhantel Schulterdrücken, Schulterpresse (Maschine), Arnold Press
-    sets: 3,
-    reps: 10,
+    sets: Array(3).fill({ reps: 10 }),
     restPeriod: 90,
   },
   {
     exerciseId: 166, // Sitzendes Rudern
     alternatives: [31, 48, 32], // Vorgebeugtes Rudern, Hammer Strength Rudern, T-Bar Rudern
-    sets: 3,
-    reps: 10,
+    sets: Array(3).fill({ reps: 10 }),
     restPeriod: 90,
   },
   {
     exerciseId: 68, // Seitheben
     alternatives: [71, 76, 69], // Kabelzug Seitheben, Seitheben-Maschine, Frontheben
-    sets: 3,
-    reps: 15,
+    sets: Array(3).fill({ reps: 15 }),
     restPeriod: 60,
   },
   {
     exerciseId: 106, // Trizeps Pushdown
     alternatives: [107, 112, 101], // Trizeps-Seildrücken, Trizeps-Pushdown-Maschine, Überkopf Trizepsdrücken
-    sets: 3,
-    reps: 12,
+    sets: Array(3).fill({ reps: 12 }),
     restPeriod: 60,
   },
   {
     exerciseId: 82, // Langhantel Curl
     alternatives: [86, 91, 83], // Kurzhantel Curl, Cable Curl, Preacher Curl
-    sets: 3,
-    reps: 12,
+    sets: Array(3).fill({ reps: 12 }),
     restPeriod: 60,
   },
   {
     exerciseId: 43, // Face Pull
     alternatives: [70], // Cuban Press
-    sets: 3,
-    reps: 15,
+    sets: Array(3).fill({ reps: 15 }),
     restPeriod: 60,
   },
 ];

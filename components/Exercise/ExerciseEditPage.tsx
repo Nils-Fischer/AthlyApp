@@ -3,7 +3,7 @@ import { View, Pressable, TextInput, ScrollView } from "react-native";
 import { Text } from "~/components/ui/text";
 import { Button } from "~/components/ui/button";
 import { Plus, Minus, Timer, BarChart2, Repeat, ChevronRight, FileText, Info } from "~/lib/icons/Icons";
-import { Exercise, WorkoutExercise } from "~/lib/types";
+import { Exercise, WorkoutExercise, SetConfiguration } from "~/lib/types";
 import { Separator } from "~/components/ui/separator";
 import { ExerciseOverviewCard } from "~/components/Exercise/ExerciseOverviewCard";
 import { ExerciseBottomSheetHeader } from "~/components/Exercise/ExerciseBottomSheetHeader";
@@ -29,17 +29,36 @@ export const ExerciseEditPage: React.FC<ExerciseEditPageProps> = ({
   navigateToAlternativeExercises,
   navigateToStats,
 }) => {
-  const [sets, setSets] = React.useState(workoutExercise.sets);
-  const [reps, setReps] = React.useState(workoutExercise.reps);
+  const [setConfigs, setSetConfigs] = React.useState<SetConfiguration[]>(workoutExercise.sets);
   const [restTime, setRestTime] = React.useState(workoutExercise.restPeriod || 120);
 
-  const getNewWorkoutExercise = (): WorkoutExercise => {
-    return {
-      ...workoutExercise,
-      sets: sets,
-      reps: reps,
-      restPeriod: restTime,
-    };
+  const getNewWorkoutExercise = (): WorkoutExercise => ({
+    ...workoutExercise,
+    sets: setConfigs,
+    restPeriod: restTime,
+  });
+
+  const addSet = () => {
+    if (setConfigs.length >= 10) return;
+    const lastSet = setConfigs[setConfigs.length - 1];
+    setSetConfigs([...setConfigs, { reps: lastSet?.reps || 12, weight: lastSet?.weight }]);
+  };
+
+  const removeSet = () => {
+    if (setConfigs.length <= 1) return;
+    setSetConfigs(setConfigs.slice(0, -1));
+  };
+
+  const updateSetReps = (index: number, reps: number) => {
+    const newConfigs = [...setConfigs];
+    newConfigs[index] = { ...newConfigs[index], reps: Math.min(Math.max(1, reps), 30) };
+    setSetConfigs(newConfigs);
+  };
+
+  const updateSetWeight = (index: number, weight: number) => {
+    const newConfigs = [...setConfigs];
+    newConfigs[index] = { ...newConfigs[index], weight };
+    setSetConfigs(newConfigs);
   };
 
   const save = () => onSave(getNewWorkoutExercise());
@@ -52,10 +71,20 @@ export const ExerciseEditPage: React.FC<ExerciseEditPageProps> = ({
   const adjustValue = (type: "sets" | "reps" | "rest", increment: boolean) => {
     switch (type) {
       case "sets":
-        setSets(Math.min(Math.max(1, sets + (increment ? 1 : -1)), 10));
+        if (increment && setConfigs.length < 10) {
+          const lastSet = setConfigs[setConfigs.length - 1];
+          setSetConfigs([...setConfigs, { reps: lastSet?.reps || 12, weight: lastSet?.weight }]);
+        } else if (!increment && setConfigs.length > 1) {
+          setSetConfigs(setConfigs.slice(0, -1));
+        }
         break;
       case "reps":
-        setReps(Math.min(Math.max(1, reps + (increment ? 1 : -1)), 30));
+        setSetConfigs(
+          setConfigs.map((set) => ({
+            ...set,
+            reps: Math.min(Math.max(1, set.reps + (increment ? 1 : -1)), 30),
+          }))
+        );
         break;
       case "rest":
         setRestTime(Math.min(Math.max(30, restTime + (increment ? 15 : -15)), 180));
@@ -66,71 +95,11 @@ export const ExerciseEditPage: React.FC<ExerciseEditPageProps> = ({
   return (
     <ExerciseBottomSheetHeader title="Übung bearbeiten" onClose={onClose} onSave={save}>
       <ScrollView className="flex-1 bg-background">
-        {/* Exercise Info Card */}
         <View className="p-4">
           <ExerciseOverviewCard exercise={exercise} onPress={goToExerciseDetails} />
-          {/* Sets */}
-          <View className="my-6">
-            <Text className="text-base font-medium text-muted-foreground mb-2">Sätze</Text>
-            <View className="flex-row items-center justify-between bg-secondary/10 p-4 rounded-xl shadow-sm">
-              <Button
-                variant="ghost"
-                size="icon"
-                onPress={() => adjustValue("sets", false)}
-                className="h-11 w-11 bg-background/50 rounded-lg"
-              >
-                <Minus size={20} className="text-foreground" />
-              </Button>
-              <Pressable className="bg-background/50 px-6 py-2 rounded-lg" onPress={() => {}}>
-                <TextInput
-                  className="text-3xl font-semibold text-center w-16 text-primary"
-                  value={sets.toString()}
-                  onChangeText={(text) => setSets(parseInt(text) || sets)}
-                  keyboardType="number-pad"
-                />
-              </Pressable>
-              <Button
-                variant="ghost"
-                size="icon"
-                onPress={() => adjustValue("sets", true)}
-                className="h-11 w-11 bg-background/50 rounded-lg"
-              >
-                <Plus size={20} className="text-foreground" />
-              </Button>
-            </View>
-          </View>
-          {/* Reps */}
-          <View className="mb-6">
-            <Text className="text-base font-medium text-muted-foreground mb-2">Wiederholungen</Text>
-            <View className="flex-row items-center justify-between bg-secondary/10 p-4 rounded-xl shadow-sm">
-              <Button
-                variant="ghost"
-                size="icon"
-                onPress={() => adjustValue("reps", false)}
-                className="h-11 w-11 bg-background/50 rounded-lg"
-              >
-                <Minus size={20} className="text-foreground" />
-              </Button>
-              <Pressable className="bg-background/50 px-6 py-2 rounded-lg" onPress={() => {}}>
-                <TextInput
-                  className="text-3xl font-semibold text-center w-16 text-primary"
-                  value={reps.toString()}
-                  onChangeText={(text) => setReps(parseInt(text) || reps)}
-                  keyboardType="number-pad"
-                />
-              </Pressable>
-              <Button
-                variant="ghost"
-                size="icon"
-                onPress={() => adjustValue("reps", true)}
-                className="h-11 w-11 bg-background/50 rounded-lg"
-              >
-                <Plus size={20} className="text-foreground" />
-              </Button>
-            </View>
-          </View>
+
           {/* Rest Time */}
-          <View className="mb-6">
+          <View className="mt-6">
             <Text className="text-base font-medium text-muted-foreground mb-2">Pausenzeit</Text>
             <View className="flex-row items-center justify-between bg-secondary/10 p-4 rounded-xl shadow-sm">
               <Button
@@ -164,6 +133,69 @@ export const ExerciseEditPage: React.FC<ExerciseEditPageProps> = ({
               </Button>
             </View>
           </View>
+
+          {/* Sets Counter */}
+          <View className="my-6">
+            <Text className="text-base font-medium text-muted-foreground mb-2">Sätze</Text>
+            <View className="flex-row items-center justify-between bg-secondary/10 p-4 rounded-xl shadow-sm">
+              <Button variant="ghost" size="icon" onPress={removeSet} className="h-11 w-11 bg-background/50 rounded-lg">
+                <Minus size={20} className="text-foreground" />
+              </Button>
+              <Text className="text-3xl font-semibold text-center text-primary">{setConfigs.length}</Text>
+              <Button variant="ghost" size="icon" onPress={addSet} className="h-11 w-11 bg-background/50 rounded-lg">
+                <Plus size={20} className="text-foreground" />
+              </Button>
+            </View>
+          </View>
+
+          {/* Set Configurations */}
+          {setConfigs.map((set, index) => (
+            <View key={index} className="mb-3 bg-secondary/10 rounded-xl p-3">
+              <View className="flex-row items-center gap-4">
+                <Text className="text-base font-medium text-muted-foreground">Satz {index + 1}</Text>
+                {/* Reps Input */}
+                <View className="flex-1">
+                  <View className="flex-row items-center justify-between bg-background/50 rounded-lg p-1">
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      onPress={() => updateSetReps(index, set.reps - 1)}
+                      className="h-9 w-9 rounded-lg"
+                    >
+                      <Minus size={16} className="text-foreground" />
+                    </Button>
+                    <TextInput
+                      className="text-lg font-semibold text-center w-12 text-primary"
+                      value={set.reps.toString()}
+                      onChangeText={(text) => updateSetReps(index, parseInt(text) || set.reps)}
+                      keyboardType="number-pad"
+                      placeholder="Reps"
+                    />
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      onPress={() => updateSetReps(index, set.reps + 1)}
+                      className="h-9 w-9 rounded-lg"
+                    >
+                      <Plus size={16} className="text-foreground" />
+                    </Button>
+                  </View>
+                </View>
+
+                {/* Weight Input */}
+                <View className="flex-1">
+                  <TextInput
+                    className="text-lg font-semibold text-center text-primary bg-background/50 rounded-lg p-2"
+                    value={set.weight?.toString() || ""}
+                    onChangeText={(text) => updateSetWeight(index, parseFloat(text) || 0)}
+                    placeholder="Gewicht (kg)"
+                    keyboardType="decimal-pad"
+                  />
+                </View>
+              </View>
+            </View>
+          ))}
+
           <Separator className="my-6" />
           <Text className="text-base font-medium mb-4">Weitere Optionen</Text>
           {/* View Exercise Details */}

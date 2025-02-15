@@ -3,7 +3,7 @@ import { View, Pressable } from "react-native";
 import { Text } from "~/components/ui/text";
 import { Image } from "react-native";
 import { Exercise, WorkoutExercise } from "~/lib/types";
-import { getThumbnail } from "~/lib/utils";
+import { getRepsRange, getThumbnail } from "~/lib/utils";
 
 interface ExerciseCardProps {
   exercise: Exercise;
@@ -35,10 +35,7 @@ export const ExerciseOverviewCard = ({ exercise, workoutExercise, onPress }: Exe
             {workoutExercise && (
               <View className="mt-2 pt-2 border-t border-border/50">
                 <Text className="text-sm text-muted-foreground">
-                  {workoutExercise.sets} Sätze •{" "}
-                  {typeof workoutExercise.reps === "number"
-                    ? `${workoutExercise.reps} Wdh.`
-                    : `${workoutExercise.reps[0]}-${workoutExercise.reps[1]} Wdh.`}
+                  {workoutExercise.sets.length} Sätze • {getRepsRange(workoutExercise)}
                 </Text>
               </View>
             )}

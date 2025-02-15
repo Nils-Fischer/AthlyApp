@@ -64,8 +64,7 @@ export function WorkoutPage({
     const newExercise: WorkoutExercise = {
       exerciseId,
       alternatives: [],
-      sets: 3,
-      reps: 10,
+      sets: Array(3).fill({ reps: 10 }),
     };
 
     if (workout.exercises.map((exercise) => exercise.exerciseId).includes(exerciseId)) return;

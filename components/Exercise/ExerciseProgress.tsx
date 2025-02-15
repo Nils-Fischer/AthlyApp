@@ -13,12 +13,7 @@ export interface ExerciseProgressProps {
   navigateBack: () => void;
 }
 
-export const ExerciseProgress: React.FC<ExerciseProgressProps> = ({
-  workoutExercise,
-  exercise,
-  onSave,
-  navigateBack,
-}) => {
+export const ExerciseProgress: React.FC<ExerciseProgressProps> = ({ workoutExercise, onSave, navigateBack }) => {
   // Beispieldaten für Chart
   const data = {
     labels: ["1.W", "2.W", "3.W", "4.W"],

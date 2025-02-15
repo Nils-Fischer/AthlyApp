@@ -7,7 +7,7 @@ import type { Workout, WorkoutExercise, Exercise, ExerciseRecord } from "~/lib/t
 import { useExerciseStore } from "~/stores/exerciseStore";
 import { useActiveWorkoutStore } from "~/stores/activeWorkoutStore";
 import { Image } from "expo-image";
-import { getThumbnail } from "~/lib/utils";
+import { getRepsRange, getThumbnail } from "~/lib/utils";
 
 interface ActiveWorkoutExerciseListProps {
   workout: Workout;
@@ -110,14 +110,18 @@ function ExerciseCard({ exercise, workoutExercise, exerciseRecord, isStarted, on
                   {exercise.name}
                 </Text>
                 {isStarted && (
-                  <ProgressIndicator total={workoutExercise.sets} completed={completedSets} isCompleted={isCompleted} />
+                  <ProgressIndicator
+                    total={workoutExercise.sets.length}
+                    completed={completedSets}
+                    isCompleted={isCompleted}
+                  />
                 )}
               </View>
 
               <View className="flex-row mt-1 items-center">
                 <Text className="text-sm text-muted-foreground">
-                  {workoutExercise.sets} {workoutExercise.sets > 1 ? "Sätze" : "Satz"} × {workoutExercise.reps}{" "}
-                  {workoutExercise.reps > 1 ? "Wiederholungen" : "Wiederholung"}
+                  {workoutExercise.sets.length} {workoutExercise.sets.length > 1 ? "Sätze" : "Satz"} ×{" "}
+                  {getRepsRange(workoutExercise)}
                 </Text>
               </View>
             </View>

@@ -46,11 +46,15 @@ export enum Gender {
   Other = "Other",
 }
 
+export interface SetConfiguration {
+  reps: number;
+  weight?: number;
+}
+
 export interface WorkoutExercise {
   exerciseId: number;
   alternatives: number[];
-  sets: number;
-  reps: number;
+  sets: SetConfiguration[];
   restPeriod?: number;
   notes?: string;
 }

@@ -5,7 +5,7 @@ import { MoreHorizontal, Trash2, Edit3, Repeat, X } from "~/lib/icons/Icons";
 import { Exercise, WorkoutExercise } from "~/lib/types";
 import { DeleteConfirmation } from "../DeleteConfirmation";
 import { CustomDropdownMenu } from "~/components/ui/custom-dropdown-menu";
-import { getThumbnail } from "~/lib/utils";
+import { getRepsRange, getThumbnail } from "~/lib/utils";
 
 interface WorkoutExerciseItemProps {
   workoutExercise: WorkoutExercise;
@@ -21,12 +21,6 @@ interface WorkoutExerciseItemProps {
   onShowEditSheet: () => void;
   onDelete: () => void;
 }
-
-const getRepsRange = (exercise: WorkoutExercise) => {
-  if (exercise.reps === 10) return "10 Wdh.";
-  if (Array.isArray(exercise.reps)) return `${exercise.reps[0]}-${exercise.reps[1]} Wdh.`;
-  return `${exercise.reps} Wdh.`;
-};
 
 export function WorkoutExerciseItem({
   workoutExercise,
@@ -103,7 +97,7 @@ export function WorkoutExerciseItem({
           )}
         </View>
         <Text className="mt-3 text-sm text-muted-foreground">
-          {workoutExercise.sets} Sätze • {getRepsRange(workoutExercise)}
+          {workoutExercise.sets.length} Sätze • {getRepsRange(workoutExercise)}
         </Text>
       </View>
     </TouchableOpacity>
