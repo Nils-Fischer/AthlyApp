@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState } from "react";
+import React, { useMemo, useState } from "react";
 import { View, ScrollView } from "react-native";
 import { Text } from "~/components/ui/text";
 import { format } from "date-fns";
@@ -11,7 +11,7 @@ import { useUserRoutineStore } from "~/stores/userRoutineStore";
 
 export default function Index() {
   const workoutHistoryStore = useWorkoutHistoryStore();
-  const activeWorkoutStore = useActiveWorkoutStore();
+  const { workoutTimer, startWorkout, cancelWorkout } = useActiveWorkoutStore();
   const { profile } = useUserProfileStore();
   const { routines, getActiveRoutine } = useUserRoutineStore();
   const activeRoutine = useMemo(() => {
@@ -44,14 +44,6 @@ export default function Index() {
     console.log("New activeWorkout", newWorkout?.name);
     return newWorkout;
   }, [activeRoutine, activeWorkoutOffset]);
-
-  useEffect(() => {
-    if (activeWorkout) {
-      activeWorkoutStore.setWorkout(activeWorkout);
-    } else {
-      activeWorkoutStore.cancelWorkout();
-    }
-  }, [activeWorkout]);
 
   // Persönliche Begrüßung
   const getGreeting = () => {
@@ -94,8 +86,14 @@ export default function Index() {
         </View>
 
         {/* Workout Widget */}
-        {activeWorkout ? (
-          <TodaysWorkoutWidget workout={activeWorkout} skipWorkout={skipWorkout} />
+        {activeWorkout && activeRoutine ? (
+          <TodaysWorkoutWidget
+            workout={activeWorkout}
+            skipWorkout={skipWorkout}
+            isStarted={workoutTimer.isRunning}
+            startWorkout={() => startWorkout(activeWorkout.id)}
+            cancelWorkout={() => cancelWorkout()}
+          />
         ) : (
           <View className="bg-card p-6 rounded-xl border border-border/50 mb-6">
             <Text className="text-center text-muted-foreground text-lg">Kein Training für heute geplant 🛋️</Text>

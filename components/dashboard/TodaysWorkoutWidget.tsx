@@ -13,13 +13,15 @@ import { getRepsRange } from "~/lib/utils";
 
 interface TodaysWorkoutWidgetProps {
   workout: Workout;
+  isStarted: boolean;
+  startWorkout: () => void;
+  cancelWorkout: () => void;
   skipWorkout: () => void;
 }
 
-export const TodaysWorkoutWidget = ({ workout, skipWorkout }: TodaysWorkoutWidgetProps) => {
+export const TodaysWorkoutWidget = ({ workout, skipWorkout, isStarted, startWorkout }: TodaysWorkoutWidgetProps) => {
   const router = useRouter();
   const exerciseStore = useExerciseStore();
-  const isStarted = useActiveWorkoutStore((state) => state.isStarted);
   const { cancelWorkout } = useActiveWorkoutStore();
   const estimatedCalories = workout.exercises.length * 50;
   const [showCancelDialog, setShowCancelDialog] = useState(false);
@@ -32,10 +34,11 @@ export const TodaysWorkoutWidget = ({ workout, skipWorkout }: TodaysWorkoutWidge
     });
   };
 
-  const startWorkout = () => {
+  const handleStartWorkout = () => {
+    startWorkout();
     router.push({
       pathname: "/(tabs)/(dashboard)/active-workout/[id]",
-      params: { id: workout.id, start: "true" },
+      params: { id: workout.id },
     });
   };
 
@@ -45,6 +48,7 @@ export const TodaysWorkoutWidget = ({ workout, skipWorkout }: TodaysWorkoutWidge
   };
 
   const handleCancel = () => {
+    cancelWorkout();
     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
     cancelWorkout?.();
   };
@@ -150,7 +154,7 @@ export const TodaysWorkoutWidget = ({ workout, skipWorkout }: TodaysWorkoutWidge
                 </Pressable>
 
                 <Pressable
-                  onPress={startWorkout}
+                  onPress={handleStartWorkout}
                   className="flex-1 bg-primary py-3 rounded-full flex-row items-center justify-center"
                 >
                   <Play size={18} className="text-primary-foreground mr-2" />

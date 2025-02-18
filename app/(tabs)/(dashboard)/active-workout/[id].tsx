@@ -24,7 +24,7 @@ import { useUserRoutineStore } from "~/stores/userRoutineStore";
 import { useExerciseStore } from "~/stores/exerciseStore";
 
 export default function ActiveWorkoutScreen() {
-  const { id, start } = useLocalSearchParams<{ id: string; start?: string }>();
+  const { id } = useLocalSearchParams<{ id: string }>();
   const workoutHistoryStore = useWorkoutHistoryStore();
   const { getActiveRoutine } = useUserRoutineStore();
   const { exercises } = useExerciseStore();
@@ -76,12 +76,6 @@ export default function ActiveWorkoutScreen() {
     }
   };
 
-  useEffect(() => {
-    if (start === "true" && activeWorkout) {
-      startWorkout(activeWorkout.id, parseInt(id));
-    }
-  }, [start, activeWorkout, id]);
-
   // Error State
   if (!activeWorkout) {
     return (
@@ -116,6 +110,7 @@ export default function ActiveWorkoutScreen() {
           exerciseRecords={exerciseRecords}
           exercises={exercises ?? []}
           isStarted={workoutTimer.isRunning}
+          // TODO: different on press when not started
           onPressExercise={(exercise) => router.push(`/active-workout/exercise-logging/${exercise.exerciseId}`)}
         />
 
@@ -124,7 +119,7 @@ export default function ActiveWorkoutScreen() {
           isResting={restTimer.isRunning}
           remainingRestTime={restTimer.remainingTime}
           allExercisesCompleted={allExercisesCompleted}
-          onStart={() => startWorkout(activeWorkout.id, parseInt(id))}
+          onStart={() => startWorkout(activeWorkout.id)}
           onStartRest={() => startRestTimer(180)}
           onStopRest={pauseRestTimer}
           onFinish={handleFinishPress}

@@ -14,14 +14,10 @@ export default function ExerciseLoggingScreen() {
   const { exerciseId } = useLocalSearchParams<{ exerciseId: string }>();
   const exerciseIdNumber = parseInt(exerciseId);
 
-  // Store access
-  const exerciseStore = useExerciseStore();
   const {
     startRestTimer,
     pauseRestTimer,
     restTimer,
-    workoutTimer,
-    routineId,
     workoutId,
     exerciseRecords,
     completeExercise,
@@ -35,14 +31,19 @@ export default function ExerciseLoggingScreen() {
   const exercise = useMemo(() => getExerciseById(exerciseIdNumber), [exerciseIdNumber, getExerciseById]);
   const workoutExercise = useMemo(
     () =>
-      routineId && workoutId
-        ? getWorkoutById(routineId, workoutId)?.exercises.find((ex) => ex.exerciseId === exerciseIdNumber) || null
-        : null,
-    [routineId, workoutId, exerciseIdNumber, getWorkoutById]
+      workoutId ? getWorkoutById(workoutId)?.exercises.find((ex) => ex.exerciseId === exerciseIdNumber) || null : null,
+    [workoutId, exerciseIdNumber, getWorkoutById]
   );
   const exerciseRecord = useMemo(() => exerciseRecords.get(exerciseIdNumber), [exerciseIdNumber, exerciseRecords]);
 
-  if (!routineId || !workoutId || !exercise || !workoutExercise || !exerciseRecord) {
+  if (!workoutId || !exercise || !workoutExercise || !exerciseRecord) {
+    console.error(`Exercise Logging Error: Missing required parameters
+      Workout ID: ${workoutId || "Undefined"}
+      Exercise ID: ${exerciseId} (parsed as ${exerciseIdNumber})
+      Exercise Data: ${exercise ? "Found" : "Not found"}
+      Workout Exercise: ${workoutExercise ? "Found" : "Not found"}
+      Exercise Record: ${exerciseRecord ? "Found" : "Not found"}
+    Check parameters and data loading for this exercise.`);
     return (
       <View className="flex-1 justify-center items-center p-4 bg-background">
         <Text className="text-lg text-destructive mb-4">Error: Routine or workout not found</Text>
@@ -73,7 +74,7 @@ export default function ExerciseLoggingScreen() {
   };
 
   const handleAddSet = () => {
-    updateSetsInExercise(routineId, workoutId, exerciseIdNumber, [
+    updateSetsInExercise(workoutId, exerciseIdNumber, [
       ...workoutExercise.sets,
       {
         reps: 8,
@@ -84,7 +85,6 @@ export default function ExerciseLoggingScreen() {
 
   const handleDeleteSet = (setIndex: number) => {
     updateSetsInExercise(
-      routineId,
       workoutId,
       exerciseIdNumber,
       workoutExercise.sets.filter((_, index) => index !== setIndex)
@@ -116,7 +116,6 @@ export default function ExerciseLoggingScreen() {
         exercise={exercise}
         workoutExercise={workoutExercise}
         exerciseRecord={exerciseRecord}
-        isWorkoutStarted={workoutTimer.isRunning}
         onUpdateReps={(setIndex, reps) => updateReps(exerciseIdNumber, setIndex, reps)}
         onUpdateWeight={(setIndex, weight) => updateWeight(exerciseIdNumber, setIndex, weight)}
         onAddSet={handleAddSet}

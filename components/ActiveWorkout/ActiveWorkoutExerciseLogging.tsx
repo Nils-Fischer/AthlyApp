@@ -28,7 +28,6 @@ interface ActiveWorkoutExerciseLoggingProps {
   exercise: Exercise;
   workoutExercise: WorkoutExercise;
   exerciseRecord: ExerciseRecord;
-  isWorkoutStarted: boolean;
   onUpdateReps: (setIndex: number, reps: number) => void;
   onUpdateWeight: (setIndex: number, weight: number) => void;
   onAddSet: () => void;
@@ -45,7 +44,6 @@ interface ActiveWorkoutExerciseLoggingProps {
 export const ActiveWorkoutExerciseLogging = ({
   exercise,
   exerciseRecord,
-  isWorkoutStarted,
   onUpdateReps,
   onUpdateWeight,
   onAddSet,
@@ -73,6 +71,8 @@ export const ActiveWorkoutExerciseLogging = ({
       onUpdateWeight(index, numValue);
     }
   };
+
+  const inputStyle = "h-10 px-3 rounded-lg text-xl font-medium text-left border border-border bg-card";
 
   return (
     <View className="flex-1 bg-background">
@@ -224,9 +224,7 @@ export const ActiveWorkoutExerciseLogging = ({
                   <Animated.View
                     key={index}
                     entering={FadeInDown.delay(index * 50)}
-                    className={`
-                      rounded-xl overflow-hidden px-4 py-2
-                    `}
+                    className="rounded-xl overflow-hidden px-4 py-2"
                   >
                     <View className="flex-row items-center">
                       {/* Set Number */}
@@ -237,10 +235,7 @@ export const ActiveWorkoutExerciseLogging = ({
                       {/* Weight Input */}
                       <View className="flex-1 mx-2">
                         <TextInput
-                          className={`
-                            h-10 px-3 rounded-lg text-xl font-medium text-left border border-border
-                            ${isWorkoutStarted && isSetCompleted(set) ? "bg-card" : "bg-card"}
-                          `}
+                          className={inputStyle}
                           value={set.weight?.toString() || ""}
                           onChangeText={(value) => handleUpdateSet(index, "weight", value)}
                           keyboardType="numeric"
@@ -254,10 +249,7 @@ export const ActiveWorkoutExerciseLogging = ({
                       {/* Reps Input */}
                       <View className="flex-1 mx-2">
                         <TextInput
-                          className={`
-                            h-10 px-3 rounded-lg text-xl font-medium text-left border border-border
-                            ${isWorkoutStarted && isSetCompleted(set) ? "bg-card" : "bg-card"}
-                          `}
+                          className={inputStyle}
                           value={set.reps?.toString() || ""}
                           onChangeText={(value) => handleUpdateSet(index, "reps", value)}
                           keyboardType="numeric"
@@ -269,36 +261,24 @@ export const ActiveWorkoutExerciseLogging = ({
                       </View>
 
                       {/* Action Button */}
-                      {isWorkoutStarted ? (
-                        !isDeleteMode ? (
-                          <View
-                            className={`
-                              w-10 h-10 rounded-full items-center justify-center
-                              ${isSetCompleted(set) ? "bg-primary" : "bg-card border border-border"}
-                            `}
-                          >
-                            <Check
-                              size={16}
-                              className={isSetCompleted(set) ? "text-primary-foreground" : "text-primary"}
-                            />
-                          </View>
-                        ) : (
-                          <Pressable
-                            onPress={() => onDeleteSet(index)}
-                            className="w-10 h-10 rounded-full items-center justify-center bg-destructive"
-                          >
-                            <Trash2 size={16} className="text-destructive-foreground" />
-                          </Pressable>
-                        )
-                      ) : isDeleteMode ? (
+                      {!isDeleteMode ? (
+                        <View
+                          className={`w-10 h-10 rounded-full items-center justify-center ${
+                            isSetCompleted(set) ? "bg-primary" : "bg-card border border-border"
+                          }`}
+                        >
+                          <Check
+                            size={16}
+                            className={isSetCompleted(set) ? "text-primary-foreground" : "text-primary"}
+                          />
+                        </View>
+                      ) : (
                         <Pressable
                           onPress={() => onDeleteSet(index)}
                           className="w-10 h-10 rounded-full items-center justify-center bg-destructive"
                         >
                           <Trash2 size={16} className="text-destructive-foreground" />
                         </Pressable>
-                      ) : (
-                        <View className="w-10" />
                       )}
                     </View>
                   </Animated.View>
@@ -310,7 +290,7 @@ export const ActiveWorkoutExerciseLogging = ({
       </ScrollView>
 
       {/* Footer Stats */}
-      <View className={`border-t border-border bg-card/95 backdrop-blur-lg ${!isWorkoutStarted ? "mb-6" : "mb-24"}`}>
+      <View className="border-t border-border bg-card/95 backdrop-blur-lg mb-24">
         <View className="p-4">
           <View className="flex-row justify-between">
             <View className="items-center flex-1">
@@ -329,23 +309,22 @@ export const ActiveWorkoutExerciseLogging = ({
         </View>
       </View>
 
-      {isWorkoutStarted &&
-        (isResting ? (
-          <AnimatedIconButton
-            onPress={onStopRest}
-            icon={<TimerOff size={20} className="text-primary-foreground" />}
-            label={`${formatTime(remainingRestTime)}`}
-            className="absolute bottom-10 left-4 right-4"
-          />
-        ) : (
-          <AnimatedIconButton
-            onPress={onCompleteExercise}
-            icon={<CheckCheck className="mr-2 h-4 w-4 text-primary-foreground" />}
-            label="Übung abschließen"
-            disabled={!exerciseRecord.sets.every(isSetCompleted)}
-            className="absolute bottom-10 left-4 right-4"
-          />
-        ))}
+      {isResting ? (
+        <AnimatedIconButton
+          onPress={onStopRest}
+          icon={<TimerOff size={20} className="text-primary-foreground" />}
+          label={`${formatTime(remainingRestTime)}`}
+          className="absolute bottom-10 left-4 right-4"
+        />
+      ) : (
+        <AnimatedIconButton
+          onPress={onCompleteExercise}
+          icon={<CheckCheck className="mr-2 h-4 w-4 text-primary-foreground" />}
+          label="Übung abschließen"
+          disabled={!exerciseRecord.sets.every(isSetCompleted)}
+          className="absolute bottom-10 left-4 right-4"
+        />
+      )}
 
       <BottomSheet title="Übungshistorie" isOpen={showHistory} onClose={() => setShowHistory(false)} snapPoints={[95]}>
         <View className="flex-1">

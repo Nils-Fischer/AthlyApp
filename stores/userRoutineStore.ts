@@ -11,10 +11,10 @@ export interface UserRoutineState {
   toggleRoutineActive: (routineId: number) => void;
   getActiveRoutine: () => Routine | null;
   getRoutineById: (routineId: number) => Routine | null;
-  getWorkoutById: (routineId: number, workoutId: number) => Workout | null;
-  addExerciseToWorkout: (routineId: number, workoutId: number, exercise: WorkoutExercise) => void;
-  deleteExerciseFromWorkout: (routineId: number, workoutId: number, exerciseId: number) => void;
-  updateSetsInExercise: (routineId: number, workoutId: number, exerciseId: number, sets: SetConfiguration[]) => void;
+  getWorkoutById: (workoutId: number) => Workout | null;
+  addExerciseToWorkout: (workoutId: number, exercise: WorkoutExercise) => void;
+  deleteExerciseFromWorkout: (workoutId: number, exerciseId: number) => void;
+  updateSetsInExercise: (workoutId: number, exerciseId: number, sets: SetConfiguration[]) => void;
 }
 
 export const useUserRoutineStore = create<UserRoutineState>()(
@@ -62,68 +62,56 @@ export const useUserRoutineStore = create<UserRoutineState>()(
         return get().routines.find((routine) => routine.id === routineId) || null;
       },
 
-      getWorkoutById: (routineId, workoutId) => {
-        const routine = get().routines.find((r) => r.id === routineId);
+      getWorkoutById: (workoutId) => {
+        const routine = get().routines.find((r) => r.workouts.some((w) => w.id === workoutId));
         return routine?.workouts.find((w) => w.id === workoutId) || null;
       },
 
-      addExerciseToWorkout: (routineId, workoutId, exercise) => {
+      addExerciseToWorkout: (workoutId, exercise) => {
         set((state) => ({
-          routines: state.routines.map((routine) => {
-            if (routine.id !== routineId) return routine;
-            return {
-              ...routine,
-              workouts: routine.workouts.map((workout) => {
-                if (workout.id !== workoutId) return workout;
-                return {
-                  ...workout,
-                  exercises: [...workout.exercises, exercise],
-                };
-              }),
-            };
-          }),
+          routines: state.routines.map((routine) => ({
+            ...routine,
+            workouts: routine.workouts.map((workout) => {
+              if (workout.id !== workoutId) return workout;
+              return {
+                ...workout,
+                exercises: [...workout.exercises, exercise],
+              };
+            }),
+          })),
         }));
       },
 
-      deleteExerciseFromWorkout: (routineId, workoutId, exerciseId) => {
+      deleteExerciseFromWorkout: (workoutId, exerciseId) => {
         set((state) => ({
-          routines: state.routines.map((routine) => {
-            if (routine.id !== routineId) return routine;
-            return {
-              ...routine,
-              workouts: routine.workouts.map((workout) => {
-                if (workout.id !== workoutId) return workout;
-                return {
-                  ...workout,
-                  exercises: workout.exercises.filter((ex) => ex.exerciseId !== exerciseId),
-                };
-              }),
-            };
-          }),
+          routines: state.routines.map((routine) => ({
+            ...routine,
+            workouts: routine.workouts.map((workout) => {
+              if (workout.id !== workoutId) return workout;
+              return {
+                ...workout,
+                exercises: workout.exercises.filter((ex) => ex.exerciseId !== exerciseId),
+              };
+            }),
+          })),
         }));
       },
 
-      updateSetsInExercise: (routineId, workoutId, exerciseId, sets) => {
+      updateSetsInExercise: (workoutId, exerciseId, sets) => {
         set((state) => ({
-          routines: state.routines.map((routine) => {
-            if (routine.id !== routineId) return routine;
-            return {
-              ...routine,
-              workouts: routine.workouts.map((workout) => {
-                if (workout.id !== workoutId) return workout;
-                return {
-                  ...workout,
-                  exercises: workout.exercises.map((exercise) => {
-                    if (exercise.exerciseId !== exerciseId) return exercise;
-                    return {
-                      ...exercise,
-                      sets: sets,
-                    };
-                  }),
-                };
-              }),
-            };
-          }),
+          routines: state.routines.map((routine) => ({
+            ...routine,
+            workouts: routine.workouts.map((workout) => {
+              if (workout.id !== workoutId) return workout;
+              return {
+                ...workout,
+                exercises: workout.exercises.map((exercise) => {
+                  if (exercise.exerciseId !== exerciseId) return exercise;
+                  return { ...exercise, sets: sets };
+                }),
+              };
+            }),
+          })),
         }));
       },
     }),
