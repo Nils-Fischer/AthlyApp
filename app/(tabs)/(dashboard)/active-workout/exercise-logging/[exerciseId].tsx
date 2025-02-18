@@ -24,7 +24,7 @@ export default function ExerciseLoggingScreen() {
     updateReps,
     updateWeight,
   } = useActiveWorkoutStore();
-  const { updateSetsInExercise } = useUserRoutineStore();
+  const { updateSetsInExercise, routines } = useUserRoutineStore();
   const { getWorkoutById } = useUserRoutineStore();
   const { getExerciseById } = useExerciseStore();
 
@@ -32,7 +32,7 @@ export default function ExerciseLoggingScreen() {
   const workoutExercise = useMemo(
     () =>
       workoutId ? getWorkoutById(workoutId)?.exercises.find((ex) => ex.exerciseId === exerciseIdNumber) || null : null,
-    [workoutId, exerciseIdNumber, getWorkoutById]
+    [workoutId, exerciseIdNumber, getWorkoutById, routines]
   );
   const exerciseRecord = useMemo(() => exerciseRecords.get(exerciseIdNumber), [exerciseIdNumber, exerciseRecords]);
 

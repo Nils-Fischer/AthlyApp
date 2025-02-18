@@ -22,15 +22,20 @@ import {
 import { ActiveWorkoutCancelConfirmation } from "~/components/ActiveWorkout/ActiveWorkoutCancelConfirmation";
 import { useUserRoutineStore } from "~/stores/userRoutineStore";
 import { useExerciseStore } from "~/stores/exerciseStore";
+import { WorkoutExercise } from "~/lib/types";
+import { SheetManager } from "react-native-actions-sheet";
+import { ExerciseEditAlternatives } from "~/components/Exercise/ExerciseEditAlternatives";
+import { BottomSheet } from "~/components/ui/bottom-sheet";
 
 export default function ActiveWorkoutScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
   const workoutHistoryStore = useWorkoutHistoryStore();
-  const { getActiveRoutine } = useUserRoutineStore();
-  const { exercises } = useExerciseStore();
+  const { exercises, getExerciseById } = useExerciseStore();
+  const { getActiveRoutine, updateExerciseInWorkout, deleteExerciseFromWorkout, routines } = useUserRoutineStore();
+  const [showAlternatives, setShowAlternatives] = useState<WorkoutExercise | null>(null);
   const activeWorkout = useMemo(
     () => getActiveRoutine()?.workouts.find((workout) => workout.id === parseInt(id)),
-    [getActiveRoutine, id]
+    [getActiveRoutine, id, routines]
   );
 
   const {
@@ -85,6 +90,27 @@ export default function ActiveWorkoutScreen() {
     );
   }
 
+  const handleDeleteExercise = (exercise: WorkoutExercise) => {
+    deleteExerciseFromWorkout(activeWorkout.id, exercise.exerciseId);
+  };
+
+  const handleExercisePress = async (exercise: WorkoutExercise) => {
+    if (workoutTimer.isRunning) {
+      router.push(`/active-workout/exercise-logging/${exercise.exerciseId}`);
+    } else {
+      const result = await SheetManager.show("sheet-with-router", {
+        payload: {
+          exercise: getExerciseById(exercise.exerciseId)!,
+          workoutExercise: exercise,
+          initalRoute: "main-edit-route",
+        },
+      });
+      if (result) {
+        updateExerciseInWorkout(activeWorkout.id, exercise.exerciseId, result);
+      }
+    }
+  };
+
   return (
     <>
       <Stack.Screen
@@ -110,8 +136,10 @@ export default function ActiveWorkoutScreen() {
           exerciseRecords={exerciseRecords}
           exercises={exercises ?? []}
           isStarted={workoutTimer.isRunning}
-          // TODO: different on press when not started
-          onPressExercise={(exercise) => router.push(`/active-workout/exercise-logging/${exercise.exerciseId}`)}
+          onPressExercise={handleExercisePress}
+          onShowAlternatives={(exercise) => setShowAlternatives(exercise)}
+          onShowEditSheet={handleExercisePress}
+          onDelete={handleDeleteExercise}
         />
 
         <ActiveWorkoutControls
@@ -152,6 +180,23 @@ export default function ActiveWorkoutScreen() {
             </AlertDialogFooter>
           </AlertDialogContent>
         </AlertDialog>
+
+        <BottomSheet
+          title="Alternative Übung Auswahl"
+          isOpen={showAlternatives !== null}
+          onClose={() => setShowAlternatives(null)}
+        >
+          {showAlternatives && (
+            <ExerciseEditAlternatives
+              workoutExercise={showAlternatives}
+              onSelection={(updatedWorkoutExercise) => {
+                updateExerciseInWorkout(activeWorkout.id, showAlternatives.exerciseId, updatedWorkoutExercise);
+                setShowAlternatives(null);
+              }}
+              withConfirmation={false}
+            />
+          )}
+        </BottomSheet>
       </View>
     </>
   );

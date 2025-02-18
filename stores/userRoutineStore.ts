@@ -13,6 +13,7 @@ export interface UserRoutineState {
   getRoutineById: (routineId: number) => Routine | null;
   getWorkoutById: (workoutId: number) => Workout | null;
   addExerciseToWorkout: (workoutId: number, exercise: WorkoutExercise) => void;
+  updateExerciseInWorkout: (workoutId: number, exerciseId: number, exercise: WorkoutExercise) => void;
   deleteExerciseFromWorkout: (workoutId: number, exerciseId: number) => void;
   updateSetsInExercise: (workoutId: number, exerciseId: number, sets: SetConfiguration[]) => void;
 }
@@ -109,6 +110,21 @@ export const useUserRoutineStore = create<UserRoutineState>()(
                   if (exercise.exerciseId !== exerciseId) return exercise;
                   return { ...exercise, sets: sets };
                 }),
+              };
+            }),
+          })),
+        }));
+      },
+
+      updateExerciseInWorkout: (workoutId, exerciseId, exercise) => {
+        set((state) => ({
+          routines: state.routines.map((routine) => ({
+            ...routine,
+            workouts: routine.workouts.map((workout) => {
+              if (workout.id !== workoutId) return workout;
+              return {
+                ...workout,
+                exercises: workout.exercises.map((ex) => (ex.exerciseId === exerciseId ? { ...exercise } : ex)),
               };
             }),
           })),

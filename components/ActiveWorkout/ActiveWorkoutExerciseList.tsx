@@ -1,11 +1,13 @@
-import React from "react";
+import React, { useMemo } from "react";
 import { View, ScrollView, TouchableOpacity } from "react-native";
 import { Text } from "~/components/ui/text";
-import { ChevronRight, CheckCircle2, Dumbbell } from "~/lib/icons/Icons";
+import { Button } from "~/components/ui/button";
+import { ChevronRight, CheckCircle2, Dumbbell, MoreHorizontal, Trash2, Edit3, Repeat } from "~/lib/icons/Icons";
 import Animated, { FadeIn } from "react-native-reanimated";
 import type { Workout, WorkoutExercise, Exercise, ExerciseRecord } from "~/lib/types";
 import { Image } from "expo-image";
 import { getRepsRange, getThumbnail } from "~/lib/utils";
+import { CustomDropdownMenu } from "~/components/ui/custom-dropdown-menu";
 
 interface ActiveWorkoutExerciseListProps {
   workout: Workout;
@@ -13,6 +15,9 @@ interface ActiveWorkoutExerciseListProps {
   exercises: Exercise[];
   isStarted: boolean;
   onPressExercise: (exercise: WorkoutExercise) => void;
+  onShowAlternatives: (exercise: WorkoutExercise) => void;
+  onShowEditSheet: (exercise: WorkoutExercise) => void;
+  onDelete: (exercise: WorkoutExercise) => void;
 }
 
 export function ActiveWorkoutExerciseList({
@@ -21,14 +26,15 @@ export function ActiveWorkoutExerciseList({
   exercises,
   isStarted,
   onPressExercise: onExerciseSelect,
+  onShowAlternatives,
+  onShowEditSheet,
+  onDelete,
 }: ActiveWorkoutExerciseListProps) {
-  // Sort exercises by completion status
   const sortedExercises = React.useMemo(() => {
     return [...workout.exercises].sort((a, b) => {
       const aCompleted = exerciseRecords.get(a.exerciseId)?.isCompleted || false;
       const bCompleted = exerciseRecords.get(b.exerciseId)?.isCompleted || false;
 
-      // Sort completed exercises to the bottom
       if (aCompleted === bCompleted) return 0;
       return aCompleted ? 1 : -1;
     });
@@ -40,7 +46,8 @@ export function ActiveWorkoutExerciseList({
         {sortedExercises.map((workoutExercise, index) => {
           const exercise = exercises.find((e) => e.id === workoutExercise.exerciseId);
           const exerciseRecord = exerciseRecords.get(workoutExercise.exerciseId);
-          if (!exercise) return null;
+
+          if (!exercise) return <View key={`${workoutExercise.exerciseId}-${index}`} />;
 
           return (
             <ExerciseCard
@@ -50,6 +57,9 @@ export function ActiveWorkoutExerciseList({
               exerciseRecord={exerciseRecord}
               isStarted={isStarted}
               onSelect={() => onExerciseSelect(workoutExercise)}
+              onShowAlternatives={() => onShowAlternatives(workoutExercise)}
+              onShowEditSheet={() => onShowEditSheet(workoutExercise)}
+              onDelete={() => onDelete(workoutExercise)}
             />
           );
         })}
@@ -65,12 +75,50 @@ interface ExerciseCardProps {
   exerciseRecord?: ExerciseRecord;
   isStarted: boolean;
   onSelect: () => void;
+  onShowAlternatives: () => void;
+  onShowEditSheet: () => void;
+  onDelete: () => void;
 }
 
-function ExerciseCard({ exercise, workoutExercise, exerciseRecord, isStarted, onSelect }: ExerciseCardProps) {
-  const completedSets = exerciseRecord?.sets.filter((set) => set.reps !== null && set.weight !== null).length || 0;
-  const isCompleted = exerciseRecord?.isCompleted || false;
+function ExerciseCard({
+  exercise,
+  workoutExercise,
+  exerciseRecord,
+  isStarted,
+  onSelect,
+  onShowAlternatives,
+  onShowEditSheet,
+  onDelete,
+}: ExerciseCardProps) {
+  const totalSets = useMemo(() => {
+    return exerciseRecord?.sets.length || workoutExercise.sets.length;
+  }, [exerciseRecord, workoutExercise]);
+  const completedSets = useMemo(
+    () => exerciseRecord?.sets.filter((set) => set.reps !== null && set.weight !== null).length || 0,
+    [exerciseRecord]
+  );
+  const isCompleted = useMemo(() => exerciseRecord?.isCompleted || false, [exerciseRecord]);
   const imageUrl = getThumbnail(exercise);
+  const repsRange = useMemo(() => getRepsRange(workoutExercise), [workoutExercise]);
+
+  const dropdownItems = [
+    {
+      name: "Alternative Übung",
+      icon: Repeat,
+      onPress: onShowAlternatives,
+    },
+    {
+      name: "Details bearbeiten",
+      icon: Edit3,
+      onPress: onShowEditSheet,
+    },
+    {
+      name: "Übung löschen",
+      icon: Trash2,
+      onPress: onDelete,
+      destructive: true,
+    },
+  ];
 
   return (
     <Animated.View entering={FadeIn}>
@@ -105,24 +153,32 @@ function ExerciseCard({ exercise, workoutExercise, exerciseRecord, isStarted, on
                   {exercise.name}
                 </Text>
                 {isStarted && (
-                  <ProgressIndicator
-                    total={workoutExercise.sets.length}
-                    completed={completedSets}
-                    isCompleted={isCompleted}
-                  />
+                  <ProgressIndicator total={totalSets} completed={completedSets} isCompleted={isCompleted} />
                 )}
               </View>
 
               <View className="flex-row mt-1 items-center">
                 <Text className="text-sm text-muted-foreground">
-                  {workoutExercise.sets.length} {workoutExercise.sets.length > 1 ? "Sätze" : "Satz"} ×{" "}
-                  {getRepsRange(workoutExercise)}
+                  {totalSets} {totalSets > 1 ? "Sätze" : "Satz"} × {repsRange}
                 </Text>
               </View>
             </View>
 
             <View className="justify-center">
-              <ChevronRight size={20} className={`text-muted-foreground ml-2 ${isCompleted ? "opacity-50" : ""}`} />
+              {isStarted ? (
+                <ChevronRight size={20} className={`text-muted-foreground ml-2 ${isCompleted ? "opacity-50" : ""}`} />
+              ) : (
+                <CustomDropdownMenu
+                  items={dropdownItems}
+                  side="top"
+                  align="start"
+                  trigger={
+                    <Button variant="ghost" size="icon" className="h-8 w-8">
+                      <MoreHorizontal size={20} className="text-muted-foreground ml-2" />
+                    </Button>
+                  }
+                />
+              )}
             </View>
           </View>
           <View className="h-[1px] bg-border/10" />
