@@ -6,40 +6,46 @@ import { Text } from "~/components/ui/text";
 import { useActiveWorkoutStore } from "~/stores/activeWorkoutStore";
 import { useExerciseStore } from "~/stores/exerciseStore";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "~/components/ui/dialog";
-import { useState, useCallback } from "react";
 import { ActiveWorkoutExerciseLogging } from "~/components/ActiveWorkout/ActiveWorkoutExerciseLogging";
+import { useUserRoutineStore } from "~/stores/userRoutineStore";
+import { useMemo, useState } from "react";
 
 export default function ExerciseLoggingScreen() {
   const { exerciseId } = useLocalSearchParams<{ exerciseId: string }>();
   const exerciseIdNumber = parseInt(exerciseId);
+
+  // Store access
   const exerciseStore = useExerciseStore();
-  const activeWorkoutStore = useActiveWorkoutStore();
-  const workoutStarted = activeWorkoutStore.isStarted;
+  const {
+    startRestTimer,
+    pauseRestTimer,
+    restTimer,
+    workoutTimer,
+    routineId,
+    workoutId,
+    exerciseRecords,
+    completeExercise,
+    updateReps,
+    updateWeight,
+  } = useActiveWorkoutStore();
+  const { updateSetsInExercise } = useUserRoutineStore();
+  const { getWorkoutById } = useUserRoutineStore();
+  const { getExerciseById } = useExerciseStore();
 
-  const workout = activeWorkoutStore.activeWorkout;
-  const exercise = exerciseStore.exercises?.find((ex) => ex.id === exerciseIdNumber);
-  const workoutExercise = workout?.exercises.find((ex) => ex.exerciseId === exerciseIdNumber);
-  const exerciseRecord = activeWorkoutStore.activeSession?.entries.find((ex) => ex.exerciseId === exerciseIdNumber);
+  const exercise = useMemo(() => getExerciseById(exerciseIdNumber), [exerciseIdNumber, getExerciseById]);
+  const workoutExercise = useMemo(
+    () =>
+      routineId && workoutId
+        ? getWorkoutById(routineId, workoutId)?.exercises.find((ex) => ex.exerciseId === exerciseIdNumber) || null
+        : null,
+    [routineId, workoutId, exerciseIdNumber, getWorkoutById]
+  );
+  const exerciseRecord = useMemo(() => exerciseRecords.get(exerciseIdNumber), [exerciseIdNumber, exerciseRecords]);
 
-  const [showIntensityDialog, setShowIntensityDialog] = useState(false);
-  const [selectedIntensity, setSelectedIntensity] = useState<number>(3);
-
-  const handleExerciseComplete = useCallback(() => {
-    console.log("Opening dialog...");
-    setShowIntensityDialog(true);
-  }, []);
-
-  const handleIntensitySelect = useCallback(() => {
-    activeWorkoutStore.finishExercise(exerciseIdNumber, selectedIntensity);
-    setShowIntensityDialog(false);
-    router.back();
-  }, [activeWorkoutStore, exerciseIdNumber, selectedIntensity]);
-
-  if (!workout || !exercise || !workoutExercise || !exerciseRecord) {
-    console.log(workout, exercise, workoutExercise, exerciseRecord);
+  if (!routineId || !workoutId || !exercise || !workoutExercise || !exerciseRecord) {
     return (
       <View className="flex-1 justify-center items-center p-4 bg-background">
-        <Text className="text-lg text-destructive mb-4">Error: Exercise not found</Text>
+        <Text className="text-lg text-destructive mb-4">Error: Routine or workout not found</Text>
         <Button
           variant="destructive"
           onPress={() => {
@@ -53,6 +59,46 @@ export default function ExerciseLoggingScreen() {
     );
   }
 
+  const [showIntensityDialog, setShowIntensityDialog] = useState(false);
+  const [selectedIntensity, setSelectedIntensity] = useState<number>(3);
+
+  const handleExerciseComplete = () => {
+    setShowIntensityDialog(true);
+  };
+
+  const handleIntensitySelect = () => {
+    completeExercise(exerciseIdNumber, selectedIntensity);
+    setShowIntensityDialog(false);
+    router.back();
+  };
+
+  const handleAddSet = () => {
+    updateSetsInExercise(routineId, workoutId, exerciseIdNumber, [
+      ...workoutExercise.sets,
+      {
+        reps: 8,
+        weight: workoutExercise.sets[workoutExercise.sets.length - 1].weight,
+      },
+    ]);
+  };
+
+  const handleDeleteSet = (setIndex: number) => {
+    updateSetsInExercise(
+      routineId,
+      workoutId,
+      exerciseIdNumber,
+      workoutExercise.sets.filter((_, index) => index !== setIndex)
+    );
+  };
+
+  const totalVolume = exerciseRecord
+    ? exerciseRecord.sets.reduce((acc, set) => acc + (set.reps || 0) * (set.weight || 0), 0)
+    : 0;
+
+  const completedSets = exerciseRecord
+    ? exerciseRecord.sets.filter((set) => set.reps !== null && set.weight !== null).length
+    : 0;
+
   return (
     <View className="flex-1">
       <Stack.Screen
@@ -65,13 +111,23 @@ export default function ExerciseLoggingScreen() {
           ),
         }}
       />
+
       <ActiveWorkoutExerciseLogging
         exercise={exercise}
         workoutExercise={workoutExercise}
-        isWorkoutStarted={workoutStarted}
         exerciseRecord={exerciseRecord}
-        updateExerciseRecord={activeWorkoutStore.updateExerciseRecord}
+        isWorkoutStarted={workoutTimer.isRunning}
+        onUpdateReps={(setIndex, reps) => updateReps(exerciseIdNumber, setIndex, reps)}
+        onUpdateWeight={(setIndex, weight) => updateWeight(exerciseIdNumber, setIndex, weight)}
+        onAddSet={handleAddSet}
+        onDeleteSet={handleDeleteSet}
         onCompleteExercise={handleExerciseComplete}
+        isResting={restTimer.isRunning}
+        remainingRestTime={restTimer.remainingTime}
+        onStartRest={() => startRestTimer(workoutExercise.restPeriod || 60)}
+        onStopRest={pauseRestTimer}
+        totalVolume={totalVolume}
+        completedSets={completedSets}
       />
 
       <Dialog open={showIntensityDialog} onOpenChange={setShowIntensityDialog}>

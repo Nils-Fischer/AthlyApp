@@ -150,17 +150,17 @@ export const ExerciseEditPage: React.FC<ExerciseEditPageProps> = ({
 
           {/* Set Configurations */}
           {setConfigs.map((set, index) => (
-            <View key={index} className="mb-3 bg-secondary/10 rounded-xl p-3">
+            <View key={index} className="mb-3 bg-muted rounded-xl p-3">
               <View className="flex-row items-center gap-4">
                 <Text className="text-base font-medium text-muted-foreground">Satz {index + 1}</Text>
                 {/* Reps Input */}
                 <View className="flex-1">
-                  <View className="flex-row items-center justify-between bg-background/50 rounded-lg p-1">
+                  <View className="flex-row items-center justify-between rounded-lg p-1">
                     <Button
                       variant="ghost"
                       size="icon"
                       onPress={() => updateSetReps(index, set.reps - 1)}
-                      className="h-9 w-9 rounded-lg"
+                      className="h-9 w-9 rounded-lg bg-background/50"
                     >
                       <Minus size={16} className="text-foreground" />
                     </Button>
@@ -175,7 +175,7 @@ export const ExerciseEditPage: React.FC<ExerciseEditPageProps> = ({
                       variant="ghost"
                       size="icon"
                       onPress={() => updateSetReps(index, set.reps + 1)}
-                      className="h-9 w-9 rounded-lg"
+                      className="h-9 w-9 rounded-lg bg-background/50"
                     >
                       <Plus size={16} className="text-foreground" />
                     </Button>

@@ -1,50 +1,45 @@
 import React from "react";
 import { View, ScrollView, TouchableOpacity } from "react-native";
 import { Text } from "~/components/ui/text";
-import { ChevronRight, GripVertical, CheckCircle2, Dumbbell } from "~/lib/icons/Icons";
+import { ChevronRight, CheckCircle2, Dumbbell } from "~/lib/icons/Icons";
 import Animated, { FadeIn } from "react-native-reanimated";
 import type { Workout, WorkoutExercise, Exercise, ExerciseRecord } from "~/lib/types";
-import { useExerciseStore } from "~/stores/exerciseStore";
-import { useActiveWorkoutStore } from "~/stores/activeWorkoutStore";
 import { Image } from "expo-image";
 import { getRepsRange, getThumbnail } from "~/lib/utils";
 
 interface ActiveWorkoutExerciseListProps {
   workout: Workout;
+  exerciseRecords: Map<number, ExerciseRecord>;
+  exercises: Exercise[];
   isStarted: boolean;
   onPressExercise: (exercise: WorkoutExercise) => void;
 }
 
 export function ActiveWorkoutExerciseList({
   workout,
+  exerciseRecords,
+  exercises,
   isStarted,
   onPressExercise: onExerciseSelect,
 }: ActiveWorkoutExerciseListProps) {
-  const { getExerciseById } = useExerciseStore();
-  const { activeSession: currentSession } = useActiveWorkoutStore();
-
   // Sort exercises by completion status
   const sortedExercises = React.useMemo(() => {
     return [...workout.exercises].sort((a, b) => {
-      const aCompleted =
-        currentSession?.entries.find((entry) => entry.exerciseId === a.exerciseId)?.isCompleted || false;
-      const bCompleted =
-        currentSession?.entries.find((entry) => entry.exerciseId === b.exerciseId)?.isCompleted || false;
+      const aCompleted = exerciseRecords.get(a.exerciseId)?.isCompleted || false;
+      const bCompleted = exerciseRecords.get(b.exerciseId)?.isCompleted || false;
 
       // Sort completed exercises to the bottom
       if (aCompleted === bCompleted) return 0;
       return aCompleted ? 1 : -1;
     });
-  }, [workout.exercises, currentSession?.entries]);
+  }, [workout.exercises, exerciseRecords]);
 
   return (
     <ScrollView className="flex-1 px-4" showsVerticalScrollIndicator={false}>
       <View className="py-2">
         {sortedExercises.map((workoutExercise, index) => {
-          const exercise = getExerciseById(workoutExercise.exerciseId);
-          const exerciseRecord = currentSession?.entries.find(
-            (entry) => entry.exerciseId === workoutExercise.exerciseId
-          );
+          const exercise = exercises.find((e) => e.id === workoutExercise.exerciseId);
+          const exerciseRecord = exerciseRecords.get(workoutExercise.exerciseId);
           if (!exercise) return null;
 
           return (

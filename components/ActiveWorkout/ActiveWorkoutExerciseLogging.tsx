@@ -1,5 +1,5 @@
-import React, { useState, useCallback, useMemo, useEffect } from "react";
-import { View, ScrollView, Pressable, Modal, TextInput, Platform, ImageBackground } from "react-native";
+import React, { useState } from "react";
+import { View, ScrollView, Pressable, TextInput, ImageBackground } from "react-native";
 import { Text } from "~/components/ui/text";
 import { Button } from "~/components/ui/button";
 import { Card } from "~/components/ui/card";
@@ -16,135 +16,63 @@ import {
   TimerOff,
 } from "~/lib/icons/Icons";
 import { Exercise, ExerciseRecord, SetInput, WorkoutExercise } from "~/lib/types";
-import * as Haptics from "expo-haptics";
 import { router } from "expo-router";
 import Animated, { FadeInDown } from "react-native-reanimated";
 import { useWorkoutHistoryStore } from "~/stores/workoutHistoryStore";
 import { AnimatedIconButton } from "../ui/animated-icon-button";
 import { cn, formatTime, getThumbnail } from "~/lib/utils";
-import { useActiveWorkoutStore } from "~/stores/activeWorkoutStore";
-import { ExerciseHistory } from "../Exercise/ExerciseHistory";
 import { BottomSheet } from "~/components/ui/bottom-sheet";
+import { ExerciseHistory } from "../Exercise/ExerciseHistory";
 
 interface ActiveWorkoutExerciseLoggingProps {
   exercise: Exercise;
   workoutExercise: WorkoutExercise;
   exerciseRecord: ExerciseRecord;
   isWorkoutStarted: boolean;
-  updateExerciseRecord: (record: ExerciseRecord) => void;
+  onUpdateReps: (setIndex: number, reps: number) => void;
+  onUpdateWeight: (setIndex: number, weight: number) => void;
+  onAddSet: () => void;
+  onDeleteSet: (setIndex: number) => void;
   onCompleteExercise: () => void;
+  isResting: boolean;
+  remainingRestTime: number;
+  onStartRest: () => void;
+  onStopRest: () => void;
+  totalVolume: number;
+  completedSets: number;
 }
 
 export const ActiveWorkoutExerciseLogging = ({
   exercise,
-  workoutExercise,
   exerciseRecord,
   isWorkoutStarted,
-  updateExerciseRecord,
+  onUpdateReps,
+  onUpdateWeight,
+  onAddSet,
+  onDeleteSet,
   onCompleteExercise,
+  isResting,
+  remainingRestTime,
+  onStopRest,
+  totalVolume,
+  completedSets,
 }: ActiveWorkoutExerciseLoggingProps) => {
   const workoutHistory = useWorkoutHistoryStore();
-  const activeWorkoutStore = useActiveWorkoutStore();
 
-  const [sets, setSets] = useState<SetInput[]>(exerciseRecord.sets);
   const [isDeleteMode, setIsDeleteMode] = useState(false);
   const [isWarmupExpanded, setIsWarmupExpanded] = useState(false);
-  const [setPerformed, setSetPerformed] = useState<boolean[]>(sets.map(() => false));
 
   const isSetCompleted = (set: SetInput) => set.reps !== null && set.weight !== null;
   const [showHistory, setShowHistory] = useState(false);
 
-  const isExerciseCompleted = useMemo(() => {
-    return sets.every(isSetCompleted);
-  }, [sets]);
-
-  useEffect(() => {
-    setPerformed.forEach((set, index) => {
-      if (!set && isSetCompleted(sets[index])) {
-        const newSetPerformed = setPerformed.map((performed, i) => (i === index ? true : performed));
-        setSetPerformed(newSetPerformed);
-        activeWorkoutStore.startRestTimer(workoutExercise.restPeriod || 180);
-        return;
-      }
-    });
-  }, [sets]);
-
-  const totalVolume = useMemo(() => {
-    return sets.reduce((total, set) => {
-      return total + (set.weight || 0) * (set.reps || 0);
-    }, 0);
-  }, [sets]);
-
-  const handleAddSet = useCallback(() => {
-    const newSet = {
-      reps: null,
-      weight: null,
-      targetWeight: sets[0]?.targetWeight || 0,
-      targetReps: workoutExercise.reps,
-    };
-
-    const newSets = [...sets, newSet];
-    setSetPerformed([...setPerformed, false]);
-
-    setSets(newSets);
-    updateExerciseRecord({
-      ...exerciseRecord,
-      sets: newSets,
-    });
-
-    if (Platform.OS !== "web") {
-      Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+  const handleUpdateSet = (index: number, field: "reps" | "weight", value: string) => {
+    const numValue = parseInt(value) || 0;
+    if (field === "reps") {
+      onUpdateReps(index, numValue);
+    } else {
+      onUpdateWeight(index, numValue);
     }
-  }, [sets, exerciseRecord, workoutExercise.reps, updateExerciseRecord, setPerformed]);
-
-  const handleDeleteSet = useCallback(
-    (index: number) => {
-      // Don't allow deleting if only one set remains
-      if (sets.length <= 1) {
-        if (Platform.OS !== "web") {
-          Haptics.notificationAsync(Haptics.NotificationFeedbackType.Error);
-        }
-        return;
-      }
-
-      const newSets = sets.filter((_, i) => i !== index);
-      // Also filter the setPerformed array to maintain sync
-      const newSetPerformed = setPerformed.filter((_, i) => i !== index);
-
-      setSets(newSets);
-      setSetPerformed(newSetPerformed);
-      updateExerciseRecord({
-        ...exerciseRecord,
-        sets: newSets,
-      });
-
-      if (Platform.OS !== "web") {
-        Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
-      }
-    },
-    [sets, exerciseRecord, updateExerciseRecord, setPerformed]
-  );
-
-  const updateSet = useCallback(
-    (index: number, field: keyof SetInput, value: string) => {
-      const numValue = value === "" ? null : parseInt(value) || 0;
-
-      // Create new sets array first
-      const newSets = sets.map((set, i) => (i === index ? { ...set, [field]: numValue } : set));
-
-      // Update both local state and store in one go
-      setSets(newSets);
-      updateExerciseRecord({
-        ...exerciseRecord,
-        sets: newSets,
-      });
-
-      if (Platform.OS !== "web") {
-        Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-      }
-    },
-    [sets, exerciseRecord, updateExerciseRecord]
-  );
+  };
 
   return (
     <View className="flex-1 bg-background">
@@ -261,28 +189,18 @@ export const ActiveWorkoutExerciseLogging = ({
               <View className="flex-row justify-between items-center mb-6">
                 <View className="flex-row items-center">
                   <Text className="text-lg font-semibold mr-2">Working Sets</Text>
-                  <Text className="text-sm text-muted-foreground">({sets.length} Sets)</Text>
+                  <Text className="text-sm text-muted-foreground">({exerciseRecord.sets.length} Sets)</Text>
                 </View>
                 <View className="flex-row gap-3">
                   <Button
                     variant="ghost"
                     size="icon"
                     className={`h-9 w-9 rounded-full ${isDeleteMode ? "bg-destructive/10" : "bg-secondary/10"}`}
-                    onPress={() => {
-                      setIsDeleteMode(!isDeleteMode);
-                      if (Platform.OS !== "web") {
-                        Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-                      }
-                    }}
+                    onPress={() => setIsDeleteMode(!isDeleteMode)}
                   >
-                    <Trash2 size={16} className={isDeleteMode ? "text-destructive" : "text-destructive"} />
+                    <Trash2 size={16} className="text-destructive" />
                   </Button>
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    className="h-9 w-9 rounded-full bg-primary/10"
-                    onPress={handleAddSet}
-                  >
+                  <Button variant="ghost" size="icon" className="h-9 w-9 rounded-full bg-primary/10" onPress={onAddSet}>
                     <Plus size={16} className="text-primary" />
                   </Button>
                 </View>
@@ -302,7 +220,7 @@ export const ActiveWorkoutExerciseLogging = ({
 
               {/* Sets List */}
               <View className="space-y-2">
-                {sets.map((set, index) => (
+                {exerciseRecord.sets.map((set, index) => (
                   <Animated.View
                     key={index}
                     entering={FadeInDown.delay(index * 50)}
@@ -324,7 +242,7 @@ export const ActiveWorkoutExerciseLogging = ({
                             ${isWorkoutStarted && isSetCompleted(set) ? "bg-card" : "bg-card"}
                           `}
                           value={set.weight?.toString() || ""}
-                          onChangeText={(value) => updateSet(index, "weight", value)}
+                          onChangeText={(value) => handleUpdateSet(index, "weight", value)}
                           keyboardType="numeric"
                           maxLength={3}
                           placeholder={set.targetWeight.toString()}
@@ -341,7 +259,7 @@ export const ActiveWorkoutExerciseLogging = ({
                             ${isWorkoutStarted && isSetCompleted(set) ? "bg-card" : "bg-card"}
                           `}
                           value={set.reps?.toString() || ""}
-                          onChangeText={(value) => updateSet(index, "reps", value)}
+                          onChangeText={(value) => handleUpdateSet(index, "reps", value)}
                           keyboardType="numeric"
                           maxLength={2}
                           placeholder={set.targetReps.toString()}
@@ -366,7 +284,7 @@ export const ActiveWorkoutExerciseLogging = ({
                           </View>
                         ) : (
                           <Pressable
-                            onPress={() => handleDeleteSet(index)}
+                            onPress={() => onDeleteSet(index)}
                             className="w-10 h-10 rounded-full items-center justify-center bg-destructive"
                           >
                             <Trash2 size={16} className="text-destructive-foreground" />
@@ -374,7 +292,7 @@ export const ActiveWorkoutExerciseLogging = ({
                         )
                       ) : isDeleteMode ? (
                         <Pressable
-                          onPress={() => handleDeleteSet(index)}
+                          onPress={() => onDeleteSet(index)}
                           className="w-10 h-10 rounded-full items-center justify-center bg-destructive"
                         >
                           <Trash2 size={16} className="text-destructive-foreground" />
@@ -396,11 +314,11 @@ export const ActiveWorkoutExerciseLogging = ({
         <View className="p-4">
           <View className="flex-row justify-between">
             <View className="items-center flex-1">
-              <Text className="text-sm font-medium">{sets.length.toString()}</Text>
+              <Text className="text-sm font-medium">{exerciseRecord.sets.length.toString()}</Text>
               <Text className="text-xs text-muted-foreground">Sätze</Text>
             </View>
             <View className="items-center flex-1">
-              <Text className="text-sm font-medium">{sets.filter(isSetCompleted).length.toString()}</Text>
+              <Text className="text-sm font-medium">{completedSets.toString()}</Text>
               <Text className="text-xs text-muted-foreground">Abgeschlossen</Text>
             </View>
             <View className="items-center flex-1">
@@ -412,11 +330,11 @@ export const ActiveWorkoutExerciseLogging = ({
       </View>
 
       {isWorkoutStarted &&
-        (activeWorkoutStore.isResting ? (
+        (isResting ? (
           <AnimatedIconButton
-            onPress={activeWorkoutStore.stopRestTimer}
+            onPress={onStopRest}
             icon={<TimerOff size={20} className="text-primary-foreground" />}
-            label={`${formatTime(activeWorkoutStore.remainingRestTime)}`}
+            label={`${formatTime(remainingRestTime)}`}
             className="absolute bottom-10 left-4 right-4"
           />
         ) : (
@@ -424,17 +342,12 @@ export const ActiveWorkoutExerciseLogging = ({
             onPress={onCompleteExercise}
             icon={<CheckCheck className="mr-2 h-4 w-4 text-primary-foreground" />}
             label="Übung abschließen"
-            disabled={!isExerciseCompleted}
+            disabled={!exerciseRecord.sets.every(isSetCompleted)}
             className="absolute bottom-10 left-4 right-4"
           />
         ))}
 
-      <BottomSheet
-        title="Exercise History"
-        isOpen={showHistory}
-        onClose={() => setShowHistory(false)}
-        snapPoints={[95]}
-      >
+      <BottomSheet title="Übungshistorie" isOpen={showHistory} onClose={() => setShowHistory(false)} snapPoints={[95]}>
         <View className="flex-1">
           <ExerciseHistory exercise={exercise} history={workoutHistory.sessions} />
         </View>

@@ -2,7 +2,6 @@ import React from "react";
 import { View } from "react-native";
 import { Text } from "~/components/ui/text";
 import { Timer, Dumbbell, CheckSquare } from "~/lib/icons/Icons";
-import { useActiveWorkoutStore } from "~/stores/activeWorkoutStore";
 
 interface StatItemProps {
   icon: React.ReactNode;
@@ -25,17 +24,24 @@ const formatTime = (seconds: number): string => {
   return `${minutes}:${remainingSeconds.toString().padStart(2, "0")}`;
 };
 
-export function ActiveWorkoutStats() {
-  const { elapsedTime, getCurrentStats } = useActiveWorkoutStore();
-  const stats = getCurrentStats();
-
+export function ActiveWorkoutStats({
+  elapsedTime,
+  completedExercises,
+  remainingExercises,
+  totalVolume,
+}: {
+  elapsedTime: number;
+  completedExercises: number;
+  remainingExercises: number;
+  totalVolume: number;
+}) {
   return (
     <View className="px-4 pt-3">
       <View className="backdrop-blur-lg">
         <View className="flex-row justify-between">
           <StatItem
             icon={<Dumbbell size={20} className="text-primary" />}
-            value={`${stats.totalVolume}kg`}
+            value={`${totalVolume}kg`}
             label="Gesamtvolumen"
           />
           <StatItem
@@ -45,7 +51,7 @@ export function ActiveWorkoutStats() {
           />
           <StatItem
             icon={<CheckSquare size={20} className="text-primary" />}
-            value={stats.completedExercises}
+            value={completedExercises}
             label="Abgeschlossen"
           />
         </View>

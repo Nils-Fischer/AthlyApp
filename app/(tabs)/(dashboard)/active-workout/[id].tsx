@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import { View } from "react-native";
 import { useLocalSearchParams, router, Stack } from "expo-router";
 import { Text } from "~/components/ui/text";
@@ -21,36 +21,43 @@ import {
 } from "~/components/ui/alert-dialog";
 import { ActiveWorkoutCancelConfirmation } from "~/components/ActiveWorkout/ActiveWorkoutCancelConfirmation";
 import { useUserRoutineStore } from "~/stores/userRoutineStore";
+import { useExerciseStore } from "~/stores/exerciseStore";
 
 export default function ActiveWorkoutScreen() {
   const { id, start } = useLocalSearchParams<{ id: string; start?: string }>();
   const workoutHistoryStore = useWorkoutHistoryStore();
   const { getActiveRoutine } = useUserRoutineStore();
-  const activeWorkout = getActiveRoutine()?.workouts.find((workout) => workout.id === parseInt(id));
+  const { exercises } = useExerciseStore();
+  const activeWorkout = useMemo(
+    () => getActiveRoutine()?.workouts.find((workout) => workout.id === parseInt(id)),
+    [getActiveRoutine, id]
+  );
 
   const {
-    activeSession,
-    isStarted,
-    isResting,
-    remainingRestTime,
+    exerciseRecords,
+    workoutTimer,
+    restTimer,
     startWorkout,
     startRestTimer,
-    stopRestTimer,
+    pauseRestTimer,
+    getTotalVolume,
     finishWorkout,
     cancelWorkout,
+    getCompletedExercises,
+    getRemainingExercises,
   } = useActiveWorkoutStore();
 
   const [showCancelDialog, setShowCancelDialog] = useState(false);
   const [showFinishDialog, setShowFinishDialog] = useState(false);
 
   const allExercisesCompleted = React.useMemo(
-    () => activeSession?.entries.every((entry) => entry.isCompleted),
-    [activeSession?.entries]
+    () => getCompletedExercises() === exerciseRecords.size,
+    [exerciseRecords, getCompletedExercises]
   );
 
   const finish = () => {
     const session = finishWorkout();
-    session && workoutHistoryStore.addWorkoutSession(session);
+    workoutHistoryStore.addWorkoutSession(session);
     setShowFinishDialog(false);
     router.back();
   };
@@ -70,10 +77,10 @@ export default function ActiveWorkoutScreen() {
   };
 
   useEffect(() => {
-    if (start === "true") {
-      startWorkout();
+    if (start === "true" && activeWorkout) {
+      startWorkout(activeWorkout.id, parseInt(id));
     }
-  }, [start]);
+  }, [start, activeWorkout, id]);
 
   // Error State
   if (!activeWorkout) {
@@ -97,22 +104,29 @@ export default function ActiveWorkoutScreen() {
         }}
       />
       <View className="flex-1 bg-background">
-        <ActiveWorkoutStats />
+        <ActiveWorkoutStats
+          elapsedTime={workoutTimer.elapsedTime}
+          completedExercises={getCompletedExercises()}
+          remainingExercises={getRemainingExercises()}
+          totalVolume={getTotalVolume()}
+        />
 
         <ActiveWorkoutExerciseList
           workout={activeWorkout}
-          isStarted={isStarted}
+          exerciseRecords={exerciseRecords}
+          exercises={exercises ?? []}
+          isStarted={workoutTimer.isRunning}
           onPressExercise={(exercise) => router.push(`/active-workout/exercise-logging/${exercise.exerciseId}`)}
         />
 
         <ActiveWorkoutControls
-          isStarted={isStarted}
-          isResting={isResting}
-          remainingRestTime={remainingRestTime}
-          allExercisesCompleted={allExercisesCompleted || false}
-          onStart={() => startWorkout()}
+          isStarted={workoutTimer.isRunning}
+          isResting={restTimer.isRunning}
+          remainingRestTime={restTimer.remainingTime}
+          allExercisesCompleted={allExercisesCompleted}
+          onStart={() => startWorkout(activeWorkout.id, parseInt(id))}
           onStartRest={() => startRestTimer(180)}
-          onStopRest={stopRestTimer}
+          onStopRest={pauseRestTimer}
           onFinish={handleFinishPress}
           onCancel={() => setShowCancelDialog(true)}
         />
