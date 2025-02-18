@@ -1,7 +1,7 @@
 import { create } from "zustand";
 import { createJSONStorage, persist } from "zustand/middleware";
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import { Routine, Workout } from "~/lib/types";
+import { Routine, SetConfiguration, SetInput, Workout, WorkoutExercise } from "~/lib/types";
 
 export interface UserRoutineState {
   routines: Routine[];
@@ -12,6 +12,9 @@ export interface UserRoutineState {
   getActiveRoutine: () => Routine | null;
   getRoutineById: (routineId: number) => Routine | null;
   getWorkoutById: (routineId: number, workoutId: number) => Workout | null;
+  addExerciseToWorkout: (routineId: number, workoutId: number, exercise: WorkoutExercise) => void;
+  deleteExerciseFromWorkout: (routineId: number, workoutId: number, exerciseId: number) => void;
+  updateSetsInExercise: (routineId: number, workoutId: number, exerciseId: number, sets: SetConfiguration[]) => void;
 }
 
 export const useUserRoutineStore = create<UserRoutineState>()(
@@ -62,6 +65,66 @@ export const useUserRoutineStore = create<UserRoutineState>()(
       getWorkoutById: (routineId, workoutId) => {
         const routine = get().routines.find((r) => r.id === routineId);
         return routine?.workouts.find((w) => w.id === workoutId) || null;
+      },
+
+      addExerciseToWorkout: (routineId, workoutId, exercise) => {
+        set((state) => ({
+          routines: state.routines.map((routine) => {
+            if (routine.id !== routineId) return routine;
+            return {
+              ...routine,
+              workouts: routine.workouts.map((workout) => {
+                if (workout.id !== workoutId) return workout;
+                return {
+                  ...workout,
+                  exercises: [...workout.exercises, exercise],
+                };
+              }),
+            };
+          }),
+        }));
+      },
+
+      deleteExerciseFromWorkout: (routineId, workoutId, exerciseId) => {
+        set((state) => ({
+          routines: state.routines.map((routine) => {
+            if (routine.id !== routineId) return routine;
+            return {
+              ...routine,
+              workouts: routine.workouts.map((workout) => {
+                if (workout.id !== workoutId) return workout;
+                return {
+                  ...workout,
+                  exercises: workout.exercises.filter((ex) => ex.exerciseId !== exerciseId),
+                };
+              }),
+            };
+          }),
+        }));
+      },
+
+      updateSetsInExercise: (routineId, workoutId, exerciseId, sets) => {
+        set((state) => ({
+          routines: state.routines.map((routine) => {
+            if (routine.id !== routineId) return routine;
+            return {
+              ...routine,
+              workouts: routine.workouts.map((workout) => {
+                if (workout.id !== workoutId) return workout;
+                return {
+                  ...workout,
+                  exercises: workout.exercises.map((exercise) => {
+                    if (exercise.exerciseId !== exerciseId) return exercise;
+                    return {
+                      ...exercise,
+                      sets: sets,
+                    };
+                  }),
+                };
+              }),
+            };
+          }),
+        }));
       },
     }),
     {
