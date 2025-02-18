@@ -1,261 +1,321 @@
 import { create } from "zustand";
-import type { ExerciseRecord, SetInput, Workout, WorkoutExercise, WorkoutSession } from "~/lib/types";
-import { useWorkoutHistoryStore } from "./workoutHistoryStore";
+import { useUserRoutineStore } from "./userRoutineStore";
+import { ExerciseRecord, WorkoutSession } from "~/lib/types";
 
-interface ActiveWorkoutState {
-  isStarted: boolean;
-  isResting: boolean;
+interface Timer {
+  isRunning: boolean;
   startTime: number | null;
   elapsedTime: number;
-  restStartTime: number | null;
-  remainingRestTime: number;
-
-  activeWorkout: Workout | null;
-  activeSession: WorkoutSession | null;
-
-  timerInterval: NodeJS.Timeout | null;
-
-  setWorkout: (workout: Workout) => void;
-  updateExerciseRecord: (record: ExerciseRecord) => void;
-  startWorkout: () => void;
-  startRestTimer: (restTime: number) => void;
-  stopRestTimer: () => void;
-  cancelWorkout: () => void;
-  finishWorkout: () => WorkoutSession | null;
-  finishExercise: (exerciseId: number, intensity?: number) => void;
-
-  // Stats
-  getCurrentStats: () => {
-    duration: number;
-    totalVolume: number;
-    completedExercises: number;
-    remainingExercises: number;
-    completedSets: number;
-    remainingSets: number;
-  };
 }
 
-const getSetSuggestion = (exercise: WorkoutExercise): SetInput[] => {
-  const workoutHistory = useWorkoutHistoryStore.getState();
-  const lastWorkout = workoutHistory.getLastExerciseRecord(exercise.exerciseId);
+interface RestTimer {
+  isRunning: boolean;
+  duration: number;
+  remainingTime: number;
+}
 
-  if (lastWorkout?.sets?.length) {
-    return lastWorkout.sets.map((set) => ({
-      weight: null,
-      reps: null,
-      targetWeight: set.weight || 0,
-      targetReps: exercise.reps,
-    }));
-  }
+interface ActiveWorkoutState {
+  // Core workout data
+  routineId: number | null;
+  workoutId: number | null;
+  exerciseRecords: Map<number, ExerciseRecord>;
 
-  return Array.from({ length: exercise.sets }, () => ({
-    weight: null,
-    reps: null,
-    targetWeight: 0,
-    targetReps: exercise.reps,
-  }));
-};
+  // Timers
+  workoutTimer: Timer;
+  restTimer: RestTimer;
 
-const getNewSession = (workout: Workout): WorkoutSession => {
-  return {
-    date: new Date(),
-    summary: "",
-    entries: workout.exercises.map((exercise) => ({
-      exerciseId: exercise.exerciseId,
-      sets: getSetSuggestion(exercise),
-      intensity: undefined,
-      isCompleted: false,
-    })),
-    workoutId: workout.id,
-  };
-};
+  // Actions
+  startWorkout: (routineId: number, workoutId: number) => void;
+  cancelWorkout: () => void;
+  finishWorkout: () => WorkoutSession;
 
-export const useActiveWorkoutStore = create<ActiveWorkoutState>((set, get) => ({
-  isStarted: false,
-  isResting: false,
-  startTime: null,
-  elapsedTime: 0,
-  timerInterval: null,
-  activeWorkout: null,
-  activeSession: null,
-  restStartTime: null,
-  remainingRestTime: 0,
+  // Exercise management
+  completeExercise: (exerciseId: number, intensity?: number) => void;
 
-  setWorkout: (workout: Workout) => {
-    const session = getNewSession(workout);
-    set({ activeWorkout: workout, activeSession: session });
+  // Set input management
+  updateReps: (exerciseId: number, setIndex: number, reps: number) => void;
+  updateWeight: (exerciseId: number, setIndex: number, weight: number) => void;
+
+  // Timer controls
+  startRestTimer: (duration: number) => void;
+  pauseRestTimer: () => void;
+  resetRestTimer: () => void;
+
+  // Stats
+  getTotalVolume: () => number;
+  getCompletedExercises: () => number;
+  getRemainingExercises: () => number;
+  getCompletedSets: () => number;
+  getRemainingSets: () => number;
+}
+
+export const useActiveWorkoutStore = create<ActiveWorkoutState>()((set, get) => ({
+  // Initial state
+  routineId: null,
+  workoutId: null,
+  exerciseRecords: new Map(),
+
+  workoutTimer: {
+    isRunning: false,
+    startTime: null,
+    elapsedTime: 0,
   },
 
-  updateExerciseRecord: (record: ExerciseRecord) => {
-    set((state) => ({
-      activeSession: state.activeSession
-        ? {
-            ...state.activeSession,
-            entries: state.activeSession.entries.map((entry) =>
-              entry.exerciseId === record.exerciseId ? record : entry
-            ),
-          }
-        : null,
-    }));
+  restTimer: {
+    isRunning: false,
+    duration: 0,
+    remainingTime: 0,
   },
 
-  startWorkout: () => {
-    const workout = get().activeWorkout;
-    if (!workout) {
-      console.error("No workout set");
-      return;
-    }
-    const session = get().activeSession;
-    if (!session) {
-      console.error("No session set");
-      return;
-    }
+  startWorkout: (routineId, workoutId) => {
+    const workout = useUserRoutineStore.getState().getWorkoutById(routineId, workoutId);
+    if (!workout) return;
 
-    const newSession: WorkoutSession = {
-      ...session,
-      entries: session.entries.map((entry) => ({
-        ...entry,
-        sets: entry.sets.map((set) => ({
-          weight: null,
+    // Initialize exercise records
+    const records = new Map<number, ExerciseRecord>();
+    workout.exercises.forEach((exercise) => {
+      records.set(exercise.exerciseId, {
+        exerciseId: exercise.exerciseId,
+        sets: exercise.sets.map((set) => ({
           reps: null,
-          targetWeight: set.weight || set.targetWeight || 0,
-          targetReps: set.reps || set.targetReps || 0,
+          weight: null,
+          targetReps: set.reps,
+          targetWeight: set.weight || 0,
         })),
-      })),
-    };
+        isCompleted: false,
+        intensity: undefined,
+      });
+    });
 
-    const timerInterval = get().timerInterval;
-    timerInterval && clearInterval(timerInterval);
+    // Set initial state
+    set({
+      routineId,
+      workoutId,
+      exerciseRecords: records,
+      workoutTimer: {
+        isRunning: true,
+        startTime: Date.now(),
+        elapsedTime: 0,
+      },
+    });
 
-    const interval = setInterval(() => {
+    // Start workout timer
+    const timerInterval = setInterval(() => {
       set((state) => ({
-        elapsedTime: state.startTime ? Date.now() - state.startTime : 0,
+        workoutTimer: {
+          ...state.workoutTimer,
+          elapsedTime: Date.now() - (state.workoutTimer.startTime || 0),
+        },
       }));
     }, 1000);
 
-    set({
-      isStarted: true,
-      isResting: false,
-      startTime: Date.now(),
-      elapsedTime: 0,
-      activeSession: newSession,
-      timerInterval: interval,
+    // Subscribe to userRoutineStore changes
+    const unsubscribe = useUserRoutineStore.subscribe(() => {
+      const currentState = get();
+      if (!currentState.routineId || !currentState.workoutId) return;
+
+      const updatedWorkout = useUserRoutineStore
+        .getState()
+        .getWorkoutById(currentState.routineId, currentState.workoutId);
+
+      if (!updatedWorkout) {
+        // Workout was deleted, cancel the active workout
+        get().cancelWorkout();
+        return;
+      }
+
+      // Merge existing records with updated workout data
+      const updatedRecords = new Map<number, ExerciseRecord>();
+
+      updatedWorkout.exercises.forEach((exercise) => {
+        const existingRecord = currentState.exerciseRecords.get(exercise.exerciseId);
+
+        // Create new record while preserving user inputs
+        const newRecord: ExerciseRecord = {
+          exerciseId: exercise.exerciseId,
+          sets: exercise.sets.map((set, index) => {
+            const existingSet = existingRecord?.sets[index];
+            return {
+              reps: existingSet?.reps ?? null,
+              weight: existingSet?.weight ?? null,
+              targetReps: set.reps,
+              targetWeight: set.weight || 0,
+            };
+          }),
+          isCompleted: existingRecord?.isCompleted ?? false,
+          intensity: existingRecord?.intensity,
+        };
+
+        updatedRecords.set(exercise.exerciseId, newRecord);
+      });
+
+      set({ exerciseRecords: updatedRecords });
+    });
+
+    // Return cleanup function
+    return () => {
+      clearInterval(timerInterval);
+      unsubscribe();
+    };
+  },
+
+  updateReps: (exerciseId, setIndex, reps) => {
+    set((state) => {
+      const records = new Map(state.exerciseRecords);
+      const exercise = records.get(exerciseId);
+      if (!exercise) return state;
+
+      const updatedSets = [...exercise.sets];
+      updatedSets[setIndex] = { ...updatedSets[setIndex], reps };
+
+      records.set(exerciseId, { ...exercise, sets: updatedSets });
+      return { exerciseRecords: records };
     });
   },
 
+  updateWeight: (exerciseId, setIndex, weight) => {
+    set((state) => {
+      const records = new Map(state.exerciseRecords);
+      const exercise = records.get(exerciseId);
+      if (!exercise) return state;
+
+      const updatedSets = [...exercise.sets];
+      updatedSets[setIndex] = { ...updatedSets[setIndex], weight };
+
+      records.set(exerciseId, { ...exercise, sets: updatedSets });
+      return { exerciseRecords: records };
+    });
+  },
+
+  completeExercise: (exerciseId, intensity) => {
+    set((state) => {
+      const records = new Map(state.exerciseRecords);
+      const exercise = records.get(exerciseId);
+      if (!exercise) return state;
+
+      records.set(exerciseId, { ...exercise, isCompleted: true, intensity: intensity || undefined });
+      return { exerciseRecords: records };
+    });
+  },
+
+  startRestTimer: (duration) => {
+    set({ restTimer: { isRunning: true, duration, remainingTime: duration } });
+
+    const timerInterval = setInterval(() => {
+      set((state) => {
+        if (!state.restTimer.isRunning) return state;
+        const remainingTime = Math.max(0, state.restTimer.remainingTime - 1);
+
+        if (remainingTime === 0) {
+          clearInterval(timerInterval);
+          return { restTimer: { ...state.restTimer, isRunning: false, remainingTime } };
+        }
+
+        return { restTimer: { ...state.restTimer, remainingTime } };
+      });
+    }, 1000);
+
+    return () => clearInterval(timerInterval);
+  },
+
+  pauseRestTimer: () => {
+    set((state) => ({
+      restTimer: { ...state.restTimer, isRunning: false },
+    }));
+  },
+
+  resetRestTimer: () => {
+    set((state) => ({
+      restTimer: { ...state.restTimer, remainingTime: state.restTimer.duration },
+    }));
+  },
+
   cancelWorkout: () => {
-    const timerInterval = get().timerInterval;
-    timerInterval && clearInterval(timerInterval);
-    const currentWorkout = get().activeWorkout;
-    if (!currentWorkout) return;
     set({
-      isStarted: false,
-      isResting: false,
-      startTime: null,
-      elapsedTime: 0,
-      activeSession: getNewSession(currentWorkout),
-      timerInterval: null,
+      routineId: null,
+      workoutId: null,
+      exerciseRecords: new Map(),
+      workoutTimer: { isRunning: false, startTime: null, elapsedTime: 0 },
+      restTimer: { isRunning: false, duration: 0, remainingTime: 0 },
     });
   },
 
   finishWorkout: () => {
-    const timerInterval = get().timerInterval;
-    timerInterval && clearInterval(timerInterval);
+    const state = get();
+    const workout = useUserRoutineStore.getState().getWorkoutById(state.routineId!, state.workoutId!);
 
-    const currentWorkout = get().activeWorkout;
-    if (!currentWorkout) return null;
+    if (!workout) throw new Error("No active workout");
 
-    const currentSession = get().activeSession;
-
-    set({
-      isStarted: false,
-      isResting: false,
-      startTime: null,
-      elapsedTime: 0,
-      activeWorkout: null,
-      timerInterval: null,
-      activeSession: null,
-    });
-
-    return currentSession;
-  },
-
-  finishExercise: (exerciseId: number, intensity = undefined) => {
-    set((state) => ({
-      activeSession: state.activeSession
-        ? {
-            ...state.activeSession,
-            entries: state.activeSession.entries.map((entry) =>
-              entry.exerciseId === exerciseId ? { ...entry, isCompleted: true, intensity } : entry
-            ),
-          }
-        : null,
-    }));
-  },
-
-  getCurrentStats: () => {
-    const currentSession = get().activeSession;
-    if (!currentSession) {
-      return {
-        duration: 0,
-        totalVolume: 0,
-        completedExercises: 0,
-        remainingExercises: 0,
-        completedSets: 0,
-        remainingSets: 0,
-      };
-    }
-
-    const totalVolume = currentSession.entries.reduce((acc, entry) => {
-      return acc + entry.sets.reduce((setAcc, set) => setAcc + (set.weight || 0) * (set.reps || 0), 0);
-    }, 0);
-
-    const completedSets = currentSession.entries.reduce((acc, entry) => acc + entry.sets.length, 0);
-
-    const totalTargetSets = currentSession.entries.reduce((acc, entry) => acc + (entry.sets?.length || 0), 0);
-
-    return {
-      duration: get().elapsedTime,
-      totalVolume,
-      completedExercises: currentSession.entries.filter((e) => e.isCompleted).length,
-      remainingExercises: currentSession.entries.filter((e) => !e.isCompleted).length,
-      completedSets,
-      remainingSets: totalTargetSets - completedSets,
+    const session: WorkoutSession = {
+      workoutId: state.workoutId!,
+      date: new Date(),
+      entries: Array.from(state.exerciseRecords.values()),
+      summary: `Completed in ${Math.floor(state.workoutTimer.elapsedTime / 1000 / 60)} minutes`,
     };
+
+    // Reset the store
+    state.cancelWorkout();
+
+    return session;
   },
 
-  startRestTimer: (restTime: number) => {
-    const timerInterval = get().timerInterval;
-    timerInterval && clearInterval(timerInterval);
+  // Stats calculations
+  getTotalVolume: () => {
+    const state = get();
+    let volume = 0;
 
-    const interval = setInterval(() => {
-      set((state) => {
-        const elapsed = state.restStartTime ? Date.now() - state.restStartTime : 0;
-        const remaining = restTime * 1000 - elapsed;
-
-        return {
-          remainingRestTime: remaining,
-        };
+    state.exerciseRecords.forEach((record) => {
+      record.sets.forEach((set) => {
+        if (set.reps && set.weight) {
+          volume += set.reps * set.weight;
+        }
       });
-    }, 100);
-
-    set({
-      isResting: true,
-      restStartTime: Date.now(),
-      remainingRestTime: restTime * 1000,
-      timerInterval: interval,
     });
+
+    return volume;
   },
 
-  stopRestTimer: () => {
-    const timerInterval = get().timerInterval;
-    timerInterval && clearInterval(timerInterval);
+  getCompletedExercises: () => {
+    const state = get();
+    return Array.from(state.exerciseRecords.values()).filter((record) => record.isCompleted).length;
+  },
 
-    set({
-      isResting: false,
-      restStartTime: null,
-      remainingRestTime: 0,
-      timerInterval: null,
+  getRemainingExercises: () => {
+    const state = get();
+    return state.exerciseRecords.size - get().getCompletedExercises();
+  },
+
+  getCompletedSets: () => {
+    const state = get();
+    let completed = 0;
+
+    state.exerciseRecords.forEach((record) => {
+      record.sets.forEach((set) => {
+        if (set.reps !== null && set.weight !== null) completed++;
+      });
     });
+
+    return completed;
+  },
+
+  getRemainingSets: () => {
+    const state = get();
+    let total = 0;
+
+    state.exerciseRecords.forEach((record) => {
+      total += record.sets.length;
+    });
+
+    return total - get().getCompletedSets();
+  },
+
+  // Added method to retrieve the active routineId and workoutId
+  getActiveRoutineAndWorkoutId: () => {
+    const state = get();
+    return { routineId: state.routineId, workoutId: state.workoutId };
+  },
+
+  getExerciseRecord: (exerciseId: number) => {
+    return get().exerciseRecords.get(exerciseId);
   },
 }));
