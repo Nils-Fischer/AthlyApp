@@ -1,7 +1,7 @@
 import { create } from "zustand";
 import { createJSONStorage, persist } from "zustand/middleware";
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import { Routine } from "~/lib/types";
+import { Routine, Workout } from "~/lib/types";
 
 export interface UserRoutineState {
   routines: Routine[];
@@ -10,6 +10,8 @@ export interface UserRoutineState {
   deleteRoutine: (routineId: number) => void;
   toggleRoutineActive: (routineId: number) => void;
   getActiveRoutine: () => Routine | null;
+  getRoutineById: (routineId: number) => Routine | null;
+  getWorkoutById: (routineId: number, workoutId: number) => Workout | null;
 }
 
 export const useUserRoutineStore = create<UserRoutineState>()(
@@ -51,6 +53,15 @@ export const useUserRoutineStore = create<UserRoutineState>()(
 
       getActiveRoutine: () => {
         return get().routines.find((routine) => routine.active) || null;
+      },
+
+      getRoutineById: (routineId) => {
+        return get().routines.find((routine) => routine.id === routineId) || null;
+      },
+
+      getWorkoutById: (routineId, workoutId) => {
+        const routine = get().routines.find((r) => r.id === routineId);
+        return routine?.workouts.find((w) => w.id === workoutId) || null;
       },
     }),
     {
