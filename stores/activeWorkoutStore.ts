@@ -16,7 +16,6 @@ interface RestTimer {
 
 interface ActiveWorkoutState {
   // Core workout data
-  routineId: number | null;
   workoutId: number | null;
   exerciseRecords: Map<number, ExerciseRecord>;
 
@@ -25,7 +24,7 @@ interface ActiveWorkoutState {
   restTimer: RestTimer;
 
   // Actions
-  startWorkout: (routineId: number, workoutId: number) => void;
+  startWorkout: (workoutId: number) => void;
   cancelWorkout: () => void;
   finishWorkout: () => WorkoutSession;
 
@@ -49,9 +48,10 @@ interface ActiveWorkoutState {
   getRemainingSets: () => number;
 }
 
+let workoutTimerInterval: NodeJS.Timeout | number | null = null;
+
 export const useActiveWorkoutStore = create<ActiveWorkoutState>()((set, get) => ({
   // Initial state
-  routineId: null,
   workoutId: null,
   exerciseRecords: new Map(),
 
@@ -67,9 +67,15 @@ export const useActiveWorkoutStore = create<ActiveWorkoutState>()((set, get) => 
     remainingTime: 0,
   },
 
-  startWorkout: (routineId, workoutId) => {
-    const workout = useUserRoutineStore.getState().getWorkoutById(routineId, workoutId);
-    if (!workout) return;
+  startWorkout: (workoutId) => {
+    console.log(`[Workout] Starting workout - Workout: ${workoutId}`);
+    const workout = useUserRoutineStore.getState().getWorkoutById(workoutId);
+    if (!workout) {
+      console.error(`[Workout] Failed to find workout - Workout: ${workoutId}`);
+      console.log(useUserRoutineStore.getState().routines.map((r) => r.id));
+      console.log(useUserRoutineStore.getState().routines.map((r) => r.workouts));
+      return;
+    }
 
     // Initialize exercise records
     const records = new Map<number, ExerciseRecord>();
@@ -89,7 +95,6 @@ export const useActiveWorkoutStore = create<ActiveWorkoutState>()((set, get) => 
 
     // Set initial state
     set({
-      routineId,
       workoutId,
       exerciseRecords: records,
       workoutTimer: {
@@ -99,8 +104,14 @@ export const useActiveWorkoutStore = create<ActiveWorkoutState>()((set, get) => 
       },
     });
 
-    // Start workout timer
-    const timerInterval = setInterval(() => {
+    console.log(`[Workout] Initialized with ${workout.exercises.length} exercises`);
+
+    // Start workout timer - clear any previously set interval first
+    if (workoutTimerInterval) {
+      clearInterval(workoutTimerInterval);
+      workoutTimerInterval = null;
+    }
+    workoutTimerInterval = setInterval(() => {
       set((state) => ({
         workoutTimer: {
           ...state.workoutTimer,
@@ -112,17 +123,16 @@ export const useActiveWorkoutStore = create<ActiveWorkoutState>()((set, get) => 
     // Subscribe to userRoutineStore changes
     const unsubscribe = useUserRoutineStore.subscribe(() => {
       const currentState = get();
-      if (!currentState.routineId || !currentState.workoutId) return;
+      if (!currentState.workoutId) return;
 
-      const updatedWorkout = useUserRoutineStore
-        .getState()
-        .getWorkoutById(currentState.routineId, currentState.workoutId);
+      const updatedWorkout = useUserRoutineStore.getState().getWorkoutById(currentState.workoutId);
 
       if (!updatedWorkout) {
-        // Workout was deleted, cancel the active workout
+        console.warn(`[Workout] Workout deleted - Cancelling active session`);
         get().cancelWorkout();
         return;
       }
+      console.log(`[Workout] Received routine store update - Merging changes`);
 
       // Merge existing records with updated workout data
       const updatedRecords = new Map<number, ExerciseRecord>();
@@ -152,9 +162,12 @@ export const useActiveWorkoutStore = create<ActiveWorkoutState>()((set, get) => 
       set({ exerciseRecords: updatedRecords });
     });
 
-    // Return cleanup function
+    // Return cleanup function (not used in this store setup)
     return () => {
-      clearInterval(timerInterval);
+      if (workoutTimerInterval) {
+        clearInterval(workoutTimerInterval);
+        workoutTimerInterval = null;
+      }
       unsubscribe();
     };
   },
@@ -188,6 +201,7 @@ export const useActiveWorkoutStore = create<ActiveWorkoutState>()((set, get) => 
   },
 
   completeExercise: (exerciseId, intensity) => {
+    console.log(`[Workout] Completing exercise ${exerciseId} with intensity ${intensity}`);
     set((state) => {
       const records = new Map(state.exerciseRecords);
       const exercise = records.get(exerciseId);
@@ -231,8 +245,13 @@ export const useActiveWorkoutStore = create<ActiveWorkoutState>()((set, get) => 
   },
 
   cancelWorkout: () => {
+    console.log(`[Workout] Cancelling current workout`);
+    // Clear the timer interval if it exists.
+    if (workoutTimerInterval) {
+      clearInterval(workoutTimerInterval);
+      workoutTimerInterval = null;
+    }
     set({
-      routineId: null,
       workoutId: null,
       exerciseRecords: new Map(),
       workoutTimer: { isRunning: false, startTime: null, elapsedTime: 0 },
@@ -242,9 +261,13 @@ export const useActiveWorkoutStore = create<ActiveWorkoutState>()((set, get) => 
 
   finishWorkout: () => {
     const state = get();
-    const workout = useUserRoutineStore.getState().getWorkoutById(state.routineId!, state.workoutId!);
+    console.log(`[Workout] Finishing workout - Workout: ${state.workoutId}`);
+    const workout = useUserRoutineStore.getState().getWorkoutById(state.workoutId!);
 
-    if (!workout) throw new Error("No active workout");
+    if (!workout) {
+      console.error("[Workout] Failed to finish - No active workout found");
+      throw new Error("No active workout");
+    }
 
     const session: WorkoutSession = {
       workoutId: state.workoutId!,
@@ -253,9 +276,8 @@ export const useActiveWorkoutStore = create<ActiveWorkoutState>()((set, get) => 
       summary: `Completed in ${Math.floor(state.workoutTimer.elapsedTime / 1000 / 60)} minutes`,
     };
 
-    // Reset the store
+    console.log(`[Workout] Session created - Duration: ${session.summary}, Exercises: ${session.entries.length}`);
     state.cancelWorkout();
-
     return session;
   },
 
@@ -307,15 +329,5 @@ export const useActiveWorkoutStore = create<ActiveWorkoutState>()((set, get) => 
     });
 
     return total - get().getCompletedSets();
-  },
-
-  // Added method to retrieve the active routineId and workoutId
-  getActiveRoutineAndWorkoutId: () => {
-    const state = get();
-    return { routineId: state.routineId, workoutId: state.workoutId };
-  },
-
-  getExerciseRecord: (exerciseId: number) => {
-    return get().exerciseRecords.get(exerciseId);
   },
 }));
