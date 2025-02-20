@@ -277,6 +277,7 @@ export const ActiveWorkoutExerciseLogging = ({
                             }
                           }}
                           disabled={!isSetLogged(set)}
+                          haptics="success"
                           className={`w-10 h-10 rounded-full items-center justify-center ${
                             completedSetIndexes.includes(index) ? "bg-primary" : "bg-card border border-border"
                           }`}

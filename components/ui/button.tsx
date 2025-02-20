@@ -124,6 +124,25 @@ type ButtonProps = React.ComponentPropsWithoutRef<typeof Pressable> &
      * Configure haptic feedback for button interactions.
      * Feedback is triggered before the onPress handler executes.
      *
+     *
+     * @description
+     * ## Haptic Feedback Guide
+     *
+     * - **Notification Types** (use for system feedback):
+     *   - `success`: Successful operations (form submissions, completed actions)
+     *   - `warning`: Non-critical issues (partial successes, validation warnings)
+     *   - `error`: Critical failures (network errors, authentication issues)
+     *
+     * - **Selection Feedback**:
+     *   - `selection`: Discrete interactions (toggle switches, radio buttons, pickers)
+     *
+     * - **Impact Styles** (use for physical interactions):
+     *   - `light`: Subtle feedback (icon buttons, small interface elements)
+     *   - `medium`: Standard button presses (most common interactions)
+     *   - `heavy`: Significant actions (destructive operations, major changes)
+     *   - `rigid`: Sharp mechanical interactions (switches, sliders)
+     *   - `soft`: Gentle organic interactions (toggle animations, soft transitions)
+     *
      * @example
      * // Success notification for form submission
      * haptics="success"
