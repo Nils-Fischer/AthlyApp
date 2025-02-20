@@ -38,6 +38,7 @@ export function ActiveWorkoutControls({
         {!isStarted ? (
           <AnimatedIconButton
             onPress={onStart}
+            haptics="heavy"
             icon={<Play className="text-background" size={24} />}
             label="Workout starten"
           />
@@ -46,12 +47,14 @@ export function ActiveWorkoutControls({
             <AnimatedIconButton
               className="flex-none bg-destructive"
               onPress={onCancel}
+              haptics="error"
               icon={<StopCircle className="text-background" size={24} />}
             />
             {allExercisesCompleted ? (
               <AnimatedIconButton
                 className="flex-1 bg-foreground"
                 onPress={onFinish}
+                haptics="success"
                 icon={<Check className="text-background" size={24} />}
                 label="Fertig"
               />
@@ -59,6 +62,7 @@ export function ActiveWorkoutControls({
               <AnimatedIconButton
                 className="flex-1 bg-foreground"
                 onPress={isResting ? onStopRest : onStartRest}
+                haptics="medium"
                 icon={
                   isResting ? (
                     <TimerOff className="text-background" size={24} />
@@ -72,6 +76,7 @@ export function ActiveWorkoutControls({
             <AnimatedIconButton
               className="flex-none bg-foreground"
               onPress={onFinish}
+              haptics="rigid"
               icon={<CheckCheck className="text-background" size={24} />}
             />
           </View>
