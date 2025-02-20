@@ -33,10 +33,10 @@ export const ActiveWorkoutCancelConfirmation = ({
           </AlertDialogDescription>
         </AlertDialogHeader>
         <AlertDialogFooter className="flex flex-row justify-center mt-4 gap-3">
-          <AlertDialogCancel className="flex-1 max-w-[160px]">
+          <AlertDialogCancel className="flex-1 max-w-[160px]" haptics="medium">
             <Text>Zurück</Text>
           </AlertDialogCancel>
-          <AlertDialogAction className="flex-1 max-w-[160px] bg-destructive" onPress={confirmCancel}>
+          <AlertDialogAction className="flex-1 max-w-[160px] bg-destructive" onPress={confirmCancel} haptics="error">
             <Text>Beenden</Text>
           </AlertDialogAction>
         </AlertDialogFooter>

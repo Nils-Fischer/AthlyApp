@@ -173,7 +173,7 @@ function ExerciseCard({
                   side="top"
                   align="start"
                   trigger={
-                    <Button variant="ghost" size="icon" className="h-8 w-8">
+                    <Button variant="ghost" size="icon" className="h-8 w-8" haptics="light">
                       <MoreHorizontal size={20} className="text-muted-foreground ml-2" />
                     </Button>
                   }

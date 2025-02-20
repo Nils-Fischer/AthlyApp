@@ -4,6 +4,9 @@ import { Platform, StyleSheet, View, type ViewProps } from "react-native";
 import Animated, { FadeIn, FadeOut } from "react-native-reanimated";
 import { X } from "~/lib/icons/Icons";
 import { cn } from "~/lib/utils";
+import * as Haptics from "expo-haptics";
+import { type GestureResponderEvent } from "react-native";
+import { type HapticsFeedback } from "./button";
 
 const Dialog = DialogPrimitive.Root;
 
@@ -11,7 +14,37 @@ const DialogTrigger = DialogPrimitive.Trigger;
 
 const DialogPortal = DialogPrimitive.Portal;
 
-const DialogClose = DialogPrimitive.Close;
+const DialogClose = React.forwardRef<
+  DialogPrimitive.CloseRef,
+  DialogPrimitive.CloseProps & { haptics?: HapticsFeedback }
+>(({ haptics, onPress, ...props }, ref) => {
+  const handlePress = async (event: GestureResponderEvent) => {
+    try {
+      if (haptics) {
+        if (haptics === "selection") {
+          await Haptics.selectionAsync();
+        } else if (haptics === "success") {
+          await Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
+        } else if (haptics === "warning") {
+          await Haptics.notificationAsync(Haptics.NotificationFeedbackType.Warning);
+        } else if (haptics === "error") {
+          await Haptics.notificationAsync(Haptics.NotificationFeedbackType.Error);
+        } else {
+          await Haptics.impactAsync(haptics as Haptics.ImpactFeedbackStyle);
+        }
+      }
+    } catch (error) {
+      console.warn("Haptic feedback failed:", error);
+    }
+    if (onPress) {
+      onPress(event);
+    }
+  };
+
+  return <DialogPrimitive.Close ref={ref} {...props} onPress={handlePress} />;
+});
+
+DialogClose.displayName = "DialogClose";
 
 const DialogOverlayWeb = React.forwardRef<DialogPrimitive.OverlayRef, DialogPrimitive.OverlayProps>(
   ({ className, ...props }, ref) => {

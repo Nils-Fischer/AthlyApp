@@ -2,9 +2,11 @@ import * as AlertDialogPrimitive from "@rn-primitives/alert-dialog";
 import * as React from "react";
 import { Platform, StyleSheet, View, type ViewProps } from "react-native";
 import Animated, { FadeIn, FadeOut } from "react-native-reanimated";
-import { buttonTextVariants, buttonVariants } from "~/components/ui/button";
+import { buttonTextVariants, buttonVariants, HapticsFeedback } from "~/components/ui/button";
 import { cn } from "~/lib/utils";
 import { TextClassContext } from "~/components/ui/text";
+import { GestureResponderEvent } from "react-native";
+import * as Haptics from "expo-haptics";
 
 const AlertDialog = AlertDialogPrimitive.Root;
 
@@ -113,26 +115,84 @@ const AlertDialogDescription = React.forwardRef<
 ));
 AlertDialogDescription.displayName = AlertDialogPrimitive.Description.displayName;
 
-const AlertDialogAction = React.forwardRef<AlertDialogPrimitive.ActionRef, AlertDialogPrimitive.ActionProps>(
-  ({ className, ...props }, ref) => (
+const AlertDialogAction = React.forwardRef<
+  AlertDialogPrimitive.ActionRef,
+  AlertDialogPrimitive.ActionProps & { haptics?: HapticsFeedback }
+>(({ className, haptics, onPress, ...props }, ref) => {
+  const handlePress = async (event: GestureResponderEvent) => {
+    try {
+      if (haptics) {
+        if (haptics === "selection") {
+          await Haptics.selectionAsync();
+        } else if (haptics === "success") {
+          await Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
+        } else if (haptics === "warning") {
+          await Haptics.notificationAsync(Haptics.NotificationFeedbackType.Warning);
+        } else if (haptics === "error") {
+          await Haptics.notificationAsync(Haptics.NotificationFeedbackType.Error);
+        } else {
+          await Haptics.impactAsync(haptics as Haptics.ImpactFeedbackStyle);
+        }
+      }
+    } catch (error) {
+      console.warn("Haptic feedback failed:", error);
+    }
+    if (onPress) {
+      onPress(event);
+    }
+  };
+
+  return (
     <TextClassContext.Provider value={buttonTextVariants({ className })}>
-      <AlertDialogPrimitive.Action ref={ref} className={cn(buttonVariants(), className)} {...props} />
+      <AlertDialogPrimitive.Action
+        ref={ref}
+        className={cn(buttonVariants(), className)}
+        {...props}
+        onPress={handlePress}
+      />
     </TextClassContext.Provider>
-  )
-);
+  );
+});
 AlertDialogAction.displayName = AlertDialogPrimitive.Action.displayName;
 
-const AlertDialogCancel = React.forwardRef<AlertDialogPrimitive.CancelRef, AlertDialogPrimitive.CancelProps>(
-  ({ className, ...props }, ref) => (
+const AlertDialogCancel = React.forwardRef<
+  AlertDialogPrimitive.CancelRef,
+  AlertDialogPrimitive.CancelProps & { haptics?: HapticsFeedback }
+>(({ className, haptics, onPress, ...props }, ref) => {
+  const handlePress = async (event: GestureResponderEvent) => {
+    try {
+      if (haptics) {
+        if (haptics === "selection") {
+          await Haptics.selectionAsync();
+        } else if (haptics === "success") {
+          await Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
+        } else if (haptics === "warning") {
+          await Haptics.notificationAsync(Haptics.NotificationFeedbackType.Warning);
+        } else if (haptics === "error") {
+          await Haptics.notificationAsync(Haptics.NotificationFeedbackType.Error);
+        } else {
+          await Haptics.impactAsync(haptics as Haptics.ImpactFeedbackStyle);
+        }
+      }
+    } catch (error) {
+      console.warn("Haptic feedback failed:", error);
+    }
+    if (onPress) {
+      onPress(event);
+    }
+  };
+
+  return (
     <TextClassContext.Provider value={buttonTextVariants({ className, variant: "outline" })}>
       <AlertDialogPrimitive.Cancel
         ref={ref}
         className={cn(buttonVariants({ variant: "outline", className }))}
         {...props}
+        onPress={handlePress}
       />
     </TextClassContext.Provider>
-  )
-);
+  );
+});
 AlertDialogCancel.displayName = AlertDialogPrimitive.Cancel.displayName;
 
 export {

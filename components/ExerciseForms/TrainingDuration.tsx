@@ -55,6 +55,7 @@ export function TrainingDuration({ duration, onDurationChange }: TrainingDuratio
               duration === option.value && "bg-primary"
             )}
             onPress={() => onDurationChange(option.value as 45 | 60 | 90)}
+            haptics={duration === option.value ? "success" : "light"}
           >
             <View className="flex-row items-center gap-3 flex-1">
               <option.icon

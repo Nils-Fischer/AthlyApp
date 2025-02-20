@@ -113,11 +113,11 @@ export function WorkoutForm({ onRoutineCreated }: WorkoutFormProps) {
 
       <View className="flex-row justify-center gap-4 p-4">
         {currentStep > 1 && (
-          <Button variant="outline" onPress={handlePreviousStep}>
+          <Button variant="outline" onPress={handlePreviousStep} haptics="light">
             <ChevronLeft className={cn("text-foreground")} />
           </Button>
         )}
-        <Button variant="destructive" disabled={!isStepValid(currentStep)} onPress={handleNextStep}>
+        <Button variant="destructive" disabled={!isStepValid(currentStep)} onPress={handleNextStep} haptics="medium">
           <Text>Weiter</Text>
         </Button>
       </View>

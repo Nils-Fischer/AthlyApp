@@ -76,7 +76,7 @@ export function WorkoutExerciseItem({
               onOpenChange={onDeleteChange}
               onConfirm={onDeleteConfirm}
               trigger={
-                <Button variant="ghost" size="icon" className="h-8 w-8">
+                <Button variant="ghost" size="icon" className="h-8 w-8" haptics="light">
                   <X size={18} className="text-destructive" />
                 </Button>
               }

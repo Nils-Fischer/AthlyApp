@@ -56,12 +56,12 @@ export function RoutineCreationDialog({ onCreate, trigger, open, onOpenChange }:
 
         <DialogFooter>
           <DialogClose asChild>
-            <Button variant="outline">
+            <Button variant="outline" haptics="light">
               <Text>Abbrechen</Text>
             </Button>
           </DialogClose>
           <DialogClose asChild>
-            <Button disabled={!newRoutineName.trim()} onPress={() => onCreate(getNewRoutine())}>
+            <Button disabled={!newRoutineName.trim()} onPress={() => onCreate(getNewRoutine())} haptics="medium">
               <Text>Erstellen</Text>
             </Button>
           </DialogClose>

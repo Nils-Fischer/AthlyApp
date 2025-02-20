@@ -1,3 +1,4 @@
+import React from "react";
 import {
   CameraView as ExpoCameraView,
   CameraType as ExpoCameraType,
@@ -114,7 +115,7 @@ export function CameraView({
         <Text className="text-lg text-foreground text-center">
           Camera permissions are required to use this feature.
         </Text>
-        <Button onPress={requestPermission} variant="default">
+        <Button onPress={requestPermission} variant="default" haptics="medium">
           <Text>Grant Permission</Text>
         </Button>
       </View>
@@ -146,6 +147,7 @@ export function CameraView({
               onPress={onCancel}
               icon={<X className="text-white" size={24} />}
               className="bg-transparent w-10 h-10 p-0"
+              haptics="light"
             />
           </View>
           <View className="absolute bottom-14 inset-x-0 flex-row items-center justify-center gap-4">
@@ -154,12 +156,14 @@ export function CameraView({
               onPress={onRetakePhoto}
               icon={<StopCircle className="text-background" size={24} />}
               label="Verwerfen"
+              haptics="error"
             />
             <AnimatedIconButton
               className="flex-none bg-primary"
               onPress={() => onUsePhoto(photo)}
               icon={<Check className="text-background" size={24} />}
               label="Verwenden"
+              haptics="success"
             />
           </View>
         </>
@@ -170,6 +174,7 @@ export function CameraView({
               onPress={onCancel}
               icon={<X className="text-white" size={24} />}
               className="bg-transparent w-10 h-10 p-0"
+              haptics="light"
             />
           </View>
 

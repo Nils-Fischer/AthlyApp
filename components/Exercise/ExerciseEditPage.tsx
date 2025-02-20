@@ -107,6 +107,7 @@ export const ExerciseEditPage: React.FC<ExerciseEditPageProps> = ({
                 size="icon"
                 onPress={() => adjustValue("rest", false)}
                 className="h-11 w-11 bg-background/50 rounded-lg"
+                haptics="light"
               >
                 <Minus size={20} className="text-foreground" />
               </Button>
@@ -128,6 +129,7 @@ export const ExerciseEditPage: React.FC<ExerciseEditPageProps> = ({
                 size="icon"
                 onPress={() => adjustValue("rest", true)}
                 className="h-11 w-11 bg-background/50 rounded-lg"
+                haptics="light"
               >
                 <Plus size={20} className="text-foreground" />
               </Button>
@@ -138,11 +140,23 @@ export const ExerciseEditPage: React.FC<ExerciseEditPageProps> = ({
           <View className="my-6">
             <Text className="text-base font-medium text-muted-foreground mb-2">Sätze</Text>
             <View className="flex-row items-center justify-between bg-secondary/10 p-4 rounded-xl shadow-sm">
-              <Button variant="ghost" size="icon" onPress={removeSet} className="h-11 w-11 bg-background/50 rounded-lg">
+              <Button
+                variant="ghost"
+                size="icon"
+                onPress={removeSet}
+                className="h-11 w-11 bg-background/50 rounded-lg"
+                haptics="light"
+              >
                 <Minus size={20} className="text-foreground" />
               </Button>
               <Text className="text-3xl font-semibold text-center text-primary">{setConfigs.length}</Text>
-              <Button variant="ghost" size="icon" onPress={addSet} className="h-11 w-11 bg-background/50 rounded-lg">
+              <Button
+                variant="ghost"
+                size="icon"
+                onPress={addSet}
+                className="h-11 w-11 bg-background/50 rounded-lg"
+                haptics="light"
+              >
                 <Plus size={20} className="text-foreground" />
               </Button>
             </View>
@@ -161,6 +175,7 @@ export const ExerciseEditPage: React.FC<ExerciseEditPageProps> = ({
                       size="icon"
                       onPress={() => updateSetReps(index, set.reps - 1)}
                       className="h-9 w-9 rounded-lg bg-background/50"
+                      haptics="light"
                     >
                       <Minus size={16} className="text-foreground" />
                     </Button>
@@ -176,6 +191,7 @@ export const ExerciseEditPage: React.FC<ExerciseEditPageProps> = ({
                       size="icon"
                       onPress={() => updateSetReps(index, set.reps + 1)}
                       className="h-9 w-9 rounded-lg bg-background/50"
+                      haptics="light"
                     >
                       <Plus size={16} className="text-foreground" />
                     </Button>

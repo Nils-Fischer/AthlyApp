@@ -35,12 +35,12 @@ export function DeleteConfirmation({
         <Text className="text-base text-muted-foreground mb-6">{description}</Text>
         <View className="flex-row items-center gap-3">
           <AlertDialogCancel asChild>
-            <Button variant="outline" className="flex-1 h-12">
+            <Button variant="outline" className="flex-1 h-12" haptics="light">
               <Text className="text-foreground">Abbrechen</Text>
             </Button>
           </AlertDialogCancel>
           <AlertDialogAction asChild>
-            <Button variant="destructive" onPress={onConfirm} className="flex-1 h-12 bg-destructive">
+            <Button variant="destructive" onPress={onConfirm} className="flex-1 h-12 bg-destructive" haptics="error">
               <Text className="text-destructive-foreground font-medium">Löschen</Text>
             </Button>
           </AlertDialogAction>

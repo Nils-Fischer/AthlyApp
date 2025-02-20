@@ -39,9 +39,7 @@ export function MainGoal({ goal, onGoalChange }: MainGoalProps) {
   return (
     <View className="flex-1 w-full px-4 min-w-[350]">
       <Text className="text-2xl font-bold">Was ist dein Ziel?</Text>
-      <Text className="text-base text-muted-foreground mb-6">
-        Wähle deinen primären Fokus für dein Training.
-      </Text>
+      <Text className="text-base text-muted-foreground mb-6">Wähle deinen primären Fokus für dein Training.</Text>
       <View className="gap-4 w-full">
         {mainGoals.map((option) => (
           <Button
@@ -53,29 +51,19 @@ export function MainGoal({ goal, onGoalChange }: MainGoalProps) {
               goal === option.value && "bg-primary"
             )}
             onPress={() => onGoalChange(option.value)}
+            haptics={goal === option.value ? "success" : "light"}
           >
             <View className="flex-row items-center gap-3 flex-1">
               <option.icon
                 size={24}
-                className={cn(
-                  "text-foreground",
-                  goal === option.value && "text-primary-foreground"
-                )}
+                className={cn("text-foreground", goal === option.value && "text-primary-foreground")}
               />
               <View className="flex-1 gap-0 mr-3">
-                <Text
-                  className={cn(
-                    "font-semibold",
-                    goal === option.value && "text-primary-foreground"
-                  )}
-                >
+                <Text className={cn("font-semibold", goal === option.value && "text-primary-foreground")}>
                   {option.title}
                 </Text>
                 <Text
-                  className={cn(
-                    "text-sm text-muted-foreground",
-                    goal === option.value && "text-primary-foreground/70"
-                  )}
+                  className={cn("text-sm text-muted-foreground", goal === option.value && "text-primary-foreground/70")}
                   numberOfLines={2}
                 >
                   {option.description}

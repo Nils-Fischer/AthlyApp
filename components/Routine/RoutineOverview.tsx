@@ -127,7 +127,11 @@ export function RoutineOverview({
                 },
               ]}
               trigger={
-                <Button variant="ghost" className="flex-none h-8 w-8 p-0 ml-2 justify-center items-center">
+                <Button
+                  variant="ghost"
+                  className="flex-none h-8 w-8 p-0 ml-2 justify-center items-center"
+                  haptics="light"
+                >
                   <MoreHorizontal size={20} className="text-primary" />
                 </Button>
               }

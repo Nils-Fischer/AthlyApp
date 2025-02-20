@@ -178,6 +178,7 @@ export const Formular: React.FC<FormularProps> = ({ onFinish }) => {
                 <Button
                   className={`min-w-[110px] py-4 ${formState.gender === gender ? "bg-black" : "bg-gray-100"}`}
                   onPress={() => setFormState((prev) => ({ ...prev, gender }))}
+                  haptics="selection"
                 >
                   <Text className={formState.gender === gender ? "text-white" : "text-gray-700"}>
                     {
@@ -200,6 +201,7 @@ export const Formular: React.FC<FormularProps> = ({ onFinish }) => {
         <Button
           className="w-full bg-black py-4"
           onPress={handleSubmit}
+          haptics="heavy"
           disabled={
             !formState.firstName ||
             !formState.lastName ||

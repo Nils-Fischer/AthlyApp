@@ -160,10 +160,16 @@ export function AIRoutineCreationDialog({ open, onOpenChange, onCreate }: AIRout
         </ScrollView>
 
         <DialogFooter>
-          <Button variant="outline" onPress={() => onOpenChange(false)} className="mr-2" disabled={isLoading}>
+          <Button
+            variant="outline"
+            onPress={() => onOpenChange(false)}
+            className="mr-2"
+            disabled={isLoading}
+            haptics="light"
+          >
             <Text>Abbrechen</Text>
           </Button>
-          <Button onPress={handleSubmit} disabled={!formData.mainPrompt.trim() || isLoading}>
+          <Button onPress={handleSubmit} disabled={!formData.mainPrompt.trim() || isLoading} haptics="medium">
             {isLoading ? (
               <View className="flex-row items-center space-x-2">
                 <ActivityIndicator size="small" color="#ffffff" />

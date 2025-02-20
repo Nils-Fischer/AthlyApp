@@ -65,13 +65,13 @@ function ExerciseTrackingSheet({ exercise, isVisible, onClose, isWorkoutStarted 
 
         {/* Quick Actions */}
         <View className="flex-row gap-2 mb-6">
-          <Button variant="outline" className="flex-1" onPress={() => {}} disabled={!isWorkoutStarted}>
+          <Button variant="outline" className="flex-1" onPress={() => {}} disabled={!isWorkoutStarted} haptics="medium">
             <View className="flex-row items-center">
               <ChevronRight size={16} className="mr-2" />
               <Text>Details</Text>
             </View>
           </Button>
-          <Button variant="outline" className="flex-1" onPress={() => {}} disabled={!isWorkoutStarted}>
+          <Button variant="outline" className="flex-1" onPress={() => {}} disabled={!isWorkoutStarted} haptics="medium">
             <View className="flex-row items-center">
               <Trophy size={16} className="mr-2" />
               <Text>History</Text>
@@ -107,7 +107,13 @@ function ExerciseTrackingSheet({ exercise, isVisible, onClose, isWorkoutStarted 
             ))}
 
             {/* Add Set Button */}
-            <Button variant="outline" className="w-full" onPress={() => {}} disabled={!isWorkoutStarted}>
+            <Button
+              variant="outline"
+              className="w-full"
+              onPress={() => {}}
+              disabled={!isWorkoutStarted}
+              haptics="medium"
+            >
               <Text>Add Set</Text>
             </Button>
           </View>
@@ -149,6 +155,7 @@ function WorkoutCompleteDialog({ isVisible, stats, workout }: WorkoutCompleteDia
         <Button
           onPress={() => {}} // Handle navigation to workout summary
           className="w-full"
+          haptics="heavy"
         >
           View Summary
         </Button>

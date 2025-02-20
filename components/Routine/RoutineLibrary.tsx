@@ -45,7 +45,7 @@ export const RoutineLibrary = ({
         <CustomDropdownMenu
           items={addButtonDropdownItems}
           trigger={
-            <Button size="icon" variant="ghost" className="h-10 w-10 rounded-full">
+            <Button size="icon" variant="ghost" className="h-10 w-10 rounded-full" haptics="light">
               <Plus className="text-foreground" size={24} />
             </Button>
           }

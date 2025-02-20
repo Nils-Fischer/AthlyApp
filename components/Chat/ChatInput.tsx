@@ -22,7 +22,7 @@ export const ChatInput: React.FC<ChatInputProps> = ({ onSend }) => {
       <View className="flex-1 bg-muted rounded-lg p-3">
         <Text className="text-muted-foreground">Schreibe eine Nachricht...</Text>
       </View>
-      <Button size="icon" variant="secondary" onPress={handleSend}>
+      <Button size="icon" variant="secondary" onPress={handleSend} haptics="medium">
         <Text>➤</Text>
       </Button>
     </View>

@@ -169,6 +169,7 @@ export default function ChatInterface({
                   variant="default"
                   className="absolute -top-2 -right-2 w-6 h-6"
                   onPress={() => setCapturedImage(null)}
+                  haptics="light"
                 >
                   <Text className="text-xs">✕</Text>
                 </Button>
@@ -179,7 +180,7 @@ export default function ChatInterface({
             <CustomDropdownMenu
               items={imageOptions}
               trigger={
-                <Button size="icon" variant="ghost" className="px-0 mx-0">
+                <Button size="icon" variant="ghost" className="px-0 mx-0" haptics="light">
                   <Plus size={30} className="text-foreground" />
                 </Button>
               }

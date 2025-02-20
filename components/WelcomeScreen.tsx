@@ -11,11 +11,10 @@ interface WelcomeScreenProps {
 }
 
 export const WelcomeScreen = ({ finish }: WelcomeScreenProps) => {
-  // Neuer Schritt 'tutorial' wird eingefügt
   const [step, setStep] = useState<"info" | "tutorial" | "form">("info");
 
   const handleFinish = async (profile: UserProfile) => {
-    const { data, error } = await supabase.from("profiles").insert({
+    const { error } = await supabase.from("profiles").insert({
       id: profile.id,
       first_name: profile.firstName,
       last_name: profile.lastName,

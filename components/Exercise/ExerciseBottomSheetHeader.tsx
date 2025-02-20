@@ -22,7 +22,7 @@ export function ExerciseBottomSheetHeader({
   return (
     <View className="min-h-full bg-background">
       <View className="px-4 py-2 flex-row items-center justify-between">
-        <Button variant="ghost" size="icon" className="w-24" onPress={onClose}>
+        <Button variant="ghost" size="icon" className="w-24" onPress={onClose} haptics="light">
           {closeMode === "close" ? (
             <Text className="text-lg font-semibold text-destructive">Abbrechen</Text>
           ) : (
@@ -35,7 +35,7 @@ export function ExerciseBottomSheetHeader({
         <Text className="text-lg font-semibold flex-1 text-center" numberOfLines={1}>
           {title}
         </Text>
-        <Button variant="ghost" size="icon" className="w-24" onPress={onSave}>
+        <Button variant="ghost" size="icon" className="w-24" onPress={onSave} haptics="medium">
           <Text className="text-lg font-semibold text-destructive">Speichern</Text>
         </Button>
       </View>

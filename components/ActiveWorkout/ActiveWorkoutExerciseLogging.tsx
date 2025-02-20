@@ -176,6 +176,7 @@ export const ActiveWorkoutExerciseLogging = ({
                   size="icon"
                   className="h-9 w-9 rounded-full"
                   onPress={() => setIsWarmupExpanded(!isWarmupExpanded)}
+                  haptics="light"
                 >
                   <ChevronRight size={20} className={cn("text-muted-foreground", isWarmupExpanded && "rotate-90")} />
                 </Button>
@@ -199,10 +200,17 @@ export const ActiveWorkoutExerciseLogging = ({
                     size="icon"
                     className={`h-9 w-9 rounded-full ${isDeleteMode ? "bg-destructive/10" : "bg-secondary/10"}`}
                     onPress={() => setIsDeleteMode(!isDeleteMode)}
+                    haptics="error"
                   >
                     <Trash2 size={16} className="text-destructive" />
                   </Button>
-                  <Button variant="ghost" size="icon" className="h-9 w-9 rounded-full bg-primary/10" onPress={onAddSet}>
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    className="h-9 w-9 rounded-full bg-primary/10"
+                    onPress={onAddSet}
+                    haptics="medium"
+                  >
                     <Plus size={16} className="text-primary" />
                   </Button>
                 </View>

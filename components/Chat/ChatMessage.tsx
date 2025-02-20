@@ -76,6 +76,7 @@ export const ChatMessage = React.memo<{
                     onPress={() => {
                       newRoutine && showRoutine(newRoutine);
                     }}
+                    haptics="medium"
                   >
                     <Text>Routine ansehen</Text>
                   </Button>
@@ -98,7 +99,7 @@ export const ChatMessage = React.memo<{
                   },
                 ]}
                 trigger={
-                  <Button variant="ghost">
+                  <Button variant="ghost" haptics="light">
                     <CircleX className="text-destructive" />
                   </Button>
                 }

@@ -117,7 +117,7 @@ export default function ActiveWorkoutScreen() {
         options={{
           title: activeWorkout.name,
           headerLeft: () => (
-            <Button variant="ghost" className="ml-2" onPress={() => router.back()}>
+            <Button variant="ghost" className="ml-2" onPress={() => router.back()} haptics="light">
               <ChevronLeft size={24} />
             </Button>
           ),
@@ -171,10 +171,10 @@ export default function ActiveWorkoutScreen() {
               </AlertDialogDescription>
             </AlertDialogHeader>
             <AlertDialogFooter className="flex flex-row justify-center mt-4 gap-3">
-              <AlertDialogCancel className="flex-1 max-w-[160px]">
+              <AlertDialogCancel className="flex-1 max-w-[160px]" haptics="light">
                 <Text>Zurück</Text>
               </AlertDialogCancel>
-              <AlertDialogAction className="flex-1 max-w-[160px]" onPress={finish}>
+              <AlertDialogAction className="flex-1 max-w-[160px]" onPress={finish} haptics="medium">
                 <Text>Beenden</Text>
               </AlertDialogAction>
             </AlertDialogFooter>

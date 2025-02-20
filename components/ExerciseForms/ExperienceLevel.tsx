@@ -48,6 +48,7 @@ export function ExperienceLevel({ difficulty, onDifficultyChange }: ExperienceLe
               difficulty === option.value && "bg-primary"
             )}
             onPress={() => onDifficultyChange(option.value)}
+            haptics={difficulty === option.value ? "success" : "light"}
           >
             <View className="flex-row items-center gap-3 flex-1">
               <option.icon

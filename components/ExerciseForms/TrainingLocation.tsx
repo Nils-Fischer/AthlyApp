@@ -2,15 +2,7 @@ import React from "react";
 import { View } from "react-native";
 import { Button } from "~/components/ui/button";
 import { Text } from "~/components/ui/text";
-import {
-  Building,
-  Clock,
-  Dumbbell,
-  Home,
-  Shield,
-  Timer,
-  Users,
-} from "~/lib/icons/Icons";
+import { Building, Clock, Dumbbell, Home, Shield, Timer, Users } from "~/lib/icons/Icons";
 import { LocationType } from "~/lib/types";
 import { cn } from "~/lib/utils";
 
@@ -19,10 +11,7 @@ interface TrainingLocationProps {
   onLocationChange: (location: LocationType) => void;
 }
 
-export function TrainingLocation({
-  location,
-  onLocationChange,
-}: TrainingLocationProps) {
+export function TrainingLocation({ location, onLocationChange }: TrainingLocationProps) {
   const locations = [
     {
       value: LocationType.Home,
@@ -71,9 +60,7 @@ export function TrainingLocation({
   return (
     <View className="flex-1 w-full px-4 min-w-[350]">
       <Text className="text-2xl font-bold">Wo möchtest du trainieren?</Text>
-      <Text className="text-base text-muted-foreground mb-6">
-        Dein Trainingsort bestimmt die verfügbaren Übungen.
-      </Text>
+      <Text className="text-base text-muted-foreground mb-6">Dein Trainingsort bestimmt die verfügbaren Übungen.</Text>
       <View className="gap-4 w-full">
         {locations.map((loc) => (
           <Button
@@ -85,22 +72,15 @@ export function TrainingLocation({
               location === loc.value && "bg-primary"
             )}
             onPress={() => onLocationChange(loc.value)}
+            haptics={location === loc.value ? "success" : "light"}
           >
             <View className="flex-row items-center gap-3 flex-1">
               <loc.icon
                 size={24}
-                className={cn(
-                  "text-foreground",
-                  location === loc.value && "text-primary-foreground"
-                )}
+                className={cn("text-foreground", location === loc.value && "text-primary-foreground")}
               />
               <View className="flex-1 gap-0 mr-3">
-                <Text
-                  className={cn(
-                    "font-semibold",
-                    location === loc.value && "text-primary-foreground"
-                  )}
-                >
+                <Text className={cn("font-semibold", location === loc.value && "text-primary-foreground")}>
                   {loc.title}
                 </Text>
                 <Text

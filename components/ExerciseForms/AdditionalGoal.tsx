@@ -24,10 +24,7 @@ interface AdditionalGoalsProps {
   onGoalToggle: (goal: string) => void;
 }
 
-export function AdditionalGoals({
-  selectedGoals,
-  onGoalToggle,
-}: AdditionalGoalsProps) {
+export function AdditionalGoals({ selectedGoals, onGoalToggle }: AdditionalGoalsProps) {
   const goals = [
     { id: "athletic", label: "Athletischer werden", icon: Zap },
     { id: "weight", label: "Abnehmen", icon: Weight },
@@ -46,34 +43,22 @@ export function AdditionalGoals({
   return (
     <View className="flex-1 w-full px-4 min-w-[350]">
       <Text className="text-2xl font-bold">Weitere Ziele</Text>
-      <Text className="text-base text-muted-foreground mb-6">
-        Wähle weitere Ziele, die auf dich zutreffen.
-      </Text>
+      <Text className="text-base text-muted-foreground mb-6">Wähle weitere Ziele, die auf dich zutreffen.</Text>
       <View className="flex-row flex-wrap gap-3">
         {goals.map((goal) => (
           <Button
             key={goal.id}
             variant={selectedGoals.includes(goal.id) ? "default" : "outline"}
             size="sm"
-            className={cn(
-              "flex-row items-center gap-2",
-              selectedGoals.includes(goal.id) && "bg-primary"
-            )}
+            className={cn("flex-row items-center gap-2", selectedGoals.includes(goal.id) && "bg-primary")}
             onPress={() => onGoalToggle(goal.id)}
+            haptics={selectedGoals.includes(goal.id) ? "success" : "light"}
           >
             <goal.icon
               size={16}
-              className={cn(
-                "text-foreground",
-                selectedGoals.includes(goal.id) && "text-primary-foreground"
-              )}
+              className={cn("text-foreground", selectedGoals.includes(goal.id) && "text-primary-foreground")}
             />
-            <Text
-              className={cn(
-                "text-sm",
-                selectedGoals.includes(goal.id) && "text-primary-foreground"
-              )}
-            >
+            <Text className={cn("text-sm", selectedGoals.includes(goal.id) && "text-primary-foreground")}>
               {goal.label}
             </Text>
           </Button>
