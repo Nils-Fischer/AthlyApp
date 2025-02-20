@@ -1,5 +1,6 @@
 import React from "react";
-import { ScrollView, View } from "react-native";
+import { View } from "react-native";
+import { FlashList } from "@shopify/flash-list";
 import { Exercise } from "~/lib/types";
 import { ExerciseOverviewCard } from "~/components/Exercise/ExerciseOverviewCard";
 import { Text } from "~/components/ui/text";
@@ -19,18 +20,12 @@ export const ExerciseLibraryList = ({ exercises, onPress }: ExerciseListProps) =
   }
 
   return (
-    <ScrollView
+    <FlashList
+      data={exercises.sort((a, b) => a.name.localeCompare(b.name))}
+      renderItem={({ item }) => <ExerciseOverviewCard exercise={item} onPress={onPress} />}
+      keyExtractor={(item) => item.id.toString()}
+      estimatedItemSize={150}
       showsVerticalScrollIndicator={false}
-      contentContainerStyle={{
-        flexGrow: 1,
-        paddingBottom: 20,
-      }}
-    >
-      <View className="gap-3">
-        {exercises.map((exercise) => (
-          <ExerciseOverviewCard key={exercise.id} exercise={exercise} onPress={onPress} />
-        ))}
-      </View>
-    </ScrollView>
+    />
   );
 };

@@ -14,7 +14,7 @@ interface ExerciseCardProps {
 export const ExerciseOverviewCard = ({ exercise, workoutExercise, onPress }: ExerciseCardProps) => {
   const image = getThumbnail(exercise);
   return (
-    <Pressable onPress={() => onPress?.(exercise.id)} className="active:opacity-70">
+    <Pressable onPress={() => onPress?.(exercise.id)} className="active:opacity-70 my-1">
       <View className="bg-card/60 backdrop-blur-lg rounded-2xl p-4 border border-border/50">
         <View className="flex-row gap-4">
           <View className="w-16 h-16 bg-muted rounded-xl items-center justify-center overflow-hidden">

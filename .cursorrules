@@ -39,4 +39,5 @@ const additionalInstructions = `
    - Success states: Use 'success' notification
    - Toggle actions: Use 'selection' or 'light' 
    - Follow haptic guidelines from Button component documentation
+10. For long lists use FlashList
 `;
