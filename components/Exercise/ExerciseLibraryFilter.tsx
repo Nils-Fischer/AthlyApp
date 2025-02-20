@@ -2,6 +2,7 @@ import React from "react";
 import { ScrollView, View, Pressable } from "react-native";
 import { Text } from "~/components/ui/text";
 import { MuscleGroup } from "~/lib/types";
+import * as Haptics from "expo-haptics";
 
 interface CategoryFilterProps {
   categories: (MuscleGroup | "all")[];
@@ -14,7 +15,13 @@ export const ExerciseLibraryFilter = ({ categories, selectedCategory, onSelectCa
     <ScrollView horizontal showsHorizontalScrollIndicator={false} className="mt-3">
       <View className="flex-row gap-3">
         {categories.map((category) => (
-          <Pressable key={category} onPress={() => onSelectCategory(category)}>
+          <Pressable
+            key={category}
+            onPress={() => {
+              onSelectCategory(category);
+              Haptics.selectionAsync();
+            }}
+          >
             <View
               className={`px-4 py-2 rounded-full ${
                 selectedCategory === category ? "bg-primary" : "bg-muted border border-border/50"

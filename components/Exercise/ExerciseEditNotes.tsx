@@ -4,6 +4,7 @@ import { Text } from "~/components/ui/text";
 import { Target, Dumbbell, AlertCircle, RefreshCw } from "~/lib/icons/Icons";
 import { WorkoutExercise } from "~/lib/types";
 import { ExerciseBottomSheetHeader } from "~/components/Exercise/ExerciseBottomSheetHeader";
+import * as Haptics from "expo-haptics";
 
 export interface ExerciseNoteProps {
   workoutExercise: WorkoutExercise;
@@ -72,7 +73,10 @@ export const ExerciseEditNotes: React.FC<ExerciseNoteProps> = ({ workoutExercise
               {quickTips.map((tip, index) => (
                 <Pressable
                   key={index}
-                  onPress={() => setLocalNotes((localNotes || "") + (localNotes ? "\n\n" : "") + tip.prefix)}
+                  onPress={() => {
+                    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+                    setLocalNotes((localNotes || "") + (localNotes ? "\n\n" : "") + tip.prefix);
+                  }}
                   className="bg-secondary/10 p-3 rounded-lg active:opacity-70"
                 >
                   <View className="flex-row items-center gap-3">

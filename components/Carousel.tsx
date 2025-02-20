@@ -3,6 +3,7 @@ import { View, Dimensions, Pressable, Image } from "react-native";
 import { Video, ResizeMode } from "expo-av";
 import RNCarousel from "react-native-reanimated-carousel";
 import { PlayFilled } from "~/lib/icons/FilledIcons";
+import * as Haptics from "expo-haptics";
 
 const SCREEN_WIDTH = Dimensions.get("window").width;
 
@@ -64,7 +65,10 @@ export function Carousel({ mediaItems }: CarouselProps) {
                   }}
                 />
                 <Pressable
-                  onPress={togglePlayback}
+                  onPress={() => {
+                    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+                    togglePlayback();
+                  }}
                   style={{
                     position: "absolute",
                     top: 0,

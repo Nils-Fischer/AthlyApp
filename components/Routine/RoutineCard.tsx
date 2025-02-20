@@ -4,6 +4,7 @@ import { Ionicons } from "@expo/vector-icons";
 import { Routine } from "~/lib/types";
 import { CustomDropdownMenu, DropdownItem } from "../ui/custom-dropdown-menu";
 import { MoreHorizontal, Trash2 } from "~/lib/icons/Icons";
+import * as Haptics from "expo-haptics";
 
 interface RoutineCardProps {
   routine: Routine;
@@ -32,7 +33,12 @@ export const RoutineCard = ({ routine, onPress, onDelete, onToggleActive, showDr
 
   return (
     <Pressable
-      onPress={onPress}
+      onPress={() => {
+        if (onPress) {
+          Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
+          onPress();
+        }
+      }}
       className={`
         mb-4 overflow-hidden rounded-lg border border-border
         ${routine.active ? "bg-destructive/5 border-l-4 border-l-destructive" : "bg-card"}
@@ -66,6 +72,9 @@ export const RoutineCard = ({ routine, onPress, onDelete, onToggleActive, showDr
                   h-8 w-8 items-center justify-center rounded-full
                   ${routine.active ? "hover:bg-primary/10" : "hover:bg-muted"}
                 `}
+                  onPress={() => {
+                    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+                  }}
                 >
                   <MoreHorizontal size={20} className={routine.active ? "text-primary" : "text-muted-foreground"} />
                 </Pressable>

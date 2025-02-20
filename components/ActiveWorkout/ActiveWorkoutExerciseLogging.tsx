@@ -23,6 +23,7 @@ import { AnimatedIconButton } from "../ui/animated-icon-button";
 import { cn, getThumbnail } from "~/lib/utils";
 import { BottomSheet } from "~/components/ui/bottom-sheet";
 import { ExerciseHistory } from "../Exercise/ExerciseHistory";
+import * as Haptics from "expo-haptics";
 
 interface ActiveWorkoutExerciseLoggingProps {
   exercise: Exercise;
@@ -123,6 +124,7 @@ export const ActiveWorkoutExerciseLogging = ({
             <Pressable
               className="p-4 flex-row items-center justify-between active:opacity-70"
               onPress={async () => {
+                Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
                 router.push(`/(tabs)/workout/exercise/${exercise.id}`);
               }}
             >
@@ -140,7 +142,10 @@ export const ActiveWorkoutExerciseLogging = ({
             {/* Neuer Button für Workout History */}
             <Pressable
               className="p-4 flex-row items-center justify-between active:opacity-70"
-              onPress={() => setShowHistory(true)}
+              onPress={() => {
+                Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+                setShowHistory(true);
+              }}
             >
               <View className="flex-row items-center">
                 <View className="w-10 h-10 rounded-full items-center justify-center mr-3">
@@ -160,7 +165,13 @@ export const ActiveWorkoutExerciseLogging = ({
             <View className="p-4">
               {/* Warm-up Toggle */}
               <View className="flex-row justify-between items-center mb-6 pb-4 border-b border-border">
-                <Pressable className="flex-1" onPress={() => setIsWarmupExpanded(!isWarmupExpanded)}>
+                <Pressable
+                  className="flex-1"
+                  onPress={() => {
+                    setIsWarmupExpanded(!isWarmupExpanded);
+                    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+                  }}
+                >
                   <View className="flex-row items-center">
                     <View className="w-10 h-10 rounded-full items-center justify-center mr-3">
                       <HeartPulse size={20} className="text-primary" />

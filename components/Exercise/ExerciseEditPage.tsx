@@ -7,6 +7,7 @@ import { Exercise, WorkoutExercise, SetConfiguration } from "~/lib/types";
 import { Separator } from "~/components/ui/separator";
 import { ExerciseOverviewCard } from "~/components/Exercise/ExerciseOverviewCard";
 import { ExerciseBottomSheetHeader } from "~/components/Exercise/ExerciseBottomSheetHeader";
+import * as Haptics from "expo-haptics";
 
 export interface ExerciseEditPageProps {
   exercise: Exercise;
@@ -113,7 +114,9 @@ export const ExerciseEditPage: React.FC<ExerciseEditPageProps> = ({
               </Button>
               <Pressable
                 className="bg-background/50 px-6 py-2 rounded-lg flex-row items-center gap-2"
-                onPress={() => {}}
+                onPress={() => {
+                  Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+                }}
               >
                 <Timer size={20} className="text-muted-foreground" />
                 <TextInput
@@ -217,7 +220,10 @@ export const ExerciseEditPage: React.FC<ExerciseEditPageProps> = ({
           {/* View Exercise Details */}
           <Pressable
             className="flex-row items-center justify-between p-4 bg-secondary/10 rounded-lg mb-3 active:opacity-70"
-            onPress={goToExerciseDetails}
+            onPress={() => {
+              Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+              goToExerciseDetails();
+            }}
           >
             <View className="flex-row items-center">
               <Info size={20} className="text-foreground mr-3" />
@@ -231,7 +237,10 @@ export const ExerciseEditPage: React.FC<ExerciseEditPageProps> = ({
           {/* Fortschritt & Ziele */}
           <Pressable
             className="flex-row items-center justify-between p-4 bg-secondary/10 rounded-lg mb-3 active:opacity-70"
-            onPress={goToStats}
+            onPress={() => {
+              Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+              goToStats();
+            }}
           >
             <View className="flex-row items-center">
               <BarChart2 size={20} className="text-foreground mr-3" />
@@ -245,7 +254,10 @@ export const ExerciseEditPage: React.FC<ExerciseEditPageProps> = ({
           {/* Alternative Exercise */}
           <Pressable
             className="flex-row items-center justify-between p-4 bg-secondary/10 rounded-lg mb-3 active:opacity-70"
-            onPress={goToAlternativeExercises}
+            onPress={() => {
+              Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+              goToAlternativeExercises();
+            }}
           >
             <View className="flex-row items-center">
               <Repeat size={20} className="text-foreground mr-3" />
@@ -259,7 +271,10 @@ export const ExerciseEditPage: React.FC<ExerciseEditPageProps> = ({
           {/* Exercise Notes Pressable */}
           <Pressable
             className="flex-row items-center justify-between p-4 bg-secondary/10 rounded-lg mb-6 active:opacity-70"
-            onPress={goToNotes}
+            onPress={() => {
+              Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+              goToNotes();
+            }}
           >
             <View className="flex-row items-center">
               <FileText size={20} className="text-foreground mr-3" />

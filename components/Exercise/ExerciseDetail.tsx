@@ -17,6 +17,7 @@ import {
 } from "~/lib/icons/Icons";
 import { getMuscleGroup } from "~/lib/utils";
 import { Badge } from "~/components/ui/badge";
+import * as Haptics from "expo-haptics";
 
 const AnimatedScrollView = Animated.createAnimatedComponent(ScrollView);
 
@@ -221,7 +222,10 @@ export const ExerciseDetail: React.FC<{ exercise: Exercise; navigateToExercise: 
               .map((relatedExercise) => (
                 <Pressable
                   key={relatedExercise.id}
-                  onPress={() => navigateToExercise(relatedExercise)}
+                  onPress={() => {
+                    navigateToExercise(relatedExercise);
+                    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+                  }}
                   className="w-48"
                 >
                   <View className="bg-muted/50 rounded-xl overflow-hidden">

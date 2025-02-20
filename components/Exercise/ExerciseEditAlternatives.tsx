@@ -5,6 +5,7 @@ import { Button } from "~/components/ui/button";
 import { Exercise, WorkoutExercise } from "~/lib/types";
 import { useExerciseStore } from "~/stores/exerciseStore";
 import { getThumbnail } from "~/lib/utils";
+import * as Haptics from "expo-haptics";
 
 export interface ExerciseEditAlternativesProps {
   workoutExercise: WorkoutExercise;
@@ -52,7 +53,10 @@ export const ExerciseEditAlternatives: React.FC<ExerciseEditAlternativesProps> =
               return (
                 <Pressable
                   key={alternativeExercise.id}
-                  onPress={() => handleExerciseSelection(alternativeExercise)}
+                  onPress={() => {
+                    handleExerciseSelection(alternativeExercise);
+                    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+                  }}
                   className="active:opacity-70"
                 >
                   <View

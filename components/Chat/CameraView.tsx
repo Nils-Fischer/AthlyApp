@@ -14,6 +14,7 @@ import { AnimatedIconButton } from "~/components/ui/animated-icon-button";
 import { StopCircle, Check, X } from "~/lib/icons/Icons";
 import { SymbolView } from "expo-symbols";
 import * as MediaLibrary from "expo-media-library";
+import * as Haptics from "expo-haptics";
 
 export function CameraView({
   onCancel,
@@ -179,7 +180,13 @@ export function CameraView({
           </View>
 
           <View className="absolute bottom-14 inset-x-0 flex-row items-center justify-between px-10">
-            <Pressable onPress={switchToGallery} className="w-12 h-12 rounded-lg overflow-hidden bg-black/50">
+            <Pressable
+              onPress={() => {
+                switchToGallery();
+                Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+              }}
+              className="w-12 h-12 rounded-lg overflow-hidden bg-black/50"
+            >
               {galleryPreview ? (
                 <Image source={{ uri: galleryPreview }} className="w-full h-full" />
               ) : (
@@ -194,7 +201,14 @@ export function CameraView({
                 </View>
               )}
             </Pressable>
-            <Pressable onPressIn={handlePressIn} onPressOut={handlePressOut} onPress={onTakePhoto}>
+            <Pressable
+              onPressIn={handlePressIn}
+              onPressOut={handlePressOut}
+              onPress={() => {
+                onTakePhoto();
+                Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
+              }}
+            >
               <Animated.View
                 style={{
                   transform: [{ scale: scaleAnim }],
@@ -206,7 +220,10 @@ export function CameraView({
               </Animated.View>
             </Pressable>
             <Pressable
-              onPress={toggleCameraDirection}
+              onPress={() => {
+                toggleCameraDirection();
+                Haptics.selectionAsync();
+              }}
               className="h-14 w-14 rounded-full bg-black/50 items-center justify-center"
             >
               <SymbolView
