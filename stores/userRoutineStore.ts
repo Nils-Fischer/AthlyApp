@@ -1,7 +1,7 @@
 import { create } from "zustand";
 import { createJSONStorage, persist } from "zustand/middleware";
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import { Routine, SetConfiguration, SetInput, Workout, WorkoutExercise } from "~/lib/types";
+import { Routine, SetConfiguration, Workout, WorkoutExercise } from "~/lib/types";
 
 export interface UserRoutineState {
   routines: Routine[];

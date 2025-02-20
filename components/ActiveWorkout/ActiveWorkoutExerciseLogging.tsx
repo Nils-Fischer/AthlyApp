@@ -23,7 +23,6 @@ import { AnimatedIconButton } from "../ui/animated-icon-button";
 import { cn, getThumbnail } from "~/lib/utils";
 import { BottomSheet } from "~/components/ui/bottom-sheet";
 import { ExerciseHistory } from "../Exercise/ExerciseHistory";
-import * as Haptics from "expo-haptics";
 
 interface ActiveWorkoutExerciseLoggingProps {
   exercise: Exercise;

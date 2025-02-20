@@ -12,34 +12,6 @@ export enum LocationType {
   Gym,
 }
 
-export interface NutritionGoals {
-  calories: number;
-  protein: number;
-  carbs: number;
-  fat: number;
-}
-
-export interface Meal {
-  id: string;
-  name: string;
-  type: "breakfast" | "lunch" | "dinner" | "snack";
-  calories: number;
-  protein: number;
-  carbs: number;
-  fat: number;
-  time?: string;
-}
-
-export interface NutritionProgress {
-  consumed: {
-    calories: number;
-    protein: number;
-    carbs: number;
-    fat: number;
-  };
-  goals: NutritionGoals;
-}
-
 export enum Gender {
   Male = "Male",
   Female = "Female",
@@ -208,49 +180,6 @@ export interface WorkoutSession {
   date: Date;
   entries: ExerciseRecord[];
   workoutId: number;
-}
-
-export interface ExerciseModalProps {
-  isVisible: boolean;
-  onClose: () => void;
-  exercise: Exercise;
-  workoutExercise: WorkoutExercise;
-  isWorkoutStarted: boolean;
-  onSave: (sets: SetInput[]) => void;
-  previousWorkout?: ExerciseRecord;
-  mode?: "planning" | "workout";
-}
-
-export interface RecoveryRecommendation {
-  nextWorkoutIn: number;
-  recommendedIntensity: number;
-  tips: {
-    type: "nutrition" | "sleep" | "activity";
-    message: string;
-    priority: "high" | "medium" | "low";
-  }[];
-}
-
-export interface IntelligentFeedback {
-  type: "performance" | "recovery" | "motivation";
-  message: string;
-  recommendation?: string;
-  priority: "high" | "medium" | "low";
-}
-
-export interface CoachResponse {
-  mainMessage: string;
-  details: IntelligentFeedback[];
-  nextWorkoutSuggestion?: {
-    weight: number;
-    intensity: number;
-    recoveryTime: number;
-  };
-}
-
-export interface Image {
-  uri: string;
-  type: "jpeg" | "png" | "heic" | "webp" | "heif";
 }
 
 export type ChatMessage = CoreMessage & {
