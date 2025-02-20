@@ -8,31 +8,30 @@ import { useExerciseStore } from "~/stores/exerciseStore";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "~/components/ui/dialog";
 import { ActiveWorkoutExerciseLogging } from "~/components/ActiveWorkout/ActiveWorkoutExerciseLogging";
 import { useUserRoutineStore } from "~/stores/userRoutineStore";
-import { useMemo, useState } from "react";
+import { useMemo, useState, useCallback } from "react";
 
 export default function ExerciseLoggingScreen() {
   const { exerciseId } = useLocalSearchParams<{ exerciseId: string }>();
   const exerciseIdNumber = parseInt(exerciseId);
 
-  const {
-    startRestTimer,
-    pauseRestTimer,
-    restTimer,
-    workoutId,
-    exerciseRecords,
-    completeExercise,
-    updateReps,
-    updateWeight,
-  } = useActiveWorkoutStore();
-  const { updateSetsInExercise, routines } = useUserRoutineStore();
-  const { getWorkoutById } = useUserRoutineStore();
-  const { getExerciseById } = useExerciseStore();
+  const workoutId = useActiveWorkoutStore((state) => state.workoutId);
+  const exerciseRecords = useActiveWorkoutStore((state) => state.exerciseRecords);
+  const restTimer = useActiveWorkoutStore((state) => state.restTimer);
+  const startRestTimer = useActiveWorkoutStore((state) => state.startRestTimer);
+  const pauseRestTimer = useActiveWorkoutStore((state) => state.pauseRestTimer);
+  const completeExercise = useActiveWorkoutStore((state) => state.completeExercise);
+  const updateReps = useActiveWorkoutStore((state) => state.updateReps);
+  const updateWeight = useActiveWorkoutStore((state) => state.updateWeight);
+
+  const updateSetsInExercise = useUserRoutineStore((state) => state.updateSetsInExercise);
+  const getWorkoutById = useUserRoutineStore((state) => state.getWorkoutById);
+  const getExerciseById = useExerciseStore((state) => state.getExerciseById);
 
   const exercise = useMemo(() => getExerciseById(exerciseIdNumber), [exerciseIdNumber, getExerciseById]);
   const workoutExercise = useMemo(
     () =>
       workoutId ? getWorkoutById(workoutId)?.exercises.find((ex) => ex.exerciseId === exerciseIdNumber) || null : null,
-    [workoutId, exerciseIdNumber, getWorkoutById, routines]
+    [workoutId, exerciseIdNumber, getWorkoutById]
   );
   const exerciseRecord = useMemo(() => exerciseRecords.get(exerciseIdNumber), [exerciseIdNumber, exerciseRecords]);
 
@@ -63,41 +62,46 @@ export default function ExerciseLoggingScreen() {
   const [showIntensityDialog, setShowIntensityDialog] = useState(false);
   const [selectedIntensity, setSelectedIntensity] = useState<number>(3);
 
-  const handleExerciseComplete = () => {
+  const handleExerciseComplete = useCallback(() => {
     setShowIntensityDialog(true);
-  };
+  }, []);
 
-  const handleIntensitySelect = () => {
+  const handleIntensitySelect = useCallback(() => {
     completeExercise(exerciseIdNumber, selectedIntensity);
     setShowIntensityDialog(false);
     router.back();
-  };
+  }, [completeExercise, exerciseIdNumber, selectedIntensity]);
 
-  const handleAddSet = () => {
-    updateSetsInExercise(workoutId, exerciseIdNumber, [
+  const handleAddSet = useCallback(() => {
+    if (!workoutExercise?.sets) return;
+    updateSetsInExercise(workoutId!, exerciseIdNumber, [
       ...workoutExercise.sets,
       {
         reps: 8,
         weight: workoutExercise.sets[workoutExercise.sets.length - 1].weight,
       },
     ]);
-  };
+  }, [workoutExercise?.sets, workoutId, exerciseIdNumber, updateSetsInExercise]);
 
-  const handleDeleteSet = (setIndex: number) => {
-    updateSetsInExercise(
-      workoutId,
-      exerciseIdNumber,
-      workoutExercise.sets.filter((_, index) => index !== setIndex)
-    );
-  };
+  const handleDeleteSet = useCallback(
+    (setIndex: number) => {
+      updateSetsInExercise(
+        workoutId!,
+        exerciseIdNumber,
+        workoutExercise?.sets.filter((_, index) => index !== setIndex) || []
+      );
+    },
+    [workoutExercise?.sets, workoutId, exerciseIdNumber, updateSetsInExercise]
+  );
 
-  const totalVolume = exerciseRecord
-    ? exerciseRecord.sets.reduce((acc, set) => acc + (set.reps || 0) * (set.weight || 0), 0)
-    : 0;
-
-  const completedSets = exerciseRecord
-    ? exerciseRecord.sets.filter((set) => set.reps !== null && set.weight !== null).length
-    : 0;
+  const totalVolume = useMemo(
+    () => exerciseRecord?.sets.reduce((acc, set) => acc + (set.reps || 0) * (set.weight || 0), 0) || 0,
+    [exerciseRecord]
+  );
+  const completedSets = useMemo(
+    () => exerciseRecord?.sets.filter((set) => set.reps !== null && set.weight !== null).length || 0,
+    [exerciseRecord]
+  );
 
   return (
     <View className="flex-1">

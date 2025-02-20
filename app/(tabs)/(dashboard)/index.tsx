@@ -11,7 +11,10 @@ import { useUserRoutineStore } from "~/stores/userRoutineStore";
 
 export default function Index() {
   const workoutHistoryStore = useWorkoutHistoryStore();
-  const { workoutTimer, startWorkout, cancelWorkout } = useActiveWorkoutStore();
+  const isWorkoutRunning = useActiveWorkoutStore((state) => state.workoutTimer.isRunning);
+  const startWorkout = useActiveWorkoutStore((state) => state.startWorkout);
+  const cancelWorkout = useActiveWorkoutStore((state) => state.cancelWorkout);
+
   const { profile } = useUserProfileStore();
   const { routines, getActiveRoutine } = useUserRoutineStore();
   const activeRoutine = useMemo(() => {
@@ -56,14 +59,16 @@ export default function Index() {
   const greeting = getGreeting();
   const userName = profile?.firstName || "Sportler";
 
-  // Motivationszitate
-  const motivationQuotes = [
-    "Jeder Tag ist eine neue Chance! 💪",
-    "Dein Körper kann fast alles. Es ist dein Geist, den du überzeugen musst. 🧠",
-    "Wachse an deinen Herausforderungen! 🌱",
-    "Es wird schwer, aber du bist stärker. 💥",
-    "Konsistenz ist der Schlüssel! 🔑",
-  ];
+  const motivationQuote = useMemo(() => {
+    const quotes = [
+      "Jeder Tag ist eine neue Chance! 💪",
+      "Dein Körper kann fast alles. Es ist dein Geist, den du überzeugen musst. 🧠",
+      "Wachse an deinen Herausforderungen! 🌱",
+      "Es wird schwer, aber du bist stärker. 💥",
+      "Konsistenz ist der Schlüssel! 🔑",
+    ];
+    return quotes[Math.floor(Math.random() * quotes.length)];
+  }, []);
 
   const skipWorkout = () => {
     setActiveWorkoutOffset((activeWorkoutOffset + 1) % numWorkouts);
@@ -90,7 +95,7 @@ export default function Index() {
           <TodaysWorkoutWidget
             workout={activeWorkout}
             skipWorkout={skipWorkout}
-            isStarted={workoutTimer.isRunning}
+            isStarted={isWorkoutRunning}
             startWorkout={() => startWorkout(activeWorkout.id)}
             cancelWorkout={() => cancelWorkout()}
           />
@@ -102,9 +107,7 @@ export default function Index() {
 
         {/* Motivationswidget */}
         <View className="bg-card p-6 rounded-xl border border-border/50">
-          <Text className="text-center italic text-lg">
-            "{motivationQuotes[Math.floor(Math.random() * motivationQuotes.length)]}"
-          </Text>
+          <Text className="text-center italic text-lg">"{motivationQuote}"</Text>
         </View>
       </View>
     </ScrollView>
