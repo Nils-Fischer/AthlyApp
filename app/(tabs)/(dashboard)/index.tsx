@@ -6,7 +6,7 @@ import { de } from "date-fns/locale";
 import { useActiveWorkoutStore } from "~/stores/activeWorkoutStore";
 import { useWorkoutHistoryStore } from "~/stores/workoutHistoryStore";
 import { useUserProfileStore } from "~/stores/userProfileStore";
-import { TodaysWorkoutWidget } from "~/components/dashboard/TodaysWorkoutWidget";
+import { TodaysWorkoutWidget } from "~/components/Dashboard/TodaysWorkoutWidget";
 import { useUserRoutineStore } from "~/stores/userRoutineStore";
 
 export default function Index() {
