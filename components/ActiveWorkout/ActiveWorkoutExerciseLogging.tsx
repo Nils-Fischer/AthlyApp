@@ -23,6 +23,7 @@ import { AnimatedIconButton } from "../ui/animated-icon-button";
 import { cn, getThumbnail } from "~/lib/utils";
 import { BottomSheet } from "~/components/ui/bottom-sheet";
 import { ExerciseHistory } from "../Exercise/ExerciseHistory";
+import * as Haptics from "expo-haptics";
 
 interface ActiveWorkoutExerciseLoggingProps {
   exercise: Exercise;
@@ -269,11 +270,14 @@ export const ActiveWorkoutExerciseLogging = ({
                           variant="outline"
                           onPress={() => {
                             if (!completedSetIndexes.includes(index) && isSetLogged(set)) {
+                              Haptics.selectionAsync();
                               setCompletedSetIndexes((prev) => [...prev, index]);
                               onStartRest();
                             } else if (completedSetIndexes.includes(index)) {
+                              Haptics.selectionAsync();
                               setCompletedSetIndexes((prev) => prev.filter((i) => i !== index));
                             }
+                            Haptics.notificationAsync(Haptics.NotificationFeedbackType.Error);
                           }}
                           disabled={!isSetLogged(set)}
                           className={`w-10 h-10 rounded-full items-center justify-center ${
