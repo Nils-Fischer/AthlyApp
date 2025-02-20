@@ -313,7 +313,7 @@ export const ActiveWorkoutExerciseLogging = ({
         <AnimatedIconButton
           onPress={onStopRest}
           icon={<TimerOff size={20} className="text-primary-foreground" />}
-          label={`${formatTime(remainingRestTime)}`}
+          label={`${remainingRestTime}s`}
           className="absolute bottom-10 left-4 right-4"
         />
       ) : (

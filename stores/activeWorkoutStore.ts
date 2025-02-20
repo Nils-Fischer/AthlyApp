@@ -49,6 +49,7 @@ interface ActiveWorkoutState {
 }
 
 let workoutTimerInterval: NodeJS.Timeout | number | null = null;
+let restTimerInterval: NodeJS.Timeout | number | null = null;
 
 export const useActiveWorkoutStore = create<ActiveWorkoutState>()((set, get) => ({
   // Initial state
@@ -213,23 +214,51 @@ export const useActiveWorkoutStore = create<ActiveWorkoutState>()((set, get) => 
   },
 
   startRestTimer: (duration) => {
-    set({ restTimer: { isRunning: true, duration, remainingTime: duration } });
+    console.log(`[Timer] Starting rest timer - Duration: ${duration}s`);
+    // Clear any existing interval first
+    if (restTimerInterval) {
+      clearInterval(restTimerInterval);
+      restTimerInterval = null;
+    }
 
-    const timerInterval = setInterval(() => {
+    const startTime = Date.now();
+    set({
+      restTimer: {
+        isRunning: true,
+        duration,
+        remainingTime: duration,
+      },
+    });
+
+    restTimerInterval = setInterval(() => {
       set((state) => {
         if (!state.restTimer.isRunning) return state;
-        const remainingTime = Math.max(0, state.restTimer.remainingTime - 1);
+
+        const elapsed = Math.floor((Date.now() - startTime) / 1000);
+        const remainingTime = Math.max(0, duration - elapsed);
 
         if (remainingTime === 0) {
-          clearInterval(timerInterval);
-          return { restTimer: { ...state.restTimer, isRunning: false, remainingTime } };
+          clearInterval(restTimerInterval!);
+          restTimerInterval = null;
+          return {
+            restTimer: {
+              ...state.restTimer,
+              isRunning: false,
+              remainingTime,
+            },
+          };
         }
 
         return { restTimer: { ...state.restTimer, remainingTime } };
       });
     }, 1000);
 
-    return () => clearInterval(timerInterval);
+    return () => {
+      if (restTimerInterval) {
+        clearInterval(restTimerInterval);
+        restTimerInterval = null;
+      }
+    };
   },
 
   pauseRestTimer: () => {

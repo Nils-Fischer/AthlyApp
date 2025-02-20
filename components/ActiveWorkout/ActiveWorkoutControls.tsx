@@ -66,7 +66,7 @@ export function ActiveWorkoutControls({
                     <Timer className="text-background" size={24} />
                   )
                 }
-                label={isResting ? formatTime(remainingRestTime) : "Pause starten"}
+                label={isResting ? `${remainingRestTime}s` : "Pause starten"}
               />
             )}
             <AnimatedIconButton
