@@ -1,15 +1,8 @@
 import { Tabs, usePathname } from "expo-router";
-import { BarChart, BarChartFilled } from "~/lib/icons/BarChartIcon";
 import { ThemeToggle } from "~/components/ThemeToggle";
 import { useTheme } from "@react-navigation/native";
-import { Apple, ChevronLeft, Dumbbell, Home, MessageCircle, MessageSquare } from "~/lib/icons/Icons";
-import {
-  AppleFilled,
-  DumbbellFilled,
-  HomeFilled,
-  MessageCircleFilled,
-  MessageSquareFilled,
-} from "~/lib/icons/FilledIcons";
+import { Dumbbell, Home, MessageCircle, MessageSquare } from "~/lib/icons/Icons";
+import { DumbbellFilled, HomeFilled, MessageCircleFilled, MessageSquareFilled } from "~/lib/icons/FilledIcons";
 
 interface Route {
   name: string;
@@ -58,7 +51,6 @@ const routes: Route[] = [
 export default function TabLayout() {
   const { colors } = useTheme();
   const pathname = usePathname();
-  const isRootPath = pathname.split("/").length <= 2;
   const hideTabBar = pathname.startsWith("/active-workout");
 
   return (
@@ -66,8 +58,8 @@ export default function TabLayout() {
       screenOptions={{
         tabBarActiveTintColor: colors.text,
         tabBarInactiveTintColor: colors.text + "80",
-        headerShown: isRootPath,
-        headerRight: isRootPath ? () => <ThemeToggle /> : undefined,
+        headerShown: true,
+        headerRight: () => <ThemeToggle />,
         tabBarStyle: {
           display: hideTabBar ? "none" : "flex",
         },
@@ -84,6 +76,7 @@ export default function TabLayout() {
                 const Icon = focused ? route.icon.filled : route.icon.outlined;
                 return <Icon size={28} className={`text-foreground ${focused ? "fill-foreground" : ""}`} />;
               },
+              headerShown: false,
             }}
           />
         );

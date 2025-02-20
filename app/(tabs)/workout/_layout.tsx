@@ -1,12 +1,19 @@
 import { Stack } from "expo-router";
+import { ThemeToggle } from "~/components/ThemeToggle";
 
 export default function WorkoutLayout() {
   return (
-    <Stack>
+    <Stack
+      screenOptions={{
+        headerShown: true,
+        headerRight: () => <ThemeToggle />,
+        headerTitle: "Workout",
+      }}
+    >
       <Stack.Screen
         name="index"
         options={{
-          headerShown: false,
+          headerShown: true,
         }}
       />
       <Stack.Screen
