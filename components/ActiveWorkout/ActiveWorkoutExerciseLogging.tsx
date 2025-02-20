@@ -20,7 +20,7 @@ import { router } from "expo-router";
 import Animated, { FadeInDown } from "react-native-reanimated";
 import { useWorkoutHistoryStore } from "~/stores/workoutHistoryStore";
 import { AnimatedIconButton } from "../ui/animated-icon-button";
-import { cn, formatTime, getThumbnail } from "~/lib/utils";
+import { cn, getThumbnail } from "~/lib/utils";
 import { BottomSheet } from "~/components/ui/bottom-sheet";
 import { ExerciseHistory } from "../Exercise/ExerciseHistory";
 
@@ -51,6 +51,7 @@ export const ActiveWorkoutExerciseLogging = ({
   onCompleteExercise,
   isResting,
   remainingRestTime,
+  onStartRest,
   onStopRest,
   totalVolume,
   completedSets,
@@ -59,8 +60,9 @@ export const ActiveWorkoutExerciseLogging = ({
 
   const [isDeleteMode, setIsDeleteMode] = useState(false);
   const [isWarmupExpanded, setIsWarmupExpanded] = useState(false);
+  const [completedSetIndexes, setCompletedSetIndexes] = useState<number[]>([]);
 
-  const isSetCompleted = (set: SetInput) => set.reps !== null && set.weight !== null;
+  const isSetLogged = (set: SetInput) => set.reps !== null && set.weight !== null;
   const [showHistory, setShowHistory] = useState(false);
 
   const handleUpdateSet = (index: number, field: "reps" | "weight", value: string) => {
@@ -262,16 +264,27 @@ export const ActiveWorkoutExerciseLogging = ({
 
                       {/* Action Button */}
                       {!isDeleteMode ? (
-                        <View
+                        <Button
+                          size="icon"
+                          variant="outline"
+                          onPress={() => {
+                            if (!completedSetIndexes.includes(index) && isSetLogged(set)) {
+                              setCompletedSetIndexes((prev) => [...prev, index]);
+                              onStartRest();
+                            } else if (completedSetIndexes.includes(index)) {
+                              setCompletedSetIndexes((prev) => prev.filter((i) => i !== index));
+                            }
+                          }}
+                          disabled={!isSetLogged(set)}
                           className={`w-10 h-10 rounded-full items-center justify-center ${
-                            isSetCompleted(set) ? "bg-primary" : "bg-card border border-border"
+                            completedSetIndexes.includes(index) ? "bg-primary" : "bg-card border border-border"
                           }`}
                         >
                           <Check
                             size={16}
-                            className={isSetCompleted(set) ? "text-primary-foreground" : "text-primary"}
+                            className={completedSetIndexes.includes(index) ? "text-primary-foreground" : "text-primary"}
                           />
-                        </View>
+                        </Button>
                       ) : (
                         <Pressable
                           onPress={() => onDeleteSet(index)}
@@ -321,7 +334,7 @@ export const ActiveWorkoutExerciseLogging = ({
           onPress={onCompleteExercise}
           icon={<CheckCheck className="mr-2 h-4 w-4 text-primary-foreground" />}
           label="Übung abschließen"
-          disabled={!exerciseRecord.sets.every(isSetCompleted)}
+          disabled={!exerciseRecord.sets.every(isSetLogged)}
           className="absolute bottom-10 left-4 right-4"
         />
       )}
