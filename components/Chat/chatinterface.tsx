@@ -1,5 +1,5 @@
 import * as React from "react";
-import { View, ScrollView, TextInput, KeyboardAvoidingView, Platform, Keyboard, Image as RNImage } from "react-native";
+import { View, TextInput, KeyboardAvoidingView, Platform, Keyboard, Image as RNImage } from "react-native";
 import { ChatMessage } from "~/lib/types";
 import { Button } from "~/components/ui/button";
 import { Text } from "~/components/ui/text";
@@ -12,6 +12,7 @@ import * as ImagePicker from "expo-image-picker";
 import * as ImageManipulator from "expo-image-manipulator";
 import { LOADING_SPINNER } from "~/assets/svgs";
 import { ChatMessage as ChatMessageUI } from "./ChatMessage";
+import { FlashList } from "@shopify/flash-list";
 
 interface ChatInterfaceProps {
   messages: ChatMessage[];
@@ -31,24 +32,28 @@ export default function ChatInterface({
   resendMessage,
 }: ChatInterfaceProps) {
   const [inputMessage, setInputMessage] = React.useState("");
-  const scrollViewRef = React.useRef<ScrollView>(null);
+  const flashListRef = React.useRef<FlashList<ChatMessage>>(null);
   const inputRef = React.useRef<TextInput>(null);
   const [showCamera, setShowCamera] = React.useState(false);
   const [capturedImage, setCapturedImage] = React.useState<string | null>(null);
 
-  // Keyboard handling
+  const scrollToBottom = React.useCallback(() => {
+    setTimeout(() => {
+      if (messages.length > 0) {
+        flashListRef.current?.scrollToIndex({
+          index: messages.length - 1,
+          animated: true,
+        });
+      }
+    }, 100);
+  }, [messages]);
+
   React.useEffect(() => {
     const showSubscription = Keyboard.addListener("keyboardDidShow", () => {
       scrollToBottom();
     });
     return () => showSubscription.remove();
-  }, []);
-
-  const scrollToBottom = React.useCallback(() => {
-    setTimeout(() => {
-      scrollViewRef.current?.scrollToEnd({ animated: true });
-    }, 100);
-  }, []);
+  }, [scrollToBottom]);
 
   React.useEffect(() => {
     scrollToBottom();
@@ -60,7 +65,7 @@ export default function ChatInterface({
     setInputMessage("");
     setCapturedImage(null);
     inputRef.current?.blur();
-  }, [inputMessage, onSendMessage]);
+  }, [inputMessage, onSendMessage, capturedImage]);
 
   const imageOptions = [
     {
@@ -127,26 +132,26 @@ export default function ChatInterface({
     <View className="flex-1 bg-background relative z-0">
       <KeyboardAvoidingView
         behavior={Platform.OS === "ios" ? "padding" : undefined}
-        className="flex-1"
+        className="flex-1 px-4"
         keyboardVerticalOffset={Platform.OS === "ios" ? 90 : 0}
       >
-        <ScrollView
-          ref={scrollViewRef}
-          className="flex-1 px-4"
+        <FlashList
+          ref={flashListRef}
+          data={messages}
+          renderItem={({ item }) => (
+            <ChatMessageUI
+              key={item.id}
+              message={item}
+              showRoutine={showRoutine ?? (() => {})}
+              deleteMessage={() => deleteMessage(item.id)}
+              resendMessage={() => resendMessage(item.id)}
+            />
+          )}
+          keyExtractor={(item) => item.id}
+          estimatedItemSize={100}
           showsVerticalScrollIndicator={false}
           contentContainerStyle={{ paddingTop: 20, paddingBottom: 20 }}
-        >
-          {messages.map((message, index) => (
-            <ChatMessageUI
-              key={message.id}
-              message={message}
-              showRoutine={showRoutine ?? (() => {})}
-              deleteMessage={() => deleteMessage(message.id)}
-              resendMessage={() => resendMessage(message.id)}
-            />
-          ))}
-          {isTyping && <TypingIndicator />}
-        </ScrollView>
+        />
 
         <View className="px-4 py-2 border-t border-border bg-background rounded-t-2xl">
           {capturedImage && (
