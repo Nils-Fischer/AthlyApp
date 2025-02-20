@@ -98,8 +98,8 @@ export const ChatMessage = React.memo<{
                   },
                 ]}
                 trigger={
-                  <Button variant="ghost" className="px-1">
-                    <CircleX className="text-destructive mr-2" />
+                  <Button variant="ghost">
+                    <CircleX className="text-destructive" />
                   </Button>
                 }
                 align="end"

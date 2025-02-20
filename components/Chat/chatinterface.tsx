@@ -151,6 +151,7 @@ export default function ChatInterface({
           estimatedItemSize={100}
           showsVerticalScrollIndicator={false}
           contentContainerStyle={{ paddingTop: 20, paddingBottom: 20 }}
+          ListFooterComponent={isTyping ? <TypingIndicator /> : null}
         />
 
         <View className="px-4 py-2 border-t border-border bg-background rounded-t-2xl">
@@ -209,6 +210,7 @@ export default function ChatInterface({
               variant={inputMessage.trim() ? "default" : "secondary"}
               onPress={handleSend}
               disabled={isTyping || !inputMessage.trim() || capturedImage === ""}
+              haptics="medium"
             >
               <Text className={`text-lg ${!inputMessage.trim() ? "opacity-50" : ""}`}>➤</Text>
             </Button>

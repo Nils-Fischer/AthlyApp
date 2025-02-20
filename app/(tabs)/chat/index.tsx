@@ -37,6 +37,17 @@ export default function ChatScreen() {
     }
   };
 
+  const handleResendMessage = async (messageId: string) => {
+    try {
+      setIsTyping(true);
+      await resendMessage(messageId, { routines, profile });
+    } catch (error) {
+      console.error("Error resending message:", error);
+    } finally {
+      setIsTyping(false);
+    }
+  };
+
   const handleAddRoutine = async (routine: Routine) => {
     addRoutine(routine);
     setIsAdded(true);
@@ -54,7 +65,7 @@ export default function ChatScreen() {
         onSendMessage={handleSendMessage}
         showRoutine={previewRoutine}
         deleteMessage={deleteMessage}
-        resendMessage={(messageId) => resendMessage(messageId, { routines, profile })}
+        resendMessage={handleResendMessage}
       />
 
       <ActionSheet
