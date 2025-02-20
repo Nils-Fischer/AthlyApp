@@ -33,4 +33,10 @@ const additionalInstructions = `
 6. Follow React Native best practices for performance
 7. Use Expo's OTA updates for quick deployments
 8. Make sure to wrap all Text in <Text> tags
+9. Always use the 'haptics' prop on Button and AnimatedIconButton components with appropriate feedback:
+   - Destructive actions: Use 'error' haptic
+   - Primary actions: Use 'heavy' or 'medium' impact
+   - Success states: Use 'success' notification
+   - Toggle actions: Use 'selection' or 'light' 
+   - Follow haptic guidelines from Button component documentation
 `;
