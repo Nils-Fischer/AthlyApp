@@ -270,14 +270,11 @@ export const ActiveWorkoutExerciseLogging = ({
                           variant="outline"
                           onPress={() => {
                             if (!completedSetIndexes.includes(index) && isSetLogged(set)) {
-                              Haptics.selectionAsync();
                               setCompletedSetIndexes((prev) => [...prev, index]);
                               onStartRest();
                             } else if (completedSetIndexes.includes(index)) {
-                              Haptics.selectionAsync();
                               setCompletedSetIndexes((prev) => prev.filter((i) => i !== index));
                             }
-                            Haptics.notificationAsync(Haptics.NotificationFeedbackType.Error);
                           }}
                           disabled={!isSetLogged(set)}
                           className={`w-10 h-10 rounded-full items-center justify-center ${
