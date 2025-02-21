@@ -2,7 +2,7 @@
   "expo": {
     "name": "Athly",
     "slug": "train-tech",
-    "version": "0.0.3",
+    "version": "0.0.4",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
     "scheme": "exp+train-tech",
