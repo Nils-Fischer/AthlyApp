@@ -1,31 +1,37 @@
 // React Native Expo .cursorrules
 
-// React Native Expo best practices
-const reactNativeExpoBestPractices = [
-"Use functional components with hooks",
-"Utilize Expo SDK features and APIs",
-"Implement proper navigation using React Navigation",
-"Use Expo's asset system for images and fonts",
-"Implement proper error handling and crash reporting",
-"Utilize Expo's push notification system",
-];
+// General Best Practices
 
-// Folder structure
-const folderStructure = `assets/
+- Use functional components with hooks
+- Utilize Expo SDK features and APIs
+- Implement proper navigation using React Navigation
+- Use Expo's asset system for images and fonts
+- Implement proper error handling and crash reporting
+- Utilize Expo's push notification system
+- Use TypeScript for type safety
+- Implement proper offline support
+- Follow React Native best practices for performance
+- Use Expo's OTA updates for quick deployments
+- Utilize Expo's EAS Build and Updates for continuous deployment and Over-The-Air (OTA) updates
+- Follow React Native's threading model to ensure smooth UI performance
+- Use React Navigation for handling navigation and deep linking with best practices
+
+// Project Structure
+assets/
 src/
-  components/
-  screens/
-  navigation/
-  hooks/
-  utils/
+components/
+screens/
+navigation/
+hooks/
+utils/
 App.js
-app.json`;
+app.json
 
-// Custom component usage rules
-const customComponentRules = `
+- Organize files by feature, grouping related components, hooks, and styles
+
+// Component & Library Usage
 
 1. Always use custom UI components from components/ui/ instead of their React Native counterparts:
-
    - Use <Button /> instead of React Native's Button
    - Use <Text /> instead of React Native's Text
    - Use <Input /> instead of TextInput
@@ -42,7 +48,6 @@ const customComponentRules = `
    - Use <Tooltip /> for informational tooltips
    - Use <AnimatedIconButton /> for animated buttons with icons
    - Use Typography components for consistent text styling
-
 2. Library preferences:
    - Use Expo's Image from 'expo-image' instead of React Native's Image component
    - Use Expo's ImagePicker over React Native's image picking solutions
@@ -50,25 +55,67 @@ const customComponentRules = `
    - Use Expo's Font loading utilities instead of custom font loading
    - Utilize Expo's Haptics module for all haptic feedback
    - Use Expo's SecureStore for sensitive data instead of AsyncStorage
-     `;
 
-// Additional instructions
-const additionalInstructions = `
+- Utilize Expo's vector icons
+- For long lists use FlashList
 
-1. Use TypeScript for type safety
-2. Implement proper styling using StyleSheet
-3. Utilize Expo's vector icons
-4. Use Expo's secure store for sensitive data
-5. Implement proper offline support
-6. Follow React Native best practices for performance
-7. Use Expo's OTA updates for quick deployments
-8. Make sure to wrap all Text in <Text> tags
-9. Always use the 'haptics' prop on Button and AnimatedIconButton components with appropriate feedback:
-   - Destructive actions: Use 'error' haptic
-   - Primary actions: Use 'heavy' or 'medium' impact
-   - Success states: Use 'success' notification
-   - Toggle actions: Use 'selection' or 'light'
-   - Follow haptic guidelines from Button component documentation
-10. For long lists use FlashList
-11. All user text should be in German
-    `;
+// Coding Style & TypeScript
+
+- Write concise, type-safe TypeScript code
+- Ensure components are modular, reusable, and maintainable
+- Use TypeScript for all components, favoring interfaces for props and state
+- Enable strict typing in `tsconfig.json`
+- Avoid using `any`; strive for precise types
+- Utilize `React.FC` for defining functional components with props
+- Use camelCase for variable and function names (e.g., `isFetchingData`, `handleUserInput`)
+- Use PascalCase for component names (e.g., `UserProfile`, `ChatScreen`)
+- Directory names should be lowercase and hyphenated (e.g., `user-profile`, `chat-screen`)
+
+// Performance Optimization
+
+- Minimize `useEffect`, `useState`, and heavy computations inside render methods
+- Use `React.memo()` for components with static props to prevent unnecessary re-renders
+- Optimize FlatLists with props like `removeClippedSubviews`, `maxToRenderPerBatch`, and `windowSize`
+- Use `getItemLayout` for FlatLists when items have a consistent size to improve performance
+- Avoid anonymous functions in `renderItem` or event handlers to prevent re-renders
+
+// UI & Styling Guidelines
+
+- Implement proper styling using StyleSheet
+- Ensure responsive design by considering different screen sizes and orientations
+- Optimize image handling using libraries designed for React Native
+- Make sure to wrap all Text in <Text> tags
+- Always use the custom color variables defined in `global.css` when styling with Tailwind CSS to maintain design consistency.
+- Available color variables are:
+  --background
+  --foreground
+  --card
+  --card-foreground
+  --popover
+  --popover-foreground
+  --primary
+  --primary-foreground
+  --secondary
+  --secondary-foreground
+  --muted
+  --muted-foreground
+  --accent
+  --accent-foreground
+  --destructive
+  --destructive-foreground
+  --border
+  --input
+  --ring
+
+// Haptics & User Feedback
+
+- Always use the 'haptics' prop on Button and AnimatedIconButton components with appropriate feedback:
+  - Destructive actions: Use 'error' haptic
+  - Primary actions: Use 'heavy' or 'medium' impact
+  - Success states: Use 'success' notification
+  - Toggle actions: Use 'selection' or 'light'
+  - Follow haptic guidelines from Button component documentation
+
+// Localization
+
+- All user text should be in German
