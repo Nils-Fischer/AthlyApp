@@ -179,7 +179,7 @@ export interface WorkoutSession {
   summary: ReactNode;
   date: Date;
   entries: ExerciseRecord[];
-  workoutId: number;
+  workoutId: string;
 }
 
 export type ChatMessage = CoreMessage & {

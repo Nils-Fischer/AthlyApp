@@ -34,7 +34,7 @@ export default function ActiveWorkoutScreen() {
   const { getActiveRoutine, updateExerciseInWorkout, deleteExerciseFromWorkout, routines } = useUserRoutineStore();
   const [showAlternatives, setShowAlternatives] = useState<WorkoutExercise | null>(null);
   const activeWorkout = useMemo(
-    () => getActiveRoutine()?.workouts.find((workout) => workout.id === parseInt(id)),
+    () => getActiveRoutine()?.workouts.find((workout) => workout.id === id),
     [getActiveRoutine, id, routines]
   );
 

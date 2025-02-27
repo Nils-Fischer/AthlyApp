@@ -1,5 +1,5 @@
 import React from "react";
-import { View, Pressable, ScrollView } from "react-native";
+import { View, Pressable, ScrollView, TextInput } from "react-native";
 import { Text } from "~/components/ui/text";
 import { Button } from "~/components/ui/button";
 import { Plus, Minus, Timer, BarChart2, Repeat, ChevronRight, FileText, Info } from "~/lib/icons/Icons";
@@ -113,21 +113,16 @@ export const ExerciseEditPage: React.FC<ExerciseEditPageProps> = ({
               >
                 <Minus size={20} className="text-foreground" />
               </Button>
-              <Pressable
-                className="bg-background/50 px-6 py-2 rounded-lg flex-row items-center gap-2"
-                onPress={() => {
-                  Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-                }}
-              >
+              <View className="bg-background/50 px-4 py-2 rounded-lg flex-row items-center gap-2">
                 <Timer size={20} className="text-muted-foreground" />
                 <Input
-                  className="text-3xl font-semibold text-center w-16 text-primary"
+                  className="text-xl font-semibold text-center max-w-40 p-0 h-9 text-primary"
                   value={restTime.toString()}
                   onChangeText={(text) => setRestTime(parseInt(text) || restTime)}
                   keyboardType="number-pad"
                 />
                 <Text className="text-lg text-muted-foreground">s</Text>
-              </Pressable>
+              </View>
               <Button
                 variant="ghost"
                 size="icon"
@@ -169,11 +164,15 @@ export const ExerciseEditPage: React.FC<ExerciseEditPageProps> = ({
           {/* Set Configurations */}
           {setConfigs.map((set, index) => (
             <View key={index} className="mb-3 bg-muted rounded-xl p-3">
-              <View className="flex-row items-center gap-4">
-                <Text className="text-base font-medium text-muted-foreground">Satz {index + 1}</Text>
-                {/* Reps Input */}
-                <View className="flex-1">
-                  <View className="flex-row items-center justify-between rounded-lg p-1">
+              <View className="flex-row items-center">
+                <Text className="text-bold font-medium text-muted-foreground w-8">{index + 1}</Text>
+
+                {/* Reps Input Group */}
+                <View className="flex-1 mr-2">
+                  <View className="flex-row items-center justify-between">
+                    <Text className="text-xs text-muted-foreground">Wiederholungen</Text>
+                  </View>
+                  <View className="flex-row items-center justify-between mt-1">
                     <Button
                       variant="ghost"
                       size="icon"
@@ -184,11 +183,10 @@ export const ExerciseEditPage: React.FC<ExerciseEditPageProps> = ({
                       <Minus size={16} className="text-foreground" />
                     </Button>
                     <Input
-                      className="text-lg font-semibold text-center w-12 text-primary"
-                      value={set.reps.toString()}
+                      className="text-base font-semibold text-center max-w-20 h-9 p-0"
+                      value={set.reps.toString().trim()}
                       onChangeText={(text) => updateSetReps(index, parseInt(text) || set.reps)}
                       keyboardType="number-pad"
-                      placeholder="Reps"
                     />
                     <Button
                       variant="ghost"
@@ -202,15 +200,20 @@ export const ExerciseEditPage: React.FC<ExerciseEditPageProps> = ({
                   </View>
                 </View>
 
-                {/* Weight Input */}
+                {/* Weight Input Group */}
                 <View className="flex-1">
-                  <Input
-                    className="text-lg font-semibold text-center text-primary bg-background/50 rounded-lg p-2"
-                    value={set.weight?.toString() || ""}
-                    onChangeText={(text) => updateSetWeight(index, parseFloat(text) || 0)}
-                    placeholder="Gewicht (kg)"
-                    keyboardType="decimal-pad"
-                  />
+                  <View className="flex-row items-center justify-between">
+                    <Text className="text-xs text-muted-foreground">Gewicht (kg)</Text>
+                  </View>
+                  <View className="flex-row items-center justify-center mt-1">
+                    <Input
+                      className="text-base font-semibold text-center text-primary rounded-lg max-w-35 h-9 p-0"
+                      value={set.weight?.toString() || ""}
+                      onChangeText={(text) => updateSetWeight(index, parseFloat(text) || 0)}
+                      keyboardType="decimal-pad"
+                      placeholder="0"
+                    />
+                  </View>
                 </View>
               </View>
             </View>

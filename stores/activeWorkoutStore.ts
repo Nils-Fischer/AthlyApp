@@ -16,7 +16,7 @@ interface RestTimer {
 
 interface ActiveWorkoutState {
   // Core workout data
-  workoutId: number | null;
+  workoutId: string | null;
   exerciseRecords: Map<number, ExerciseRecord>;
 
   // Timers
@@ -24,7 +24,7 @@ interface ActiveWorkoutState {
   restTimer: RestTimer;
 
   // Actions
-  startWorkout: (workoutId: number) => void;
+  startWorkout: (workoutId: string) => void;
   cancelWorkout: () => void;
   finishWorkout: () => WorkoutSession;
 

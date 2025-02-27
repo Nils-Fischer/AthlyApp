@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useMemo } from "react";
 import { router, useLocalSearchParams, Stack, useNavigation } from "expo-router";
 import { Text } from "~/components/ui/text";
 import { Routine } from "~/lib/types";
@@ -12,7 +12,7 @@ import { Input } from "~/components/ui/input";
 export default function RoutineDetails() {
   const { id } = useLocalSearchParams<{ id: string }>();
   const { routines } = useUserRoutineStore();
-  const routine: Routine | undefined = routines.find((p) => p.id === id);
+  const routine: Routine | undefined = useMemo(() => routines.find((p) => p.id === id), [routines, id]);
   const [isEditMode, setIsEditMode] = useState(
     () => routine?.workouts.length === 1 && routine.workouts[0].exercises.length === 0
   );

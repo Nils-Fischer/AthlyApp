@@ -7,15 +7,15 @@ export interface UserRoutineState {
   routines: Routine[];
   addRoutine: (routine: Routine) => void;
   updateRoutine: (routine: Routine) => void;
-  deleteRoutine: (routineId: number) => void;
-  toggleRoutineActive: (routineId: number) => void;
+  deleteRoutine: (routineId: string) => void;
+  toggleRoutineActive: (routineId: string) => void;
   getActiveRoutine: () => Routine | null;
-  getRoutineById: (routineId: number) => Routine | null;
-  getWorkoutById: (workoutId: number) => Workout | null;
-  addExerciseToWorkout: (workoutId: number, exercise: WorkoutExercise) => void;
-  updateExerciseInWorkout: (workoutId: number, exerciseId: number, exercise: WorkoutExercise) => void;
-  deleteExerciseFromWorkout: (workoutId: number, exerciseId: number) => void;
-  updateSetsInExercise: (workoutId: number, exerciseId: number, sets: SetConfiguration[]) => void;
+  getRoutineById: (routineId: string) => Routine | null;
+  getWorkoutById: (workoutId: string) => Workout | null;
+  addExerciseToWorkout: (workoutId: string, exercise: WorkoutExercise) => void;
+  updateExerciseInWorkout: (workoutId: string, exerciseId: number, exercise: WorkoutExercise) => void;
+  deleteExerciseFromWorkout: (workoutId: string, exerciseId: number) => void;
+  updateSetsInExercise: (workoutId: string, exerciseId: number, sets: SetConfiguration[]) => void;
 }
 
 export const useUserRoutineStore = create<UserRoutineState>()(

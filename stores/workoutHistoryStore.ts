@@ -7,7 +7,7 @@ interface WorkoutHistoryState {
   sessions: WorkoutSession[];
   addWorkoutSession: (session: WorkoutSession) => Promise<void>;
   getLastExerciseRecord: (exerciseId: number) => ExerciseRecord | undefined;
-  getLastWorkout: (workoutId: number) => WorkoutSession | undefined;
+  getLastWorkout: (workoutId: string) => WorkoutSession | undefined;
 }
 
 export const useWorkoutHistoryStore = create<WorkoutHistoryState>()(
@@ -33,7 +33,7 @@ export const useWorkoutHistoryStore = create<WorkoutHistoryState>()(
         return undefined;
       },
 
-      getLastWorkout: (workoutId: number) => {
+      getLastWorkout: (workoutId: string) => {
         const { sessions } = get();
         return sessions.find((session) => session.workoutId === workoutId);
       },

@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { View } from "react-native";
+import { View, TextInput } from "react-native";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "~/components/ui/tabs";
 import { Text } from "~/components/ui/text";
 import { Routine, Workout } from "~/lib/types";
@@ -9,8 +9,8 @@ import { MoreHorizontal } from "lucide-react-native";
 import { Plus, Trash2 } from "~/lib/icons/Icons";
 import { CustomDropdownMenu } from "~/components/ui/custom-dropdown-menu";
 import { useUserRoutineStore } from "~/stores/userRoutineStore";
-import { generateId } from "ai";
 import { Input } from "../ui/input";
+import { generateId } from "~/lib/utils";
 
 export function RoutineOverview({
   routine: initialRoutine,

@@ -263,8 +263,7 @@ export const ActiveWorkoutExerciseLogging = ({
                           keyboardType="numeric"
                           maxLength={2}
                           placeholder={set.targetReps.toString()}
-                          placeholderTextColor={"#9CA3AF"}
-                          style={{ color: "#000000" }}
+                          fullWidth={true}
                         />
                       </View>
 
@@ -277,8 +276,6 @@ export const ActiveWorkoutExerciseLogging = ({
                           keyboardType="numeric"
                           maxLength={3}
                           placeholder={set.targetWeight.toString()}
-                          placeholderTextColor={"#9CA3AF"}
-                          style={{ color: "#000000" }}
                         />
                       </View>
 

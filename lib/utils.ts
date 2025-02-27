@@ -1,18 +1,14 @@
 import { clsx, type ClassValue } from "clsx";
 import { twMerge } from "tailwind-merge";
 import { Difficulty, Exercise, Muscle, MuscleGroup, WorkoutExercise } from "./types";
+import * as Crypto from "expo-crypto";
 
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
 }
 
-export function generateId(): number {
-  return parseInt(
-    Date.now().toString() +
-      Math.floor(Math.random() * 1000)
-        .toString()
-        .padStart(3, "0")
-  );
+export function generateId(): string {
+  return Crypto.randomUUID();
 }
 
 export function parseJSON<T>(jsonString: string): T | null {
