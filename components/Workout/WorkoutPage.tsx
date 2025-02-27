@@ -5,7 +5,6 @@ import { Text } from "~/components/ui/text";
 import { Plus } from "~/lib/icons/Icons";
 import React, { useState, useEffect } from "react";
 import { Card } from "~/components/ui/card";
-import { ExerciseLibrary } from "~/components/Exercise/ExerciseLibrary";
 import { BottomSheet } from "~/components/ui/bottom-sheet";
 import { SheetManager } from "react-native-actions-sheet";
 import { registerSheet } from "react-native-actions-sheet";
@@ -33,7 +32,6 @@ export function WorkoutPage({
   const [workout, setWorkout] = useState(initialWorkout);
   const [deleteExerciseId, setDeleteExerciseId] = useState<number | null>(null);
   const [showAlternatives, setShowAlternatives] = useState<WorkoutExercise | null>(null);
-  const [showAddExercise, setShowAddExercise] = useState(false);
 
   useEffect(() => {
     setWorkout(initialWorkout);
@@ -61,6 +59,8 @@ export function WorkoutPage({
   };
 
   const addExercise = (exerciseId: number) => {
+    if (!exerciseId) return;
+
     const newExercise: WorkoutExercise = {
       exerciseId,
       alternatives: [],
@@ -76,7 +76,13 @@ export function WorkoutPage({
 
     setWorkout(updatedWorkout);
     onUpdateWorkout?.(updatedWorkout);
-    setShowAddExercise(false);
+  };
+
+  const showAddExerciseSheet = async () => {
+    const exerciseId = await SheetManager.show("exercise-library-sheet");
+    if (exerciseId) {
+      addExercise(exerciseId as number);
+    }
   };
 
   const showEditExerciseSheet: (workoutExercise: WorkoutExercise) => void = async (
@@ -145,7 +151,7 @@ export function WorkoutPage({
     <View className="flex-1 px-4">
       {isEditMode && (
         <View className="mb-4 flex-row items-center">
-          <Pressable onPress={() => setShowAddExercise(true)} className="flex-1">
+          <Pressable onPress={showAddExerciseSheet} className="flex-1">
             <Card className="shadow-none p-4 flex-row justify-between items-center bg-background">
               <Text className="text-sm font-medium">Übung hinzufügen</Text>
               <Plus size={20} className="text-primary" />
@@ -164,14 +170,6 @@ export function WorkoutPage({
         dragHitSlop={{ top: 0, bottom: 0, left: 0, right: 0 }}
         animationConfig={{ duration: 200 }}
       />
-
-      <BottomSheet title="Übung hinzufügen" isOpen={showAddExercise} onClose={() => setShowAddExercise(false)}>
-        <ExerciseLibrary
-          onPress={(exerciseId) => {
-            addExercise(exerciseId);
-          }}
-        />
-      </BottomSheet>
 
       <BottomSheet
         title="Alternative Übung Auswahl"
