@@ -32,7 +32,7 @@ export interface WorkoutExercise {
 }
 
 export interface Workout {
-  id: number;
+  id: string;
   name: string;
   exercises: WorkoutExercise[];
   duration?: number;
@@ -40,7 +40,7 @@ export interface Workout {
 }
 
 export interface Routine {
-  id: number;
+  id: string;
   name: string;
   workouts: Workout[];
   description?: string;
