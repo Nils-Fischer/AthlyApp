@@ -1,5 +1,14 @@
-import React, { useState } from "react";
-import { View, ScrollView, Pressable, ImageBackground, Keyboard, KeyboardAvoidingView, Platform } from "react-native";
+import React, { useState, useRef, createRef } from "react";
+import {
+  View,
+  ScrollView,
+  Pressable,
+  ImageBackground,
+  Keyboard,
+  KeyboardAvoidingView,
+  Platform,
+  TextInput,
+} from "react-native";
 import { Text } from "~/components/ui/text";
 import { Button } from "~/components/ui/button";
 import { Card } from "~/components/ui/card";
@@ -41,6 +50,7 @@ interface ActiveWorkoutExerciseLoggingProps {
   onStopRest: () => void;
   totalVolume: number;
   completedSets: number;
+  onToggleSetCompleted: (setIndex: number, completed: boolean) => void;
 }
 
 export const ActiveWorkoutExerciseLogging = ({
@@ -57,15 +67,25 @@ export const ActiveWorkoutExerciseLogging = ({
   onStopRest,
   totalVolume,
   completedSets,
+  onToggleSetCompleted,
 }: ActiveWorkoutExerciseLoggingProps) => {
   const workoutHistory = useWorkoutHistoryStore();
 
   const [isDeleteMode, setIsDeleteMode] = useState(false);
   const [isWarmupExpanded, setIsWarmupExpanded] = useState(false);
-  const [completedSetIndexes, setCompletedSetIndexes] = useState<number[]>([]);
+  const [showHistory, setShowHistory] = useState(false);
+
+  // Create refs for the input fields to enable auto-focus
+  const weightInputRefs = useRef<(TextInput | null)[]>([]);
+  const repsInputRefs = useRef<(TextInput | null)[]>([]);
+
+  // Initialize refs when sets change
+  if (weightInputRefs.current.length !== exerciseRecord.sets.length) {
+    weightInputRefs.current = Array(exerciseRecord.sets.length).fill(null);
+    repsInputRefs.current = Array(exerciseRecord.sets.length).fill(null);
+  }
 
   const isSetLogged = (set: SetInput) => set.reps !== null && set.weight !== null;
-  const [showHistory, setShowHistory] = useState(false);
 
   const handleUpdateSet = (index: number, field: "reps" | "weight", value: string) => {
     const numValue = parseInt(value) || 0;
@@ -266,6 +286,9 @@ export const ActiveWorkoutExerciseLogging = ({
                         {/* Reps Input */}
                         <View className="flex-1 mx-2">
                           <Input
+                            ref={(ref) => {
+                              repsInputRefs.current[index] = ref;
+                            }}
                             className={inputStyle}
                             value={set.reps?.toString() || ""}
                             onChangeText={(value) => handleUpdateSet(index, "reps", value)}
@@ -279,6 +302,9 @@ export const ActiveWorkoutExerciseLogging = ({
                         {/* Weight Input */}
                         <View className="flex-1 mx-2">
                           <Input
+                            ref={(ref) => {
+                              weightInputRefs.current[index] = ref;
+                            }}
                             className={inputStyle}
                             value={set.weight?.toString() || ""}
                             onChangeText={(value) => handleUpdateSet(index, "weight", value)}
@@ -294,25 +320,29 @@ export const ActiveWorkoutExerciseLogging = ({
                             size="icon"
                             variant="outline"
                             onPress={() => {
-                              if (!completedSetIndexes.includes(index) && isSetLogged(set)) {
-                                setCompletedSetIndexes((prev) => [...prev, index]);
-                                onStartRest();
-                              } else if (completedSetIndexes.includes(index)) {
-                                setCompletedSetIndexes((prev) => prev.filter((i) => i !== index));
+                              if (isSetLogged(set)) {
+                                // Toggle the completed state and start rest timer if newly completed
+                                const newCompletedState = !set.completed;
+                                onToggleSetCompleted(index, newCompletedState);
+
+                                if (newCompletedState) {
+                                  onStartRest();
+                                }
+
+                                Haptics.impactAsync(
+                                  newCompletedState
+                                    ? Haptics.ImpactFeedbackStyle.Medium
+                                    : Haptics.ImpactFeedbackStyle.Light
+                                );
                               }
                             }}
                             disabled={!isSetLogged(set)}
                             haptics="success"
                             className={`w-10 h-10 rounded-full items-center justify-center ${
-                              completedSetIndexes.includes(index) ? "bg-primary" : "bg-card border border-border"
+                              set.completed ? "bg-primary" : "bg-card border border-border"
                             }`}
                           >
-                            <Check
-                              size={16}
-                              className={
-                                completedSetIndexes.includes(index) ? "text-primary-foreground" : "text-primary"
-                              }
-                            />
+                            <Check size={16} className={set.completed ? "text-primary-foreground" : "text-primary"} />
                           </Button>
                         ) : (
                           <Pressable

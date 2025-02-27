@@ -22,6 +22,7 @@ export default function ExerciseLoggingScreen() {
   const completeExercise = useActiveWorkoutStore((state) => state.completeExercise);
   const updateReps = useActiveWorkoutStore((state) => state.updateReps);
   const updateWeight = useActiveWorkoutStore((state) => state.updateWeight);
+  const markSetCompleted = useActiveWorkoutStore((state) => state.markSetCompleted);
 
   const updateSetsInExercise = useUserRoutineStore((state) => state.updateSetsInExercise);
   const getWorkoutById = useUserRoutineStore((state) => state.getWorkoutById);
@@ -152,6 +153,7 @@ export default function ExerciseLoggingScreen() {
         onStopRest={pauseRestTimer}
         totalVolume={totalVolume}
         completedSets={completedSets}
+        onToggleSetCompleted={(setIndex, completed) => markSetCompleted(exerciseIdNumber, setIndex, completed)}
       />
 
       <Dialog open={showIntensityDialog} onOpenChange={setShowIntensityDialog}>

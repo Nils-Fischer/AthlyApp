@@ -166,6 +166,7 @@ export interface SetInput {
   weight: number | null;
   targetWeight: number;
   targetReps: number;
+  completed?: boolean;
 }
 
 export interface ExerciseRecord {

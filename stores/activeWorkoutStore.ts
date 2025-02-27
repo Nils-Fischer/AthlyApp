@@ -34,6 +34,7 @@ interface ActiveWorkoutState {
   // Set input management
   updateReps: (exerciseId: number, setIndex: number, reps: number) => void;
   updateWeight: (exerciseId: number, setIndex: number, weight: number) => void;
+  markSetCompleted: (exerciseId: number, setIndex: number, isCompleted: boolean) => void;
 
   // Timer controls
   startRestTimer: (duration: number) => void;
@@ -358,5 +359,33 @@ export const useActiveWorkoutStore = create<ActiveWorkoutState>()((set, get) => 
     });
 
     return total - get().getCompletedSets();
+  },
+
+  markSetCompleted: (exerciseId, setIndex, isCompleted) => {
+    console.log(
+      `[Workout] Marking set ${setIndex} of exercise ${exerciseId} as ${isCompleted ? "completed" : "not completed"}`
+    );
+    set((state) => {
+      const records = new Map(state.exerciseRecords);
+      const exercise = records.get(exerciseId);
+      if (!exercise) return state;
+
+      // Create a new exercise record with the updated set completion status
+      const updatedExercise = {
+        ...exercise,
+        sets: exercise.sets.map((set, index) => {
+          if (index === setIndex) {
+            return {
+              ...set,
+              completed: isCompleted,
+            };
+          }
+          return set;
+        }),
+      };
+
+      records.set(exerciseId, updatedExercise);
+      return { exerciseRecords: records };
+    });
   },
 }));
