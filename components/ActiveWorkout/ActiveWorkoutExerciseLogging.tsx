@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { View, ScrollView, Pressable, ImageBackground, Keyboard } from "react-native";
+import { View, ScrollView, Pressable, ImageBackground, Keyboard, KeyboardAvoidingView, Platform } from "react-native";
 import { Text } from "~/components/ui/text";
 import { Button } from "~/components/ui/button";
 import { Card } from "~/components/ui/card";
@@ -80,245 +80,257 @@ export const ActiveWorkoutExerciseLogging = ({
 
   return (
     <View className="flex-1 bg-background">
-      <ScrollView className="flex-1">
-        {/* Header Image */}
-        <View className="w-full h-40">
-          <ImageBackground
-            source={{
-              uri:
-                getThumbnail(exercise) ||
-                "https://media.istockphoto.com/id/542197916/photo/running-on-treadmill.jpg?s=612x612&w=0&k=20&c=CYywmb71uOepSHWa534hG9230AzawSa4i3sA89o4qCQ=",
-            }}
-            className="w-full h-full"
-          >
-            <View className="absolute inset-0 bg-background/30" />
-          </ImageBackground>
-        </View>
-
-        <View className="px-4 -mt-6">
-          {/* Exercise Stats Card */}
-          <Card className="bg-card/95 backdrop-blur-lg border-primary/10 mb-4">
-            <View className="p-4">
-              <Text className="text-2xl font-bold mb-3">{exercise.name}</Text>
-              {/* Quick Stats Grid */}
-              <View className="flex-row gap-4">
-                <Card className="flex-1 p-3 border-primary/10">
-                  <View className="flex-row items-center">
-                    <Weight size={16} className="text-primary mr-2" />
-                    <Text className="text-sm text-muted-foreground">Equipment</Text>
-                  </View>
-                  <Text className="font-medium mt-1">{exercise.equipment || "Not specified"}</Text>
-                </Card>
-                <Card className="flex-1 p-3 ">
-                  <View className="flex-row items-center">
-                    <BarChart3 size={16} className="text-primary mr-2" />
-                    <Text className="text-sm text-muted-foreground">Level</Text>
-                  </View>
-                  <Text className="font-medium mt-1">{exercise.difficulty || "Not specified"}</Text>
-                </Card>
-              </View>
-            </View>
-          </Card>
-
-          {/* Exercise Details & History Links */}
-          <Card className="mb-4 border-primary/10">
-            <Pressable
-              className="p-4 flex-row items-center justify-between active:opacity-70"
-              onPress={async () => {
-                Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-                router.push(`/(tabs)/workout/exercise/${exercise.id}`);
+      <KeyboardAvoidingView
+        behavior={Platform.OS === "ios" ? "padding" : "height"}
+        style={{ flex: 1 }}
+        keyboardVerticalOffset={100}
+      >
+        <ScrollView
+          className="flex-1"
+          keyboardShouldPersistTaps="handled"
+          contentContainerStyle={{ paddingBottom: 100 }}
+        >
+          {/* Header Image */}
+          <View className="w-full h-40">
+            <ImageBackground
+              source={{
+                uri:
+                  getThumbnail(exercise) ||
+                  "https://media.istockphoto.com/id/542197916/photo/running-on-treadmill.jpg?s=612x612&w=0&k=20&c=CYywmb71uOepSHWa534hG9230AzawSa4i3sA89o4qCQ=",
               }}
+              className="w-full h-full"
             >
-              <View className="flex-row items-center">
-                <View className="w-10 h-10 rounded-full items-center justify-center mr-3">
-                  <Info size={20} className="text-primary" />
-                </View>
-                <View>
-                  <Text className="font-medium">Übungsdetails</Text>
-                  <Text className="text-sm text-muted-foreground">Anleitung & Ausführung</Text>
-                </View>
-              </View>
-              <ChevronRight size={20} className="text-muted-foreground" />
-            </Pressable>
-            {/* Neuer Button für Workout History */}
-            <Pressable
-              className="p-4 flex-row items-center justify-between active:opacity-70"
-              onPress={() => {
-                Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-                setShowHistory(true);
-              }}
-            >
-              <View className="flex-row items-center">
-                <View className="w-10 h-10 rounded-full items-center justify-center mr-3">
-                  <BarChart3 size={20} className="text-primary" />
-                </View>
-                <View>
-                  <Text className="font-medium">Trainings-Historie</Text>
-                  <Text className="text-sm text-muted-foreground">Vergangene Leistungen</Text>
-                </View>
-              </View>
-              <ChevronRight size={20} className="text-muted-foreground" />
-            </Pressable>
-          </Card>
+              <View className="absolute inset-0 bg-background/30" />
+            </ImageBackground>
+          </View>
 
-          {/* Sets Management Card */}
-          <Card className="mb-4 border-primary/10">
-            <View className="p-4">
-              {/* Warm-up Toggle */}
-              <View className="flex-row justify-between items-center mb-6 pb-4 border-b border-border">
-                <Pressable
-                  className="flex-1"
-                  onPress={() => {
-                    setIsWarmupExpanded(!isWarmupExpanded);
-                    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-                  }}
-                >
-                  <View className="flex-row items-center">
-                    <View className="w-10 h-10 rounded-full items-center justify-center mr-3">
-                      <HeartPulse size={20} className="text-primary" />
+          <View className="px-4 -mt-6">
+            {/* Exercise Stats Card */}
+            <Card className="bg-card/95 backdrop-blur-lg border-primary/10 mb-4">
+              <View className="p-4">
+                <Text className="text-2xl font-bold mb-3">{exercise.name}</Text>
+                {/* Quick Stats Grid */}
+                <View className="flex-row gap-4">
+                  <Card className="flex-1 p-3 border-primary/10">
+                    <View className="flex-row items-center">
+                      <Weight size={16} className="text-primary mr-2" />
+                      <Text className="text-sm text-muted-foreground">Equipment</Text>
                     </View>
-                    <View>
-                      <Text className="font-medium">Aufwärmen</Text>
-                      <Text className="text-sm text-muted-foreground">Vorbereitung für dein Training</Text>
+                    <Text className="font-medium mt-1">{exercise.equipment || "Not specified"}</Text>
+                  </Card>
+                  <Card className="flex-1 p-3 ">
+                    <View className="flex-row items-center">
+                      <BarChart3 size={16} className="text-primary mr-2" />
+                      <Text className="text-sm text-muted-foreground">Level</Text>
                     </View>
-                  </View>
-                </Pressable>
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  className="h-9 w-9 rounded-full"
-                  onPress={() => setIsWarmupExpanded(!isWarmupExpanded)}
-                  haptics="light"
-                >
-                  <ChevronRight size={20} className={cn("text-muted-foreground", isWarmupExpanded && "rotate-90")} />
-                </Button>
-              </View>
-
-              {isWarmupExpanded && exercise.warmup && (
-                <View className="mb-6 px-4">
-                  <Text className="text-sm text-muted-foreground leading-relaxed">{exercise.warmup}</Text>
+                    <Text className="font-medium mt-1">{exercise.difficulty || "Not specified"}</Text>
+                  </Card>
                 </View>
-              )}
+              </View>
+            </Card>
 
-              {/* Working Sets Header */}
-              <View className="flex-row justify-between items-center mb-6">
+            {/* Exercise Details & History Links */}
+            <Card className="mb-4 border-primary/10">
+              <Pressable
+                className="p-4 flex-row items-center justify-between active:opacity-70"
+                onPress={async () => {
+                  Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+                  router.push(`/(tabs)/workout/exercise/${exercise.id}`);
+                }}
+              >
                 <View className="flex-row items-center">
-                  <Text className="text-lg font-semibold mr-2">Working Sets</Text>
-                  <Text className="text-sm text-muted-foreground">({exerciseRecord.sets.length} Sets)</Text>
+                  <View className="w-10 h-10 rounded-full items-center justify-center mr-3">
+                    <Info size={20} className="text-primary" />
+                  </View>
+                  <View>
+                    <Text className="font-medium">Übungsdetails</Text>
+                    <Text className="text-sm text-muted-foreground">Anleitung & Ausführung</Text>
+                  </View>
                 </View>
-                <View className="flex-row gap-3">
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    className={`h-9 w-9 rounded-full ${isDeleteMode ? "bg-destructive/10" : "bg-secondary/10"}`}
-                    onPress={() => setIsDeleteMode(!isDeleteMode)}
-                    haptics="error"
-                  >
-                    <Trash2 size={16} className="text-destructive" />
-                  </Button>
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    className="h-9 w-9 rounded-full bg-primary/10"
-                    onPress={onAddSet}
-                    haptics="medium"
-                  >
-                    <Plus size={16} className="text-primary" />
-                  </Button>
+                <ChevronRight size={20} className="text-muted-foreground" />
+              </Pressable>
+              {/* Neuer Button für Workout History */}
+              <Pressable
+                className="p-4 flex-row items-center justify-between active:opacity-70"
+                onPress={() => {
+                  Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+                  setShowHistory(true);
+                }}
+              >
+                <View className="flex-row items-center">
+                  <View className="w-10 h-10 rounded-full items-center justify-center mr-3">
+                    <BarChart3 size={20} className="text-primary" />
+                  </View>
+                  <View>
+                    <Text className="font-medium">Trainings-Historie</Text>
+                    <Text className="text-sm text-muted-foreground">Vergangene Leistungen</Text>
+                  </View>
                 </View>
-              </View>
+                <ChevronRight size={20} className="text-muted-foreground" />
+              </Pressable>
+            </Card>
 
-              {/* Column Headers */}
-              <View className="flex-row items-center px-4 mb-2">
-                <View className="w-10" />
-                <View className="flex-1 mx-2">
-                  <Text className="text-sm text-muted-foreground ml-3">Wdh.</Text>
-                </View>
-                <View className="flex-1 mx-2">
-                  <Text className="text-sm text-muted-foreground ml-3">Gewicht (kg)</Text>
-                </View>
-                <View className="w-10" />
-              </View>
-
-              {/* Sets List */}
-              <View className="space-y-2">
-                {exerciseRecord.sets.map((set, index) => (
-                  <Animated.View
-                    key={index}
-                    entering={FadeInDown.delay(index * 50)}
-                    className="rounded-xl overflow-hidden px-4 py-2"
+            {/* Sets Management Card */}
+            <Card className="mb-4 border-primary/10">
+              <View className="p-4">
+                {/* Warm-up Toggle */}
+                <View className="flex-row justify-between items-center mb-6 pb-4 border-b border-border">
+                  <Pressable
+                    className="flex-1"
+                    onPress={() => {
+                      setIsWarmupExpanded(!isWarmupExpanded);
+                      Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+                    }}
                   >
                     <View className="flex-row items-center">
-                      {/* Set Number */}
-                      <View className="w-10 h-10 rounded-full bg-card items-center justify-center">
-                        <Text className="text-base font-medium text-foreground">{index + 1}</Text>
+                      <View className="w-10 h-10 rounded-full items-center justify-center mr-3">
+                        <HeartPulse size={20} className="text-primary" />
                       </View>
-
-                      {/* Reps Input */}
-                      <View className="flex-1 mx-2">
-                        <Input
-                          className={inputStyle}
-                          value={set.reps?.toString() || ""}
-                          onChangeText={(value) => handleUpdateSet(index, "reps", value)}
-                          keyboardType="numeric"
-                          maxLength={2}
-                          placeholder={set.targetReps.toString()}
-                          fullWidth={true}
-                        />
+                      <View>
+                        <Text className="font-medium">Aufwärmen</Text>
+                        <Text className="text-sm text-muted-foreground">Vorbereitung für dein Training</Text>
                       </View>
-
-                      {/* Weight Input */}
-                      <View className="flex-1 mx-2">
-                        <Input
-                          className={inputStyle}
-                          value={set.weight?.toString() || ""}
-                          onChangeText={(value) => handleUpdateSet(index, "weight", value)}
-                          keyboardType="numeric"
-                          maxLength={3}
-                          placeholder={set.targetWeight.toString()}
-                        />
-                      </View>
-
-                      {/* Action Button */}
-                      {!isDeleteMode ? (
-                        <Button
-                          size="icon"
-                          variant="outline"
-                          onPress={() => {
-                            if (!completedSetIndexes.includes(index) && isSetLogged(set)) {
-                              setCompletedSetIndexes((prev) => [...prev, index]);
-                              onStartRest();
-                            } else if (completedSetIndexes.includes(index)) {
-                              setCompletedSetIndexes((prev) => prev.filter((i) => i !== index));
-                            }
-                          }}
-                          disabled={!isSetLogged(set)}
-                          haptics="success"
-                          className={`w-10 h-10 rounded-full items-center justify-center ${
-                            completedSetIndexes.includes(index) ? "bg-primary" : "bg-card border border-border"
-                          }`}
-                        >
-                          <Check
-                            size={16}
-                            className={completedSetIndexes.includes(index) ? "text-primary-foreground" : "text-primary"}
-                          />
-                        </Button>
-                      ) : (
-                        <Pressable
-                          onPress={() => onDeleteSet(index)}
-                          className="w-10 h-10 rounded-full items-center justify-center bg-destructive"
-                        >
-                          <Trash2 size={16} className="text-destructive-foreground" />
-                        </Pressable>
-                      )}
                     </View>
-                  </Animated.View>
-                ))}
+                  </Pressable>
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    className="h-9 w-9 rounded-full"
+                    onPress={() => setIsWarmupExpanded(!isWarmupExpanded)}
+                    haptics="light"
+                  >
+                    <ChevronRight size={20} className={cn("text-muted-foreground", isWarmupExpanded && "rotate-90")} />
+                  </Button>
+                </View>
+
+                {isWarmupExpanded && exercise.warmup && (
+                  <View className="mb-6 px-4">
+                    <Text className="text-sm text-muted-foreground leading-relaxed">{exercise.warmup}</Text>
+                  </View>
+                )}
+
+                {/* Working Sets Header */}
+                <View className="flex-row justify-between items-center mb-6">
+                  <View className="flex-row items-center">
+                    <Text className="text-lg font-semibold mr-2">Working Sets</Text>
+                    <Text className="text-sm text-muted-foreground">({exerciseRecord.sets.length} Sets)</Text>
+                  </View>
+                  <View className="flex-row gap-3">
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      className={`h-9 w-9 rounded-full ${isDeleteMode ? "bg-destructive/10" : "bg-secondary/10"}`}
+                      onPress={() => setIsDeleteMode(!isDeleteMode)}
+                      haptics="error"
+                    >
+                      <Trash2 size={16} className="text-destructive" />
+                    </Button>
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      className="h-9 w-9 rounded-full bg-primary/10"
+                      onPress={onAddSet}
+                      haptics="medium"
+                    >
+                      <Plus size={16} className="text-primary" />
+                    </Button>
+                  </View>
+                </View>
+
+                {/* Column Headers */}
+                <View className="flex-row items-center px-4 mb-2">
+                  <View className="w-10" />
+                  <View className="flex-1 mx-2">
+                    <Text className="text-sm text-muted-foreground ml-3">Wdh.</Text>
+                  </View>
+                  <View className="flex-1 mx-2">
+                    <Text className="text-sm text-muted-foreground ml-3">Gewicht (kg)</Text>
+                  </View>
+                  <View className="w-10" />
+                </View>
+
+                {/* Sets List */}
+                <View className="space-y-2">
+                  {exerciseRecord.sets.map((set, index) => (
+                    <Animated.View
+                      key={index}
+                      entering={FadeInDown.delay(index * 50)}
+                      className="rounded-xl overflow-hidden px-4 py-2"
+                    >
+                      <View className="flex-row items-center">
+                        {/* Set Number */}
+                        <View className="w-10 h-10 rounded-full bg-card items-center justify-center">
+                          <Text className="text-base font-medium text-foreground">{index + 1}</Text>
+                        </View>
+
+                        {/* Reps Input */}
+                        <View className="flex-1 mx-2">
+                          <Input
+                            className={inputStyle}
+                            value={set.reps?.toString() || ""}
+                            onChangeText={(value) => handleUpdateSet(index, "reps", value)}
+                            keyboardType="numeric"
+                            maxLength={2}
+                            placeholder={set.targetReps.toString()}
+                            fullWidth={true}
+                          />
+                        </View>
+
+                        {/* Weight Input */}
+                        <View className="flex-1 mx-2">
+                          <Input
+                            className={inputStyle}
+                            value={set.weight?.toString() || ""}
+                            onChangeText={(value) => handleUpdateSet(index, "weight", value)}
+                            keyboardType="numeric"
+                            maxLength={3}
+                            placeholder={set.targetWeight.toString()}
+                          />
+                        </View>
+
+                        {/* Action Button */}
+                        {!isDeleteMode ? (
+                          <Button
+                            size="icon"
+                            variant="outline"
+                            onPress={() => {
+                              if (!completedSetIndexes.includes(index) && isSetLogged(set)) {
+                                setCompletedSetIndexes((prev) => [...prev, index]);
+                                onStartRest();
+                              } else if (completedSetIndexes.includes(index)) {
+                                setCompletedSetIndexes((prev) => prev.filter((i) => i !== index));
+                              }
+                            }}
+                            disabled={!isSetLogged(set)}
+                            haptics="success"
+                            className={`w-10 h-10 rounded-full items-center justify-center ${
+                              completedSetIndexes.includes(index) ? "bg-primary" : "bg-card border border-border"
+                            }`}
+                          >
+                            <Check
+                              size={16}
+                              className={
+                                completedSetIndexes.includes(index) ? "text-primary-foreground" : "text-primary"
+                              }
+                            />
+                          </Button>
+                        ) : (
+                          <Pressable
+                            onPress={() => onDeleteSet(index)}
+                            className="w-10 h-10 rounded-full items-center justify-center bg-destructive"
+                          >
+                            <Trash2 size={16} className="text-destructive-foreground" />
+                          </Pressable>
+                        )}
+                      </View>
+                    </Animated.View>
+                  ))}
+                </View>
               </View>
-            </View>
-          </Card>
-        </View>
-      </ScrollView>
+            </Card>
+          </View>
+        </ScrollView>
+      </KeyboardAvoidingView>
 
       {/* Footer Stats */}
       <View className="border-t border-border bg-card/95 backdrop-blur-lg mb-24">
