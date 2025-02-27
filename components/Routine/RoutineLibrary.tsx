@@ -18,8 +18,8 @@ interface RoutineLibraryProps {
     icon: any;
     onPress: () => void;
   }>;
-  onDelete: (id: number) => void;
-  onToggleActive: (id: number) => void;
+  onDelete: (id: string) => void;
+  onToggleActive: (id: string) => void;
 }
 
 export const RoutineLibrary = ({

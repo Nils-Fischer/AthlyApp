@@ -9,8 +9,8 @@ import * as Haptics from "expo-haptics";
 interface RoutineCardProps {
   routine: Routine;
   onPress?: () => void;
-  onDelete?: (id: number) => void;
-  onToggleActive?: (id: number) => void;
+  onDelete?: (id: string) => void;
+  onToggleActive?: (id: string) => void;
   showDropdown?: boolean;
 }
 

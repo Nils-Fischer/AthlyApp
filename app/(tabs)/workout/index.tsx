@@ -50,11 +50,11 @@ export default function RoutineScreen() {
     },
   ];
 
-  const handleDelete = async (id: number) => {
+  const handleDelete = async (id: string) => {
     deleteRoutine(id);
   };
 
-  const handleToggleActive = async (id: number) => {
+  const handleToggleActive = async (id: string) => {
     toggleRoutineActive(id);
   };
 
