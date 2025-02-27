@@ -7,7 +7,7 @@ import { ActiveWorkoutStats } from "~/components/ActiveWorkout/ActiveWorkoutStat
 import { ActiveWorkoutControls } from "~/components/ActiveWorkout/ActiveWorkoutControls";
 import { ActiveWorkoutExerciseList } from "~/components/ActiveWorkout/ActiveWorkoutExerciseList";
 import { useActiveWorkoutStore } from "~/stores/activeWorkoutStore";
-import { ChevronLeft } from "~/lib/icons/Icons";
+import { ChevronLeft, Plus } from "~/lib/icons/Icons";
 import { useWorkoutHistoryStore } from "~/stores/workoutHistoryStore";
 import {
   AlertDialog,
@@ -26,12 +26,15 @@ import { WorkoutExercise } from "~/lib/types";
 import { SheetManager } from "react-native-actions-sheet";
 import { ExerciseEditAlternatives } from "~/components/Exercise/ExerciseEditAlternatives";
 import { BottomSheet } from "~/components/ui/bottom-sheet";
+import { H2 } from "~/components/ui/typography";
+import { formatTime } from "~/lib/utils";
 
 export default function ActiveWorkoutScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
   const workoutHistoryStore = useWorkoutHistoryStore();
   const { exercises, getExerciseById } = useExerciseStore();
-  const { getActiveRoutine, updateExerciseInWorkout, deleteExerciseFromWorkout, routines } = useUserRoutineStore();
+  const { getActiveRoutine, updateExerciseInWorkout, deleteExerciseFromWorkout, routines, addExerciseToWorkout } =
+    useUserRoutineStore();
   const [showAlternatives, setShowAlternatives] = useState<WorkoutExercise | null>(null);
   const activeWorkout = useMemo(
     () => getActiveRoutine()?.workouts.find((workout) => workout.id === id),
@@ -52,8 +55,10 @@ export default function ActiveWorkoutScreen() {
     getRemainingExercises,
   } = useActiveWorkoutStore();
 
+  const [isEditMode, setIsEditMode] = useState(false);
   const [showCancelDialog, setShowCancelDialog] = useState(false);
   const [showFinishDialog, setShowFinishDialog] = useState(false);
+  const isStarted = useMemo(() => workoutTimer.isRunning, [workoutTimer.isRunning]);
 
   const allExercisesCompleted = React.useMemo(
     () => getCompletedExercises() === exerciseRecords.size,
@@ -95,7 +100,7 @@ export default function ActiveWorkoutScreen() {
   };
 
   const handleExercisePress = async (exercise: WorkoutExercise) => {
-    if (workoutTimer.isRunning) {
+    if (isStarted) {
       router.push(`/active-workout/exercise-logging/${exercise.exerciseId}`);
     } else {
       const result = await SheetManager.show("sheet-with-router", {
@@ -121,21 +126,43 @@ export default function ActiveWorkoutScreen() {
               <ChevronLeft size={24} />
             </Button>
           ),
+          headerRight: () =>
+            isStarted ? (
+              <Button variant="ghost" className="mr-2" onPress={() => setIsEditMode(!isEditMode)}>
+                <Text className="text-destructive">{isEditMode ? "Fertig" : "Bearbeiten"}</Text>
+              </Button>
+            ) : null,
         }}
       />
       <View className="flex-1 bg-background">
-        <ActiveWorkoutStats
-          elapsedTime={workoutTimer.elapsedTime}
-          completedExercises={getCompletedExercises()}
-          remainingExercises={getRemainingExercises()}
-          totalVolume={getTotalVolume()}
-        />
+        {isStarted && !isEditMode ? (
+          <ActiveWorkoutStats
+            elapsedTime={workoutTimer.elapsedTime}
+            completedExercises={getCompletedExercises()}
+            remainingExercises={getRemainingExercises()}
+            totalVolume={getTotalVolume()}
+          />
+        ) : (
+          <View className="flex-row items-center justify-between pl-8 pr-2 pt-5">
+            <View className="flex-row items-center gap-2">
+              <H2>
+                {activeWorkout.exercises.length} Übung{activeWorkout.exercises.length === 1 ? "" : "en"}
+              </H2>
+              {isEditMode && (
+                <Text className="text-muted-foreground text-sm">{formatTime(workoutTimer.elapsedTime)}</Text>
+              )}
+            </View>
+            <Button variant="ghost" onPress={() => console.log("add exercise")}>
+              <Plus className="text-primary" size={30} />
+            </Button>
+          </View>
+        )}
 
         <ActiveWorkoutExerciseList
           workout={activeWorkout}
           exerciseRecords={exerciseRecords}
           exercises={exercises ?? []}
-          isStarted={workoutTimer.isRunning}
+          isStarted={isStarted && !isEditMode}
           onPressExercise={handleExercisePress}
           onShowAlternatives={(exercise) => setShowAlternatives(exercise)}
           onShowEditSheet={handleExercisePress}
@@ -143,7 +170,7 @@ export default function ActiveWorkoutScreen() {
         />
 
         <ActiveWorkoutControls
-          isStarted={workoutTimer.isRunning}
+          isStarted={isStarted}
           isResting={restTimer.isRunning}
           remainingRestTime={restTimer.remainingTime}
           allExercisesCompleted={allExercisesCompleted}
