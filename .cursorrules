@@ -2,17 +2,16 @@
 
 // React Native Expo best practices
 const reactNativeExpoBestPractices = [
-  "Use functional components with hooks",
-  "Utilize Expo SDK features and APIs",
-  "Implement proper navigation using React Navigation",
-  "Use Expo's asset system for images and fonts",
-  "Implement proper error handling and crash reporting",
-  "Utilize Expo's push notification system",
+"Use functional components with hooks",
+"Utilize Expo SDK features and APIs",
+"Implement proper navigation using React Navigation",
+"Use Expo's asset system for images and fonts",
+"Implement proper error handling and crash reporting",
+"Utilize Expo's push notification system",
 ];
 
 // Folder structure
-const folderStructure = `
-assets/
+const folderStructure = `assets/
 src/
   components/
   screens/
@@ -20,11 +19,42 @@ src/
   hooks/
   utils/
 App.js
-app.json
-`;
+app.json`;
+
+// Custom component usage rules
+const customComponentRules = `
+
+1. Always use custom UI components from components/ui/ instead of their React Native counterparts:
+
+   - Use <Button /> instead of React Native's Button
+   - Use <Text /> instead of React Native's Text
+   - Use <Input /> instead of TextInput
+   - Use <Card /> instead of creating custom card containers
+   - Use <AlertDialog /> for alerts instead of Alert.alert()
+   - Use <BottomSheet /> for bottom sheets
+   - Use <Tabs /> for tab navigation UI
+   - Use <Select /> and <CustomDropdownMenu /> for dropdown menus
+   - Use <Textarea /> for multiline text input
+   - Use <Dialog /> for modal dialogs
+   - Use <Badge /> for notification badges
+   - Use <Avatar /> for user avatars
+   - Use <Separator /> for divider lines
+   - Use <Tooltip /> for informational tooltips
+   - Use <AnimatedIconButton /> for animated buttons with icons
+   - Use Typography components for consistent text styling
+
+2. Library preferences:
+   - Use Expo's Image from 'expo-image' instead of React Native's Image component
+   - Use Expo's ImagePicker over React Native's image picking solutions
+   - Prefer FlashList from 'react-native-flash-list' over FlatList for long lists
+   - Use Expo's Font loading utilities instead of custom font loading
+   - Utilize Expo's Haptics module for all haptic feedback
+   - Use Expo's SecureStore for sensitive data instead of AsyncStorage
+     `;
 
 // Additional instructions
 const additionalInstructions = `
+
 1. Use TypeScript for type safety
 2. Implement proper styling using StyleSheet
 3. Utilize Expo's vector icons
@@ -37,7 +67,8 @@ const additionalInstructions = `
    - Destructive actions: Use 'error' haptic
    - Primary actions: Use 'heavy' or 'medium' impact
    - Success states: Use 'success' notification
-   - Toggle actions: Use 'selection' or 'light' 
+   - Toggle actions: Use 'selection' or 'light'
    - Follow haptic guidelines from Button component documentation
 10. For long lists use FlashList
-`;
+11. All user text should be in German
+    `;
