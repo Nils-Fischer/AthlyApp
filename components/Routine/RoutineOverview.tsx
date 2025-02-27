@@ -9,7 +9,6 @@ import { MoreHorizontal } from "lucide-react-native";
 import { Plus, Trash2 } from "~/lib/icons/Icons";
 import { CustomDropdownMenu } from "~/components/ui/custom-dropdown-menu";
 import { useUserRoutineStore } from "~/stores/userRoutineStore";
-import { Input } from "../ui/input";
 import { generateId } from "~/lib/utils";
 
 export function RoutineOverview({
@@ -85,7 +84,7 @@ export function RoutineOverview({
               <TabsTrigger key={workout.id} value={workout.id.toString()} className="flex-1">
                 {isEditMode && activeTab === workout.id.toString() ? (
                   <View className="flex-row items-center justify-center w-full">
-                    <Input
+                    <TextInput
                       className="flex-1 py-1 rounded-md bg-background text-center text-foreground"
                       defaultValue={workout.name}
                       showSoftInputOnFocus={false}

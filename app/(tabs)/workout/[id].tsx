@@ -5,9 +5,8 @@ import { Routine } from "~/lib/types";
 import { RoutineOverview } from "~/components/Routine/RoutineOverview";
 import { ChevronLeft } from "~/lib/icons/Icons";
 import { Button } from "~/components/ui/button";
-import { View } from "react-native";
+import { TextInput, View } from "react-native";
 import { useUserRoutineStore } from "~/stores/userRoutineStore";
-import { Input } from "~/components/ui/input";
 
 export default function RoutineDetails() {
   const { id } = useLocalSearchParams<{ id: string }>();
@@ -35,7 +34,7 @@ export default function RoutineDetails() {
         options={{
           headerTitle: () =>
             isEditMode ? (
-              <Input className="font-medium text-lg" defaultValue={routine?.name} />
+              <TextInput className="font-medium text-lg" defaultValue={routine?.name} />
             ) : (
               <Text className="font-medium text-lg">{routine?.name ?? "Trainingsplan"}</Text>
             ),
