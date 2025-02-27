@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { View, ScrollView, Pressable, TextInput, ImageBackground } from "react-native";
+import { View, ScrollView, Pressable, TextInput, ImageBackground, Keyboard } from "react-native";
 import { Text } from "~/components/ui/text";
 import { Button } from "~/components/ui/button";
 import { Card } from "~/components/ui/card";
@@ -231,10 +231,10 @@ export const ActiveWorkoutExerciseLogging = ({
               <View className="flex-row items-center px-4 mb-2">
                 <View className="w-10" />
                 <View className="flex-1 mx-2">
-                  <Text className="text-sm text-muted-foreground ml-3">Gewicht (kg)</Text>
+                  <Text className="text-sm text-muted-foreground ml-3">Wdh.</Text>
                 </View>
                 <View className="flex-1 mx-2">
-                  <Text className="text-sm text-muted-foreground ml-3">Wiederholungen</Text>
+                  <Text className="text-sm text-muted-foreground ml-3">Gewicht (kg)</Text>
                 </View>
                 <View className="w-10" />
               </View>
@@ -253,20 +253,6 @@ export const ActiveWorkoutExerciseLogging = ({
                         <Text className="text-base font-medium text-foreground">{index + 1}</Text>
                       </View>
 
-                      {/* Weight Input */}
-                      <View className="flex-1 mx-2">
-                        <TextInput
-                          className={inputStyle}
-                          value={set.weight?.toString() || ""}
-                          onChangeText={(value) => handleUpdateSet(index, "weight", value)}
-                          keyboardType="numeric"
-                          maxLength={3}
-                          placeholder={set.targetWeight.toString()}
-                          placeholderTextColor={"#9CA3AF"}
-                          style={{ color: "#000000" }}
-                        />
-                      </View>
-
                       {/* Reps Input */}
                       <View className="flex-1 mx-2">
                         <TextInput
@@ -276,6 +262,20 @@ export const ActiveWorkoutExerciseLogging = ({
                           keyboardType="numeric"
                           maxLength={2}
                           placeholder={set.targetReps.toString()}
+                          placeholderTextColor={"#9CA3AF"}
+                          style={{ color: "#000000" }}
+                        />
+                      </View>
+
+                      {/* Weight Input */}
+                      <View className="flex-1 mx-2">
+                        <TextInput
+                          className={inputStyle}
+                          value={set.weight?.toString() || ""}
+                          onChangeText={(value) => handleUpdateSet(index, "weight", value)}
+                          keyboardType="numeric"
+                          maxLength={3}
+                          placeholder={set.targetWeight.toString()}
                           placeholderTextColor={"#9CA3AF"}
                           style={{ color: "#000000" }}
                         />
