@@ -28,6 +28,7 @@ import { ExerciseEditAlternatives } from "~/components/Exercise/ExerciseEditAlte
 import { BottomSheet } from "~/components/ui/bottom-sheet";
 import { H2 } from "~/components/ui/typography";
 import { formatTime } from "~/lib/utils";
+import { ExerciseLibrary } from "~/components/Exercise/ExerciseLibrary";
 
 export default function ActiveWorkoutScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
@@ -58,6 +59,7 @@ export default function ActiveWorkoutScreen() {
   const [isEditMode, setIsEditMode] = useState(false);
   const [showCancelDialog, setShowCancelDialog] = useState(false);
   const [showFinishDialog, setShowFinishDialog] = useState(false);
+  const [showAddExercise, setShowAddExercise] = useState(false);
   const isStarted = useMemo(() => workoutTimer.isRunning, [workoutTimer.isRunning]);
 
   const allExercisesCompleted = React.useMemo(
@@ -152,7 +154,7 @@ export default function ActiveWorkoutScreen() {
                 <Text className="text-muted-foreground text-sm">{formatTime(workoutTimer.elapsedTime)}</Text>
               )}
             </View>
-            <Button variant="ghost" onPress={() => console.log("add exercise")}>
+            <Button variant="ghost" onPress={() => setShowAddExercise(true)}>
               <Plus className="text-primary" size={30} />
             </Button>
           </View>
@@ -223,6 +225,19 @@ export default function ActiveWorkoutScreen() {
               withConfirmation={false}
             />
           )}
+        </BottomSheet>
+
+        <BottomSheet title="Übung hinzufügen" isOpen={showAddExercise} onClose={() => setShowAddExercise(false)}>
+          <ExerciseLibrary
+            onPress={(exerciseId) => {
+              addExerciseToWorkout(activeWorkout.id, {
+                exerciseId: exerciseId,
+                alternatives: [],
+                sets: Array(3).fill({ reps: 10 }),
+              });
+              setShowAddExercise(false);
+            }}
+          />
         </BottomSheet>
       </View>
     </>
