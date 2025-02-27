@@ -55,8 +55,17 @@ export const RoutineLibrary = ({
       {/* Routines List */}
       <ScrollView className="flex-1" showsVerticalScrollIndicator={false} contentContainerStyle={{ paddingBottom: 20 }}>
         {routines.length === 0 ? (
-          <View className="flex-1 justify-center items-center py-20">
-            <Text className="text-muted-foreground text-center">Keine Trainingspläne gefunden</Text>
+          <View className="flex-1 justify-center items-center mt-20 py-20">
+            <Text className="text-muted-foreground text-center mb-6">Keine Trainingspläne gefunden</Text>
+            <CustomDropdownMenu
+              items={addButtonDropdownItems}
+              trigger={
+                <Button size="lg" haptics="medium" className="flex-row items-center bg-primary">
+                  <Plus className="mr-2 text-primary-foreground" size={20} />
+                  <Text className="font-medium text-primary-foreground">Trainingsplan erstellen</Text>
+                </Button>
+              }
+            />
           </View>
         ) : (
           routines
