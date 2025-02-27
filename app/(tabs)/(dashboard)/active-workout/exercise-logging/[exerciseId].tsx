@@ -8,7 +8,7 @@ import { useExerciseStore } from "~/stores/exerciseStore";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "~/components/ui/dialog";
 import { ActiveWorkoutExerciseLogging } from "~/components/ActiveWorkout/ActiveWorkoutExerciseLogging";
 import { useUserRoutineStore } from "~/stores/userRoutineStore";
-import { useMemo, useState, useCallback } from "react";
+import { useMemo, useState, useCallback, useEffect } from "react";
 
 export default function ExerciseLoggingScreen() {
   const { exerciseId } = useLocalSearchParams<{ exerciseId: string }>();
@@ -34,6 +34,12 @@ export default function ExerciseLoggingScreen() {
     [workoutId, exerciseIdNumber, getWorkoutById]
   );
   const exerciseRecord = useMemo(() => exerciseRecords.get(exerciseIdNumber), [exerciseIdNumber, exerciseRecords]);
+
+  useEffect(() => {
+    if (workoutExercise?.sets) {
+      console.log(`[Debug] Exercise ${exerciseIdNumber} - Sets updated. Count: ${workoutExercise.sets.length}`);
+    }
+  }, [workoutExercise?.sets, exerciseIdNumber]);
 
   if (!workoutId || !exercise || !workoutExercise || !exerciseRecord) {
     console.error(`Exercise Logging Error: Missing required parameters
@@ -73,25 +79,40 @@ export default function ExerciseLoggingScreen() {
   }, [completeExercise, exerciseIdNumber, selectedIntensity]);
 
   const handleAddSet = useCallback(() => {
-    if (!workoutExercise?.sets) return;
-    updateSetsInExercise(workoutId!, exerciseIdNumber, [
-      ...workoutExercise.sets,
+    if (!workoutId || !exerciseIdNumber) return;
+
+    // Get current workout exercise directly from store to avoid stale closures
+    const currentWorkout = getWorkoutById(workoutId);
+    const currentExercise = currentWorkout?.exercises.find((ex) => ex.exerciseId === exerciseIdNumber);
+
+    if (!currentExercise?.sets?.length) return;
+
+    updateSetsInExercise(workoutId, exerciseIdNumber, [
+      ...currentExercise.sets,
       {
         reps: 8,
-        weight: workoutExercise.sets[workoutExercise.sets.length - 1].weight,
+        weight: currentExercise.sets[currentExercise.sets.length - 1].weight,
       },
     ]);
-  }, [workoutExercise?.sets, workoutId, exerciseIdNumber, updateSetsInExercise]);
+  }, [workoutId, exerciseIdNumber, getWorkoutById, updateSetsInExercise]);
 
   const handleDeleteSet = useCallback(
     (setIndex: number) => {
+      if (!workoutId || !exerciseIdNumber) return;
+
+      // Get current workout exercise directly from store to avoid stale closures
+      const currentWorkout = getWorkoutById(workoutId);
+      const currentExercise = currentWorkout?.exercises.find((ex) => ex.exerciseId === exerciseIdNumber);
+
+      if (!currentExercise?.sets) return;
+
       updateSetsInExercise(
-        workoutId!,
+        workoutId,
         exerciseIdNumber,
-        workoutExercise?.sets.filter((_, index) => index !== setIndex) || []
+        currentExercise.sets.filter((_, index) => index !== setIndex) || []
       );
     },
-    [workoutExercise?.sets, workoutId, exerciseIdNumber, updateSetsInExercise]
+    [workoutId, exerciseIdNumber, getWorkoutById, updateSetsInExercise]
   );
 
   const totalVolume = useMemo(

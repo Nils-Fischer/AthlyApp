@@ -99,21 +99,43 @@ export const useUserRoutineStore = create<UserRoutineState>()(
       },
 
       updateSetsInExercise: (workoutId, exerciseId, sets) => {
-        set((state) => ({
-          routines: state.routines.map((routine) => ({
-            ...routine,
-            workouts: routine.workouts.map((workout) => {
-              if (workout.id !== workoutId) return workout;
-              return {
-                ...workout,
-                exercises: workout.exercises.map((exercise) => {
-                  if (exercise.exerciseId !== exerciseId) return exercise;
-                  return { ...exercise, sets: sets };
-                }),
-              };
-            }),
-          })),
-        }));
+        console.log(
+          `[UserRoutine] Updating sets for exercise ${exerciseId} in workout ${workoutId}. New count: ${sets.length}`
+        );
+        set((state) => {
+          // Make a deep copy of the routines to ensure proper updates
+          const updatedRoutines = state.routines.map((routine) => {
+            // Check if this routine contains our workout
+            const containsWorkout = routine.workouts.some((w) => w.id === workoutId);
+            if (!containsWorkout) return routine;
+
+            return {
+              ...routine,
+              workouts: routine.workouts.map((workout) => {
+                if (workout.id !== workoutId) return workout;
+
+                return {
+                  ...workout,
+                  exercises: workout.exercises.map((exercise) => {
+                    if (exercise.exerciseId !== exerciseId) return exercise;
+
+                    // Log the update for debugging
+                    console.log(
+                      `[UserRoutine] Found exercise to update. Old sets: ${exercise.sets.length}, New sets: ${sets.length}`
+                    );
+
+                    return {
+                      ...exercise,
+                      sets: [...sets], // Create a new array to ensure reference changes
+                    };
+                  }),
+                };
+              }),
+            };
+          });
+
+          return { routines: updatedRoutines };
+        });
       },
 
       updateExerciseInWorkout: (workoutId, exerciseId, exercise) => {
