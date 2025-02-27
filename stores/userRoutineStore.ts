@@ -74,6 +74,12 @@ export const useUserRoutineStore = create<UserRoutineState>()(
             ...routine,
             workouts: routine.workouts.map((workout) => {
               if (workout.id !== workoutId) return workout;
+
+              // Check if exercise already exists in workout
+              const exerciseExists = workout.exercises.some((ex) => ex.exerciseId === exercise.exerciseId);
+
+              if (exerciseExists) return workout;
+
               return {
                 ...workout,
                 exercises: [...workout.exercises, exercise],
