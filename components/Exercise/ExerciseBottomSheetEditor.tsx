@@ -2,8 +2,8 @@ import ActionSheet, { ActionSheetProps, SheetManager } from "react-native-action
 import { ExerciseEditPage } from "~/components/Exercise/ExerciseEditPage";
 import { ExerciseEditAlternatives } from "~/components/Exercise/ExerciseEditAlternatives";
 import { ExerciseEditNotes } from "~/components/Exercise/ExerciseEditNotes";
-import { ExerciseProgress } from "~/components/Exercise/ExerciseProgress";
 import { Exercise, WorkoutExercise } from "~/lib/types";
+import { Text } from "react-native";
 import { useState } from "react";
 import { ExerciseBottomSheetHeader } from "~/components/Exercise/ExerciseBottomSheetHeader";
 import { ExerciseDetail } from "~/components/Exercise/ExerciseDetail";
@@ -97,14 +97,7 @@ function ExerciseBottomSheetEditor(props: ActionSheetProps<"sheet-with-router">)
           </ExerciseBottomSheetHeader>
         );
       case "exercise-stats-route":
-        return (
-          <ExerciseProgress
-            workoutExercise={workoutExercise}
-            exercise={exercise}
-            onSave={save}
-            navigateBack={() => navigateToMainEditRoute(workoutExercise, exercise)}
-          />
-        );
+        return <Text>Exercise Stats</Text>;
       case "exercise-details-route":
         return (
           <ExerciseBottomSheetHeader
