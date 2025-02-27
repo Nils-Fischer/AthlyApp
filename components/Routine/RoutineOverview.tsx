@@ -1,15 +1,16 @@
 import { useState, useEffect } from "react";
-import { TextInput, View } from "react-native";
+import { View } from "react-native";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "~/components/ui/tabs";
 import { Text } from "~/components/ui/text";
 import { Routine, Workout } from "~/lib/types";
 import { WorkoutPage } from "~/components/Workout/WorkoutPage";
 import { Button } from "~/components/ui/button";
 import { MoreHorizontal } from "lucide-react-native";
-import { generateId } from "~/lib/utils";
 import { Plus, Trash2 } from "~/lib/icons/Icons";
 import { CustomDropdownMenu } from "~/components/ui/custom-dropdown-menu";
 import { useUserRoutineStore } from "~/stores/userRoutineStore";
+import { generateId } from "ai";
+import { Input } from "../ui/input";
 
 export function RoutineOverview({
   routine: initialRoutine,
@@ -58,7 +59,7 @@ export function RoutineOverview({
     await handleUpdateRoutine(updatedRoutine);
   };
 
-  const deleteWorkout = async (workoutId: number) => {
+  const deleteWorkout = async (workoutId: string) => {
     const updatedRoutine: Routine = {
       ...routine,
       workouts: routine.workouts.filter((workout) => workout.id !== workoutId),
@@ -84,7 +85,7 @@ export function RoutineOverview({
               <TabsTrigger key={workout.id} value={workout.id.toString()} className="flex-1">
                 {isEditMode && activeTab === workout.id.toString() ? (
                   <View className="flex-row items-center justify-center w-full">
-                    <TextInput
+                    <Input
                       className="flex-1 py-1 rounded-md bg-background text-center text-foreground"
                       defaultValue={workout.name}
                       showSoftInputOnFocus={false}
@@ -121,7 +122,7 @@ export function RoutineOverview({
                   icon: Trash2,
                   onPress: () => {
                     setActiveTab(routine.workouts[0].id.toString());
-                    deleteWorkout(Number(activeTab));
+                    deleteWorkout(activeTab);
                   },
                   destructive: true,
                 },

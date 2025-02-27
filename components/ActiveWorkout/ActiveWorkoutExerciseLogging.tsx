@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { View, ScrollView, Pressable, TextInput, ImageBackground, Keyboard } from "react-native";
+import { View, ScrollView, Pressable, ImageBackground, Keyboard } from "react-native";
 import { Text } from "~/components/ui/text";
 import { Button } from "~/components/ui/button";
 import { Card } from "~/components/ui/card";
@@ -24,6 +24,7 @@ import { cn, getThumbnail } from "~/lib/utils";
 import { BottomSheet } from "~/components/ui/bottom-sheet";
 import { ExerciseHistory } from "../Exercise/ExerciseHistory";
 import * as Haptics from "expo-haptics";
+import { Input } from "~/components/ui/input";
 
 interface ActiveWorkoutExerciseLoggingProps {
   exercise: Exercise;
@@ -255,7 +256,7 @@ export const ActiveWorkoutExerciseLogging = ({
 
                       {/* Reps Input */}
                       <View className="flex-1 mx-2">
-                        <TextInput
+                        <Input
                           className={inputStyle}
                           value={set.reps?.toString() || ""}
                           onChangeText={(value) => handleUpdateSet(index, "reps", value)}
@@ -269,7 +270,7 @@ export const ActiveWorkoutExerciseLogging = ({
 
                       {/* Weight Input */}
                       <View className="flex-1 mx-2">
-                        <TextInput
+                        <Input
                           className={inputStyle}
                           value={set.weight?.toString() || ""}
                           onChangeText={(value) => handleUpdateSet(index, "weight", value)}

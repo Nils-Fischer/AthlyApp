@@ -1,5 +1,5 @@
 import * as React from "react";
-import { TextInput, type TextInputProps, View } from "react-native";
+import { TextInput, type TextInputProps, View, Keyboard } from "react-native";
 import { cn } from "~/lib/utils";
 
 interface InputProps extends Omit<TextInputProps, "placeholderClassName"> {
@@ -34,6 +34,8 @@ const Input = React.forwardRef<React.ElementRef<typeof TextInput>, InputProps>(
           multiline={false}
           scrollEnabled={true}
           numberOfLines={1}
+          returnKeyType={props.returnKeyType || "done"}
+          onSubmitEditing={props.onSubmitEditing || (() => Keyboard.dismiss())}
           {...props}
         />
         {endContent && <View className="absolute right-3 z-10">{endContent}</View>}

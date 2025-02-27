@@ -1,5 +1,5 @@
 import * as React from "react";
-import { TextInput, type TextInputProps } from "react-native";
+import { TextInput, type TextInputProps, Keyboard } from "react-native";
 import { cn } from "~/lib/utils";
 
 const Textarea = React.forwardRef<React.ElementRef<typeof TextInput>, TextInputProps>(
@@ -31,6 +31,8 @@ const Textarea = React.forwardRef<React.ElementRef<typeof TextInput>, TextInputP
         textAlignVertical="top"
         value={localValue}
         onChangeText={handleChangeText}
+        returnKeyType={props.returnKeyType || "done"}
+        onSubmitEditing={props.onSubmitEditing || (() => Keyboard.dismiss())}
         {...props}
       />
     );

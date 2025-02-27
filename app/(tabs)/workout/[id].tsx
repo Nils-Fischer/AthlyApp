@@ -5,13 +5,14 @@ import { Routine } from "~/lib/types";
 import { RoutineOverview } from "~/components/Routine/RoutineOverview";
 import { ChevronLeft } from "~/lib/icons/Icons";
 import { Button } from "~/components/ui/button";
-import { TextInput, View } from "react-native";
+import { View } from "react-native";
 import { useUserRoutineStore } from "~/stores/userRoutineStore";
+import { Input } from "~/components/ui/input";
 
 export default function RoutineDetails() {
   const { id } = useLocalSearchParams<{ id: string }>();
   const { routines } = useUserRoutineStore();
-  const routine: Routine | undefined = routines.find((p) => p.id === Number(id));
+  const routine: Routine | undefined = routines.find((p) => p.id === id);
   const [isEditMode, setIsEditMode] = useState(
     () => routine?.workouts.length === 1 && routine.workouts[0].exercises.length === 0
   );
@@ -34,7 +35,7 @@ export default function RoutineDetails() {
         options={{
           headerTitle: () =>
             isEditMode ? (
-              <TextInput className="font-medium text-lg" defaultValue={routine?.name} />
+              <Input className="font-medium text-lg" defaultValue={routine?.name} />
             ) : (
               <Text className="font-medium text-lg">{routine?.name ?? "Trainingsplan"}</Text>
             ),

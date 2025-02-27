@@ -1,4 +1,4 @@
-import { View, TextInput } from "react-native";
+import { View } from "react-native";
 import { Text } from "~/components/ui/text";
 import { Button } from "~/components/ui/button";
 import { Gender, UserProfile } from "~/lib/types";
@@ -12,6 +12,7 @@ import Animated, {
   interpolate,
 } from "react-native-reanimated";
 import { randomUUID } from "expo-crypto";
+import { Input } from "~/components/ui/input";
 
 interface FormularProps {
   onFinish: (profile: UserProfile) => void;
@@ -158,7 +159,7 @@ export const Formular: React.FC<FormularProps> = ({ onFinish }) => {
         {textFields.map(({ key, label, numeric, placeholder }, index) => (
           <Animated.View key={key} entering={FadeInDown.duration(400).delay(100 + index * 50)}>
             <Text className="text-lg mb-2">{label}</Text>
-            <TextInput
+            <Input
               className="w-full bg-gray-100 rounded-lg p-4 text-base"
               value={formState[key] ?? ""}
               onChangeText={(text) => setFormState((prev) => ({ ...prev, [key]: text }))}

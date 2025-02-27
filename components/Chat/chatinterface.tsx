@@ -1,5 +1,5 @@
 import * as React from "react";
-import { View, TextInput, KeyboardAvoidingView, Platform, Keyboard, Image as RNImage } from "react-native";
+import { View, KeyboardAvoidingView, Platform, Keyboard, Image as RNImage } from "react-native";
 import { ChatMessage } from "~/lib/types";
 import { Button } from "~/components/ui/button";
 import { Text } from "~/components/ui/text";
@@ -13,6 +13,7 @@ import * as ImageManipulator from "expo-image-manipulator";
 import { LOADING_SPINNER } from "~/assets/svgs";
 import { ChatMessage as ChatMessageUI } from "./ChatMessage";
 import { FlashList } from "@shopify/flash-list";
+import { Input } from "~/components/ui/input";
 
 interface ChatInterfaceProps {
   messages: ChatMessage[];
@@ -33,7 +34,7 @@ export default function ChatInterface({
 }: ChatInterfaceProps) {
   const [inputMessage, setInputMessage] = React.useState("");
   const flashListRef = React.useRef<FlashList<ChatMessage>>(null);
-  const inputRef = React.useRef<TextInput>(null);
+  const inputRef = React.useRef<React.ElementRef<typeof Input>>(null);
   const [showCamera, setShowCamera] = React.useState(false);
   const [capturedImage, setCapturedImage] = React.useState<string | null>(null);
 
@@ -188,7 +189,7 @@ export default function ChatInterface({
               align="end"
             />
             <View className="flex-1 bg-muted rounded-lg overflow-hidden">
-              <TextInput
+              <Input
                 ref={inputRef}
                 className="px-4 py-2.5 text-base text-foreground min-h-[44px]"
                 placeholder="Schreibe eine Nachricht..."

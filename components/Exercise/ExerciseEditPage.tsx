@@ -1,5 +1,5 @@
 import React from "react";
-import { View, Pressable, TextInput, ScrollView } from "react-native";
+import { View, Pressable, ScrollView } from "react-native";
 import { Text } from "~/components/ui/text";
 import { Button } from "~/components/ui/button";
 import { Plus, Minus, Timer, BarChart2, Repeat, ChevronRight, FileText, Info } from "~/lib/icons/Icons";
@@ -8,6 +8,7 @@ import { Separator } from "~/components/ui/separator";
 import { ExerciseOverviewCard } from "~/components/Exercise/ExerciseOverviewCard";
 import { ExerciseBottomSheetHeader } from "~/components/Exercise/ExerciseBottomSheetHeader";
 import * as Haptics from "expo-haptics";
+import { Input } from "~/components/ui/input";
 
 export interface ExerciseEditPageProps {
   exercise: Exercise;
@@ -119,7 +120,7 @@ export const ExerciseEditPage: React.FC<ExerciseEditPageProps> = ({
                 }}
               >
                 <Timer size={20} className="text-muted-foreground" />
-                <TextInput
+                <Input
                   className="text-3xl font-semibold text-center w-16 text-primary"
                   value={restTime.toString()}
                   onChangeText={(text) => setRestTime(parseInt(text) || restTime)}
@@ -182,7 +183,7 @@ export const ExerciseEditPage: React.FC<ExerciseEditPageProps> = ({
                     >
                       <Minus size={16} className="text-foreground" />
                     </Button>
-                    <TextInput
+                    <Input
                       className="text-lg font-semibold text-center w-12 text-primary"
                       value={set.reps.toString()}
                       onChangeText={(text) => updateSetReps(index, parseInt(text) || set.reps)}
@@ -203,7 +204,7 @@ export const ExerciseEditPage: React.FC<ExerciseEditPageProps> = ({
 
                 {/* Weight Input */}
                 <View className="flex-1">
-                  <TextInput
+                  <Input
                     className="text-lg font-semibold text-center text-primary bg-background/50 rounded-lg p-2"
                     value={set.weight?.toString() || ""}
                     onChangeText={(text) => updateSetWeight(index, parseFloat(text) || 0)}
