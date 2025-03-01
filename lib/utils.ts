@@ -88,3 +88,7 @@ export function getRepsRange(exercise: WorkoutExercise): string {
     ...exercise.sets.map((set) => set.reps)
   )} Wdh.`;
 }
+
+export function dateToISOString(date: Date): string {
+  return `${date.getFullYear()}-${date.getMonth() + 1}-${date.getDate()}`;
+}

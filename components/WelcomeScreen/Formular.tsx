@@ -8,11 +8,12 @@ import Animated, {
   useSharedValue,
   useAnimatedStyle,
   withTiming,
-  runOnJS,
   interpolate,
 } from "react-native-reanimated";
 import { randomUUID } from "expo-crypto";
 import { Input } from "~/components/ui/input";
+import DateTimePicker from "@react-native-community/datetimepicker";
+import { Platform } from "react-native";
 
 interface FormularProps {
   onFinish: (profile: UserProfile) => void;
@@ -21,10 +22,11 @@ interface FormularProps {
 type FormState = {
   firstName: string;
   lastName: string;
-  age: string;
+  birthday: Date;
   gender: Gender | null;
   height: string;
   weight: string;
+  showDatePicker: boolean;
 };
 
 export const Formular: React.FC<FormularProps> = ({ onFinish }) => {
@@ -32,13 +34,14 @@ export const Formular: React.FC<FormularProps> = ({ onFinish }) => {
   const [formState, setFormState] = useState<FormState>({
     firstName: "",
     lastName: "",
-    age: "",
+    birthday: new Date(Date.now() - 1000 * 60 * 60 * 24 * 365 * 20), // Default to 20 years ago
     gender: null,
     height: "",
     weight: "",
+    showDatePicker: false,
   });
 
-  // State für die Fehlermeldung
+  // State für Fehlermeldungen
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
   // Animation States
@@ -71,14 +74,13 @@ export const Formular: React.FC<FormularProps> = ({ onFinish }) => {
 
   // Formularabschluss
   const handleSubmit = () => {
-    const age = validateNumberField(formState.age);
     const height = validateNumberField(formState.height);
     const weight = validateNumberField(formState.weight);
 
     if (
       formState.firstName &&
       formState.lastName &&
-      age !== null &&
+      formState.birthday &&
       formState.gender &&
       height !== null &&
       weight !== null
@@ -87,7 +89,7 @@ export const Formular: React.FC<FormularProps> = ({ onFinish }) => {
         id: randomUUID(),
         firstName: formState.firstName,
         lastName: formState.lastName,
-        age,
+        birthday: formState.birthday,
         gender: formState.gender,
         height,
         weight,
@@ -95,17 +97,41 @@ export const Formular: React.FC<FormularProps> = ({ onFinish }) => {
 
       // Exit-Animation
       opacity.value = withTiming(0, { duration: 300 });
-      translateY.value = withTiming(50, { duration: 300 }, () => {
-        runOnJS(onFinish)(profile);
-      });
+      translateY.value = withTiming(50, { duration: 300 });
+      onFinish(profile);
     } else {
-      setErrorMessage("Bitte alle Felder ausfüllen"); // Set error message if fields are not filled
+      setErrorMessage("Bitte alle Felder ausfüllen");
     }
   };
 
-  // Felder für TextInputs
+  // Format date for display
+  const formatDate = (date: Date): string => {
+    return date.toLocaleDateString("de-DE");
+  };
+
+  // Handle date change
+  const onDateChange = (event: any, selectedDate?: Date) => {
+    // Hide the picker on iOS after selection
+    if (Platform.OS === "ios") {
+      setFormState((prev) => ({ ...prev, showDatePicker: false }));
+    }
+
+    if (event.type === "dismissed") {
+      return; // User canceled, don't update date
+    }
+
+    if (selectedDate) {
+      setFormState((prev) => ({
+        ...prev,
+        showDatePicker: Platform.OS === "android" ? false : prev.showDatePicker,
+        birthday: selectedDate,
+      }));
+    }
+  };
+
+  // Define a more specific type for text input fields
   const textFields: {
-    key: keyof FormState;
+    key: Extract<keyof FormState, "firstName" | "lastName" | "height" | "weight">;
     label: string;
     numeric: boolean;
     placeholder: string;
@@ -123,12 +149,6 @@ export const Formular: React.FC<FormularProps> = ({ onFinish }) => {
       placeholder: "Mustermann",
     },
     {
-      key: "age",
-      label: "Alter",
-      numeric: true,
-      placeholder: "30",
-    },
-    {
       key: "height",
       label: "Größe (cm)",
       numeric: true,
@@ -143,45 +163,68 @@ export const Formular: React.FC<FormularProps> = ({ onFinish }) => {
   ];
 
   return (
-    <Animated.View className="flex-1 w-full" style={animatedStyle}>
+    <Animated.View className="flex-1 w-full mt-10" style={animatedStyle}>
       {/* Error Message */}
-      {errorMessage && <Text className="text-red-500 text-center mb-4">{errorMessage}</Text>}
+      {errorMessage && <Text className="text-destructive text-center mb-4">{errorMessage}</Text>}
       {/* Header */}
       <Animated.View className="items-center mb-8" entering={FadeInDown.duration(200)}>
         <Text className="text-2xl font-semibold mb-2">Dein Profil</Text>
-        <Text className="text-gray-600 text-center px-4">
+        <Text className="text-foreground text-center px-4">
           Lass uns dein Profil erstellen, damit wir deinen Trainingsplan perfekt auf dich abstimmen können.
         </Text>
       </Animated.View>
 
       {/* Formularfelder */}
-      <View className="space-y-6">
+      <View className="gap-2">
         {textFields.map(({ key, label, numeric, placeholder }, index) => (
           <Animated.View key={key} entering={FadeInDown.duration(400).delay(100 + index * 50)}>
             <Text className="text-lg mb-2">{label}</Text>
             <Input
-              className="w-full bg-gray-100 rounded-lg p-4 text-base"
-              value={formState[key] ?? ""}
+              className=""
+              value={formState[key]}
               onChangeText={(text) => setFormState((prev) => ({ ...prev, [key]: text }))}
               keyboardType={numeric ? "numeric" : "default"}
-              placeholder={`${placeholder} eingeben`}
-              placeholderTextColor="#9CA3AF"
+              placeholder={placeholder}
             />
           </Animated.View>
         ))}
 
+        {/* Birthday Field */}
+        <Animated.View entering={FadeInDown.duration(400).delay(250)}>
+          <Text className="text-lg mb-2">Geburtsdatum</Text>
+          <Button
+            className="w-full bg-muted rounded-lg p-4 justify-start"
+            onPress={() => setFormState((prev) => ({ ...prev, showDatePicker: true }))}
+          >
+            <Text className="text-base text-foreground">{formatDate(formState.birthday)}</Text>
+          </Button>
+
+          {formState.showDatePicker && (
+            <DateTimePicker
+              testID="dateTimePicker"
+              value={formState.birthday}
+              mode="date"
+              display={Platform.OS === "ios" ? "spinner" : "default"}
+              onChange={onDateChange}
+              maximumDate={new Date()}
+              minimumDate={new Date(1920, 0, 1)}
+              themeVariant="light"
+            />
+          )}
+        </Animated.View>
+
         {/* Geschlechtsauswahl */}
-        <Animated.View entering={FadeInDown.duration(200).delay(250)}>
+        <Animated.View entering={FadeInDown.duration(200).delay(300)}>
           <Text className="text-lg mb-2">Geschlecht</Text>
           <View className="flex-row justify-between gap-2">
             {Object.values(Gender).map((gender, index) => (
               <Animated.View key={gender} entering={FadeInDown.duration(400).delay(400 + index * 50)}>
                 <Button
-                  className={`min-w-[110px] py-4 ${formState.gender === gender ? "bg-black" : "bg-gray-100"}`}
+                  className={`min-w-[110px] py-4 ${formState.gender === gender ? "bg-primary" : "bg-muted"}`}
                   onPress={() => setFormState((prev) => ({ ...prev, gender }))}
                   haptics="selection"
                 >
-                  <Text className={formState.gender === gender ? "text-white" : "text-gray-700"}>
+                  <Text className={formState.gender === gender ? "text-primary-foreground" : "text-foreground"}>
                     {
                       {
                         [Gender.Male]: "Männlich",
@@ -200,19 +243,14 @@ export const Formular: React.FC<FormularProps> = ({ onFinish }) => {
       {/* Abschicken-Button */}
       <Animated.View className="mt-8" entering={FadeInDown.duration(200).delay(450)}>
         <Button
-          className="w-full bg-black py-4"
+          className="w-full bg-primary py-4"
           onPress={handleSubmit}
           haptics="heavy"
           disabled={
-            !formState.firstName ||
-            !formState.lastName ||
-            !formState.age ||
-            !formState.gender ||
-            !formState.height ||
-            !formState.weight
-          } // Disable button if fields are empty
+            !formState.firstName || !formState.lastName || !formState.gender || !formState.height || !formState.weight
+          }
         >
-          <Text className="text-white text-base font-medium">Los geht's! 💪</Text>
+          <Text className="text-primary-foreground text-base font-medium">Los geht's! 💪</Text>
         </Button>
       </Animated.View>
     </Animated.View>

@@ -52,7 +52,7 @@ export interface UserProfile {
   id: string;
   firstName: string;
   lastName: string;
-  age: number;
+  birthday: Date;
   gender: Gender;
   height: number;
   weight: number;
