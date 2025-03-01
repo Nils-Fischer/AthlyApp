@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect, useRef } from "react";
 import { View, ScrollView } from "react-native";
 import { Text } from "~/components/ui/text";
 import { Difficulty, Routine, TrainingGoal } from "~/lib/types";
@@ -13,7 +13,7 @@ import {
   createUpperBodyWorkout,
 } from "~/lib/generateWorkouts";
 
-function createPreviewRoutines(
+export function createPreviewRoutines(
   frequency: 1 | 2 | 3,
   duration: 45 | 60 | 90,
   goal: TrainingGoal,
@@ -106,14 +106,21 @@ interface AnimatedRoutineCardProps {
   index: number;
   routine: Routine;
   isSelected: boolean;
-  onSelect: (id: number) => void;
+  onSelect: (id: string) => void;
+  shouldAnimate: boolean;
 }
 
-const AnimatedRoutineCard = ({ index, routine, isSelected, onSelect }: AnimatedRoutineCardProps) => {
-  const enteringAnimation = FadeInDown.delay(index * 500)
-    .springify()
-    .damping(12)
-    .stiffness(80);
+const AnimatedRoutineCard = ({ index, routine, isSelected, onSelect, shouldAnimate }: AnimatedRoutineCardProps) => {
+  const enteringAnimation = shouldAnimate
+    ? FadeInDown.delay(index * 500)
+        .springify()
+        .damping(12)
+        .stiffness(80)
+    : undefined;
+
+  useEffect(() => {
+    console.log("active", isSelected);
+  }, [isSelected]);
 
   return (
     <Animated.View entering={enteringAnimation}>
@@ -125,33 +132,30 @@ const AnimatedRoutineCard = ({ index, routine, isSelected, onSelect }: AnimatedR
         }}
         onToggleActive={() => onSelect(routine.id)}
         showDropdown={false}
+        showActive={isSelected}
       />
     </Animated.View>
   );
 };
 
 interface RoutinePreviewProps {
-  frequency: 1 | 2 | 3;
-  duration: 45 | 60 | 90;
-  goal: TrainingGoal;
-  difficulty: Difficulty;
+  availableRoutines: Routine[];
   selectedRoutine: Routine | null;
   onRoutineSelect: (routine: Routine) => void;
 }
 
-export function RoutinePreview({
-  frequency,
-  duration,
-  goal,
-  difficulty,
-  selectedRoutine,
-  onRoutineSelect,
-}: RoutinePreviewProps) {
-  const availableRoutines = createPreviewRoutines(frequency, duration, goal, difficulty);
+export function RoutinePreview({ availableRoutines, selectedRoutine, onRoutineSelect }: RoutinePreviewProps) {
+  const initialRenderRef = useRef(true);
+
+  const shouldAnimate = initialRenderRef.current;
+
+  if (initialRenderRef.current) {
+    initialRenderRef.current = false;
+  }
 
   return (
     <View className="flex-1">
-      <Animated.View className="px-4" entering={FadeInDown.duration(1000).springify()}>
+      <Animated.View className="px-4" entering={shouldAnimate ? FadeInDown.duration(1000).springify() : undefined}>
         <Text className="text-2xl font-bold mb-2">Wähle dein Trainingsprogramm</Text>
         <Text className="text-base text-muted-foreground mb-6">Basierend auf deiner gewählten Trainingsfrequenz</Text>
       </Animated.View>
@@ -169,6 +173,7 @@ export function RoutinePreview({
               routine={routine}
               isSelected={selectedRoutine?.id === routine.id}
               onSelect={() => onRoutineSelect(routine)}
+              shouldAnimate={shouldAnimate}
             />
           ))}
         </View>

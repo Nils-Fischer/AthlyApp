@@ -4,16 +4,13 @@ import { Text } from "~/components/ui/text";
 import { Button } from "~/components/ui/button";
 import { Progress } from "~/components/ui/progress";
 import { ExperienceLevel } from "./ExperienceLevel";
-import { Difficulty, LocationType, Routine, TrainingGoal } from "~/lib/types";
+import { Difficulty, Routine, TrainingGoal } from "~/lib/types";
 import { WeeklyFrequency } from "./WeeklyFrequency";
 import { TrainingDuration } from "./TrainingDuration";
 import { MainGoal } from "./MainGoal";
 import { AdditionalGoals } from "./AdditionalGoal";
-import { TrainingLocation } from "./TrainingLocation";
 import { ChevronLeft } from "~/lib/icons/Icons";
-import { cn } from "~/lib/utils";
-import { RoutinePreview } from "./RoutinePreview";
-import { useExerciseStore } from "~/stores/exerciseStore";
+import { createPreviewRoutines, RoutinePreview } from "./RoutinePreview";
 
 interface WorkoutFormProps {
   onRoutineCreated?: (routine: Routine) => void;
@@ -26,15 +23,23 @@ export function WorkoutForm({ onRoutineCreated }: WorkoutFormProps) {
   const [duration, setDuration] = useState<45 | 60 | 90 | null>(null);
   const [goal, setGoal] = useState<TrainingGoal | null>(null);
   const [selectedGoals, setSelectedGoals] = useState<string[]>([]);
-  const [location, setLocation] = useState<LocationType | null>(null);
   const [selectedRoutine, setSelectedRoutine] = useState<Routine | null>(null);
-  const exercises = useExerciseStore.getState().exercises;
 
-  const TOTAL_STEPS = 7;
+  const [availableRoutines, setAvailableRoutines] = useState<Routine[]>([]);
+
+  const TOTAL_STEPS = 6;
 
   const handleNextStep = () => {
     if (currentStep < TOTAL_STEPS) {
-      setCurrentStep((prev) => prev + 1);
+      if (currentStep === 5 && frequency && duration && goal && difficulty) {
+        console.log("creating preview routines");
+        const newAvailableRoutines = createPreviewRoutines(frequency, duration, goal, difficulty);
+        console.log(newAvailableRoutines.length);
+        setAvailableRoutines(newAvailableRoutines);
+        setCurrentStep((prev) => prev + 1);
+      } else {
+        setCurrentStep((prev) => prev + 1);
+      }
     } else if (currentStep === TOTAL_STEPS) {
       finishCustomRoutine();
     }
@@ -65,8 +70,6 @@ export function WorkoutForm({ onRoutineCreated }: WorkoutFormProps) {
       case 5:
         return selectedGoals.length > 0;
       case 6:
-        return location !== null;
-      case 7:
         return selectedRoutine !== null;
       default:
         return false;
@@ -98,13 +101,9 @@ export function WorkoutForm({ onRoutineCreated }: WorkoutFormProps) {
         {currentStep === 3 && <TrainingDuration duration={duration} onDurationChange={setDuration} />}
         {currentStep === 4 && <MainGoal goal={goal} onGoalChange={setGoal} />}
         {currentStep === 5 && <AdditionalGoals selectedGoals={selectedGoals} onGoalToggle={toggleGoal} />}
-        {currentStep === 6 && <TrainingLocation location={location} onLocationChange={setLocation} />}
-        {currentStep === 7 && (
+        {currentStep === 6 && (
           <RoutinePreview
-            frequency={frequency!}
-            duration={duration!}
-            goal={goal!}
-            difficulty={difficulty!}
+            availableRoutines={availableRoutines}
             selectedRoutine={selectedRoutine}
             onRoutineSelect={setSelectedRoutine}
           />
@@ -114,7 +113,7 @@ export function WorkoutForm({ onRoutineCreated }: WorkoutFormProps) {
       <View className="flex-row justify-center gap-4 p-4">
         {currentStep > 1 && (
           <Button variant="outline" onPress={handlePreviousStep} haptics="light">
-            <ChevronLeft className={cn("text-foreground")} />
+            <ChevronLeft className="text-foreground" />
           </Button>
         )}
         <Button variant="destructive" disabled={!isStepValid(currentStep)} onPress={handleNextStep} haptics="medium">

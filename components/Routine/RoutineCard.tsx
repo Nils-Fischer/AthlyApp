@@ -12,9 +12,17 @@ interface RoutineCardProps {
   onDelete?: (id: string) => void;
   onToggleActive?: (id: string) => void;
   showDropdown?: boolean;
+  showActive?: boolean;
 }
 
-export const RoutineCard = ({ routine, onPress, onDelete, onToggleActive, showDropdown = true }: RoutineCardProps) => {
+export const RoutineCard = ({
+  routine,
+  onPress,
+  onDelete,
+  onToggleActive,
+  showDropdown = true,
+  showActive,
+}: RoutineCardProps) => {
   const dropdownItems: DropdownItem[] = [
     {
       name: routine.active ? "Deaktivieren" : "Aktivieren",
@@ -31,6 +39,8 @@ export const RoutineCard = ({ routine, onPress, onDelete, onToggleActive, showDr
     },
   ];
 
+  const active = showActive || routine.active;
+
   return (
     <Pressable
       onPress={() => {
@@ -41,7 +51,7 @@ export const RoutineCard = ({ routine, onPress, onDelete, onToggleActive, showDr
       }}
       className={`
         mb-4 overflow-hidden rounded-lg border border-border
-        ${routine.active ? "bg-destructive/5 border-l-4 border-l-destructive" : "bg-card"}
+        ${active ? "bg-destructive/5 border-l-4 border-l-destructive" : "bg-card"}
       `}
     >
       <View className="p-6">
@@ -50,7 +60,7 @@ export const RoutineCard = ({ routine, onPress, onDelete, onToggleActive, showDr
           <View className="flex-1 mr-4">
             <View className="flex-row items-center gap-2 mb-1">
               <Text className="text-lg font-semibold text-foreground">{routine.name}</Text>
-              {routine.active && (
+              {active && (
                 <View className="bg-destructive/10 px-3 py-1 rounded-full">
                   <Text className="text-xs font-medium text-destructive">Active</Text>
                 </View>
@@ -70,13 +80,13 @@ export const RoutineCard = ({ routine, onPress, onDelete, onToggleActive, showDr
                 <Pressable
                   className={`
                   h-8 w-8 items-center justify-center rounded-full
-                  ${routine.active ? "hover:bg-primary/10" : "hover:bg-muted"}
+                  ${active ? "hover:bg-primary/10" : "hover:bg-muted"}
                 `}
                   onPress={() => {
                     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
                   }}
                 >
-                  <MoreHorizontal size={20} className={routine.active ? "text-primary" : "text-muted-foreground"} />
+                  <MoreHorizontal size={20} className={active ? "text-primary" : "text-muted-foreground"} />
                 </Pressable>
               }
             />
@@ -89,7 +99,7 @@ export const RoutineCard = ({ routine, onPress, onDelete, onToggleActive, showDr
             <Ionicons
               name="barbell-outline"
               size={16}
-              className={routine.active ? "text-primary mr-2" : "text-muted-foreground mr-2"}
+              className={active ? "text-primary mr-2" : "text-muted-foreground mr-2"}
             />
             <Text className="text-sm text-muted-foreground">
               <Text className="font-medium text-foreground">{routine.workouts.length}</Text> Workouts
@@ -100,7 +110,7 @@ export const RoutineCard = ({ routine, onPress, onDelete, onToggleActive, showDr
             <Ionicons
               name="repeat-outline"
               size={16}
-              className={routine.active ? "text-primary mr-2" : "text-muted-foreground mr-2"}
+              className={active ? "text-primary mr-2" : "text-muted-foreground mr-2"}
             />
             <Text className="text-sm text-muted-foreground">
               <Text className="font-medium text-foreground">{routine.frequency}x</Text> per week
@@ -111,7 +121,7 @@ export const RoutineCard = ({ routine, onPress, onDelete, onToggleActive, showDr
             <Ionicons
               name="time-outline"
               size={16}
-              className={routine.active ? "text-primary mr-2" : "text-muted-foreground mr-2"}
+              className={active ? "text-primary mr-2" : "text-muted-foreground mr-2"}
             />
             <Text className="text-sm text-muted-foreground">
               <Text className="font-medium text-foreground">

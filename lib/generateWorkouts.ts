@@ -3,7 +3,7 @@ import { type Exercise, Difficulty, Mechanic, Routine, TrainingGoal, Workout, Wo
 import { generateId, difficultyAsNumber } from "./utils";
 
 const adjustExerciseForGoal = (exercise: WorkoutExercise, goal: TrainingGoal): WorkoutExercise => {
-  const exerciseStore = useExerciseStore();
+  const exerciseStore = useExerciseStore.getState();
   const isCompound = exerciseStore.getExerciseById(exercise.exerciseId)?.mechanic === Mechanic.Compound;
   const adjusted = { ...exercise };
 
@@ -42,17 +42,15 @@ const adjustExerciseForGoal = (exercise: WorkoutExercise, goal: TrainingGoal): W
 };
 
 const adjustExerciseForDifficulty = (exercise: WorkoutExercise, difficulty: Difficulty): WorkoutExercise => {
-  const exerciseStore = useExerciseStore();
-  const exerciseDifficulty = exerciseStore.getExerciseById(exercise.exerciseId)?.difficulty;
+  const { getExerciseById } = useExerciseStore.getState();
+  const exerciseDifficulty = getExerciseById(exercise.exerciseId)?.difficulty;
   if (!exerciseDifficulty) {
     return exercise;
   }
   const isTooDifficult = difficultyAsNumber(exerciseDifficulty) > difficultyAsNumber(difficulty);
   if (!isTooDifficult) return exercise;
   const easierExercise = exercise.alternatives.find(
-    (id) =>
-      difficultyAsNumber(exerciseStore.getExerciseById(id)?.difficulty || Difficulty.Beginner) <
-      difficultyAsNumber(difficulty)
+    (id) => difficultyAsNumber(getExerciseById(id)?.difficulty || Difficulty.Beginner) < difficultyAsNumber(difficulty)
   );
   if (!easierExercise) return exercise;
   return { ...exercise, exerciseId: easierExercise, alternatives: [...exercise.alternatives, exercise.exerciseId] };
