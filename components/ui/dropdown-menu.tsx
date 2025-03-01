@@ -27,13 +27,13 @@ const DropdownMenuSubTrigger = React.forwardRef<
   const Icon = Platform.OS === "web" ? ChevronRight : open ? ChevronUp : ChevronDown;
   return (
     <TextClassContext.Provider
-      value={cn("select-none text-sm native:text-lg text-primary", open && "native:text-accent-foreground")}
+      value={cn("select-none text-sm native:text-lg text-primary", open && "native:text-muted-foreground")}
     >
       <DropdownMenuPrimitive.SubTrigger
         ref={ref}
         className={cn(
-          "flex flex-row web:cursor-default web:select-none gap-2 items-center web:focus:bg-accent web:hover:bg-accent active:bg-accent rounded-sm px-2 py-1.5 native:py-2 web:outline-none",
-          open && "bg-accent",
+          "flex flex-row web:cursor-default web:select-none gap-2 items-center web:focus:bg-muted web:hover:bg-muted active:bg-muted rounded-sm px-2 py-1.5 native:py-2 web:outline-none",
+          open && "bg-muted",
           inset && "pl-8",
           className
         )}
@@ -111,11 +111,11 @@ const DropdownMenuItem = React.forwardRef<
     inset?: boolean;
   }
 >(({ className, inset, ...props }, ref) => (
-  <TextClassContext.Provider value="select-none text-sm native:text-lg text-popover-foreground web:group-focus:text-accent-foreground">
+  <TextClassContext.Provider value="select-none text-sm native:text-lg text-popover-foreground web:group-focus:text-muted-foreground">
     <DropdownMenuPrimitive.Item
       ref={ref}
       className={cn(
-        "relative flex flex-row web:cursor-default gap-2 items-center rounded-sm px-2 py-1.5 native:py-2 web:outline-none web:focus:bg-accent active:bg-accent web:hover:bg-accent group",
+        "relative flex flex-row web:cursor-default gap-2 items-center rounded-sm px-2 py-1.5 native:py-2 web:outline-none web:focus:bg-muted active:bg-muted web:hover:bg-muted group",
         inset && "pl-8",
         props.disabled && "opacity-50 web:pointer-events-none",
         className
@@ -133,7 +133,7 @@ const DropdownMenuCheckboxItem = React.forwardRef<
   <DropdownMenuPrimitive.CheckboxItem
     ref={ref}
     className={cn(
-      "relative flex flex-row web:cursor-default items-center web:group rounded-sm py-1.5 native:py-2 pl-8 pr-2 web:outline-none web:focus:bg-accent active:bg-accent",
+      "relative flex flex-row web:cursor-default items-center web:group rounded-sm py-1.5 native:py-2 pl-8 pr-2 web:outline-none web:focus:bg-muted active:bg-muted",
       props.disabled && "web:pointer-events-none opacity-50",
       className
     )}
@@ -157,7 +157,7 @@ const DropdownMenuRadioItem = React.forwardRef<
   <DropdownMenuPrimitive.RadioItem
     ref={ref}
     className={cn(
-      "relative flex flex-row web:cursor-default web:group items-center rounded-sm py-1.5 native:py-2 pl-8 pr-2 web:outline-none web:focus:bg-accent active:bg-accent",
+      "relative flex flex-row web:cursor-default web:group items-center rounded-sm py-1.5 native:py-2 pl-8 pr-2 web:outline-none web:focus:bg-muted active:bg-muted",
       props.disabled && "web:pointer-events-none opacity-50",
       className
     )}
