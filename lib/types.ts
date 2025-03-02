@@ -1,5 +1,5 @@
 import { ReactNode } from "react";
-import { CoreMessage } from "ai";
+import { CoreAssistantMessage, CoreMessage, CoreToolMessage, CoreUserMessage } from "ai";
 
 export enum TrainingGoal {
   Strength,
@@ -183,8 +183,31 @@ export interface WorkoutSession {
   workoutId: string;
 }
 
-export type ChatMessage = CoreMessage & {
+export type BaseChatMessage = {
   id: string;
   createdAt: Date;
   status: "sent" | "sending" | "failed";
+  message: string;
 };
+
+export type UserChatMessage = BaseChatMessage & {
+  images: string[];
+  technicalMessage: CoreUserMessage;
+  role: "user";
+};
+
+export type AssistantChatMessage = BaseChatMessage & {
+  routine?: Routine;
+  technicalMessage: (CoreAssistantMessage | CoreToolMessage)[];
+  role: "assistant";
+};
+
+export type ChatMessage = UserChatMessage | AssistantChatMessage;
+
+export interface ChatResponse {
+  text?: string;
+  routine?: Routine;
+  errorType?: "inappropriate" | "impossible" | "unclear" | "internal";
+  errorMessage?: string;
+  completeResponse?: (CoreAssistantMessage | CoreToolMessage)[];
+}

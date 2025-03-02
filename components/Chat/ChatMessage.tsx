@@ -7,9 +7,7 @@ import { MessageAvatar } from "./MessageAvatar";
 import { Button } from "~/components/ui/button";
 import { Routine } from "~/lib/types";
 import { ChatMessage as ChatMessageType } from "~/lib/types";
-import { extractMessageContent, extractUserContent } from "~/lib/Chat/chatUtils";
 import { DataContent } from "ai";
-import { parseJSON } from "~/lib/utils";
 import { CircleX } from "~/lib/icons/Icons";
 import { CustomDropdownMenu } from "~/components/ui/custom-dropdown-menu";
 import { RefreshCw, Trash2 } from "~/lib/icons/Icons";
@@ -24,16 +22,13 @@ export const ChatMessage = React.memo<{
   const timestamp = new Date(message.createdAt);
   let messageContent: string = "";
   let images: (DataContent | URL)[] = [];
-  let newRoutine: Routine | null = null;
+  let newRoutine: Routine | undefined = undefined;
   if (isAI) {
-    const content = extractMessageContent(message);
-    messageContent = content[1];
-    const routineString = content.at(2);
-    newRoutine = routineString ? parseJSON<Routine>(routineString) : null;
+    messageContent = message.message;
+    newRoutine = message.routine;
   } else if (message.role === "user") {
-    const { message: messageResult, images: imagesResult } = extractUserContent(message);
-    messageContent = messageResult;
-    images = imagesResult;
+    messageContent = message.message;
+    images = message.images;
   }
 
   return (

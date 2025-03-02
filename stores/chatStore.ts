@@ -1,22 +1,27 @@
 import { create } from "zustand";
 import { createJSONStorage, persist } from "zustand/middleware";
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import { CoreAssistantMessage } from "ai";
-import { ChatMessage } from "~/lib/types";
-import { createUserMessage, toChatMessage, unwrapUserMessage } from "~/lib/Chat/chatUtils";
+import { AssistantChatMessage, ChatMessage, ChatResponse } from "~/lib/types";
+import { createUserMessage } from "~/lib/Chat/chatUtils";
 import { randomUUID } from "expo-crypto";
+import { CoreMessage } from "ai";
 
 const API_URL = "https://api-proxy-worker.nils-fischer7.workers.dev";
 
-const INITIAL_MESSAGE: ChatMessage = {
-  id: randomUUID(),
+const INITIAL_MESSAGE_TEXT = "Hey! Ich bin Alex, dein AI Coach. Wie kann ich dir helfen?";
+
+const INITIAL_CHAT_MESSAGE: AssistantChatMessage = {
   role: "assistant",
-  content: [
-    { type: "text", text: "No Analysis" },
-    { type: "text", text: "Hey! Ich bin Alex, dein AI Coach. Wie kann ich dir helfen?" },
-  ],
+  id: randomUUID(),
   createdAt: new Date(),
   status: "sent",
+  message: INITIAL_MESSAGE_TEXT,
+  technicalMessage: [
+    {
+      role: "assistant",
+      content: [{ type: "text", text: INITIAL_MESSAGE_TEXT }],
+    },
+  ],
 };
 
 interface MessageData {
@@ -41,13 +46,13 @@ interface ChatState {
 export const useChatStore = create<ChatState>()(
   persist(
     (set, get) => ({
-      messages: [INITIAL_MESSAGE],
+      messages: [INITIAL_CHAT_MESSAGE],
       context: "",
       error: null,
       isLoading: false,
       clearMessages: () =>
         set({
-          messages: [INITIAL_MESSAGE],
+          messages: [INITIAL_CHAT_MESSAGE],
         }),
       setIsLoading: (loading) =>
         set({
@@ -71,11 +76,10 @@ export const useChatStore = create<ChatState>()(
         })),
       resendMessage: (messageId, data: MessageData) => {
         const messageToResend = get().messages.find((m) => m.id === messageId);
-        if (!messageToResend) return;
+        if (!messageToResend || messageToResend.role === "assistant") return;
 
         get().deleteMessage(messageId);
-        const { message, images } = unwrapUserMessage(messageToResend);
-        get().sendMessage(message, images, data);
+        get().sendMessage(messageToResend.message, messageToResend.images, data);
       },
       sendMessage: async (message: string, images: string[], data: MessageData) => {
         console.log("sendMessage called with message:", message);
@@ -88,10 +92,12 @@ export const useChatStore = create<ChatState>()(
 
         try {
           set({ isLoading: true });
-          console.log("setIsLoading(true) in sendMessage");
 
           console.log("Fetching API with message:", message, "and context:", get().context);
           const lastMessages = get().messages.slice(-5);
+
+          const lastTechnicalMessages: CoreMessage[] = lastMessages.map((message) => message.technicalMessage).flat();
+
           const response = await fetch(`${API_URL}/api/chat`, {
             method: "POST",
             headers: {
@@ -99,7 +105,7 @@ export const useChatStore = create<ChatState>()(
             },
             body: JSON.stringify({
               provider: "google",
-              messages: lastMessages,
+              messages: lastTechnicalMessages,
               data: data,
               context: get().context,
             }),
@@ -119,12 +125,44 @@ export const useChatStore = create<ChatState>()(
           }
 
           console.log("responseText", responseBody);
-          const result = JSON.parse(responseBody).response as CoreAssistantMessage;
-          set((state) => ({
-            messages: [...state.messages, toChatMessage(result)],
-          }));
+          console.log("responseBody", (JSON.parse(responseBody).response as ChatResponse).completeResponse);
+          const {
+            text,
+            routine,
+            errorType,
+            errorMessage,
+            completeResponse: completeMessage,
+          } = JSON.parse(responseBody).response as ChatResponse;
 
-          lastMessages.forEach((message) => get().updateMessageStatus(message.id, "sent"));
+          if (errorType) {
+            set({ error: errorMessage });
+            set((state) => ({
+              messages: state.messages.map((msg) => (msg.id === chatMessage.id ? { ...msg, status: "failed" } : msg)),
+            }));
+            return;
+          }
+
+          console.log("completeMessage", completeMessage);
+          console.log("text", text);
+
+          if (text && completeMessage) {
+            const newMessage: AssistantChatMessage = {
+              role: "assistant",
+              id: randomUUID(),
+              createdAt: new Date(),
+              status: "sent",
+              message: text,
+              routine: routine,
+              technicalMessage: completeMessage,
+            };
+            set((state) => ({
+              messages: [...state.messages, newMessage],
+            }));
+
+            lastMessages.forEach((message) => get().updateMessageStatus(message.id, "sent"));
+          } else {
+            throw new Error("No text or technical message received");
+          }
         } catch (error) {
           const errorMsg = error instanceof Error ? error.message : "Unexpected error occurred";
           console.error("sendMessage error:", errorMsg, error);
