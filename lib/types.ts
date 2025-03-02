@@ -211,3 +211,9 @@ export interface ChatResponse {
   errorMessage?: string;
   completeResponse?: (CoreAssistantMessage | CoreToolMessage)[];
 }
+
+export interface RoutineCreationResult {
+  routine?: Routine;
+  errorMessage?: string;
+  errorType?: "inappropriate" | "impossible" | "unclear" | "internal";
+}

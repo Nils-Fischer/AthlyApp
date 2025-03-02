@@ -5,7 +5,7 @@ import { Button } from "~/components/ui/button";
 import { Textarea } from "~/components/ui/textarea";
 import { Text } from "~/components/ui/text";
 import { ScrollView } from "react-native-gesture-handler";
-import { Routine } from "~/lib/types";
+import { Routine, RoutineCreationResult } from "~/lib/types";
 import { generateId, parseJSON } from "~/lib/utils";
 import { Input } from "../ui/input";
 import { useExerciseStore } from "~/stores/exerciseStore";
@@ -33,7 +33,8 @@ export function AIRoutineCreationDialog({ open, onOpenChange, onCreate }: AIRout
     setIsLoading(true);
     try {
       // Generate AI prompt from form data
-      const response: Response = await fetch(`${API_URL}/api/chat`, {
+      console.log("formData", formData);
+      const response: Response = await fetch(`${API_URL}/api/create-routine`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -48,33 +49,36 @@ export function AIRoutineCreationDialog({ open, onOpenChange, onCreate }: AIRout
           limitations: formData.limitations,
         }),
       });
+      console.log("API response received:", response);
+      const responseBody = await response.text();
 
       if (!response.ok) {
-        const errorText = await response.text();
-        setLoadingStatus(errorText || "Fehler beim Erstellen des Trainingsplans");
+        console.error("Error creating routine:", response.status, responseBody);
+        setLoadingStatus(responseBody || "Fehler beim Erstellen des Trainingsplans");
         setIsLoading(false);
         return;
       }
 
       setLoadingStatus("Erstelle Trainingsplan...");
-      console.log("response", response);
+      console.log("response", responseBody);
 
       setLoadingStatus("Verarbeite Antwort...");
-      const responseText = await response.text();
-      const routine = parseJSON<Routine>(responseText);
-      if (!routine) {
+      const result = parseJSON<RoutineCreationResult>(responseBody);
+      if (!result) {
         throw new Error("Failed to parse routine data");
+      }
+      const { routine, errorMessage, errorType } = result;
+
+      if (errorType || !routine) {
+        setLoadingStatus(errorMessage || "Fehler beim Erstellen des Trainingsplans");
+        console.error("Error creating routine:", errorMessage);
+        setIsLoading(false);
+        return;
       }
 
       setLoadingStatus("Finalisiere Plan...");
-      const finalRoutine: Routine = {
-        ...routine,
-        id: generateId(),
-        active: false,
-        workouts: routine.workouts.map((workout) => ({ ...workout, id: generateId() })),
-      };
 
-      onCreate(finalRoutine);
+      onCreate(routine);
       onOpenChange(false);
     } catch (error) {
       console.error("Failed to generate routine:", error);
