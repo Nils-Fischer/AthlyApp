@@ -28,12 +28,13 @@ const FEEDBACK_SLOGANS = [
 interface WorkoutCompletionModalProps {
   workoutName: string;
   date: Date;
-  duration: number;
+  duration: string;
   totalWeight: number;
   caloriesBurned: number;
   trainedMuscles: MuscleGroup[];
   improvements: Improvement[];
   aiCoachFeedback: Promise<string>;
+  onFinish: () => void;
 }
 
 export const WorkoutCompletionModal: React.FC<WorkoutCompletionModalProps> = ({
@@ -45,6 +46,7 @@ export const WorkoutCompletionModal: React.FC<WorkoutCompletionModalProps> = ({
   trainedMuscles,
   improvements,
   aiCoachFeedback,
+  onFinish,
 }) => {
   const animationRef = useRef<any>(null);
   const [feedback, setFeedback] = useState<string | null>(null);
@@ -110,7 +112,7 @@ export const WorkoutCompletionModal: React.FC<WorkoutCompletionModalProps> = ({
               <View className="items-center">
                 <View className="flex flex-row items-center">
                   <Clock size={18} className="text-muted-foreground mr-2" />
-                  <Large className="text-primary">{duration} Min</Large>
+                  <Large className="text-primary">{duration}</Large>
                 </View>
               </View>
               <View className="items-center">
@@ -179,8 +181,8 @@ export const WorkoutCompletionModal: React.FC<WorkoutCompletionModalProps> = ({
             <View className="flex flex-row mt-2">
               {/* Avatar */}
               <Avatar className="h-12 w-12 bg-primary" alt={"Athly Avatar"}>
-                <AvatarFallback className="bg-primary">
-                  <P className="text-primary-foreground text-2xl">A</P>
+                <AvatarFallback className="bg-accent">
+                  <P className="text-accent-foreground text-2xl">A</P>
                 </AvatarFallback>
               </Avatar>
 
@@ -203,7 +205,7 @@ export const WorkoutCompletionModal: React.FC<WorkoutCompletionModalProps> = ({
         </Card>
 
         {/* Back to Home Button */}
-        <Button variant="default" haptics="heavy" onPress={() => router.back()} className="py-10 mb-10">
+        <Button variant="default" haptics="heavy" onPress={onFinish} className="py-10 mb-10">
           <Large className="text-primary-foreground font-bold">Fertig</Large>
         </Button>
       </View>

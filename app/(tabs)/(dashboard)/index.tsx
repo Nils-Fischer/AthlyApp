@@ -94,12 +94,6 @@ export default function Index() {
           </View>
         </View>
 
-        <Link href="/workout-completion" asChild>
-          <Button haptics="medium">
-            <P className="text-primary-foreground">Workout Abschließen</P>
-          </Button>
-        </Link>
-
         {/* Workout Widget */}
         {activeWorkout && activeRoutine ? (
           <TodaysWorkoutWidget

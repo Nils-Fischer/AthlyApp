@@ -1,9 +1,11 @@
 import { SafeAreaView } from "react-native";
-import { P } from "~/components/ui/typography";
+import { Large, P } from "~/components/ui/typography";
 import WorkoutCompletionModal from "~/components/WorkoutCompletion/WorkoutCompletionModal";
 import { getMuscleGroup } from "~/lib/utils";
 import { useExerciseStore } from "~/stores/exerciseStore";
 import { useWorkoutHistoryStore } from "~/stores/workoutHistoryStore";
+import { Button } from "~/components/ui/button";
+import { router } from "expo-router";
 
 export type Improvement = {
   exerciseName: string;
@@ -32,7 +34,7 @@ export default function WorkoutCompletion() {
     0
   );
   const exercises = entries.map((entry) => getExerciseById(entry.exerciseId)).filter((exercise) => exercise !== null);
-  const caloriesBurned = entries.length * 10;
+  const caloriesBurned = entries.filter((entry) => entry.isCompleted).length * 10;
   const trainedMuscles = [...new Set(exercises.map((exercise) => getMuscleGroup(exercise.primaryMuscles[0])))];
   const improvements: Improvement[] = entries
     .map((entry) => {
@@ -81,6 +83,7 @@ export default function WorkoutCompletion() {
             }, 5000);
           })
         }
+        onFinish={() => router.dismissAll()}
       />
     </SafeAreaView>
   );

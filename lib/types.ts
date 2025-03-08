@@ -180,7 +180,7 @@ export interface WorkoutSession {
   date: Date;
   entries: ExerciseRecord[];
   workoutName: string;
-  duration: number;
+  duration: string;
 }
 
 export type BaseChatMessage = {

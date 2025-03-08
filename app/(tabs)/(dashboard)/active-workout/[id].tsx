@@ -71,7 +71,7 @@ export default function ActiveWorkoutScreen() {
     const session = finishWorkout();
     workoutHistoryStore.addWorkoutSession(session);
     setShowFinishDialog(false);
-    router.back();
+    router.push("../workout-completion");
   };
 
   const confirmCancel = () => {

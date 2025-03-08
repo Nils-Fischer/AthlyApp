@@ -27,6 +27,14 @@ export const formatTime = (milliseconds: number): string => {
   return `${minutes}:${remainingSeconds.toString().padStart(2, "0")}`;
 };
 
+export const formatDuration = (milliseconds: number): string => {
+  const totalSeconds = Math.floor(milliseconds / 1000);
+  const hours = Math.floor(totalSeconds / 3600);
+  const minutes = Math.floor((totalSeconds % 3600) / 60);
+  const seconds = totalSeconds % 60;
+  return `${hours ? `${hours}h ` : ""}${minutes ? `${minutes}m ` : ""}${seconds ? `${seconds}s` : ""}`;
+};
+
 export function getThumbnail(exercise: Exercise): string | null {
   return exercise.media.find((media) => media.endsWith(".jpg") || media.endsWith(".png")) || null;
 }

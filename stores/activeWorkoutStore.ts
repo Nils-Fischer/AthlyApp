@@ -1,6 +1,7 @@
 import { create } from "zustand";
 import { useUserRoutineStore } from "./userRoutineStore";
 import { ExerciseRecord, WorkoutSession } from "~/lib/types";
+import { formatDuration } from "~/lib/utils";
 
 interface Timer {
   isRunning: boolean;
@@ -304,7 +305,7 @@ export const useActiveWorkoutStore = create<ActiveWorkoutState>()((set, get) => 
       workoutName: workout.name,
       date: new Date(),
       entries: Array.from(state.exerciseRecords.values()),
-      duration: state.workoutTimer.elapsedTime,
+      duration: formatDuration(state.workoutTimer.elapsedTime),
     };
 
     state.cancelWorkout();
