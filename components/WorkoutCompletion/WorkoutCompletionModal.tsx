@@ -11,15 +11,8 @@ import { router } from "expo-router";
 import confetti from "~/assets/animations/confetti.json";
 import LottieView from "lottie-react-native";
 import { ActivityIndicator } from "react-native";
-import Animated, { FadeInUp } from "react-native-reanimated";
-import { TypingIndicator } from "../Chat/TypingIndicator";
-
-// Mock data types
-export type PersonalRecord = {
-  exerciseName: string;
-  weight: number;
-  percentageImprovement?: number;
-};
+import { MuscleGroup } from "~/lib/types";
+import { Improvement } from "~/app/(tabs)/(dashboard)/workout-completion";
 
 // Array of motivational feedback slogans
 const FEEDBACK_SLOGANS = [
@@ -38,8 +31,8 @@ interface WorkoutCompletionModalProps {
   duration: number;
   totalWeight: number;
   caloriesBurned: number;
-  trainedMuscles: string[];
-  prs: PersonalRecord[];
+  trainedMuscles: MuscleGroup[];
+  improvements: Improvement[];
   aiCoachFeedback: Promise<string>;
 }
 
@@ -50,7 +43,7 @@ export const WorkoutCompletionModal: React.FC<WorkoutCompletionModalProps> = ({
   totalWeight,
   caloriesBurned,
   trainedMuscles,
-  prs,
+  improvements,
   aiCoachFeedback,
 }) => {
   const animationRef = useRef<any>(null);
@@ -149,23 +142,25 @@ export const WorkoutCompletionModal: React.FC<WorkoutCompletionModalProps> = ({
         </Card>
 
         {/* PRs Card */}
-        {prs.length > 0 && (
+        {improvements.length > 0 && (
           <Card>
             <CardHeader>
               <CardTitle>NEUE BESTLEISTUNGEN</CardTitle>
             </CardHeader>
             <CardContent>
               <View className="flex flex-col gap-2">
-                {prs.map((pr, index) => (
+                {improvements.map((improvement, index) => (
                   <View key={index} className="flex flex-row items-center">
                     <View className="flex-1 flex-row items-center gap-2">
-                      <P>{pr.exerciseName}</P>
-                      <CardLabel className="text-green-500 text-sm mt-0.5">NEW PR</CardLabel>
+                      <P>{improvement.exerciseName}</P>
+                      {improvement.pr && <CardLabel className="text-green-500 text-sm mt-0.5">NEW PR</CardLabel>}
                     </View>
                     <View className="flex-row items-center gap-1">
-                      <Muted>{pr.weight} kg</Muted>
-                      {pr.percentageImprovement && (
-                        <Small className="text-green-500 mt-0.5">{`+${pr.percentageImprovement.toFixed(1)}%`}</Small>
+                      <Muted>{improvement.weight} kg</Muted>
+                      {improvement.percentageImprovement && (
+                        <Small className="text-green-500 mt-0.5">{`+${improvement.percentageImprovement.toFixed(
+                          1
+                        )}%`}</Small>
                       )}
                     </View>
                   </View>

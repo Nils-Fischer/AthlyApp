@@ -1,5 +1,4 @@
-import { ReactNode } from "react";
-import { CoreAssistantMessage, CoreMessage, CoreToolMessage, CoreUserMessage } from "ai";
+import { CoreAssistantMessage, CoreToolMessage, CoreUserMessage } from "ai";
 
 export enum TrainingGoal {
   Strength,
@@ -177,10 +176,11 @@ export interface ExerciseRecord {
 }
 
 export interface WorkoutSession {
-  summary: ReactNode;
+  workoutId: string;
   date: Date;
   entries: ExerciseRecord[];
-  workoutId: string;
+  workoutName: string;
+  duration: number;
 }
 
 export type BaseChatMessage = {

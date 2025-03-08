@@ -8,6 +8,8 @@ interface WorkoutHistoryState {
   addWorkoutSession: (session: WorkoutSession) => Promise<void>;
   getLastExerciseRecord: (exerciseId: number) => ExerciseRecord | undefined;
   getLastWorkout: (workoutId: string) => WorkoutSession | undefined;
+  getLastSession: () => WorkoutSession | undefined;
+  getExerciseRecords: (exerciseId: number) => ExerciseRecord[];
 }
 
 export const useWorkoutHistoryStore = create<WorkoutHistoryState>()(
@@ -22,20 +24,24 @@ export const useWorkoutHistoryStore = create<WorkoutHistoryState>()(
 
       getLastExerciseRecord: (exerciseId: number) => {
         const { sessions } = get();
-        // Sort sessions by date in descending order
-        const sortedSessions = [...sessions].sort((a, b) => b.date.getTime() - a.date.getTime());
-
-        // Find the last session containing the exercise
-        for (const session of sortedSessions) {
-          const exercise = session.entries.find((entry) => entry.exerciseId === exerciseId);
-          if (exercise) return exercise;
-        }
-        return undefined;
+        const lastEntry = sessions
+          .findLast((session) => session.entries.some((entry) => entry.exerciseId === exerciseId))
+          ?.entries.find((entry) => entry.exerciseId === exerciseId);
+        return lastEntry;
       },
 
       getLastWorkout: (workoutId: string) => {
         const { sessions } = get();
-        return sessions.find((session) => session.workoutId === workoutId);
+        return sessions.findLast((session) => session.workoutId === workoutId);
+      },
+
+      getLastSession: () => {
+        return get().sessions.at(-1);
+      },
+
+      getExerciseRecords: (exerciseId: number) => {
+        const { sessions } = get();
+        return sessions.flatMap((session) => session.entries.filter((entry) => entry.exerciseId === exerciseId));
       },
     }),
     {

@@ -301,12 +301,12 @@ export const useActiveWorkoutStore = create<ActiveWorkoutState>()((set, get) => 
 
     const session: WorkoutSession = {
       workoutId: state.workoutId!,
+      workoutName: workout.name,
       date: new Date(),
       entries: Array.from(state.exerciseRecords.values()),
-      summary: `Completed in ${Math.floor(state.workoutTimer.elapsedTime / 1000 / 60)} minutes`,
+      duration: state.workoutTimer.elapsedTime,
     };
 
-    console.log(`[Workout] Session created - Duration: ${session.summary}, Exercises: ${session.entries.length}`);
     state.cancelWorkout();
     return session;
   },
