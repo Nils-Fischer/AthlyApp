@@ -18,6 +18,13 @@ export default function DashboardLayout() {
           headerShown: false,
         }}
       />
+      <Stack.Screen
+        name="workout-completion"
+        options={{
+          headerShown: false,
+          presentation: "fullScreenModal",
+        }}
+      />
     </Stack>
   );
 }
