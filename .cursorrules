@@ -33,10 +33,10 @@ app.json
 
 1. Always use custom UI components from components/ui/ instead of their React Native counterparts:
 
-   - Use <Button /> instead of React Native's Button
-   - Use <Input /> instead of TextInput
-   - Use <Text /> instead of React Native's Text
-   - Use Typography components for consistent text styling:
+   - Use <Button /> from components/ui/button.tsx instead of React Native's Button (Wrapper for a Text component)
+   - Use <Input /> from components/ui/input.tsx instead of TextInput
+   - Use <Text /> from components/ui/text.tsx instead of React Native's Text
+   - Use Typography components from components/ui/typography.tsx for consistent text styling:
      - Use <H1 /> for main page headings and primary content titles
      - Use <H2 /> for section headings with underline
      - Use <H3 /> for subsection headings within major sections
@@ -48,19 +48,19 @@ app.json
      - Use <Large /> for important information that should stand out
      - Use <Small /> for metadata, timestamps, or auxiliary information
      - Use <Muted /> for helper text, hints, or less important information
-   - Use <Card /> instead of creating custom card containers
-   - Use <AlertDialog /> for alerts instead of Alert.alert()
-   - Use <BottomSheet /> for bottom sheets
-   - Use <Tabs /> for tab navigation UI
-   - Use <Select /> and <CustomDropdownMenu /> for dropdown menus
-   - Use <Textarea /> for multiline text input
-   - Use <Dialog /> for modal dialogs
-   - Use <Badge /> for notification badges
-   - Use <Avatar /> for user avatars
-   - Use <Separator /> for divider lines
-   - Use <Tooltip /> for informational tooltips
-   - Use <AnimatedIconButton /> for animated buttons with icons
-   - Use Typography components for consistent text styling
+   - Use <Card /> from components/ui/card.tsx instead of creating custom card containers
+   - Use <AlertDialog /> from components/ui/alert-dialog.tsx for alerts instead of Alert.alert()
+   - Use <BottomSheet /> from components/ui/bottom-sheet.tsx for bottom sheets
+   - Use <Tabs /> from components/ui/tabs.tsx for tab navigation UI
+   - Use <Select /> from components/ui/select.tsx and <CustomDropdownMenu /> from components/ui/custom-dropdown-menu.tsx for dropdown menus
+   - Use <Textarea /> from components/ui/textarea.tsx for multiline text input
+   - Use <Dialog /> from components/ui/dialog.tsx for modal dialogs
+   - Use <Badge /> from components/ui/badge.tsx for notification badges
+   - Use <Avatar /> from components/ui/avatar.tsx for user avatars
+   - Use <Separator /> from components/ui/separator.tsx for divider lines
+   - Use <Tooltip /> from components/ui/tooltip.tsx for informational tooltips
+   - Use <AnimatedIconButton /> from components/ui/animated-icon-button.tsx for animated buttons with icons
+   - Use <Progress /> from components/ui/progress.tsx for progress indicators
 
 2. Library preferences:
    - Use Expo's Image from 'expo-image' instead of React Native's Image component
@@ -69,6 +69,7 @@ app.json
    - Use Expo's Font loading utilities instead of custom font loading
    - Utilize Expo's Haptics module for all haptic feedback
    - Use Expo's SecureStore for sensitive data instead of AsyncStorage
+   - Use Lucide icons available at ~/lib/icons/Icons for all icon needs
 
 - Utilize Expo's vector icons
 - For long lists use FlashList
@@ -98,8 +99,8 @@ app.json
 - Implement proper styling using StyleSheet
 - Ensure responsive design by considering different screen sizes and orientations
 - Optimize image handling using libraries designed for React Native
-- Make sure to wrap all Text in <Text> tags
-- Always use the custom color variables defined in `global.css` when styling with Tailwind CSS to maintain design consistency.
+- Always use nativewind styling, no custom stylesheets
+- Always use the custom color variables defined in `global.css` when styling with Nativewind to maintain design consistency.
 - Available color variables are:
   --background
   --foreground
