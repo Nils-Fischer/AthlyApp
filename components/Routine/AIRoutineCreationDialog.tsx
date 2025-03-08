@@ -6,9 +6,8 @@ import { Textarea } from "~/components/ui/textarea";
 import { Text } from "~/components/ui/text";
 import { ScrollView } from "react-native-gesture-handler";
 import { Routine, RoutineCreationResult } from "~/lib/types";
-import { generateId, parseJSON } from "~/lib/utils";
+import { parseJSON } from "~/lib/utils";
 import { Input } from "../ui/input";
-import { useExerciseStore } from "~/stores/exerciseStore";
 
 const API_URL = "https://api-proxy-worker.nils-fischer7.workers.dev";
 

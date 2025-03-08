@@ -34,7 +34,6 @@ export function WorkoutForm({ onRoutineCreated }: WorkoutFormProps) {
       if (currentStep === 5 && frequency && duration && goal && difficulty) {
         console.log("creating preview routines");
         const newAvailableRoutines = createPreviewRoutines(frequency, duration, goal, difficulty);
-        console.log(newAvailableRoutines.length);
         setAvailableRoutines(newAvailableRoutines);
         setCurrentStep((prev) => prev + 1);
       } else {

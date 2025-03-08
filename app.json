@@ -2,7 +2,7 @@
   "expo": {
     "name": "Athly",
     "slug": "train-tech",
-    "version": "0.0.4",
+    "version": "0.0.5",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
     "scheme": "exp+train-tech",
@@ -18,7 +18,8 @@
       "bundleIdentifier": "com.anonymous.train-tech",
       "infoPlist": {
         "NSCameraUsageDescription": "Allow Athly to access your camera to take photos for sharing in chats",
-        "NSPhotoLibraryUsageDescription": "Allow Athly to access your photos for sharing in chats"
+        "NSPhotoLibraryUsageDescription": "Allow Athly to access your photos for sharing in chats",
+        "ITSAppUsesNonExemptEncryption": false
       },
       "splash": {
         "image": "./assets/images/splash.png",
@@ -36,7 +37,8 @@
         "foregroundImage": "./assets/images/adaptive-icon.png",
         "backgroundColor": "#ffffff"
       },
-      "package": "com.anonymous.traintech"
+      "package": "com.anonymous.traintech",
+      "permissions": ["android.permission.CAMERA", "android.permission.RECORD_AUDIO"]
     },
     "web": {
       "bundler": "metro",
