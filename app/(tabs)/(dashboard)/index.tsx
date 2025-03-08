@@ -9,7 +9,9 @@ import { useUserProfileStore } from "~/stores/userProfileStore";
 import { TodaysWorkoutWidget } from "~/components/Dashboard/TodaysWorkoutWidget";
 import { useUserRoutineStore } from "~/stores/userRoutineStore";
 import { Card, CardHeader, CardTitle, CardContent } from "~/components/ui/card";
-import { BlockQuote } from "~/components/ui/typography";
+import { BlockQuote, P } from "~/components/ui/typography";
+import { Link } from "expo-router";
+import { Button } from "~/components/ui/button";
 
 export default function Index() {
   const workoutHistoryStore = useWorkoutHistoryStore();
@@ -91,6 +93,12 @@ export default function Index() {
             <Text className="text-sm text-muted-foreground">{format(new Date(), "dd. MMMM", { locale: de })}</Text>
           </View>
         </View>
+
+        <Link href="/workout-completion" asChild>
+          <Button haptics="medium">
+            <P className="text-primary-foreground">Workout Abschließen</P>
+          </Button>
+        </Link>
 
         {/* Workout Widget */}
         {activeWorkout && activeRoutine ? (
