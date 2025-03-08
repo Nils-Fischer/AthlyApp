@@ -8,6 +8,8 @@ import { useWorkoutHistoryStore } from "~/stores/workoutHistoryStore";
 import { useUserProfileStore } from "~/stores/userProfileStore";
 import { TodaysWorkoutWidget } from "~/components/Dashboard/TodaysWorkoutWidget";
 import { useUserRoutineStore } from "~/stores/userRoutineStore";
+import { Card, CardHeader, CardTitle, CardContent } from "~/components/ui/card";
+import { BlockQuote } from "~/components/ui/typography";
 
 export default function Index() {
   const workoutHistoryStore = useWorkoutHistoryStore();
@@ -106,9 +108,14 @@ export default function Index() {
         )}
 
         {/* Motivationswidget */}
-        <View className="bg-card p-6 rounded-xl border border-border/50">
-          <Text className="text-center italic text-lg">"{motivationQuote}"</Text>
-        </View>
+        <Card className="mb-6">
+          <CardHeader>
+            <CardTitle>Tägliche Motivation</CardTitle>
+          </CardHeader>
+          <CardContent className="justify-center items-center mb-6">
+            <BlockQuote className="text-lg text-foreground">{motivationQuote}</BlockQuote>
+          </CardContent>
+        </Card>
       </View>
     </ScrollView>
   );
