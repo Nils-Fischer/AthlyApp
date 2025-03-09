@@ -48,6 +48,7 @@ export interface Routine {
 }
 
 export interface UserProfile {
+  language: string;
   id: string;
   firstName: string;
   lastName: string;

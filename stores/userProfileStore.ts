@@ -23,6 +23,7 @@ interface UserProfileState {
 }
 
 const initialProfile: UserProfile = {
+  language: "german",
   id: "",
   firstName: "",
   lastName: "",

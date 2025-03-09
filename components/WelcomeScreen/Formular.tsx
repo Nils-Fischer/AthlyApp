@@ -91,6 +91,7 @@ export const Formular: React.FC<FormularProps> = ({ onFinish }) => {
         lastName: formState.lastName,
         birthday: formState.birthday,
         gender: formState.gender,
+        language: "german",
         height,
         weight,
       };
