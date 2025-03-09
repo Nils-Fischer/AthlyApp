@@ -7,6 +7,7 @@ import { useWorkoutHistoryStore } from "~/stores/workoutHistoryStore";
 import { router } from "expo-router";
 import { useChatStore } from "~/stores/chatStore";
 import { useUserProfileStore } from "~/stores/userProfileStore";
+import { useMemo } from "react";
 
 export type Improvement = {
   exerciseName: string;
@@ -31,7 +32,10 @@ export default function WorkoutCompletion() {
     );
   }
 
-  const feedback = sendWorkoutReviewMessage(lastSession, { profile });
+  // Create a memoized promise that won't change on re-renders
+  const feedbackPromise = useMemo(() => {
+    return sendWorkoutReviewMessage(lastSession, { profile });
+  }, [lastSession, profile, sendWorkoutReviewMessage]);
 
   const { workoutName, date, entries, duration } = lastSession;
   const totalWeight = entries.reduce(
@@ -78,7 +82,7 @@ export default function WorkoutCompletion() {
         caloriesBurned={caloriesBurned}
         trainedMuscles={trainedMuscles}
         improvements={improvements}
-        aiCoachFeedback={feedback}
+        aiCoachFeedback={feedbackPromise}
         onFinish={() => router.dismissAll()}
       />
     </SafeAreaView>

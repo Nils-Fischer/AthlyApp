@@ -25,7 +25,7 @@ export function createWorkoutReviewMessage(session: WorkoutSession): UserChatMes
     id: randomUUID(),
     createdAt: new Date(),
     role: "user",
-    message: "",
+    message: "Mein heutiges Training",
     images: [],
     workoutSession: session,
     technicalMessage: {

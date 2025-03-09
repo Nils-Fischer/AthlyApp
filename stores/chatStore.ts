@@ -89,7 +89,7 @@ export const useChatStore = create<ChatState>()(
       },
       sendWorkoutReviewMessage: async (session: WorkoutSession, data: MessageData) => {
         const chatMessage = createWorkoutReviewMessage(session);
-        const response = await get().sendMessage(chatMessage, data, "review");
+        const response = await get().sendMessage(chatMessage, data, "workout-review");
         return response;
       },
       sendMessage: async (message: ChatMessage, data: MessageData, endpoint: string) => {
@@ -170,6 +170,7 @@ export const useChatStore = create<ChatState>()(
             }));
 
             lastMessages.forEach((message) => get().updateMessageStatus(message.id, "sent"));
+            return text;
           } else {
             throw new Error("No text or technical message received");
           }

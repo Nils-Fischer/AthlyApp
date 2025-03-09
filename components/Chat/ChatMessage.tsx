@@ -5,7 +5,7 @@ import { Card } from "~/components/ui/card";
 import { Text } from "~/components/ui/text";
 import { MessageAvatar } from "./MessageAvatar";
 import { Button } from "~/components/ui/button";
-import { Routine } from "~/lib/types";
+import { Routine, WorkoutSession } from "~/lib/types";
 import { ChatMessage as ChatMessageType } from "~/lib/types";
 import { DataContent } from "ai";
 import { CircleX } from "~/lib/icons/Icons";
@@ -23,12 +23,14 @@ export const ChatMessage = React.memo<{
   let messageContent: string = "";
   let images: (DataContent | URL)[] = [];
   let newRoutine: Routine | undefined = undefined;
+  let workoutSession: WorkoutSession | undefined = undefined;
   if (isAI) {
     messageContent = message.message;
     newRoutine = message.routine;
   } else if (message.role === "user") {
     messageContent = message.message;
     images = message.images;
+    workoutSession = message.workoutSession;
   }
 
   return (
@@ -74,6 +76,18 @@ export const ChatMessage = React.memo<{
                     haptics="medium"
                   >
                     <Text>Routine ansehen</Text>
+                  </Button>
+                )}
+
+                {workoutSession && (
+                  <Button
+                    variant="secondary"
+                    className="mt-2"
+                    onPress={() => {
+                      console.log("workoutSession", workoutSession);
+                    }}
+                  >
+                    <Text>Workout ansehen (WIP)</Text>
                   </Button>
                 )}
               </View>

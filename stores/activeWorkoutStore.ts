@@ -2,6 +2,7 @@ import { create } from "zustand";
 import { useUserRoutineStore } from "./userRoutineStore";
 import { ExerciseRecord, WorkoutSession } from "~/lib/types";
 import { formatDuration } from "~/lib/utils";
+import { useExerciseStore } from "./exerciseStore";
 
 interface Timer {
   isRunning: boolean;
@@ -73,6 +74,7 @@ export const useActiveWorkoutStore = create<ActiveWorkoutState>()((set, get) => 
   startWorkout: (workoutId) => {
     console.log(`[Workout] Starting workout - Workout: ${workoutId}`);
     const workout = useUserRoutineStore.getState().getWorkoutById(workoutId);
+    const getExerciseById = useExerciseStore.getState().getExerciseById;
     if (!workout) {
       console.error(`[Workout] Failed to find workout - Workout: ${workoutId}`);
       console.log(useUserRoutineStore.getState().routines.map((r) => r.id));
@@ -93,6 +95,7 @@ export const useActiveWorkoutStore = create<ActiveWorkoutState>()((set, get) => 
         })),
         isCompleted: false,
         intensity: undefined,
+        exerciseName: getExerciseById(exercise.exerciseId)?.name || "",
       });
     });
 
@@ -157,6 +160,7 @@ export const useActiveWorkoutStore = create<ActiveWorkoutState>()((set, get) => 
           }),
           isCompleted: existingRecord?.isCompleted ?? false,
           intensity: existingRecord?.intensity,
+          exerciseName: getExerciseById(exercise.exerciseId)?.name || "",
         };
 
         updatedRecords.set(exercise.exerciseId, newRecord);

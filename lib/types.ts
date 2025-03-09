@@ -170,6 +170,7 @@ export interface SetInput {
 
 export interface ExerciseRecord {
   exerciseId: number;
+  exerciseName: string;
   sets: SetInput[];
   intensity?: number;
   isCompleted: boolean;
