@@ -14,7 +14,7 @@ import { useUserProfileStore } from "~/stores/userProfileStore";
 
 export default function ChatScreen() {
   const actionSheetRef = useRef<ActionSheetRef>(null);
-  const { messages, sendMessage, deleteMessage, resendMessage } = useChatStore();
+  const { messages, sendChatMessage: sendMessage, deleteMessage, resendMessage } = useChatStore();
   const { routines, addRoutine } = useUserRoutineStore();
   const { profile } = useUserProfileStore();
   const [isTyping, setIsTyping] = React.useState(false);

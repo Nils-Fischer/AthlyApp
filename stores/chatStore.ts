@@ -32,7 +32,7 @@ interface ChatState {
   messages: ChatMessage[];
   context: string;
   error: string | null;
-  sendMessage: (message: string, images: string[], data: MessageData) => Promise<void>;
+  sendChatMessage: (message: string, images: string[], data: MessageData) => Promise<void>;
   updateMessageStatus: (messageId: string, status: "sent" | "sending" | "failed") => void;
   isLoading: boolean;
   setIsLoading: (loading: boolean) => void;
@@ -79,9 +79,9 @@ export const useChatStore = create<ChatState>()(
         if (!messageToResend || messageToResend.role === "assistant") return;
 
         get().deleteMessage(messageId);
-        get().sendMessage(messageToResend.message, messageToResend.images, data);
+        get().sendChatMessage(messageToResend.message, messageToResend.images, data);
       },
-      sendMessage: async (message: string, images: string[], data: MessageData) => {
+      sendChatMessage: async (message: string, images: string[], data: MessageData) => {
         console.log("sendMessage called with message:", message);
         get().setError(null);
 
