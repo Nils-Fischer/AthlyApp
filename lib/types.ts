@@ -193,6 +193,7 @@ export type BaseChatMessage = {
 export type UserChatMessage = BaseChatMessage & {
   images: string[];
   technicalMessage: CoreUserMessage;
+  workoutSession?: WorkoutSession;
   role: "user";
 };
 

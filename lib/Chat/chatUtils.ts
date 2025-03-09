@@ -1,6 +1,6 @@
-import { CoreMessage, CoreUserMessage, DataContent, ImagePart, TextPart, UserContent } from "ai";
+import { ImagePart, TextPart } from "ai";
 import { randomUUID } from "expo-crypto";
-import { UserChatMessage } from "../types";
+import { UserChatMessage, WorkoutSession } from "../types";
 
 export function createUserMessage(message: string, images: string[]): UserChatMessage {
   const text: TextPart = { type: "text", text: message };
@@ -14,6 +14,23 @@ export function createUserMessage(message: string, images: string[]): UserChatMe
     technicalMessage: {
       role: "user",
       content: [text, ...image],
+    },
+    status: "sent",
+  };
+}
+
+export function createWorkoutReviewMessage(session: WorkoutSession): UserChatMessage {
+  const sessionAsText: TextPart = { type: "text", text: JSON.stringify(session, null, 2) };
+  return {
+    id: randomUUID(),
+    createdAt: new Date(),
+    role: "user",
+    message: "",
+    images: [],
+    workoutSession: session,
+    technicalMessage: {
+      role: "user",
+      content: [sessionAsText],
     },
     status: "sent",
   };

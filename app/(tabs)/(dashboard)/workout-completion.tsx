@@ -1,11 +1,12 @@
 import { SafeAreaView } from "react-native";
-import { Large, P } from "~/components/ui/typography";
+import { P } from "~/components/ui/typography";
 import WorkoutCompletionModal from "~/components/WorkoutCompletion/WorkoutCompletionModal";
 import { getMuscleGroup } from "~/lib/utils";
 import { useExerciseStore } from "~/stores/exerciseStore";
 import { useWorkoutHistoryStore } from "~/stores/workoutHistoryStore";
-import { Button } from "~/components/ui/button";
 import { router } from "expo-router";
+import { useChatStore } from "~/stores/chatStore";
+import { useUserProfileStore } from "~/stores/userProfileStore";
 
 export type Improvement = {
   exerciseName: string;
@@ -17,6 +18,8 @@ export type Improvement = {
 export default function WorkoutCompletion() {
   const { getLastSession, getExerciseRecords } = useWorkoutHistoryStore();
   const { getExerciseById } = useExerciseStore();
+  const { sendWorkoutReviewMessage } = useChatStore();
+  const { profile } = useUserProfileStore();
 
   const lastSession = getLastSession();
 
@@ -27,6 +30,8 @@ export default function WorkoutCompletion() {
       </SafeAreaView>
     );
   }
+
+  const feedback = sendWorkoutReviewMessage(lastSession, { profile });
 
   const { workoutName, date, entries, duration } = lastSession;
   const totalWeight = entries.reduce(
@@ -73,16 +78,7 @@ export default function WorkoutCompletion() {
         caloriesBurned={caloriesBurned}
         trainedMuscles={trainedMuscles}
         improvements={improvements}
-        aiCoachFeedback={
-          // TODO: Add AI coach feedback
-          new Promise((resolve) => {
-            setTimeout(() => {
-              resolve(
-                "Dein Oberkörper-Training war sehr effektiv! Besonders beeindruckend ist deine Steigerung beim Bankdrücken und Bizeps Curls. Überlege vor deinem nächsten Training, dich auch auf den Trizeps zu konzentrieren, um ein ausgewogenes Training zu gewährleisten."
-              );
-            }, 5000);
-          })
-        }
+        aiCoachFeedback={feedback}
         onFinish={() => router.dismissAll()}
       />
     </SafeAreaView>

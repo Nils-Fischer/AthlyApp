@@ -1,8 +1,8 @@
 import { create } from "zustand";
 import { createJSONStorage, persist } from "zustand/middleware";
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import { AssistantChatMessage, ChatMessage, ChatResponse } from "~/lib/types";
-import { createUserMessage } from "~/lib/Chat/chatUtils";
+import { AssistantChatMessage, ChatMessage, ChatResponse, WorkoutSession } from "~/lib/types";
+import { createUserMessage, createWorkoutReviewMessage } from "~/lib/Chat/chatUtils";
 import { randomUUID } from "expo-crypto";
 import { CoreMessage } from "ai";
 
@@ -33,6 +33,8 @@ interface ChatState {
   context: string;
   error: string | null;
   sendChatMessage: (message: string, images: string[], data: MessageData) => Promise<void>;
+  sendWorkoutReviewMessage: (session: WorkoutSession, data: MessageData) => Promise<string | undefined>;
+  sendMessage: (message: ChatMessage, data: MessageData, endpoint: string) => Promise<string | undefined>;
   updateMessageStatus: (messageId: string, status: "sent" | "sending" | "failed") => void;
   isLoading: boolean;
   setIsLoading: (loading: boolean) => void;
@@ -82,12 +84,20 @@ export const useChatStore = create<ChatState>()(
         get().sendChatMessage(messageToResend.message, messageToResend.images, data);
       },
       sendChatMessage: async (message: string, images: string[], data: MessageData) => {
+        const chatMessage = createUserMessage(message, images);
+        get().sendMessage(chatMessage, data, "chat");
+      },
+      sendWorkoutReviewMessage: async (session: WorkoutSession, data: MessageData) => {
+        const chatMessage = createWorkoutReviewMessage(session);
+        const response = await get().sendMessage(chatMessage, data, "review");
+        return response;
+      },
+      sendMessage: async (message: ChatMessage, data: MessageData, endpoint: string) => {
         console.log("sendMessage called with message:", message);
         get().setError(null);
 
-        const chatMessage = createUserMessage(message, images);
         set((state) => ({
-          messages: [...state.messages, chatMessage],
+          messages: [...state.messages, message],
         }));
 
         try {
@@ -98,7 +108,7 @@ export const useChatStore = create<ChatState>()(
 
           const lastTechnicalMessages: CoreMessage[] = lastMessages.map((message) => message.technicalMessage).flat();
 
-          const response = await fetch(`${API_URL}/api/chat`, {
+          const response = await fetch(`${API_URL}/api/${endpoint}`, {
             method: "POST",
             headers: {
               "Content-Type": "application/json",
@@ -118,10 +128,10 @@ export const useChatStore = create<ChatState>()(
             console.error("API error response:", response.status, responseBody);
             set({ error: responseBody || "Failed to send message" });
             set((state) => ({
-              messages: state.messages.map((msg) => (msg.id === chatMessage.id ? { ...msg, status: "failed" } : msg)),
+              messages: state.messages.map((msg) => (msg.id === message.id ? { ...msg, status: "failed" } : msg)),
             }));
             set({ isLoading: false });
-            return;
+            return undefined;
           }
 
           console.log("responseText", responseBody);
@@ -137,9 +147,9 @@ export const useChatStore = create<ChatState>()(
           if (errorType) {
             set({ error: errorMessage });
             set((state) => ({
-              messages: state.messages.map((msg) => (msg.id === chatMessage.id ? { ...msg, status: "failed" } : msg)),
+              messages: state.messages.map((msg) => (msg.id === message.id ? { ...msg, status: "failed" } : msg)),
             }));
-            return;
+            return undefined;
           }
 
           console.log("completeMessage", completeMessage);
@@ -168,7 +178,7 @@ export const useChatStore = create<ChatState>()(
           console.error("sendMessage error:", errorMsg, error);
           set({ error: errorMsg });
           set((state) => ({
-            messages: state.messages.map((msg) => (msg.id === chatMessage.id ? { ...msg, status: "failed" } : msg)),
+            messages: state.messages.map((msg) => (msg.id === message.id ? { ...msg, status: "failed" } : msg)),
           }));
           console.error("Failed to send message:", error);
         } finally {

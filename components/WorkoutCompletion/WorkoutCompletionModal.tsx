@@ -33,7 +33,7 @@ interface WorkoutCompletionModalProps {
   caloriesBurned: number;
   trainedMuscles: MuscleGroup[];
   improvements: Improvement[];
-  aiCoachFeedback: Promise<string>;
+  aiCoachFeedback: Promise<string | undefined>;
   onFinish: () => void;
 }
 
@@ -57,7 +57,7 @@ export const WorkoutCompletionModal: React.FC<WorkoutCompletionModalProps> = ({
     const fetchFeedback = async () => {
       try {
         const result = await aiCoachFeedback;
-        setFeedback(result);
+        setFeedback(result ?? "Feedback konnte nicht geladen werden. Bitte versuche es später erneut.");
       } catch (error) {
         console.error("Failed to fetch AI coach feedback:", error);
         setFeedback("Feedback konnte nicht geladen werden. Bitte versuche es später erneut.");

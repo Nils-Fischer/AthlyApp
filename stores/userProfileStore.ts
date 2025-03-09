@@ -26,7 +26,7 @@ const initialProfile: UserProfile = {
   id: "",
   firstName: "",
   lastName: "",
-  age: 0,
+  birthday: new Date(),
   gender: "other" as Gender,
   height: 0,
   weight: 0,
