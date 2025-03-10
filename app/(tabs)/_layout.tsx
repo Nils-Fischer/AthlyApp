@@ -1,5 +1,4 @@
 import { Tabs, usePathname } from "expo-router";
-import { ThemeToggle } from "~/components/ThemeToggle";
 import { useTheme } from "@react-navigation/native";
 import { Dumbbell, Home, MessageCircle, MessageSquare } from "~/lib/icons/Icons";
 import { DumbbellFilled, HomeFilled, MessageCircleFilled, MessageSquareFilled } from "~/lib/icons/FilledIcons";
@@ -59,7 +58,6 @@ export default function TabLayout() {
         tabBarActiveTintColor: colors.text,
         tabBarInactiveTintColor: colors.text + "80",
         headerShown: true,
-        headerRight: () => <ThemeToggle />,
         tabBarStyle: {
           display: hideTabBar ? "none" : "flex",
         },
