@@ -1,8 +1,8 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import { View, Pressable } from "react-native";
 import { Text } from "~/components/ui/text";
-import { Card } from "~/components/ui/card";
-import { Dumbbell, Clock, Play, ChevronRight, Flame, SkipForward } from "~/lib/icons/Icons";
+import { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter } from "~/components/ui/card";
+import { Dumbbell, Clock, Play, ChevronRight, Flame, SkipForward, CircleX } from "~/lib/icons/Icons";
 import { Workout } from "~/lib/types";
 import { useRouter } from "expo-router";
 import { useExerciseStore } from "~/stores/exerciseStore";
@@ -10,6 +10,10 @@ import * as Haptics from "expo-haptics";
 import { useActiveWorkoutStore } from "~/stores/activeWorkoutStore";
 import { ActiveWorkoutCancelConfirmation } from "~/components/ActiveWorkout/ActiveWorkoutCancelConfirmation";
 import { getRepsRange } from "~/lib/utils";
+import { H1, H2, H3, H4, P } from "../ui/typography";
+import { Badge } from "../ui/badge";
+import { CircleStop } from "lucide-react-native";
+import { AnimatedIconButton } from "../ui/animated-icon-button";
 
 interface TodaysWorkoutWidgetProps {
   workout: Workout;
@@ -47,124 +51,118 @@ export const TodaysWorkoutWidget = ({ workout, skipWorkout, isStarted, startWork
     skipWorkout();
   };
 
-  const handleCancel = () => {
-    cancelWorkout();
-    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-    cancelWorkout?.();
-  };
-
   return (
     <>
-      <Card className="overflow-hidden border border-border mb-4">
-        {/* Header Section */}
-        <View className="px-4 pt-4 pb-3 border-b border-border/10">
-          <View className="flex-row items-center justify-between">
-            <View className="flex-row items-center space-x-2">
-              <Text className="font-medium text-base">Heutiges Training</Text>
-            </View>
+      <Pressable onPress={handlePress} className="active:opacity-90 active:scale-[0.98]">
+        <Card className="mb-4">
+          {/* Header Section */}
+          <CardHeader className="px-4 py-4 flex-row items-center justify-between">
+            <CardTitle className="font-medium text-base">Heutiges Training</CardTitle>
             <View className="flex-row items-center">
-              <View className="bg-primary/10 px-3 py-1 rounded-full mr-2">
-                <Text className="text-xs text-primary font-medium">{isStarted ? "In Bearbeitung" : "Geplant"}</Text>
-              </View>
+              <Badge variant="default">
+                <P className="text-xs text-primary-foreground font-medium">
+                  {isStarted ? "In Bearbeitung" : "Geplant"}
+                </P>
+              </Badge>
               <ChevronRight size={20} className="text-primary" />
             </View>
-          </View>
-        </View>
+          </CardHeader>
 
-        {/* Content Section */}
-        <Pressable onPress={handlePress} className="px-4 pt-4 pb-5">
-          <Text className="text-2xl font-bold mb-1">{workout.name}</Text>
-          {workout.description && <Text className="text-base text-muted-foreground mb-4">{workout.description}</Text>}
+          {/* Content Section */}
+          <CardContent>
+            <H3>{workout.name}</H3>
+            {workout.description && <CardDescription className="text-base mb-4">{workout.description}</CardDescription>}
 
-          {/* Quick Stats */}
-          <View className="flex-row items-center mb-6">
-            <View className="flex-row items-center mr-4">
-              <Clock size={16} className="text-primary mr-2" />
-              <Text className="text-sm">{workout.duration || 60} Min</Text>
+            {/* Quick Stats */}
+            <View className="flex-row items-center mb-6">
+              <View className="flex-row items-center mr-4">
+                <Clock size={16} className="text-primary mr-2" />
+                <Text className="text-sm">{workout.duration || 60} Min</Text>
+              </View>
+              <View className="flex-row items-center mr-4">
+                <Flame size={16} className="text-primary mr-2" />
+                <Text className="text-sm">{estimatedCalories} kcal</Text>
+              </View>
+              <View className="flex-row items-center">
+                <Dumbbell size={16} className="text-primary mr-2" />
+                <Text className="text-sm">{workout.exercises.length} Übungen</Text>
+              </View>
             </View>
-            <View className="flex-row items-center mr-4">
-              <Flame size={16} className="text-primary mr-2" />
-              <Text className="text-sm">{estimatedCalories} kcal</Text>
-            </View>
-            <View className="flex-row items-center">
-              <Dumbbell size={16} className="text-primary mr-2" />
-              <Text className="text-sm">{workout.exercises.length} Übungen</Text>
-            </View>
-          </View>
 
-          {/* Exercise Preview */}
-          <View className="space-y-3">
-            {workout.exercises.slice(0, 3).map((workoutExercise, index) => {
-              const exercise = exerciseStore.getExerciseById(workoutExercise.exerciseId);
-              if (!exercise) return null;
+            {/* Exercise Preview */}
+            <View className="space-y-3">
+              {workout.exercises.slice(0, 3).map((workoutExercise, index) => {
+                const exercise = exerciseStore.getExerciseById(workoutExercise.exerciseId);
+                if (!exercise) return null;
 
-              return (
-                <View
-                  key={workoutExercise.exerciseId}
-                  className="flex-row items-center border-l-2 border-primary/20 pl-3"
-                >
-                  <View className="flex-1">
-                    <Text className="font-medium text-foreground">{exercise.name}</Text>
-                    <Text className="text-sm text-muted-foreground">
-                      {workoutExercise.sets.length} Sätze • {getRepsRange(workoutExercise)}
-                    </Text>
+                return (
+                  <View
+                    key={workoutExercise.exerciseId}
+                    className="flex-row items-center border-l-2 border-primary/20 pl-3"
+                  >
+                    <View className="flex-1">
+                      <Text className="font-medium text-foreground">{exercise.name}</Text>
+                      <Text className="text-sm text-muted-foreground">
+                        {workoutExercise.sets.length} Sätze • {getRepsRange(workoutExercise)}
+                      </Text>
+                    </View>
+                    <View className="h-8 w-8 rounded-full border border-primary/20 items-center justify-center">
+                      <Text className="text-xs text-primary font-medium">{index + 1}</Text>
+                    </View>
                   </View>
-                  <View className="h-8 w-8 rounded-full border border-primary/20 items-center justify-center">
-                    <Text className="text-xs text-primary font-medium">{index + 1}</Text>
-                  </View>
-                </View>
-              );
-            })}
-          </View>
+                );
+              })}
+            </View>
 
-          {workout.exercises.length > 3 && (
-            <Pressable onPress={handlePress} className="mt-4 flex-row items-center justify-center">
-              <Text className="text-primary font-medium mr-1">Alle Übungen anzeigen</Text>
-              <ChevronRight size={16} className="text-primary" />
-            </Pressable>
-          )}
-
-          {/* Action Buttons */}
-          <View className="mt-6 flex-row gap-3">
-            {isStarted ? (
-              <>
-                <Pressable
-                  onPress={() => setShowCancelDialog(true)}
-                  className="flex-1 py-3 rounded-full bg-destructive flex-row items-center justify-center"
-                >
-                  <Text className="font-medium text-destructive-foreground">Training abbrechen</Text>
-                </Pressable>
-
-                <Pressable
-                  onPress={handlePress}
-                  className="flex-1 bg-primary py-3 rounded-full flex-row items-center justify-center"
-                >
-                  <Play size={18} className="text-primary-foreground mr-2" />
-                  <Text className="text-primary-foreground font-medium">Fortsetzen</Text>
-                </Pressable>
-              </>
-            ) : (
-              <>
-                <Pressable
-                  onPress={handleSkip}
-                  className="flex-1 py-3 rounded-full border border-border flex-row items-center justify-center"
-                >
-                  <SkipForward size={18} className="text-foreground mr-2" />
-                  <Text className="font-medium">Überspringen</Text>
-                </Pressable>
-
-                <Pressable
-                  onPress={handleStartWorkout}
-                  className="flex-1 bg-primary py-3 rounded-full flex-row items-center justify-center"
-                >
-                  <Play size={18} className="text-primary-foreground mr-2" />
-                  <Text className="text-primary-foreground font-medium">Starten</Text>
-                </Pressable>
-              </>
+            {workout.exercises.length > 3 && (
+              <Pressable onPress={handlePress} className="mt-4 flex-row items-center justify-center">
+                <Text className="text-primary font-medium mr-1">Alle Übungen anzeigen</Text>
+                <ChevronRight size={16} className="text-primary" />
+              </Pressable>
             )}
-          </View>
-        </Pressable>
-      </Card>
+
+            {/* Action Buttons */}
+            <CardFooter className="gap-4 flex-row justify-start items-start mt-4">
+              {isStarted ? (
+                <>
+                  <AnimatedIconButton
+                    onPress={() => setShowCancelDialog(true)}
+                    icon={<CircleStop className="text-destructive-foreground" />}
+                    label="Abbrechen"
+                    haptics="heavy"
+                    className="bg-destructive text-destructive-foreground flex-1"
+                  />
+
+                  <AnimatedIconButton
+                    onPress={handlePress}
+                    icon={<Play className="text-primary-foreground" />}
+                    label="Fortsetzen"
+                    haptics="light"
+                    className="flex-1"
+                  />
+                </>
+              ) : (
+                <>
+                  <AnimatedIconButton
+                    onPress={handleSkip}
+                    icon={<SkipForward className="text-primary-foreground" />}
+                    label="Überspringen"
+                    haptics="light"
+                    className="flex-1"
+                  />
+                  <AnimatedIconButton
+                    onPress={handleStartWorkout}
+                    icon={<Play className="text-primary-foreground" />}
+                    label="Starten"
+                    haptics="light"
+                    className="flex-1"
+                  />
+                </>
+              )}
+            </CardFooter>
+          </CardContent>
+        </Card>
+      </Pressable>
 
       <ActiveWorkoutCancelConfirmation
         showCancelDialog={showCancelDialog}
