@@ -1,6 +1,6 @@
 import * as React from "react";
 import { View, KeyboardAvoidingView, Platform, Keyboard, Image as RNImage } from "react-native";
-import { ChatMessage } from "~/lib/types";
+import { ChatMessage, WorkoutSession } from "~/lib/types";
 import { Button } from "~/components/ui/button";
 import { Text } from "~/components/ui/text";
 import { TypingIndicator } from "./TypingIndicator";
@@ -20,6 +20,7 @@ interface ChatInterfaceProps {
   isTyping: boolean;
   onSendMessage: (message: string, image: string[]) => Promise<void>;
   showRoutine?: (routine: Routine) => void;
+  showWorkoutSessionLog?: (workoutSession: WorkoutSession) => void;
   deleteMessage: (messageId: string) => void;
   resendMessage: (messageId: string) => void;
 }
@@ -29,6 +30,7 @@ export default function ChatInterface({
   isTyping,
   onSendMessage,
   showRoutine,
+  showWorkoutSessionLog,
   deleteMessage,
   resendMessage,
 }: ChatInterfaceProps) {
@@ -144,6 +146,7 @@ export default function ChatInterface({
               key={item.id}
               message={item}
               showRoutine={showRoutine ?? (() => {})}
+              showWorkoutSessionLog={showWorkoutSessionLog ?? (() => {})}
               deleteMessage={() => deleteMessage(item.id)}
               resendMessage={() => resendMessage(item.id)}
             />

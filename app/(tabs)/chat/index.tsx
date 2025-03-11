@@ -3,11 +3,12 @@ import { View } from "react-native";
 import { useRef } from "react";
 import ActionSheet, { ActionSheetRef } from "react-native-actions-sheet";
 import ChatInterface from "~/components/Chat/chatinterface";
-import { Routine } from "~/lib/types";
+import { Routine, WorkoutSession } from "~/lib/types";
 import { useChatStore } from "~/stores/chatStore";
 import { useUserRoutineStore } from "~/stores/userRoutineStore";
 import { useUserProfileStore } from "~/stores/userProfileStore";
 import { RoutinePreview } from "~/lib/Chat/RoutinePreview";
+import WorkoutSessionLog from "~/components/WorkoutCompletion/WorkoutLogOverview";
 
 export default function ChatScreen() {
   const actionSheetRef = useRef<ActionSheetRef>(null);
@@ -22,6 +23,11 @@ export default function ChatScreen() {
     setPreviewContent(
       <RoutinePreview isAlreadyAdded={isAlreadyAdded} routine={routine} handleAddRoutine={addRoutine} />
     );
+    actionSheetRef.current?.show();
+  };
+
+  const previewWorkoutSessionLog = (workoutSession: WorkoutSession) => {
+    setPreviewContent(<WorkoutSessionLog workout={workoutSession} />);
     actionSheetRef.current?.show();
   };
 
@@ -54,6 +60,7 @@ export default function ChatScreen() {
         isTyping={isTyping}
         onSendMessage={handleSendMessage}
         showRoutine={previewRoutine}
+        showWorkoutSessionLog={previewWorkoutSessionLog}
         deleteMessage={deleteMessage}
         resendMessage={handleResendMessage}
       />

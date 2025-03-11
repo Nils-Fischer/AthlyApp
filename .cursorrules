@@ -55,7 +55,7 @@ app.json
    - Use <Select /> from components/ui/select.tsx and <CustomDropdownMenu /> from components/ui/custom-dropdown-menu.tsx for dropdown menus
    - Use <Textarea /> from components/ui/textarea.tsx for multiline text input
    - Use <Dialog /> from components/ui/dialog.tsx for modal dialogs
-   - Use <Badge /> from components/ui/badge.tsx for notification badges
+   - Use <Badge /> from components/ui/badge.tsx for notification badges (Wrapper for a Text Component)
    - Use <Avatar /> from components/ui/avatar.tsx for user avatars
    - Use <Separator /> from components/ui/separator.tsx for divider lines
    - Use <Tooltip /> from components/ui/tooltip.tsx for informational tooltips

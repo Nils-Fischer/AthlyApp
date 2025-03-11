@@ -15,9 +15,10 @@ import { RefreshCw, Trash2 } from "~/lib/icons/Icons";
 export const ChatMessage = React.memo<{
   message: ChatMessageType;
   showRoutine: (routine: Routine) => void;
+  showWorkoutSessionLog: (workoutSession: WorkoutSession) => void;
   deleteMessage: () => void;
   resendMessage: () => void;
-}>(({ message, showRoutine, deleteMessage, resendMessage }) => {
+}>(({ message, showRoutine, showWorkoutSessionLog, deleteMessage, resendMessage }) => {
   const isAI = message.role === "assistant";
   const timestamp = new Date(message.createdAt);
   let messageContent: string = "";
@@ -84,10 +85,10 @@ export const ChatMessage = React.memo<{
                     variant="secondary"
                     className="mt-2"
                     onPress={() => {
-                      console.log("workoutSession", workoutSession);
+                      workoutSession && showWorkoutSessionLog(workoutSession);
                     }}
                   >
-                    <Text>Workout ansehen (WIP)</Text>
+                    <Text>Workout ansehen</Text>
                   </Button>
                 )}
               </View>
