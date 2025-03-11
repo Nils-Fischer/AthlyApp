@@ -5,11 +5,8 @@ import { Theme, ThemeProvider } from "@react-navigation/native";
 import { SplashScreen, Stack } from "expo-router";
 import { StatusBar } from "expo-status-bar";
 import * as React from "react";
-import { Platform } from "react-native";
 import { NAV_THEME } from "~/lib/constants";
-import { useColorScheme } from "~/lib/useColorScheme";
 import { PortalHost } from "@rn-primitives/portal";
-import { setAndroidNavigationBar } from "~/lib/android-navigation-bar";
 import { SessionProvider } from "~/context";
 import { useExerciseStore } from "~/stores/exerciseStore";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
@@ -69,7 +66,7 @@ export { ErrorBoundary } from "expo-router";
 SplashScreen.preventAutoHideAsync();
 
 export default function RootLayout() {
-  const { colorScheme, setColorScheme, isDarkColorScheme } = useColorScheme();
+  // const { colorScheme, setColorScheme, isDarkColorScheme } = useColorScheme();
   const [isReady, setIsReady] = React.useState(false);
   const [firstLaunch, setFirstLaunch] = React.useState(false);
   const { setProfile } = useUserProfileStore();
@@ -89,6 +86,7 @@ export default function RootLayout() {
   React.useEffect(() => {
     async function initialize() {
       try {
+        /* disable darkmode for now
         const theme = await AsyncStorage.getItem("theme");
         if (Platform.OS === "web") {
           document.documentElement.classList.add("bg-background");
@@ -105,6 +103,7 @@ export default function RootLayout() {
         if (!theme) {
           await AsyncStorage.setItem("theme", colorScheme);
         }
+        */
 
         await AsyncStorage.setItem("APP_INITIALIZED", "true");
         await Promise.all([exerciseStore.fetchInitialData()]);
@@ -148,8 +147,8 @@ export default function RootLayout() {
     <GestureHandlerRootView style={{ flex: 1 }}>
       <SessionProvider>
         <SheetProvider>
-          <ThemeProvider value={isDarkColorScheme ? DARK_THEME : LIGHT_THEME}>
-            <StatusBar style={isDarkColorScheme ? "light" : "dark"} />
+          <ThemeProvider value={LIGHT_THEME}>
+            <StatusBar style={"light"} />
             <Stack>
               <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
             </Stack>
