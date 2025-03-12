@@ -1,13 +1,24 @@
 import React, { useMemo } from "react";
-import { View, ScrollView, TouchableOpacity } from "react-native";
+import { View, TouchableOpacity } from "react-native";
 import { Text } from "~/components/ui/text";
 import { Button } from "~/components/ui/button";
-import { ChevronRight, CheckCircle2, Dumbbell, MoreHorizontal, Trash2, Edit3, Repeat } from "~/lib/icons/Icons";
+import {
+  ChevronRight,
+  CheckCircle2,
+  Dumbbell,
+  MoreHorizontal,
+  Trash2,
+  Edit3,
+  Repeat,
+  GripVertical,
+} from "~/lib/icons/Icons";
 import Animated, { FadeIn } from "react-native-reanimated";
 import type { Workout, WorkoutExercise, Exercise, ExerciseRecord } from "~/lib/types";
 import { Image } from "expo-image";
 import { getRepsRange, getThumbnail } from "~/lib/utils";
 import { CustomDropdownMenu } from "~/components/ui/custom-dropdown-menu";
+import DraggableFlatList, { RenderItemParams } from "react-native-draggable-flatlist";
+import * as Haptics from "expo-haptics";
 
 interface ActiveWorkoutExerciseListProps {
   workout: Workout;
@@ -18,6 +29,7 @@ interface ActiveWorkoutExerciseListProps {
   onShowAlternatives: (exercise: WorkoutExercise) => void;
   onShowEditSheet: (exercise: WorkoutExercise) => void;
   onDelete: (exercise: WorkoutExercise) => void;
+  onExercisesReorder?: (exercises: WorkoutExercise[]) => void;
 }
 
 export function ActiveWorkoutExerciseList({
@@ -29,43 +41,86 @@ export function ActiveWorkoutExerciseList({
   onShowAlternatives,
   onShowEditSheet,
   onDelete,
+  onExercisesReorder,
 }: ActiveWorkoutExerciseListProps) {
-  const sortedExercises = React.useMemo(() => {
-    return [...workout.exercises].sort((a, b) => {
-      const aCompleted = exerciseRecords.get(a.exerciseId)?.isCompleted || false;
-      const bCompleted = exerciseRecords.get(b.exerciseId)?.isCompleted || false;
+  // Keep track of the user-ordered exercises with local state
+  const [orderedExercises, setOrderedExercises] = React.useState<WorkoutExercise[]>([]);
 
-      if (aCompleted === bCompleted) return 0;
-      return aCompleted ? 1 : -1;
+  // When the workout changes, update our ordered exercises
+  React.useEffect(() => {
+    setOrderedExercises(workout.exercises);
+  }, [workout]);
+
+  // Only sort when workout is started, otherwise use the user's order
+  const displayExercises = React.useMemo(() => {
+    if (isStarted) {
+      // Use the sorted list when the workout is started
+      return [...workout.exercises].sort((a, b) => {
+        const aCompleted = exerciseRecords.get(a.exerciseId)?.isCompleted || false;
+        const bCompleted = exerciseRecords.get(b.exerciseId)?.isCompleted || false;
+
+        if (aCompleted === bCompleted) return 0;
+        return aCompleted ? 1 : -1;
+      });
+    } else {
+      // Use the ordered list when in edit mode
+      return orderedExercises;
+    }
+  }, [isStarted, workout.exercises, exerciseRecords, orderedExercises]);
+
+  const handleDragStart = React.useCallback(() => {
+    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
+  }, []);
+
+  const handleDragEnd = ({ data }: { data: WorkoutExercise[] }) => {
+    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+
+    // Update our local state
+    setOrderedExercises(data);
+
+    // Wait for animation to complete before notifying parent
+    requestAnimationFrame(() => {
+      if (onExercisesReorder) {
+        onExercisesReorder(data);
+      }
     });
-  }, [workout.exercises, exerciseRecords]);
+  };
+
+  const renderItem = ({ item, drag, isActive }: RenderItemParams<WorkoutExercise>) => {
+    const exercise = exercises.find((e) => e.id === item.exerciseId);
+    const exerciseRecord = exerciseRecords.get(item.exerciseId);
+
+    if (!exercise) return <View />;
+
+    return (
+      <ExerciseCard
+        exercise={exercise}
+        workoutExercise={item}
+        exerciseRecord={exerciseRecord}
+        isStarted={isStarted}
+        onSelect={() => onExerciseSelect(item)}
+        onShowAlternatives={() => onShowAlternatives(item)}
+        onShowEditSheet={() => onShowEditSheet(item)}
+        onDelete={() => onDelete(item)}
+        drag={drag}
+        isActive={isActive}
+        isDraggable={!isStarted} // Only allow dragging when workout hasn't started
+      />
+    );
+  };
 
   return (
-    <ScrollView className="flex-1 px-4" showsVerticalScrollIndicator={false}>
-      <View className="py-2">
-        {sortedExercises.map((workoutExercise, index) => {
-          const exercise = exercises.find((e) => e.id === workoutExercise.exerciseId);
-          const exerciseRecord = exerciseRecords.get(workoutExercise.exerciseId);
-
-          if (!exercise) return <View key={`${workoutExercise.exerciseId}-${index}`} />;
-
-          return (
-            <ExerciseCard
-              key={`${workoutExercise.exerciseId}-${index}`}
-              exercise={exercise}
-              workoutExercise={workoutExercise}
-              exerciseRecord={exerciseRecord}
-              isStarted={isStarted}
-              onSelect={() => onExerciseSelect(workoutExercise)}
-              onShowAlternatives={() => onShowAlternatives(workoutExercise)}
-              onShowEditSheet={() => onShowEditSheet(workoutExercise)}
-              onDelete={() => onDelete(workoutExercise)}
-            />
-          );
-        })}
-      </View>
-      <View className="h-32" />
-    </ScrollView>
+    <DraggableFlatList
+      data={displayExercises}
+      onDragEnd={handleDragEnd}
+      onDragBegin={handleDragStart}
+      keyExtractor={(item) => item.exerciseId.toString()}
+      renderItem={renderItem}
+      containerStyle={{ flex: 1 }}
+      contentContainerStyle={{ paddingHorizontal: 16, paddingVertical: 8, paddingBottom: 128 }}
+      dragHitSlop={{ top: 0, bottom: 0, left: 0, right: 0 }}
+      animationConfig={{ duration: 200 }}
+    />
   );
 }
 
@@ -78,6 +133,9 @@ interface ExerciseCardProps {
   onShowAlternatives: () => void;
   onShowEditSheet: () => void;
   onDelete: () => void;
+  drag?: () => void;
+  isActive?: boolean;
+  isDraggable?: boolean;
 }
 
 function ExerciseCard({
@@ -89,6 +147,9 @@ function ExerciseCard({
   onShowAlternatives,
   onShowEditSheet,
   onDelete,
+  drag,
+  isActive,
+  isDraggable,
 }: ExerciseCardProps) {
   const totalSets = useMemo(() => {
     return exerciseRecord?.sets.length || workoutExercise.sets.length;
@@ -120,11 +181,39 @@ function ExerciseCard({
     },
   ];
 
+  const handleLongPress = () => {
+    if (isDraggable && drag) {
+      // The drag start haptic will be triggered by the DraggableFlatList's onDragBegin
+      drag();
+    }
+  };
+
+  const handlePress = () => {
+    // Only trigger selection if not in drag mode
+    if (!isActive) {
+      onSelect();
+    }
+  };
+
   return (
     <Animated.View entering={FadeIn}>
-      <TouchableOpacity onPress={onSelect} className="active:opacity-90">
-        <View className={`bg-card border-b border-border/30 ${isCompleted ? "opacity-50" : ""}`}>
+      <TouchableOpacity
+        onPress={handlePress}
+        onLongPress={isDraggable ? handleLongPress : undefined}
+        delayLongPress={150}
+        className="active:opacity-90"
+      >
+        <View
+          className={`bg-card border-b border-border/30 ${isCompleted ? "opacity-50" : ""} ${
+            isActive ? "bg-muted/10" : ""
+          }`}
+        >
           <View className="flex-row p-4">
+            {isDraggable && (
+              <View className="mr-2 items-center justify-center">
+                <GripVertical size={20} className="text-muted-foreground" />
+              </View>
+            )}
             <View className="mr-4">
               {imageUrl ? (
                 <Image
