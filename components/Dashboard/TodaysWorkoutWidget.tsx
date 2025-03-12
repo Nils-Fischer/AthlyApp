@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { View, Pressable } from "react-native";
 import { Text } from "~/components/ui/text";
 import { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter } from "~/components/ui/card";
-import { Dumbbell, Clock, Play, ChevronRight, Flame, SkipForward, CircleX } from "~/lib/icons/Icons";
+import { Dumbbell, Clock, Play, ChevronRight, Flame, SkipForward } from "~/lib/icons/Icons";
 import { Workout } from "~/lib/types";
 import { useRouter } from "expo-router";
 import { useExerciseStore } from "~/stores/exerciseStore";
@@ -10,7 +10,7 @@ import * as Haptics from "expo-haptics";
 import { useActiveWorkoutStore } from "~/stores/activeWorkoutStore";
 import { ActiveWorkoutCancelConfirmation } from "~/components/ActiveWorkout/ActiveWorkoutCancelConfirmation";
 import { getRepsRange } from "~/lib/utils";
-import { H1, H2, H3, H4, P } from "../ui/typography";
+import { H3, P } from "../ui/typography";
 import { Badge } from "../ui/badge";
 import { CircleStop } from "lucide-react-native";
 import { AnimatedIconButton } from "../ui/animated-icon-button";
@@ -53,7 +53,7 @@ export const TodaysWorkoutWidget = ({ workout, skipWorkout, isStarted, startWork
 
   return (
     <>
-      <Pressable onPress={handlePress} className="active:opacity-90 active:scale-[0.98]">
+      <Pressable onPress={handlePress}>
         <Card className="mb-4">
           {/* Header Section */}
           <CardHeader className="px-4 py-4 flex-row items-center justify-between">
