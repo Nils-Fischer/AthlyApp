@@ -8,6 +8,7 @@ import { router } from "expo-router";
 import { useChatStore } from "~/stores/chatStore";
 import { useUserProfileStore } from "~/stores/userProfileStore";
 import { useMemo } from "react";
+import { useUserRoutineStore } from "~/stores/userRoutineStore";
 
 export type Improvement = {
   exerciseName: string;
@@ -21,6 +22,7 @@ export default function WorkoutCompletion() {
   const { getExerciseById } = useExerciseStore();
   const { sendWorkoutReviewMessage } = useChatStore();
   const { profile } = useUserProfileStore();
+  const { routines } = useUserRoutineStore();
 
   const lastSession = getLastSession();
 
@@ -34,7 +36,7 @@ export default function WorkoutCompletion() {
 
   // Create a memoized promise that won't change on re-renders
   const feedbackPromise = useMemo(() => {
-    return sendWorkoutReviewMessage(lastSession, { profile });
+    return sendWorkoutReviewMessage(lastSession, routines, { profile });
   }, [lastSession, profile, sendWorkoutReviewMessage]);
 
   const { workoutName, date, entries, duration } = lastSession;
