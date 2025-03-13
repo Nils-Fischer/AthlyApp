@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { View, Pressable } from "react-native";
+import { View, Pressable, TouchableOpacity } from "react-native";
 import { Text } from "~/components/ui/text";
 import { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter } from "~/components/ui/card";
 import { Dumbbell, Clock, Play, ChevronRight, Flame, SkipForward } from "~/lib/icons/Icons";
@@ -31,6 +31,7 @@ export const TodaysWorkoutWidget = ({ workout, skipWorkout, isStarted, startWork
   const [showCancelDialog, setShowCancelDialog] = useState(false);
 
   const handlePress = () => {
+    console.log("handlePress");
     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
     router.push({
       pathname: "/(tabs)/(dashboard)/active-workout/[id]",
@@ -53,7 +54,7 @@ export const TodaysWorkoutWidget = ({ workout, skipWorkout, isStarted, startWork
 
   return (
     <>
-      <Pressable onPress={handlePress}>
+      <Pressable onPress={handlePress} className="active:opacity-80">
         <Card className="mb-4">
           {/* Header Section */}
           <CardHeader className="px-4 py-4 flex-row items-center justify-between">
@@ -122,7 +123,7 @@ export const TodaysWorkoutWidget = ({ workout, skipWorkout, isStarted, startWork
             )}
 
             {/* Action Buttons */}
-            <CardFooter className="gap-4 flex-row justify-start items-start mt-4">
+            <CardFooter className="px-0 w-full gap-4 flex-row justify-between items-center mt-4">
               {isStarted ? (
                 <>
                   <AnimatedIconButton
