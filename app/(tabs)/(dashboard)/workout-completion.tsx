@@ -36,7 +36,7 @@ export default function WorkoutCompletion() {
 
   // Create a memoized promise that won't change on re-renders
   const feedbackPromise = useMemo(() => {
-    return sendWorkoutReviewMessage(lastSession, routines, { profile });
+    return sendWorkoutReviewMessage(lastSession, routines, JSON.stringify(profile, null, 2));
   }, [lastSession, profile, sendWorkoutReviewMessage]);
 
   const { workoutName, date, entries, duration } = lastSession;

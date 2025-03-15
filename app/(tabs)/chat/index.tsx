@@ -37,7 +37,7 @@ export default function ChatScreen() {
   const handleSendMessage = async (message: string, images: string[]): Promise<void> => {
     try {
       setIsTyping(true);
-      await sendMessage(message, images || [], routines, { profile });
+      await sendMessage(message, images || [], routines, JSON.stringify(profile, null, 2));
     } catch (error) {
       console.error("Error sending message:", error);
     } finally {
@@ -48,7 +48,7 @@ export default function ChatScreen() {
   const handleResendMessage = async (messageId: string) => {
     try {
       setIsTyping(true);
-      await resendMessage(messageId, routines, { profile });
+      await resendMessage(messageId, routines, JSON.stringify(profile, null, 2));
     } catch (error) {
       console.error("Error resending message:", error);
     } finally {

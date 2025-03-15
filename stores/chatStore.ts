@@ -32,16 +32,16 @@ interface ChatState {
   messages: ChatMessage[];
   context: string;
   error: string | null;
-  sendChatMessage: (message: string, images: string[], userRoutines: Routine[], data: MessageData) => Promise<void>;
+  sendChatMessage: (message: string, images: string[], userRoutines: Routine[], userInfo: string) => Promise<void>;
   sendWorkoutReviewMessage: (
     session: WorkoutSession,
     userRoutines: Routine[],
-    data: MessageData
+    userInfo: string
   ) => Promise<string | undefined>;
   sendMessage: (
     message: ChatMessage,
     userRoutines: Routine[],
-    data: MessageData,
+    userInfo: string,
     endpoint: string
   ) => Promise<string | undefined>;
   updateMessageStatus: (messageId: string, status: "sent" | "sending" | "failed") => void;
@@ -51,7 +51,7 @@ interface ChatState {
   setContext: (context: string) => void;
   setError: (error: string | null) => void;
   deleteMessage: (messageId: string) => void;
-  resendMessage: (messageId: string, userRoutines: Routine[], data: MessageData) => void;
+  resendMessage: (messageId: string, userRoutines: Routine[], userInfo: string) => void;
 }
 
 export const useChatStore = create<ChatState>()(
@@ -85,25 +85,25 @@ export const useChatStore = create<ChatState>()(
         set((state) => ({
           messages: state.messages.filter((message) => message.id !== messageId),
         })),
-      resendMessage: (messageId, userRoutines, data: MessageData) => {
+      resendMessage: (messageId, userRoutines, userInfo) => {
         const messageToResend = get().messages.find((m) => m.id === messageId);
         if (!messageToResend || messageToResend.role === "assistant") return;
 
         get().deleteMessage(messageId);
         messageToResend.workoutSession
-          ? get().sendWorkoutReviewMessage(messageToResend.workoutSession, userRoutines, data)
-          : get().sendChatMessage(messageToResend.message, messageToResend.images, userRoutines, data);
+          ? get().sendWorkoutReviewMessage(messageToResend.workoutSession, userRoutines, userInfo)
+          : get().sendChatMessage(messageToResend.message, messageToResend.images, userRoutines, userInfo);
       },
-      sendChatMessage: async (message: string, images: string[], userRoutines: Routine[], data: MessageData) => {
+      sendChatMessage: async (message: string, images: string[], userRoutines: Routine[], userInfo: string) => {
         const chatMessage = createUserMessage(message, images);
-        get().sendMessage(chatMessage, userRoutines, data, "chat");
+        get().sendMessage(chatMessage, userRoutines, userInfo, "chat");
       },
-      sendWorkoutReviewMessage: async (session: WorkoutSession, userRoutines: Routine[], data: MessageData) => {
+      sendWorkoutReviewMessage: async (session: WorkoutSession, userRoutines: Routine[], userInfo: string) => {
         const chatMessage = createWorkoutReviewMessage(session);
-        const response = await get().sendMessage(chatMessage, userRoutines, data, "workout-review");
+        const response = await get().sendMessage(chatMessage, userRoutines, userInfo, "workout-review");
         return response;
       },
-      sendMessage: async (message: ChatMessage, userRoutines: Routine[], data: MessageData, endpoint: string) => {
+      sendMessage: async (message: ChatMessage, userRoutines: Routine[], userInfo: string, endpoint: string) => {
         console.log("sendMessage called with message:", message);
         get().setError(null);
 
@@ -127,9 +127,9 @@ export const useChatStore = create<ChatState>()(
             body: JSON.stringify({
               provider: "google",
               messages: lastTechnicalMessages,
-              data,
-              userRoutines,
-              context: get().context,
+              userInfo: userInfo,
+              userRoutines: userRoutines,
+              chatContext: get().context,
             }),
           });
           console.log("API response received:", response);
