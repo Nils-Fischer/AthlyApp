@@ -3,8 +3,8 @@ import { Routine } from "../types";
 import { H1 } from "~/components/ui/typography";
 import { Button } from "~/components/ui/button";
 import { Text } from "~/components/ui/text";
-import { RoutineOverview } from "~/components/Routine/RoutineOverview";
-import React, { useEffect, useMemo, useState } from "react";
+import React, { useMemo } from "react";
+import { RoutineComparisonOverview } from "~/components/RoutineComparison/RoutineComparisonOverview";
 
 export const RoutinePreview = ({
   allRoutines,
@@ -53,7 +53,10 @@ export const RoutinePreview = ({
       </View>
 
       <View className="space-y-4 flex-1">
-        <RoutineOverview routine={previewRoutine} />
+        <RoutineComparisonOverview
+          routine={previewRoutine}
+          oldComparisonRoutine={allRoutines.find((r) => r.id === previewRoutine.id)}
+        />
       </View>
     </View>
   );
