@@ -4,50 +4,57 @@ import { H1 } from "~/components/ui/typography";
 import { Button } from "~/components/ui/button";
 import { Text } from "~/components/ui/text";
 import { RoutineOverview } from "~/components/Routine/RoutineOverview";
-import React from "react";
+import React, { useEffect, useMemo, useState } from "react";
 
 export const RoutinePreview = ({
-  isAlreadyAdded,
-  routine,
+  allRoutines,
+  previewRoutine,
   handleAddRoutine,
+  handleModifyRoutine,
 }: {
-  isAlreadyAdded: boolean;
-  routine: Routine;
+  allRoutines: Routine[];
+  previewRoutine: Routine;
   handleAddRoutine: (routine: Routine) => void;
+  handleModifyRoutine: (routine: Routine) => void;
 }) => {
-  const [isAdded, setIsAdded] = React.useState(isAlreadyAdded);
+  const state: "added" | "notAdded" | "modified" = useMemo(() => getState(), [allRoutines, previewRoutine]);
 
+  function getState(): "added" | "notAdded" | "modified" {
+    const existingRoutine = allRoutines.find((r) => r.id === previewRoutine.id);
+    if (existingRoutine)
+      return JSON.stringify(existingRoutine) === JSON.stringify(previewRoutine) ? "added" : "modified";
+    return "notAdded";
+  }
   const addRoutine = () => {
-    setIsAdded(true);
-    handleAddRoutine(routine);
+    handleAddRoutine(previewRoutine);
+  };
+
+  const modifyRoutine = () => {
+    handleModifyRoutine(previewRoutine);
   };
 
   return (
     <View className="p-4 bg-background min-h-full">
       <View className="flex-row justify-between items-center mb-4 mx-2">
         <H1 className="text-xl font-semibold text-foreground">Trainingsplan Vorschau</H1>
-        {routine && !isAdded ? (
+        {state === "notAdded" ? (
           <Button variant="ghost" size="icon" className="w-24" onPress={addRoutine}>
             <Text className="text-lg font-semibold text-destructive">Speichern</Text>
           </Button>
-        ) : (
+        ) : state === "added" ? (
           <Button variant="ghost" size="icon" className="w-24" disabled>
             <Text className="text-green-500 text-center text-lg">Gespeichert</Text>
+          </Button>
+        ) : (
+          <Button variant="ghost" size="icon" className="w-24" onPress={modifyRoutine}>
+            <Text className="text-destructive text-center text-lg">Übernehmen</Text>
           </Button>
         )}
       </View>
 
-      {routine ? (
-        <View className="space-y-4 flex-1">
-          <RoutineOverview routine={routine} />
-        </View>
-      ) : (
-        <View className="p-4 items-center justify-center">
-          <Text className="text-muted-foreground text-center">
-            Keine Routine ausgewählt. Frag mich nach einem Trainingsplan!
-          </Text>
-        </View>
-      )}
+      <View className="space-y-4 flex-1">
+        <RoutineOverview routine={previewRoutine} />
+      </View>
     </View>
   );
 };

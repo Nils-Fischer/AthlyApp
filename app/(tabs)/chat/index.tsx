@@ -13,21 +13,24 @@ import WorkoutSessionLog from "~/components/WorkoutCompletion/WorkoutLogOverview
 export default function ChatScreen() {
   const actionSheetRef = useRef<ActionSheetRef>(null);
   const { messages, sendChatMessage: sendMessage, deleteMessage, resendMessage } = useChatStore();
-  const { routines, addRoutine } = useUserRoutineStore();
+  const { addRoutine, updateRoutine } = useUserRoutineStore();
+  const routines = useUserRoutineStore((state) => state.routines);
   const { profile } = useUserProfileStore();
   const [isTyping, setIsTyping] = React.useState(false);
-  const [previewContent, setPreviewContent] = React.useState<React.ReactNode | null>(null);
 
-  const previewRoutine = (routine: Routine) => {
-    const isAlreadyAdded = routines.some((r) => r.id === routine.id);
-    setPreviewContent(
-      <RoutinePreview isAlreadyAdded={isAlreadyAdded} routine={routine} handleAddRoutine={addRoutine} />
-    );
+  const [previewContent, setPreviewContent] = React.useState<"routine" | "workoutSession" | null>(null);
+  const [previewRoutine, setPreviewRoutine] = React.useState<Routine | null>(null);
+  const [previewWorkoutSessionLog, setPreviewWorkoutSessionLog] = React.useState<WorkoutSession | null>(null);
+
+  const showPreviewRoutine = (routine: Routine) => {
+    setPreviewRoutine(routine);
+    setPreviewContent("routine");
     actionSheetRef.current?.show();
   };
 
-  const previewWorkoutSessionLog = (workoutSession: WorkoutSession) => {
-    setPreviewContent(<WorkoutSessionLog workout={workoutSession} />);
+  const showPreviewWorkoutSessionLog = (workoutSession: WorkoutSession) => {
+    setPreviewWorkoutSessionLog(workoutSession);
+    setPreviewContent("workoutSession");
     actionSheetRef.current?.show();
   };
 
@@ -59,8 +62,8 @@ export default function ChatScreen() {
         messages={messages}
         isTyping={isTyping}
         onSendMessage={handleSendMessage}
-        showRoutine={previewRoutine}
-        showWorkoutSessionLog={previewWorkoutSessionLog}
+        showPreviewRoutine={showPreviewRoutine}
+        showPreviewWorkoutSessionLog={showPreviewWorkoutSessionLog}
         deleteMessage={deleteMessage}
         resendMessage={handleResendMessage}
       />
@@ -73,7 +76,17 @@ export default function ChatScreen() {
         closeOnTouchBackdrop={true}
         elevation={2}
       >
-        {previewContent}
+        {previewContent === "routine" && previewRoutine && (
+          <RoutinePreview
+            allRoutines={routines}
+            previewRoutine={previewRoutine}
+            handleAddRoutine={addRoutine}
+            handleModifyRoutine={updateRoutine}
+          />
+        )}
+        {previewContent === "workoutSession" && previewWorkoutSessionLog && (
+          <WorkoutSessionLog workout={previewWorkoutSessionLog} />
+        )}
       </ActionSheet>
     </View>
   );

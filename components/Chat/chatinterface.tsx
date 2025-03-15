@@ -19,8 +19,8 @@ interface ChatInterfaceProps {
   messages: ChatMessage[];
   isTyping: boolean;
   onSendMessage: (message: string, image: string[]) => Promise<void>;
-  showRoutine?: (routine: Routine) => void;
-  showWorkoutSessionLog?: (workoutSession: WorkoutSession) => void;
+  showPreviewRoutine?: (routine: Routine) => void;
+  showPreviewWorkoutSessionLog?: (workoutSession: WorkoutSession) => void;
   deleteMessage: (messageId: string) => void;
   resendMessage: (messageId: string) => void;
 }
@@ -29,8 +29,8 @@ export default function ChatInterface({
   messages,
   isTyping,
   onSendMessage,
-  showRoutine,
-  showWorkoutSessionLog,
+  showPreviewRoutine,
+  showPreviewWorkoutSessionLog,
   deleteMessage,
   resendMessage,
 }: ChatInterfaceProps) {
@@ -145,8 +145,8 @@ export default function ChatInterface({
             <ChatMessageUI
               key={item.id}
               message={item}
-              showRoutine={showRoutine ?? (() => {})}
-              showWorkoutSessionLog={showWorkoutSessionLog ?? (() => {})}
+              showRoutine={showPreviewRoutine ?? (() => {})}
+              showWorkoutSessionLog={showPreviewWorkoutSessionLog ?? (() => {})}
               deleteMessage={() => deleteMessage(item.id)}
               resendMessage={() => resendMessage(item.id)}
             />

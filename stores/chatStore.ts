@@ -6,7 +6,7 @@ import { createUserMessage, createWorkoutReviewMessage } from "~/lib/Chat/chatUt
 import { randomUUID } from "expo-crypto";
 import { CoreMessage } from "ai";
 
-const API_URL = "https://b5d691c6-api-proxy-worker.nils-fischer7.workers.dev";
+const API_URL = "https://api-proxy-worker.nils-fischer7.workers.dev";
 
 const INITIAL_MESSAGE_TEXT = "Hey! Ich bin Alex, dein AI Coach. Wie kann ich dir helfen?";
 
@@ -145,7 +145,10 @@ export const useChatStore = create<ChatState>()(
           }
 
           console.log("responseText", responseBody);
-          console.log("responseBody", (JSON.parse(responseBody).response as ChatResponse).completeResponse);
+          console.log(
+            "responseBody",
+            JSON.stringify((JSON.parse(responseBody).response as ChatResponse).completeResponse, null, 2)
+          );
           const {
             text,
             routine,
