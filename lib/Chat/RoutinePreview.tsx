@@ -36,17 +36,21 @@ export const RoutinePreview = ({
   return (
     <View className="p-4 bg-background min-h-full">
       <View className="flex-row justify-between items-center mb-4 mx-2">
-        <H1 className="text-xl font-semibold text-foreground">Trainingsplan Vorschau</H1>
+        <View className="flex-1 mr-2">
+          <H1 className="text-xl font-semibold text-foreground" numberOfLines={1} ellipsizeMode="tail">
+            {previewRoutine.name}
+          </H1>
+        </View>
         {state === "notAdded" ? (
-          <Button variant="ghost" size="icon" className="w-24" onPress={addRoutine}>
+          <Button variant="ghost" size="icon" className="w-24 flex-shrink-0" onPress={addRoutine}>
             <Text className="text-lg font-semibold text-destructive">Speichern</Text>
           </Button>
         ) : state === "added" ? (
-          <Button variant="ghost" size="icon" className="w-24" disabled>
+          <Button variant="ghost" size="icon" className="w-24 flex-shrink-0" disabled>
             <Text className="text-green-500 text-center text-lg">Gespeichert</Text>
           </Button>
         ) : (
-          <Button variant="ghost" size="icon" className="w-24" onPress={modifyRoutine}>
+          <Button variant="ghost" size="icon" className="w-24 flex-shrink-0" onPress={modifyRoutine}>
             <Text className="text-destructive text-center text-lg">Übernehmen</Text>
           </Button>
         )}
