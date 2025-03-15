@@ -90,7 +90,9 @@ export const useChatStore = create<ChatState>()(
         if (!messageToResend || messageToResend.role === "assistant") return;
 
         get().deleteMessage(messageId);
-        get().sendChatMessage(messageToResend.message, messageToResend.images, userRoutines, data);
+        messageToResend.workoutSession
+          ? get().sendWorkoutReviewMessage(messageToResend.workoutSession, userRoutines, data)
+          : get().sendChatMessage(messageToResend.message, messageToResend.images, userRoutines, data);
       },
       sendChatMessage: async (message: string, images: string[], userRoutines: Routine[], data: MessageData) => {
         const chatMessage = createUserMessage(message, images);
