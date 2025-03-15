@@ -74,6 +74,9 @@ export default function ExerciseLoggingScreen() {
   }, []);
 
   const handleIntensitySelect = useCallback(() => {
+    exerciseRecord.sets.forEach((set, index) => {
+      markSetCompleted(exerciseIdNumber, index, true);
+    });
     completeExercise(exerciseIdNumber, selectedIntensity);
     setShowIntensityDialog(false);
     router.back();
