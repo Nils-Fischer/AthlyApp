@@ -97,6 +97,23 @@ export function getRepsRange(exercise: WorkoutExercise): string {
   )} Wdh.`;
 }
 
+export function getWeightRange(exercise: WorkoutExercise): string | null {
+  if (!exercise || !exercise.sets || exercise.sets.length === 0) return null;
+
+  if (exercise.sets.every((set) => set?.weight === null || set?.weight === undefined)) return null;
+
+  const definedSets = exercise.sets.filter((set) => set && set.weight !== null && set.weight !== undefined);
+
+  if (definedSets.length === 0) return null;
+
+  if (definedSets.length === 1 || definedSets.every((set) => set.weight === definedSets[0].weight))
+    return `${definedSets[0].weight} kg`;
+
+  return `${Math.min(...definedSets.map((set) => set.weight as number))}-${Math.max(
+    ...definedSets.map((set) => set.weight as number)
+  )} kg`;
+}
+
 export function dateToISOString(date: Date): string {
   return `${date.getFullYear()}-${date.getMonth() + 1}-${date.getDate()}`;
 }

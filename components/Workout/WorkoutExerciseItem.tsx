@@ -5,7 +5,7 @@ import { MoreHorizontal, Trash2, Edit3, Repeat, X } from "~/lib/icons/Icons";
 import { Exercise, WorkoutExercise } from "~/lib/types";
 import { DeleteConfirmation } from "../DeleteConfirmation";
 import { CustomDropdownMenu } from "~/components/ui/custom-dropdown-menu";
-import { getRepsRange, getThumbnail } from "~/lib/utils";
+import { getRepsRange, getThumbnail, getWeightRange } from "~/lib/utils";
 
 interface WorkoutExerciseItemProps {
   workoutExercise: WorkoutExercise;
@@ -98,6 +98,7 @@ export function WorkoutExerciseItem({
         </View>
         <Text className="mt-3 text-sm text-muted-foreground">
           {workoutExercise.sets.length} Sätze • {getRepsRange(workoutExercise)}
+          {getWeightRange(workoutExercise) ? ` • ${getWeightRange(workoutExercise)}` : ""}
         </Text>
       </View>
     </TouchableOpacity>
