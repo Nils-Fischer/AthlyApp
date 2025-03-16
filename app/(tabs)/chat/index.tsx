@@ -1,6 +1,6 @@
 import * as React from "react";
 import { View } from "react-native";
-import { useRef } from "react";
+import { useRef, useEffect } from "react";
 import ActionSheet, { ActionSheetRef } from "react-native-actions-sheet";
 import ChatInterface from "~/components/Chat/chatinterface";
 import { Routine, WorkoutSession } from "~/lib/types";
@@ -37,10 +37,11 @@ export default function ChatScreen() {
   const handleSendMessage = async (message: string, images: string[]): Promise<void> => {
     try {
       setIsTyping(true);
-      await sendMessage(message, images || [], routines, JSON.stringify(profile, null, 2));
+      await sendMessage(message, images || [], routines, JSON.stringify(profile, null, 2)).then(() =>
+        setIsTyping(false)
+      );
     } catch (error) {
       console.error("Error sending message:", error);
-    } finally {
       setIsTyping(false);
     }
   };
@@ -48,10 +49,9 @@ export default function ChatScreen() {
   const handleResendMessage = async (messageId: string) => {
     try {
       setIsTyping(true);
-      await resendMessage(messageId, routines, JSON.stringify(profile, null, 2));
+      await resendMessage(messageId, routines, JSON.stringify(profile, null, 2)).then(() => setIsTyping(false));
     } catch (error) {
       console.error("Error resending message:", error);
-    } finally {
       setIsTyping(false);
     }
   };

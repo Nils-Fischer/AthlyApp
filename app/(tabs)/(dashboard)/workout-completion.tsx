@@ -1,4 +1,4 @@
-import { SafeAreaView } from "react-native";
+import { SafeAreaView, View } from "react-native";
 import { P } from "~/components/ui/typography";
 import WorkoutCompletionModal from "~/components/WorkoutCompletion/WorkoutCompletionModal";
 import { getMuscleGroup } from "~/lib/utils";
@@ -7,8 +7,11 @@ import { useWorkoutHistoryStore } from "~/stores/workoutHistoryStore";
 import { router } from "expo-router";
 import { useChatStore } from "~/stores/chatStore";
 import { useUserProfileStore } from "~/stores/userProfileStore";
-import { useMemo } from "react";
+import { useMemo, useRef, useState } from "react";
 import { useUserRoutineStore } from "~/stores/userRoutineStore";
+import { Routine } from "~/lib/types";
+import ActionSheet, { ActionSheetRef } from "react-native-actions-sheet";
+import { RoutinePreview } from "~/lib/Chat/RoutinePreview";
 
 export type Improvement = {
   exerciseName: string;
@@ -22,9 +25,11 @@ export default function WorkoutCompletion() {
   const { getExerciseById } = useExerciseStore();
   const { sendWorkoutReviewMessage } = useChatStore();
   const { profile } = useUserProfileStore();
-  const { routines } = useUserRoutineStore();
+  const { routines, addRoutine, updateRoutine } = useUserRoutineStore();
 
   const lastSession = getLastSession();
+  const [routine, setRoutine] = useState<Routine | null>(null);
+  const actionSheetRef = useRef<ActionSheetRef>(null);
 
   if (!lastSession) {
     return (
@@ -86,7 +91,31 @@ export default function WorkoutCompletion() {
         improvements={improvements}
         aiCoachFeedback={feedbackPromise}
         onFinish={() => router.dismissAll()}
+        displayRoutine={(routine: Routine) => {
+          setRoutine(routine);
+          actionSheetRef.current?.show();
+        }}
       />
+
+      {routine && (
+        <ActionSheet
+          ref={actionSheetRef}
+          snapPoints={[95]}
+          initialSnapIndex={0}
+          gestureEnabled={true}
+          closeOnTouchBackdrop={true}
+          elevation={2}
+        >
+          <View className="min-h-full bg-background">
+            <RoutinePreview
+              allRoutines={routines}
+              previewRoutine={routine}
+              handleAddRoutine={addRoutine}
+              handleModifyRoutine={updateRoutine}
+            />
+          </View>
+        </ActionSheet>
+      )}
     </SafeAreaView>
   );
 }

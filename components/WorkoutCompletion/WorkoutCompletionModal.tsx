@@ -3,15 +3,14 @@ import { View } from "react-native";
 import { Card, CardContent, CardHeader, CardTitle } from "~/components/ui/card";
 import { H1, H3, P, Large, Small, Muted, CardLabel } from "~/components/ui/typography";
 import { Badge } from "~/components/ui/badge";
-import { Clock, Weight, Flame, Brain } from "~/lib/icons/Icons";
+import { Clock, Weight, Flame, Brain, Sparkles } from "~/lib/icons/Icons";
 import { Avatar, AvatarFallback, AvatarImage } from "~/components/ui/avatar";
 import { ScrollView } from "react-native-gesture-handler";
 import { Button } from "~/components/ui/button";
-import { router } from "expo-router";
 import confetti from "~/assets/animations/confetti.json";
 import LottieView from "lottie-react-native";
 import { ActivityIndicator } from "react-native";
-import { MuscleGroup } from "~/lib/types";
+import { MuscleGroup, Routine } from "~/lib/types";
 import { Improvement } from "~/app/(tabs)/(dashboard)/workout-completion";
 
 // Array of motivational feedback slogans
@@ -33,7 +32,8 @@ interface WorkoutCompletionModalProps {
   caloriesBurned: number;
   trainedMuscles: MuscleGroup[];
   improvements: Improvement[];
-  aiCoachFeedback: Promise<string | undefined>;
+  aiCoachFeedback: Promise<{ text: string; routine?: Routine } | undefined>;
+  displayRoutine: (routine: Routine) => void;
   onFinish: () => void;
 }
 
@@ -46,10 +46,12 @@ export const WorkoutCompletionModal: React.FC<WorkoutCompletionModalProps> = ({
   trainedMuscles,
   improvements,
   aiCoachFeedback,
+  displayRoutine,
   onFinish,
 }) => {
   const animationRef = useRef<any>(null);
   const [feedback, setFeedback] = useState<string | null>(null);
+  const [routine, setRoutine] = useState<Routine | null>(null);
   const [isLoading, setIsLoading] = useState(true);
 
   // Fetch coach feedback when component mounts
@@ -57,7 +59,12 @@ export const WorkoutCompletionModal: React.FC<WorkoutCompletionModalProps> = ({
     const fetchFeedback = async () => {
       try {
         const result = await aiCoachFeedback;
-        setFeedback(result ?? "Feedback konnte nicht geladen werden. Bitte versuche es später erneut.");
+        if (result) {
+          setFeedback(result.text);
+          result.routine && setRoutine(result.routine);
+        } else {
+          setFeedback("Feedback konnte nicht geladen werden. Bitte versuche es später erneut.");
+        }
       } catch (error) {
         console.error("Failed to fetch AI coach feedback:", error);
         setFeedback("Feedback konnte nicht geladen werden. Bitte versuche es später erneut.");
@@ -187,7 +194,7 @@ export const WorkoutCompletionModal: React.FC<WorkoutCompletionModalProps> = ({
               </Avatar>
 
               {/* Chat Bubble */}
-              <View className="flex-1 ml-3">
+              <View className="flex-1 ml-3 gap-2">
                 {/* Coach Name */}
                 <Small className="text-muted-foreground font-medium mb-1">Athly</Small>
 
@@ -199,6 +206,19 @@ export const WorkoutCompletionModal: React.FC<WorkoutCompletionModalProps> = ({
                     <P className="text-secondary-foreground">{feedback}</P>
                   )}
                 </View>
+                {routine && (
+                  <Button
+                    variant="secondary"
+                    haptics="light"
+                    onPress={() => displayRoutine(routine)}
+                    className="w-full rounded-2xl"
+                  >
+                    <View className="flex-row items-left gap-2">
+                      <Sparkles size={18} className="text-secondary-foreground" />
+                      <P className="text-secondary-foreground">Optimierte Routine anzeigen</P>
+                    </View>
+                  </Button>
+                )}
               </View>
             </View>
           </CardContent>

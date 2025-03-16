@@ -24,26 +24,27 @@ const INITIAL_CHAT_MESSAGE: AssistantChatMessage = {
   ],
 };
 
-interface MessageData {
-  [key: string]: any;
-}
-
 interface ChatState {
   messages: ChatMessage[];
   context: string;
   error: string | null;
-  sendChatMessage: (message: string, images: string[], userRoutines: Routine[], userInfo: string) => Promise<void>;
+  sendChatMessage: (
+    message: string,
+    images: string[],
+    userRoutines: Routine[],
+    userInfo: string
+  ) => Promise<{ text: string; routine?: Routine } | undefined>;
   sendWorkoutReviewMessage: (
     session: WorkoutSession,
     userRoutines: Routine[],
     userInfo: string
-  ) => Promise<string | undefined>;
+  ) => Promise<{ text: string; routine?: Routine } | undefined>;
   sendMessage: (
     message: ChatMessage,
     userRoutines: Routine[],
     userInfo: string,
     endpoint: string
-  ) => Promise<string | undefined>;
+  ) => Promise<{ text: string; routine?: Routine } | undefined>;
   updateMessageStatus: (messageId: string, status: "sent" | "sending" | "failed") => void;
   isLoading: boolean;
   setIsLoading: (loading: boolean) => void;
@@ -51,7 +52,11 @@ interface ChatState {
   setContext: (context: string) => void;
   setError: (error: string | null) => void;
   deleteMessage: (messageId: string) => void;
-  resendMessage: (messageId: string, userRoutines: Routine[], userInfo: string) => void;
+  resendMessage: (
+    messageId: string,
+    userRoutines: Routine[],
+    userInfo: string
+  ) => Promise<{ text: string; routine?: Routine } | undefined>;
 }
 
 export const useChatStore = create<ChatState>()(
@@ -87,21 +92,20 @@ export const useChatStore = create<ChatState>()(
         })),
       resendMessage: (messageId, userRoutines, userInfo) => {
         const messageToResend = get().messages.find((m) => m.id === messageId);
-        if (!messageToResend || messageToResend.role === "assistant") return;
+        if (!messageToResend || messageToResend.role === "assistant") return Promise.resolve(undefined);
 
         get().deleteMessage(messageId);
-        messageToResend.workoutSession
+        return messageToResend.workoutSession
           ? get().sendWorkoutReviewMessage(messageToResend.workoutSession, userRoutines, userInfo)
           : get().sendChatMessage(messageToResend.message, messageToResend.images, userRoutines, userInfo);
       },
       sendChatMessage: async (message: string, images: string[], userRoutines: Routine[], userInfo: string) => {
         const chatMessage = createUserMessage(message, images);
-        get().sendMessage(chatMessage, userRoutines, userInfo, "chat");
+        return get().sendMessage(chatMessage, userRoutines, userInfo, "chat");
       },
       sendWorkoutReviewMessage: async (session: WorkoutSession, userRoutines: Routine[], userInfo: string) => {
         const chatMessage = createWorkoutReviewMessage(session);
-        const response = await get().sendMessage(chatMessage, userRoutines, userInfo, "workout-review");
-        return response;
+        return get().sendMessage(chatMessage, userRoutines, userInfo, "workout-review");
       },
       sendMessage: async (message: ChatMessage, userRoutines: Routine[], userInfo: string, endpoint: string) => {
         console.log("sendMessage called with message:", message);
@@ -185,7 +189,7 @@ export const useChatStore = create<ChatState>()(
             }));
 
             lastMessages.forEach((message) => get().updateMessageStatus(message.id, "sent"));
-            return text;
+            return { text, routine };
           } else {
             throw new Error("No text or technical message received");
           }
