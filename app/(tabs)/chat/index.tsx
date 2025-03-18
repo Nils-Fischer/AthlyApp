@@ -22,10 +22,6 @@ export default function ChatScreen() {
   const [previewRoutine, setPreviewRoutine] = React.useState<Routine | null>(null);
   const [previewWorkoutSessionLog, setPreviewWorkoutSessionLog] = React.useState<WorkoutSession | null>(null);
 
-  useEffect(() => {
-    clearMessages();
-  }, []);
-
   const showPreviewRoutine = (routine: Routine) => {
     setPreviewRoutine(routine);
     setPreviewContent("routine");

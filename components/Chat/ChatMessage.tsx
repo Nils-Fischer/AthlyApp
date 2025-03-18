@@ -11,6 +11,7 @@ import { DataContent } from "ai";
 import { CircleX } from "~/lib/icons/Icons";
 import { CustomDropdownMenu } from "~/components/ui/custom-dropdown-menu";
 import { RefreshCw, Trash2 } from "~/lib/icons/Icons";
+import ChatAudioMessage from "./ChatAudioMessage";
 
 export const ChatMessage = React.memo<{
   message: ChatMessageType;
@@ -62,11 +63,11 @@ export const ChatMessage = React.memo<{
               return null;
             })}
           </View>
-          {audioUrl ? (
-            <></>
-          ) : (
-            <View className="flex-row justify-end items-center">
-              <Card className={`${isAI ? "bg-secondary/30" : "bg-primary"}  border-0 shadow-sm p-4`}>
+          <View className="flex-row justify-end items-center">
+            <Card className={`${isAI ? "bg-secondary/30" : "bg-primary"}  border-0 shadow-sm p-4`}>
+              {audioUrl ? (
+                <ChatAudioMessage audioUrl={audioUrl} />
+              ) : (
                 <View className="flex-col">
                   <View className="flex-row flex-wrap  items-end justify-end gap-x-2">
                     <Text className={`${isAI ? "text-foreground" : "text-primary-foreground"}`}>{messageContent}</Text>
@@ -97,33 +98,33 @@ export const ChatMessage = React.memo<{
                     </Button>
                   )}
                 </View>
-              </Card>
-              {message.role === "user" && message.status === "failed" && (
-                <CustomDropdownMenu
-                  items={[
-                    {
-                      name: "Resend",
-                      icon: RefreshCw,
-                      onPress: resendMessage,
-                    },
-                    {
-                      name: "Delete",
-                      icon: Trash2,
-                      onPress: deleteMessage,
-                      destructive: true,
-                    },
-                  ]}
-                  trigger={
-                    <Button variant="ghost" haptics="light">
-                      <CircleX className="text-destructive" />
-                    </Button>
-                  }
-                  align="end"
-                  side="top"
-                />
               )}
-            </View>
-          )}
+            </Card>
+            {message.role === "user" && message.status === "failed" && (
+              <CustomDropdownMenu
+                items={[
+                  {
+                    name: "Resend",
+                    icon: RefreshCw,
+                    onPress: resendMessage,
+                  },
+                  {
+                    name: "Delete",
+                    icon: Trash2,
+                    onPress: deleteMessage,
+                    destructive: true,
+                  },
+                ]}
+                trigger={
+                  <Button variant="ghost" haptics="light">
+                    <CircleX className="text-destructive" />
+                  </Button>
+                }
+                align="end"
+                side="top"
+              />
+            )}
+          </View>
         </View>
       </View>
     </Animated.View>
