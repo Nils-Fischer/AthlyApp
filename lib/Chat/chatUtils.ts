@@ -52,7 +52,6 @@ async function audioUrlToFilePart(audioURL: string): Promise<FilePart> {
       encoding: FileSystem.EncodingType.Base64,
     });
 
-    console.log("FilePart object created", base64Audio);
     return {
       type: "file",
       data: base64Audio,

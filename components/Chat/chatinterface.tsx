@@ -42,7 +42,7 @@ export default function ChatInterface({
   const [capturedImage, setCapturedImage] = React.useState<string | null>(null);
   const [isRecording, setIsRecording] = React.useState(false);
 
-  const audioRecorder = useAudioRecorder(RecordingPresets.HIGH_QUALITY);
+  const audioRecorder = useAudioRecorder(RecordingPresets.LOW_QUALITY);
 
   const scrollToBottom = React.useCallback(() => {
     setTimeout(() => {
