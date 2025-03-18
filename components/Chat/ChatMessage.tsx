@@ -25,6 +25,7 @@ export const ChatMessage = React.memo<{
   let images: (DataContent | URL)[] = [];
   let newRoutine: Routine | undefined = undefined;
   let workoutSession: WorkoutSession | undefined = undefined;
+  let audioUrl: string | undefined = undefined;
   if (isAI) {
     messageContent = message.message;
     newRoutine = message.routine;
@@ -32,6 +33,7 @@ export const ChatMessage = React.memo<{
     messageContent = message.message;
     images = message.images;
     workoutSession = message.workoutSession;
+    audioUrl = message.audioUrl;
   }
 
   return (
@@ -60,64 +62,68 @@ export const ChatMessage = React.memo<{
               return null;
             })}
           </View>
-          <View className="flex-row justify-end items-center">
-            <Card className={`${isAI ? "bg-secondary/30" : "bg-primary"}  border-0 shadow-sm p-4`}>
-              <View className="flex-col">
-                <View className="flex-row flex-wrap  items-end justify-end gap-x-2">
-                  <Text className={`${isAI ? "text-foreground" : "text-primary-foreground"}`}>{messageContent}</Text>
+          {audioUrl ? (
+            <></>
+          ) : (
+            <View className="flex-row justify-end items-center">
+              <Card className={`${isAI ? "bg-secondary/30" : "bg-primary"}  border-0 shadow-sm p-4`}>
+                <View className="flex-col">
+                  <View className="flex-row flex-wrap  items-end justify-end gap-x-2">
+                    <Text className={`${isAI ? "text-foreground" : "text-primary-foreground"}`}>{messageContent}</Text>
+                  </View>
+
+                  {newRoutine && (
+                    <Button
+                      variant="secondary"
+                      className="mt-2"
+                      onPress={() => {
+                        newRoutine && showRoutine(newRoutine);
+                      }}
+                      haptics="medium"
+                    >
+                      <Text>Routine ansehen</Text>
+                    </Button>
+                  )}
+
+                  {workoutSession && (
+                    <Button
+                      variant="secondary"
+                      className="mt-2"
+                      onPress={() => {
+                        workoutSession && showWorkoutSessionLog(workoutSession);
+                      }}
+                    >
+                      <Text>Workout ansehen</Text>
+                    </Button>
+                  )}
                 </View>
-
-                {newRoutine && (
-                  <Button
-                    variant="secondary"
-                    className="mt-2"
-                    onPress={() => {
-                      newRoutine && showRoutine(newRoutine);
-                    }}
-                    haptics="medium"
-                  >
-                    <Text>Routine ansehen</Text>
-                  </Button>
-                )}
-
-                {workoutSession && (
-                  <Button
-                    variant="secondary"
-                    className="mt-2"
-                    onPress={() => {
-                      workoutSession && showWorkoutSessionLog(workoutSession);
-                    }}
-                  >
-                    <Text>Workout ansehen</Text>
-                  </Button>
-                )}
-              </View>
-            </Card>
-            {message.role === "user" && message.status === "failed" && (
-              <CustomDropdownMenu
-                items={[
-                  {
-                    name: "Resend",
-                    icon: RefreshCw,
-                    onPress: resendMessage,
-                  },
-                  {
-                    name: "Delete",
-                    icon: Trash2,
-                    onPress: deleteMessage,
-                    destructive: true,
-                  },
-                ]}
-                trigger={
-                  <Button variant="ghost" haptics="light">
-                    <CircleX className="text-destructive" />
-                  </Button>
-                }
-                align="end"
-                side="top"
-              />
-            )}
-          </View>
+              </Card>
+              {message.role === "user" && message.status === "failed" && (
+                <CustomDropdownMenu
+                  items={[
+                    {
+                      name: "Resend",
+                      icon: RefreshCw,
+                      onPress: resendMessage,
+                    },
+                    {
+                      name: "Delete",
+                      icon: Trash2,
+                      onPress: deleteMessage,
+                      destructive: true,
+                    },
+                  ]}
+                  trigger={
+                    <Button variant="ghost" haptics="light">
+                      <CircleX className="text-destructive" />
+                    </Button>
+                  }
+                  align="end"
+                  side="top"
+                />
+              )}
+            </View>
+          )}
         </View>
       </View>
     </Animated.View>

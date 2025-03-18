@@ -32,7 +32,8 @@ interface ChatState {
     message: string,
     images: string[],
     userRoutines: Routine[],
-    userInfo: string
+    userInfo: string,
+    audioUrl?: string
   ) => Promise<{ text: string; routine?: Routine } | undefined>;
   sendWorkoutReviewMessage: (
     session: WorkoutSession,
@@ -99,8 +100,14 @@ export const useChatStore = create<ChatState>()(
           ? get().sendWorkoutReviewMessage(messageToResend.workoutSession, userRoutines, userInfo)
           : get().sendChatMessage(messageToResend.message, messageToResend.images, userRoutines, userInfo);
       },
-      sendChatMessage: async (message: string, images: string[], userRoutines: Routine[], userInfo: string) => {
-        const chatMessage = createUserMessage(message, images);
+      sendChatMessage: async (
+        message: string,
+        images: string[],
+        userRoutines: Routine[],
+        userInfo: string,
+        audioUrl?: string
+      ) => {
+        const chatMessage = await createUserMessage(message, images, audioUrl);
         return get().sendMessage(chatMessage, userRoutines, userInfo, "chat");
       },
       sendWorkoutReviewMessage: async (session: WorkoutSession, userRoutines: Routine[], userInfo: string) => {

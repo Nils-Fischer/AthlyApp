@@ -195,6 +195,7 @@ export type BaseChatMessage = {
 export type UserChatMessage = BaseChatMessage & {
   images: string[];
   technicalMessage: CoreUserMessage;
+  audioUrl?: string;
   workoutSession?: WorkoutSession;
   role: "user";
 };

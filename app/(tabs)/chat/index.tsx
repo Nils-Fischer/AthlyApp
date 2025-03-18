@@ -12,7 +12,7 @@ import WorkoutSessionLog from "~/components/WorkoutCompletion/WorkoutLogOverview
 
 export default function ChatScreen() {
   const actionSheetRef = useRef<ActionSheetRef>(null);
-  const { messages, sendChatMessage: sendMessage, deleteMessage, resendMessage } = useChatStore();
+  const { messages, sendChatMessage: sendMessage, deleteMessage, resendMessage, clearMessages } = useChatStore();
   const { addRoutine, updateRoutine } = useUserRoutineStore();
   const routines = useUserRoutineStore((state) => state.routines);
   const { profile } = useUserProfileStore();
@@ -21,6 +21,10 @@ export default function ChatScreen() {
   const [previewContent, setPreviewContent] = React.useState<"routine" | "workoutSession" | null>(null);
   const [previewRoutine, setPreviewRoutine] = React.useState<Routine | null>(null);
   const [previewWorkoutSessionLog, setPreviewWorkoutSessionLog] = React.useState<WorkoutSession | null>(null);
+
+  useEffect(() => {
+    clearMessages();
+  }, []);
 
   const showPreviewRoutine = (routine: Routine) => {
     setPreviewRoutine(routine);
@@ -34,10 +38,10 @@ export default function ChatScreen() {
     actionSheetRef.current?.show();
   };
 
-  const handleSendMessage = async (message: string, images: string[]): Promise<void> => {
+  const handleSendMessage = async (message: string, images: string[], audioUrl?: string): Promise<void> => {
     try {
       setIsTyping(true);
-      await sendMessage(message, images || [], routines, JSON.stringify(profile, null, 2)).then(() =>
+      await sendMessage(message, images || [], routines, JSON.stringify(profile, null, 2), audioUrl).then(() =>
         setIsTyping(false)
       );
     } catch (error) {

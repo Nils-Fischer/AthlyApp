@@ -2,7 +2,6 @@ import { FilePart, ImagePart, TextPart } from "ai";
 import { randomUUID } from "expo-crypto";
 import { UserChatMessage, WorkoutSession } from "../types";
 import * as FileSystem from "expo-file-system";
-import { Audio } from "expo-av";
 
 export async function createUserMessage(
   message: string,
@@ -30,6 +29,7 @@ export async function createUserMessage(
       content: content,
     },
     status: "sent",
+    audioUrl: audioUrl,
   };
 }
 
@@ -39,6 +39,7 @@ export async function createUserMessage(
  * @returns A FilePart object with base64 data and mime type
  */
 async function audioUrlToFilePart(audioURL: string): Promise<FilePart> {
+  console.log("Exporting audio to file part");
   try {
     // Check if the file exists
     const fileInfo = await FileSystem.getInfoAsync(audioURL);
@@ -51,7 +52,7 @@ async function audioUrlToFilePart(audioURL: string): Promise<FilePart> {
       encoding: FileSystem.EncodingType.Base64,
     });
 
-    // Return the FilePart object
+    console.log("FilePart object created", base64Audio);
     return {
       type: "file",
       data: base64Audio,

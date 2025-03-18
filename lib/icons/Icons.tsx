@@ -1,4 +1,5 @@
 import {
+  Mic,
   MessageSquare,
   CircleX,
   ArrowRightLeft,
@@ -85,6 +86,7 @@ import { iconWithClassName } from "./iconWithClassName";
 import { BarChart } from "./BarChartIcon";
 
 iconWithClassName([
+  Mic,
   CircleX,
   MessageSquare,
   ArrowRightLeft,
@@ -170,6 +172,7 @@ iconWithClassName([
 ]);
 
 export {
+  Mic,
   MessageSquare,
   ArrowRightLeft,
   Camera,

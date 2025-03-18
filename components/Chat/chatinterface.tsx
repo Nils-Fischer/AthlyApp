@@ -6,10 +6,11 @@ import { Text } from "~/components/ui/text";
 import { TypingIndicator } from "./TypingIndicator";
 import { Routine } from "~/lib/types";
 import { CustomDropdownMenu } from "~/components/ui/custom-dropdown-menu";
-import { Camera, Image, Plus } from "~/lib/icons/Icons";
+import { Camera, Image, Mic, Plus, StopCircle } from "~/lib/icons/Icons";
 import { CameraView } from "./CameraView";
 import * as ImagePicker from "expo-image-picker";
 import * as ImageManipulator from "expo-image-manipulator";
+import { useAudioRecorder, AudioModule, RecordingPresets } from "expo-audio";
 import { LOADING_SPINNER } from "~/assets/svgs";
 import { ChatMessage as ChatMessageUI } from "./ChatMessage";
 import { FlashList } from "@shopify/flash-list";
@@ -18,7 +19,7 @@ import { Input } from "~/components/ui/input";
 interface ChatInterfaceProps {
   messages: ChatMessage[];
   isTyping: boolean;
-  onSendMessage: (message: string, image: string[]) => Promise<void>;
+  onSendMessage: (message: string, image: string[], audioUrl?: string) => Promise<void>;
   showPreviewRoutine?: (routine: Routine) => void;
   showPreviewWorkoutSessionLog?: (workoutSession: WorkoutSession) => void;
   deleteMessage: (messageId: string) => void;
@@ -39,6 +40,9 @@ export default function ChatInterface({
   const inputRef = React.useRef<React.ElementRef<typeof Input>>(null);
   const [showCamera, setShowCamera] = React.useState(false);
   const [capturedImage, setCapturedImage] = React.useState<string | null>(null);
+  const [isRecording, setIsRecording] = React.useState(false);
+
+  const audioRecorder = useAudioRecorder(RecordingPresets.HIGH_QUALITY);
 
   const scrollToBottom = React.useCallback(() => {
     setTimeout(() => {
@@ -62,13 +66,22 @@ export default function ChatInterface({
     scrollToBottom();
   }, [messages, scrollToBottom]);
 
+  React.useEffect(() => {
+    (async () => {
+      const status = await AudioModule.requestRecordingPermissionsAsync();
+      if (!status.granted) {
+        console.error("Permission to access microphone was denied");
+      }
+    })();
+  }, []);
+
   const handleSend = React.useCallback(() => {
-    if (!inputMessage.trim()) return;
-    onSendMessage(inputMessage.trim(), capturedImage ? [capturedImage] : []);
+    if (!inputMessage.trim() && !audioRecorder.uri) return;
+    onSendMessage(inputMessage.trim(), capturedImage ? [capturedImage] : [], audioRecorder.uri || undefined);
     setInputMessage("");
     setCapturedImage(null);
     inputRef.current?.blur();
-  }, [inputMessage, onSendMessage, capturedImage]);
+  }, [inputMessage, onSendMessage, capturedImage, audioRecorder]);
 
   const imageOptions = [
     {
@@ -114,6 +127,31 @@ export default function ChatInterface({
       console.error("Image manipulation failed", error);
     }
   };
+
+  async function startRecording() {
+    console.log("startRecording");
+    try {
+      await audioRecorder.prepareToRecordAsync();
+      setIsRecording(true);
+      audioRecorder.record();
+    } catch (err) {
+      console.error("Failed to start recording", err);
+    }
+  }
+
+  async function stopRecording() {
+    console.log("stopRecording");
+    setIsRecording(false);
+    try {
+      await audioRecorder.stop();
+      if (audioRecorder.uri) {
+        console.log("audioRecorder.uri", audioRecorder.uri);
+        handleSend();
+      }
+    } catch (err) {
+      console.error("Failed to stop recording", err);
+    }
+  }
 
   if (showCamera) {
     return (
@@ -210,15 +248,26 @@ export default function ChatInterface({
                 }}
               />
             </View>
-            <Button
-              size="icon"
-              variant={inputMessage.trim() ? "default" : "secondary"}
-              onPress={handleSend}
-              disabled={isTyping || !inputMessage.trim() || capturedImage === ""}
-              haptics="medium"
-            >
-              <Text className={`text-lg ${!inputMessage.trim() ? "opacity-50" : ""}`}>➤</Text>
-            </Button>
+            {inputMessage.trim() ? (
+              <Button
+                size="icon"
+                variant={inputMessage.trim() ? "default" : "secondary"}
+                onPress={handleSend}
+                disabled={isTyping || !inputMessage.trim() || capturedImage === ""}
+                haptics="medium"
+              >
+                <Text className={`text-lg ${!inputMessage.trim() ? "opacity-50" : ""}`}>➤</Text>
+              </Button>
+            ) : (
+              <Button
+                size="icon"
+                variant={isRecording ? "destructive" : "ghost"}
+                onPress={isRecording ? stopRecording : startRecording}
+                haptics={isRecording ? "heavy" : "medium"}
+              >
+                {isRecording ? <StopCircle className="text-destructive-foreground" /> : <Mic />}
+              </Button>
+            )}
           </View>
         </View>
       </KeyboardAvoidingView>
