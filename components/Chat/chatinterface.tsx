@@ -17,6 +17,7 @@ import { ChatMessage as ChatMessageUI } from "./ChatMessage";
 import { FlashList } from "@shopify/flash-list";
 import { Input } from "~/components/ui/input";
 import ChatAudioMessagePreview from "./ChatAudioMessagePreview";
+import { SquareFilled } from "~/lib/icons/FilledIcons";
 
 interface ChatInterfaceProps {
   messages: ChatMessage[];
@@ -78,10 +79,10 @@ export default function ChatInterface({
     })();
   }, []);
 
-  const handleSend = React.useCallback(() => {
-    console.log("audioUrl", audioUrl);
+  const handleSend = React.useCallback(async () => {
     if (!inputMessage.trim() && !audioUrl) return;
-    onSendMessage(inputMessage.trim(), capturedImage ? [capturedImage] : [], audioUrl || undefined);
+    const permanentUri = audioUrl ? await saveAudioPermanently(audioUrl) : undefined;
+    onSendMessage(inputMessage.trim(), capturedImage ? [capturedImage] : [], permanentUri || undefined);
     setInputMessage("");
     setCapturedImage(null);
     setAudioUrl(null);
@@ -150,9 +151,7 @@ export default function ChatInterface({
     try {
       await audioRecorder.stop();
       if (audioRecorder.uri) {
-        const permanentUri = await saveAudioPermanently(audioRecorder.uri);
-        console.log("uri", permanentUri);
-        setAudioUrl(permanentUri);
+        setAudioUrl(audioRecorder.uri);
       }
     } catch (err) {
       console.error("Failed to stop recording", err);
@@ -179,7 +178,7 @@ export default function ChatInterface({
     <View className="flex-1 bg-background relative z-0">
       <KeyboardAvoidingView
         behavior={Platform.OS === "ios" ? "padding" : undefined}
-        className="flex-1 px-4"
+        className="flex-1"
         keyboardVerticalOffset={Platform.OS === "ios" ? 90 : 0}
       >
         <FlashList
@@ -198,11 +197,11 @@ export default function ChatInterface({
           keyExtractor={(item) => item.id}
           estimatedItemSize={100}
           showsVerticalScrollIndicator={false}
-          contentContainerStyle={{ paddingTop: 20, paddingBottom: 20 }}
+          contentContainerStyle={{ paddingTop: 20, paddingBottom: 20, paddingHorizontal: 16 }}
           ListFooterComponent={isTyping ? <TypingIndicator /> : null}
         />
 
-        <View className="px-4 py-2 border-t border-border bg-background rounded-t-2xl">
+        <View className="px-4 py-2 bg-card shadow-md shadow-foreground/10 rounded-t-3xl">
           {capturedImage && (
             <View className="mb-2 flex-row items-center">
               <View className="relative">
@@ -238,10 +237,10 @@ export default function ChatInterface({
             {audioUrl ? (
               <ChatAudioMessagePreview audioUrl={audioUrl} onDelete={() => setAudioUrl(null)} />
             ) : (
-              <View className="flex-1 bg-muted rounded-lg overflow-hidden">
+              <View className="flex-1 rounded-lg overflow-hidden ">
                 <Input
                   ref={inputRef}
-                  className="px-4 py-2.5 text-base text-foreground min-h-[44px]"
+                  className="bg-card border-card border-dashed px-4 py-2.5 text-base text-foreground min-h-[44px]"
                   placeholder="Schreibe eine Nachricht..."
                   placeholderTextColor="#666"
                   value={inputMessage}
@@ -275,8 +274,9 @@ export default function ChatInterface({
                 variant={isRecording ? "destructive" : "ghost"}
                 onPress={isRecording ? stopAudioRecording : startAudioRecording}
                 haptics={isRecording ? "heavy" : "medium"}
+                className={isRecording ? "rounded-full bg-destructive/20" : "rounded-full"}
               >
-                {isRecording ? <StopCircle className="text-destructive-foreground" /> : <Mic />}
+                {isRecording ? <SquareFilled size="15" className="text-destructive" /> : <Mic />}
               </Button>
             )}
           </View>
