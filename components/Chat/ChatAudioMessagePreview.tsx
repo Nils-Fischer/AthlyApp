@@ -93,7 +93,7 @@ export default function ChatAudioMessagePreview({ audioUrl, onDelete }: ChatAudi
       </View>
       <Small className="text-md text-muted-foreground ml-2 mr-1">{duration}</Small>
       <Button variant="ghost" size="icon" className="w-8 h-8" onPress={onDelete} haptics="light">
-        <X size={18} className="text" />
+        <X size={18} className="text-foreground" />
       </Button>
     </View>
   );

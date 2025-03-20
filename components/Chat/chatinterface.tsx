@@ -276,7 +276,11 @@ export default function ChatInterface({
                 haptics={isRecording ? "heavy" : "medium"}
                 className={isRecording ? "rounded-full bg-destructive/20" : "rounded-full"}
               >
-                {isRecording ? <SquareFilled size="15" className="text-destructive" /> : <Mic />}
+                {isRecording ? (
+                  <SquareFilled size="15" className="text-destructive" />
+                ) : (
+                  <Mic className="text-foreground" />
+                )}
               </Button>
             )}
           </View>

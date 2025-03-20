@@ -7,6 +7,7 @@ import { Progress } from "../ui/progress";
 import { Small } from "../ui/typography";
 import { cn } from "~/lib/utils";
 import { formatAudioTime } from "~/lib/Chat/chatUtils";
+import { PauseFilled, PlayFilled } from "~/lib/icons/FilledIcons";
 
 interface ChatAudioMessageProps {
   audioUrl: string;
@@ -89,9 +90,9 @@ export default function ChatAudioMessage({ audioUrl }: ChatAudioMessageProps) {
           onPress={togglePlayPause}
         >
           {isPlaying ? (
-            <PauseCircle size={32} className="text-primary-foreground" />
+            <PauseFilled size={24} className="text-primary-foreground" />
           ) : (
-            <PlayCircle size={32} className="text-primary-foreground" />
+            <PlayFilled size={24} className="text-primary-foreground" />
           )}
         </Button>
 

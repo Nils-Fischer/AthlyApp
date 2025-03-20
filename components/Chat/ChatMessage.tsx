@@ -11,6 +11,7 @@ import { CircleX } from "~/lib/icons/Icons";
 import { CustomDropdownMenu } from "~/components/ui/custom-dropdown-menu";
 import { RefreshCw, Trash2 } from "~/lib/icons/Icons";
 import ChatAudioMessage from "./ChatAudioMessage";
+import { CardLabel } from "../ui/typography";
 
 type MessageTimestampProps = {
   timestamp: Date;
@@ -49,7 +50,7 @@ const UserChatMessage = React.memo<UserChatMessageProps>(
               })}
             </View>
             <View className="flex-row justify-end items-center">
-              <Card className="bg-primary border-0 shadow-sm p-4">
+              <Card className="bg-primary border-none p-4 rounded-3xl">
                 {audioUrl ? (
                   <ChatAudioMessage audioUrl={audioUrl} />
                 ) : (
@@ -116,21 +117,26 @@ const AiChatMessage = React.memo<AiChatMessageProps>(({ message, showRoutine }) 
   return (
     <Animated.View entering={FadeInUp.duration(300).springify()} className="flex-row justify-start mb-4">
       <View className="flex-row max-w-[85%]">
-        <View className="mr-2 justify-start">
+        <View className="mr-2 justify-center gap-2 ">
           <MessageAvatar isAI={true} />
           <MessageTimestamp timestamp={timestamp} />
         </View>
         <View className="gap-y-1">
           <View className="flex-row justify-end items-center">
-            <Card className="bg-secondary/30 border-0 shadow-sm p-4">
-              <View className="flex-col">
+            <Card className="bg-zinc-200 border-none p-4 rounded-3xl">
+              <View className="flex-col gap-2">
                 <View className="flex-row flex-wrap items-end justify-end gap-x-2">
-                  <Text className="text-foreground">{message.message}</Text>
+                  <Text className="text-card-foreground">{message.message}</Text>
                 </View>
 
                 {routine && (
-                  <Button variant="secondary" className="mt-2" onPress={() => showRoutine(routine)} haptics="medium">
-                    <Text>Routine ansehen</Text>
+                  <Button
+                    variant="secondary"
+                    className="mt-2 rounded-xl"
+                    onPress={() => showRoutine(routine)}
+                    haptics="medium"
+                  >
+                    <CardLabel className="text-secondary-foreground text-sm font-bold">Routine ansehen</CardLabel>
                   </Button>
                 )}
               </View>
