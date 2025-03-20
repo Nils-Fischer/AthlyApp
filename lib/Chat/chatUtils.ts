@@ -87,3 +87,33 @@ export function formatAudioTime(seconds: number): string {
   const remainingSeconds = Math.floor(seconds % 60);
   return `${minutes}:${remainingSeconds.toString().padStart(2, "0")}`;
 }
+
+export async function saveAudioPermanently(temporaryAudioUri: string): Promise<string> {
+  try {
+    // Create a permanent directory for audio files if it doesn't exist
+    const audioDirectory = `${FileSystem.documentDirectory}audio/`;
+    const dirInfo = await FileSystem.getInfoAsync(audioDirectory);
+
+    if (!dirInfo.exists) {
+      await FileSystem.makeDirectoryAsync(audioDirectory, { intermediates: true });
+    }
+
+    // Generate a unique filename for the audio
+    const filename = `audio-${Date.now()}.m4a`;
+    const permanentUri = `${audioDirectory}${filename}`;
+
+    // Copy the file from temporary to permanent location
+    await FileSystem.copyAsync({
+      from: temporaryAudioUri,
+      to: permanentUri,
+    });
+
+    // Delete the temporary file to free up space
+    await FileSystem.deleteAsync(temporaryAudioUri);
+
+    return permanentUri;
+  } catch (error) {
+    console.error("Fehler beim Speichern der Audio-Datei:", error);
+    throw error;
+  }
+}

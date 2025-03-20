@@ -11,10 +11,12 @@ import { CameraView } from "./CameraView";
 import * as ImagePicker from "expo-image-picker";
 import * as ImageManipulator from "expo-image-manipulator";
 import { useAudioRecorder, AudioModule, RecordingPresets } from "expo-audio";
+import { saveAudioPermanently } from "~/lib/Chat/chatUtils";
 import { LOADING_SPINNER } from "~/assets/svgs";
 import { ChatMessage as ChatMessageUI } from "./ChatMessage";
 import { FlashList } from "@shopify/flash-list";
 import { Input } from "~/components/ui/input";
+import ChatAudioMessagePreview from "./ChatAudioMessagePreview";
 
 interface ChatInterfaceProps {
   messages: ChatMessage[];
@@ -41,6 +43,7 @@ export default function ChatInterface({
   const [showCamera, setShowCamera] = React.useState(false);
   const [capturedImage, setCapturedImage] = React.useState<string | null>(null);
   const [isRecording, setIsRecording] = React.useState(false);
+  const [audioUrl, setAudioUrl] = React.useState<string | null>(null);
 
   const audioRecorder = useAudioRecorder(RecordingPresets.LOW_QUALITY);
 
@@ -76,12 +79,14 @@ export default function ChatInterface({
   }, []);
 
   const handleSend = React.useCallback(() => {
-    if (!inputMessage.trim() && !audioRecorder.uri) return;
-    onSendMessage(inputMessage.trim(), capturedImage ? [capturedImage] : [], audioRecorder.uri || undefined);
+    console.log("audioUrl", audioUrl);
+    if (!inputMessage.trim() && !audioUrl) return;
+    onSendMessage(inputMessage.trim(), capturedImage ? [capturedImage] : [], audioUrl || undefined);
     setInputMessage("");
     setCapturedImage(null);
+    setAudioUrl(null);
     inputRef.current?.blur();
-  }, [inputMessage, onSendMessage, capturedImage, audioRecorder]);
+  }, [inputMessage, onSendMessage, capturedImage, audioUrl]);
 
   const imageOptions = [
     {
@@ -128,7 +133,7 @@ export default function ChatInterface({
     }
   };
 
-  async function startRecording() {
+  async function startAudioRecording() {
     console.log("startRecording");
     try {
       await audioRecorder.prepareToRecordAsync();
@@ -139,14 +144,15 @@ export default function ChatInterface({
     }
   }
 
-  async function stopRecording() {
+  async function stopAudioRecording() {
     console.log("stopRecording");
     setIsRecording(false);
     try {
       await audioRecorder.stop();
       if (audioRecorder.uri) {
-        console.log("audioRecorder.uri", audioRecorder.uri);
-        handleSend();
+        const permanentUri = await saveAudioPermanently(audioRecorder.uri);
+        console.log("uri", permanentUri);
+        setAudioUrl(permanentUri);
       }
     } catch (err) {
       console.error("Failed to stop recording", err);
@@ -229,40 +235,44 @@ export default function ChatInterface({
               side="top"
               align="end"
             />
-            <View className="flex-1 bg-muted rounded-lg overflow-hidden">
-              <Input
-                ref={inputRef}
-                className="px-4 py-2.5 text-base text-foreground min-h-[44px]"
-                placeholder="Schreibe eine Nachricht..."
-                placeholderTextColor="#666"
-                value={inputMessage}
-                onChangeText={setInputMessage}
-                multiline={false}
-                maxLength={500}
-                style={{ maxHeight: 120 }}
-                keyboardType="default"
-                returnKeyType="send"
-                onSubmitEditing={() => {
-                  if (isTyping || !inputMessage.trim() || capturedImage === "") return;
-                  handleSend();
-                }}
-              />
-            </View>
-            {inputMessage.trim() ? (
+            {audioUrl ? (
+              <ChatAudioMessagePreview audioUrl={audioUrl} onDelete={() => setAudioUrl(null)} />
+            ) : (
+              <View className="flex-1 bg-muted rounded-lg overflow-hidden">
+                <Input
+                  ref={inputRef}
+                  className="px-4 py-2.5 text-base text-foreground min-h-[44px]"
+                  placeholder="Schreibe eine Nachricht..."
+                  placeholderTextColor="#666"
+                  value={inputMessage}
+                  onChangeText={setInputMessage}
+                  multiline={false}
+                  maxLength={500}
+                  style={{ maxHeight: 120 }}
+                  keyboardType="default"
+                  returnKeyType="send"
+                  onSubmitEditing={() => {
+                    if (isTyping || !inputMessage.trim() || capturedImage === "") return;
+                    handleSend();
+                  }}
+                />
+              </View>
+            )}
+            {inputMessage.trim() || audioUrl ? (
               <Button
                 size="icon"
-                variant={inputMessage.trim() ? "default" : "secondary"}
+                variant={inputMessage.trim() || audioUrl ? "default" : "secondary"}
                 onPress={handleSend}
-                disabled={isTyping || !inputMessage.trim() || capturedImage === ""}
+                disabled={isTyping || (!inputMessage.trim() && !audioUrl) || capturedImage === ""}
                 haptics="medium"
               >
-                <Text className={`text-lg ${!inputMessage.trim() ? "opacity-50" : ""}`}>➤</Text>
+                <Text className={`text-lg ${!inputMessage.trim() && !audioUrl ? "opacity-50" : ""}`}>➤</Text>
               </Button>
             ) : (
               <Button
                 size="icon"
                 variant={isRecording ? "destructive" : "ghost"}
-                onPress={isRecording ? stopRecording : startRecording}
+                onPress={isRecording ? stopAudioRecording : startAudioRecording}
                 haptics={isRecording ? "heavy" : "medium"}
               >
                 {isRecording ? <StopCircle className="text-destructive-foreground" /> : <Mic />}
