@@ -2,7 +2,6 @@ import { useEffect, useState, useRef } from "react";
 import { View } from "react-native";
 import { useAudioPlayer } from "expo-audio";
 import { Button } from "../ui/button";
-import { PlayCircle, PauseCircle } from "~/lib/icons/Icons";
 import { Progress } from "../ui/progress";
 import { Small } from "../ui/typography";
 import { cn } from "~/lib/utils";

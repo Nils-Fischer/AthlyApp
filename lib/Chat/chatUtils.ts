@@ -51,6 +51,7 @@ async function audioUrlToFilePart(audioURL: string): Promise<FilePart> {
     const base64Audio = await FileSystem.readAsStringAsync(audioURL, {
       encoding: FileSystem.EncodingType.Base64,
     });
+    console.log("Base64 audio:", base64Audio);
 
     return {
       type: "file",
@@ -99,7 +100,7 @@ export async function saveAudioPermanently(temporaryAudioUri: string): Promise<s
     }
 
     // Generate a unique filename for the audio
-    const filename = `audio-${Date.now()}.m4a`;
+    const filename = `audio-${Date.now()}.aac`;
     const permanentUri = `${audioDirectory}${filename}`;
 
     // Copy the file from temporary to permanent location

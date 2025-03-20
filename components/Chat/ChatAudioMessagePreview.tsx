@@ -2,11 +2,10 @@ import { useState, useRef, useEffect } from "react";
 import { View } from "react-native";
 import { useAudioPlayer } from "expo-audio";
 import { Button } from "../ui/button";
-import { PlayCircle, PauseCircle, X, Pause } from "~/lib/icons/Icons";
+import { X } from "~/lib/icons/Icons";
 import { Progress } from "../ui/progress";
 import { Small } from "../ui/typography";
 import { formatAudioTime } from "~/lib/Chat/chatUtils";
-import { Badge } from "../ui/badge";
 import { PauseFilled, PlayFilled } from "~/lib/icons/FilledIcons";
 
 interface ChatAudioMessagePreviewProps {
@@ -18,7 +17,6 @@ export default function ChatAudioMessagePreview({ audioUrl, onDelete }: ChatAudi
   const player = useAudioPlayer(audioUrl);
   const [isPlaying, setIsPlaying] = useState(false);
   const [progress, setProgress] = useState(0);
-  const [currentTime, setCurrentTime] = useState("0:00");
   const [duration, setDuration] = useState(formatAudioTime(0));
 
   const progressIntervalRef = useRef<number | null>(null);
@@ -53,7 +51,6 @@ export default function ChatAudioMessagePreview({ audioUrl, onDelete }: ChatAudi
         const newProgress = player.currentTime / player.duration;
         setProgress(newProgress * 100);
       }
-      setCurrentTime(formatAudioTime(player.currentTime));
 
       // Auto-stop at the end
       if (player.currentTime >= player.duration) {
@@ -64,7 +61,6 @@ export default function ChatAudioMessagePreview({ audioUrl, onDelete }: ChatAudi
         await player.seekTo(0);
         setIsPlaying(false);
         setProgress(0);
-        setCurrentTime(formatAudioTime(0));
       }
     }, 10) as unknown as number;
   };

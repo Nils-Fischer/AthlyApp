@@ -10,7 +10,7 @@ import { ArrowUp, Camera, Image, Mic, Plus, StopCircle } from "~/lib/icons/Icons
 import { CameraView } from "./CameraView";
 import * as ImagePicker from "expo-image-picker";
 import * as ImageManipulator from "expo-image-manipulator";
-import { useAudioRecorder, AudioModule, RecordingPresets } from "expo-audio";
+import { useAudioRecorder, AudioModule, AudioQuality, IOSOutputFormat, RecordingOptions } from "expo-audio";
 import { saveAudioPermanently } from "~/lib/Chat/chatUtils";
 import { LOADING_SPINNER } from "~/assets/svgs";
 import { ChatMessage as ChatMessageUI } from "./ChatMessage";
@@ -46,7 +46,32 @@ export default function ChatInterface({
   const [isRecording, setIsRecording] = React.useState(false);
   const [audioUrl, setAudioUrl] = React.useState<string | null>(null);
 
-  const audioRecorder = useAudioRecorder(RecordingPresets.LOW_QUALITY);
+  const recordingPresets: RecordingOptions = {
+    extension: ".aac",
+    sampleRate: 16000,
+    numberOfChannels: 1,
+    bitRate: 32000,
+    android: {
+      extension: ".aac",
+      outputFormat: "aac_adts",
+      audioEncoder: "aac",
+    },
+    ios: {
+      audioQuality: AudioQuality.MIN,
+      outputFormat: IOSOutputFormat.MPEG4AAC,
+      linearPCMBitDepth: 16,
+      linearPCMIsBigEndian: false,
+      linearPCMIsFloat: false,
+      bitDepthHint: 16,
+    },
+    web: {
+      mimeType: "audio/webm",
+      bitsPerSecond: 128000,
+    },
+    isMeteringEnabled: true,
+  };
+
+  const audioRecorder = useAudioRecorder(recordingPresets);
 
   const scrollToBottom = React.useCallback(() => {
     setTimeout(() => {
@@ -135,7 +160,7 @@ export default function ChatInterface({
   };
 
   async function startAudioRecording() {
-    console.log("startRecording");
+    console.log("startRecoding");
     try {
       await audioRecorder.prepareToRecordAsync();
       setIsRecording(true);

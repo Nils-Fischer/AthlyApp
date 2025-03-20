@@ -88,7 +88,7 @@ const UserChatMessage = React.memo<UserChatMessageProps>(
                   ]}
                   trigger={
                     <Button variant="ghost" haptics="light">
-                      <CircleX className="text-destructive" />
+                      <CircleX size={28} className="text-destructive" />
                     </Button>
                   }
                   align="end"
