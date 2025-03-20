@@ -6,7 +6,7 @@ import { Text } from "~/components/ui/text";
 import { TypingIndicator } from "./TypingIndicator";
 import { Routine } from "~/lib/types";
 import { CustomDropdownMenu } from "~/components/ui/custom-dropdown-menu";
-import { Camera, Image, Mic, Plus, StopCircle } from "~/lib/icons/Icons";
+import { ArrowUp, Camera, Image, Mic, Plus, StopCircle } from "~/lib/icons/Icons";
 import { CameraView } from "./CameraView";
 import * as ImagePicker from "expo-image-picker";
 import * as ImageManipulator from "expo-image-manipulator";
@@ -265,8 +265,9 @@ export default function ChatInterface({
                 onPress={handleSend}
                 disabled={isTyping || (!inputMessage.trim() && !audioUrl) || capturedImage === ""}
                 haptics="medium"
+                className="bg-primary rounded-full"
               >
-                <Text className={`text-lg ${!inputMessage.trim() && !audioUrl ? "opacity-50" : ""}`}>➤</Text>
+                <ArrowUp size={20} strokeWidth={3} className="text-primary-foreground" />
               </Button>
             ) : (
               <Button

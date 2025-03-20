@@ -1,5 +1,7 @@
 import {
   Mic,
+  SendHorizontal,
+  ArrowUp,
   MessageSquare,
   CircleX,
   ArrowRightLeft,
@@ -87,6 +89,8 @@ import { BarChart } from "./BarChartIcon";
 
 iconWithClassName([
   Mic,
+  SendHorizontal,
+  ArrowUp,
   CircleX,
   MessageSquare,
   ArrowRightLeft,
@@ -172,6 +176,8 @@ iconWithClassName([
 ]);
 
 export {
+  ArrowUp,
+  SendHorizontal,
   Mic,
   MessageSquare,
   ArrowRightLeft,
