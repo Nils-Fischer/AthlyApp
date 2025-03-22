@@ -12,9 +12,11 @@ import { Card, CardHeader, CardTitle, CardContent } from "~/components/ui/card";
 import { BlockQuote, H1, Lead } from "~/components/ui/typography";
 import { WeeklyPreviewWidget } from "~/components/Dashboard/WeeklyPreview.Widget";
 import { useExerciseStore } from "~/stores/exerciseStore";
+import { getDailyIndex, getWorkoutSchedule, WeekDay, WeeklySchedule } from "~/lib/workoutPlanning";
+import { Workout } from "~/lib/types";
+import { WorkoutSession } from "~/lib/types";
 
 export default function Index() {
-  const workoutHistoryStore = useWorkoutHistoryStore();
   const isWorkoutRunning = useActiveWorkoutStore((state) => state.workoutTimer.isRunning);
   const startWorkout = useActiveWorkoutStore((state) => state.startWorkout);
   const cancelWorkout = useActiveWorkoutStore((state) => state.cancelWorkout);
@@ -22,6 +24,7 @@ export default function Index() {
   const exercises = useExerciseStore((state) => state.exercises);
   const { profile } = useUserProfileStore();
   const { routines, getActiveRoutine } = useUserRoutineStore();
+
   const activeRoutine = useMemo(() => {
     const activeRoutine = getActiveRoutine();
     if (activeRoutine) {
@@ -30,28 +33,13 @@ export default function Index() {
     return activeRoutine;
   }, [routines]);
 
-  const numWorkouts = useMemo(() => activeRoutine?.workouts.length || 0, [activeRoutine]);
+  const weeklySchedule: WeeklySchedule = useMemo(() => {
+    return getWorkoutSchedule(activeRoutine, sessions, exercises || []);
+  }, [activeRoutine, sessions, exercises]);
 
-  const latestWorkoutIndex = () => {
-    const oldestWorkoutIndex = activeRoutine?.workouts.reduce((oldestIndex, workout, currentIndex, workouts) => {
-      const currentWorkoutLastDate = workoutHistoryStore.getLastWorkout(workout.id)?.date;
-      const oldestWorkoutLastDate = workoutHistoryStore.getLastWorkout(workouts[oldestIndex].id)?.date;
+  const dailyIndex = getDailyIndex(new Date());
 
-      if (!currentWorkoutLastDate) return oldestIndex;
-      if (!oldestWorkoutLastDate) return currentIndex;
-
-      return currentWorkoutLastDate < oldestWorkoutLastDate ? currentIndex : oldestIndex;
-    }, 0);
-    return oldestWorkoutIndex || 0;
-  };
-
-  const [activeWorkoutOffset, setActiveWorkoutOffset] = useState<number>(0);
-
-  const activeWorkout = useMemo(() => {
-    const newWorkout = activeRoutine?.workouts[latestWorkoutIndex() + activeWorkoutOffset];
-    console.log("New activeWorkout", newWorkout?.name);
-    return newWorkout;
-  }, [activeRoutine, activeWorkoutOffset]);
+  const todaysActivity: WorkoutSession[] | Workout | null = weeklySchedule.get(dailyIndex)?.activity || null;
 
   // Persönliche Begrüßung
   const getGreeting = () => {
@@ -76,7 +64,7 @@ export default function Index() {
   }, []);
 
   const skipWorkout = () => {
-    setActiveWorkoutOffset((activeWorkoutOffset + 1) % numWorkouts);
+    // TODO: Implement skip workout
   };
 
   const today = format(new Date(), "EEEE", { locale: de });
@@ -96,15 +84,17 @@ export default function Index() {
           </View>
         </View>
 
-        <WeeklyPreviewWidget activeRoutine={activeRoutine} allSessions={sessions} allExercises={exercises || []} />
+        <WeeklyPreviewWidget schedule={weeklySchedule} />
 
         {/* Workout Widget */}
-        {activeWorkout && activeRoutine ? (
+        {Array.isArray(todaysActivity) ? (
+          <></>
+        ) : todaysActivity ? (
           <TodaysWorkoutWidget
-            workout={activeWorkout}
+            workout={todaysActivity as Workout}
             skipWorkout={skipWorkout}
             isStarted={isWorkoutRunning}
-            startWorkout={() => startWorkout(activeWorkout.id)}
+            startWorkout={() => startWorkout((todaysActivity as Workout).id)}
             cancelWorkout={() => cancelWorkout()}
           />
         ) : (

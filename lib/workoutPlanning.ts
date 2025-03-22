@@ -1,4 +1,3 @@
-import { WeekDay } from "~/components/Dashboard/WeeklyPreview.Widget";
 import { Exercise, MuscleGroup, Routine, Workout, WorkoutSession } from "./types";
 import { getMuscleGroup } from "./utils";
 
@@ -89,28 +88,29 @@ function getWorkoutIndecesByLeastFatiguedMuscleGroup(
   return leastFatiguedWorkoutIndexes;
 }
 
-export function getRemainingWorkoutSchedule(
+function getRemainingWorkoutSchedule(
   today: 0 | 1 | 2 | 3 | 4 | 5 | 6,
   sessionsThisWeek: WorkoutSession[],
   workouts: Workout[]
-): WeekDay[] {
-  const sessionsThisWeekAsDays: WeekDay[] = [1, 2, 3, 4, 5, 6, 0].reduce((acc, day) => {
+): WeeklySchedule {
+  const weeklySchedule: WeeklySchedule = new Map();
+  [1, 2, 3, 4, 5, 6, 0].forEach((day) => {
     const sessions = sessionsThisWeek.filter((session) => new Date(session.date).getDay() === day);
-    if (sessions.length === 0) return acc;
-    acc.push({
-      dayInTheWeek: ((day - 1) % 7) as 0 | 1 | 2 | 3 | 4 | 5 | 6,
-      activity: sessions,
+    weeklySchedule.set(((day - 1) % 7) as 0 | 1 | 2 | 3 | 4 | 5 | 6, {
+      activity: sessions.length > 0 ? sessions : null,
     });
-    return acc;
-  }, [] as WeekDay[]);
+  });
 
+  today = today + (weeklySchedule.get(today)?.activity ? 1 : 0);
   const remainingDays = 7 - today;
   const schedule = spreadWorkouts(remainingDays, workouts);
-  const scheduleWithDays: WeekDay[] = schedule.map((workout, index) => ({
-    dayInTheWeek: ((today + index) % 7) as 0 | 1 | 2 | 3 | 4 | 5 | 6,
-    activity: workout,
-  }));
-  return sessionsThisWeekAsDays.concat(scheduleWithDays);
+  schedule.forEach((workout, index) => {
+    const day = ((today + index) % 7) as 0 | 1 | 2 | 3 | 4 | 5 | 6;
+    weeklySchedule.set(day, {
+      activity: workout,
+    });
+  });
+  return weeklySchedule;
 }
 
 export function spreadWorkouts(days: number, workouts: Workout[]): (Workout | null)[] {
@@ -149,3 +149,74 @@ export function spreadWorkouts(days: number, workouts: Workout[]): (Workout | nu
   }
   return Array(days).fill(null);
 }
+
+function getSessionsThisWeek(allSessions: WorkoutSession[]): WorkoutSession[] {
+  return allSessions.filter((session) => {
+    const sessionDate = new Date(session.date);
+    const startOfWeek = new Date();
+    const diff = (startOfWeek.getDay() + 6) % 7;
+    startOfWeek.setDate(startOfWeek.getDate() - diff);
+    return sessionDate >= startOfWeek;
+  });
+}
+
+function getRemainingWorkouts(
+  workouts: Workout[],
+  allSessions: WorkoutSession[],
+  allExercises: Exercise[],
+  frequency: number,
+  sessionsThisWeek: WorkoutSession[],
+  remainingDays: number
+): Workout[] {
+  const remainingWorkouts = Math.min(frequency - sessionsThisWeek.length, remainingDays);
+  if (remainingWorkouts <= 0) return [];
+
+  const nextWorkoutId = getNextWorkout(workouts, allSessions.slice(-3), allExercises);
+  let nextWorkoutIndex = workouts.findIndex((workout) => workout.id === nextWorkoutId);
+
+  const schedule: Workout[] = Array.from(
+    { length: remainingWorkouts },
+    (_, i) => workouts[(nextWorkoutIndex + i) % workouts.length]
+  );
+
+  return schedule;
+}
+
+export function getDailyIndex(date: Date): 0 | 1 | 2 | 3 | 4 | 5 | 6 {
+  return ((date.getDay() - 1) % 7) as 0 | 1 | 2 | 3 | 4 | 5 | 6;
+}
+
+export function getWorkoutSchedule(
+  activeRoutine: Routine | null,
+  allSessions: WorkoutSession[],
+  allExercises: Exercise[]
+): WeeklySchedule {
+  const workouts = activeRoutine?.workouts || [];
+
+  const sessionsThisWeek = getSessionsThisWeek(allSessions);
+
+  const today = getDailyIndex(new Date());
+  const todaysSession = sessionsThisWeek.find((session) => new Date(session.date).getDate() === new Date().getDate());
+  console.log("todaysSession", todaysSession);
+  const remainingDays = 7 - today - (todaysSession ? 1 : 0);
+
+  const frequency = activeRoutine?.frequency || sessionsThisWeek.length;
+
+  const remainingWorkouts = getRemainingWorkouts(
+    workouts,
+    allSessions,
+    allExercises,
+    frequency,
+    sessionsThisWeek,
+    remainingDays
+  );
+
+  const schedule = getRemainingWorkoutSchedule(today, sessionsThisWeek, remainingWorkouts);
+  return schedule;
+}
+
+export type WeekDay = {
+  activity: WorkoutSession[] | Workout | null;
+};
+
+export type WeeklySchedule = Map<0 | 1 | 2 | 3 | 4 | 5 | 6, WeekDay>;
