@@ -16,6 +16,7 @@ import { getDailyIndex, getWorkoutSchedule, WeekDay, WeeklySchedule } from "~/li
 import { Workout } from "~/lib/types";
 import { WorkoutSession } from "~/lib/types";
 import { DailyWorkoutSummary } from "~/components/Dashboard/DailyWorkoutSummary";
+import { ActiveWorkoutCancelConfirmation } from "~/components/ActiveWorkout/ActiveWorkoutCancelConfirmation";
 
 export default function Index() {
   const isWorkoutRunning = useActiveWorkoutStore((state) => state.workoutTimer.isRunning);
@@ -25,6 +26,7 @@ export default function Index() {
   const exercises = useExerciseStore((state) => state.exercises);
   const { profile } = useUserProfileStore();
   const { routines, getActiveRoutine } = useUserRoutineStore();
+  const [showCancelDialog, setShowCancelDialog] = useState(false);
 
   const activeRoutine = useMemo(() => {
     const activeRoutine = getActiveRoutine();
@@ -95,12 +97,20 @@ export default function Index() {
             skipWorkout={skipWorkout}
             isStarted={isWorkoutRunning}
             startWorkout={() => startWorkout((todaysActivity as Workout).id)}
+            showCancelDialog={() => setShowCancelDialog(true)}
             cancelWorkout={() => cancelWorkout()}
           />
         ) : (
-          <View className="bg-card p-6 rounded-xl border border-border/50">
-            <Text className="text-center text-muted-foreground text-lg">Kein Training für heute geplant 🛋️</Text>
-          </View>
+          <Card>
+            <CardHeader>
+              <CardTitle>
+                <CardLabel>Training</CardLabel>
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="justify-center items-center mb-4">
+              <Text className="text-center text-foreground text-lg">Kein Training für heute geplant 🛋️</Text>
+            </CardContent>
+          </Card>
         )}
 
         {/* Motivationswidget */}
@@ -113,6 +123,12 @@ export default function Index() {
           </CardContent>
         </Card>
       </View>
+
+      <ActiveWorkoutCancelConfirmation
+        showCancelDialog={showCancelDialog}
+        setShowCancelDialog={setShowCancelDialog}
+        confirmCancel={cancelWorkout}
+      />
     </ScrollView>
   );
 }
