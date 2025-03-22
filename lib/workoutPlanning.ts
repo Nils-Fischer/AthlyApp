@@ -31,7 +31,7 @@ export function getMuscleGroupsFromExercises(exercises: Exercise[]): Set<MuscleG
   return new Set(...exercises.flatMap((exercise) => getMuscleGroupsFromExercise(exercise)));
 }
 
-export function getNextWorkout(
+function getNextWorkout(
   activeWorkouts: Workout[],
   lastCoupleSessions: WorkoutSession[],
   allExercises: Exercise[]
@@ -113,7 +113,7 @@ function getRemainingWorkoutSchedule(
   return weeklySchedule;
 }
 
-export function spreadWorkouts(days: number, workouts: Workout[]): (Workout | null)[] {
+function spreadWorkouts(days: number, workouts: Workout[]): (Workout | null)[] {
   if (days === workouts.length) return workouts.map((w) => w);
   if (days === 2) return [workouts[0], null];
   if (days === 3) {
@@ -166,17 +166,20 @@ function getRemainingWorkouts(
   allExercises: Exercise[],
   frequency: number,
   sessionsThisWeek: WorkoutSession[],
-  remainingDays: number
+  remainingDays: number,
+  skipOffset: number = 0
 ): Workout[] {
   const remainingWorkouts = Math.min(frequency - sessionsThisWeek.length, remainingDays);
   if (remainingWorkouts <= 0) return [];
 
   const nextWorkoutId = getNextWorkout(workouts, allSessions.slice(-3), allExercises);
-  let nextWorkoutIndex = workouts.findIndex((workout) => workout.id === nextWorkoutId);
+  const nextWorkoutIndex = workouts.findIndex((workout) => workout.id === nextWorkoutId);
+  const adjustedNextWorkoutIndex = (nextWorkoutIndex + skipOffset) % workouts.length;
+  console.log("adjustedNextWorkoutIndex", adjustedNextWorkoutIndex);
 
   const schedule: Workout[] = Array.from(
     { length: remainingWorkouts },
-    (_, i) => workouts[(nextWorkoutIndex + i) % workouts.length]
+    (_, i) => workouts[(adjustedNextWorkoutIndex + i) % workouts.length]
   );
 
   return schedule;
@@ -189,7 +192,8 @@ export function getDailyIndex(date: Date): 0 | 1 | 2 | 3 | 4 | 5 | 6 {
 export function getWorkoutSchedule(
   activeRoutine: Routine | null,
   allSessions: WorkoutSession[],
-  allExercises: Exercise[]
+  allExercises: Exercise[],
+  skipOffset: number = 0
 ): WeeklySchedule {
   const workouts = activeRoutine?.workouts || [];
 
@@ -208,7 +212,8 @@ export function getWorkoutSchedule(
     allExercises,
     frequency,
     sessionsThisWeek,
-    remainingDays
+    remainingDays,
+    skipOffset
   );
 
   const schedule = getRemainingWorkoutSchedule(today, sessionsThisWeek, remainingWorkouts);

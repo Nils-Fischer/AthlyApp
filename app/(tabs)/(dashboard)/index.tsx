@@ -1,5 +1,5 @@
 import React, { useMemo, useState } from "react";
-import { View, ScrollView, Pressable } from "react-native";
+import { View, ScrollView } from "react-native";
 import { Text } from "~/components/ui/text";
 import { format } from "date-fns";
 import { de } from "date-fns/locale";
@@ -9,10 +9,10 @@ import { useUserProfileStore } from "~/stores/userProfileStore";
 import { TodaysWorkoutWidget } from "~/components/Dashboard/TodaysWorkoutWidget";
 import { useUserRoutineStore } from "~/stores/userRoutineStore";
 import { Card, CardHeader, CardTitle, CardContent } from "~/components/ui/card";
-import { BlockQuote, CardLabel, H1, H2, Large, Lead, P } from "~/components/ui/typography";
+import { BlockQuote, CardLabel, Lead, P } from "~/components/ui/typography";
 import { WeeklyPreviewWidget } from "~/components/Dashboard/WeeklyPreview.Widget";
 import { useExerciseStore } from "~/stores/exerciseStore";
-import { getDailyIndex, getWorkoutSchedule, WeekDay, WeeklySchedule } from "~/lib/workoutPlanning";
+import { getDailyIndex, getWorkoutSchedule, WeeklySchedule } from "~/lib/workoutPlanning";
 import { Workout } from "~/lib/types";
 import { WorkoutSession } from "~/lib/types";
 import { DailyWorkoutSummary } from "~/components/Dashboard/DailyWorkoutSummary";
@@ -27,6 +27,7 @@ export default function Index() {
   const { profile } = useUserProfileStore();
   const { routines, getActiveRoutine } = useUserRoutineStore();
   const [showCancelDialog, setShowCancelDialog] = useState(false);
+  const [skipOffset, setSkipOffset] = useState(0);
 
   const activeRoutine = useMemo(() => {
     const activeRoutine = getActiveRoutine();
@@ -37,8 +38,9 @@ export default function Index() {
   }, [routines]);
 
   const weeklySchedule: WeeklySchedule = useMemo(() => {
-    return getWorkoutSchedule(activeRoutine, sessions, exercises || []);
-  }, [activeRoutine, sessions, exercises]);
+    console.log("skipOffset", skipOffset);
+    return getWorkoutSchedule(activeRoutine, sessions, exercises || [], skipOffset);
+  }, [activeRoutine, sessions, exercises, skipOffset]);
 
   const dailyIndex = getDailyIndex(new Date());
 
@@ -67,7 +69,7 @@ export default function Index() {
   }, []);
 
   const skipWorkout = () => {
-    // TODO: Implement skip workout
+    setSkipOffset((prev) => (prev + 1) % (activeRoutine?.workouts.length || 100));
   };
 
   const today = format(new Date(), "EEEE", { locale: de });
