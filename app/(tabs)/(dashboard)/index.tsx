@@ -1,5 +1,5 @@
 import React, { useMemo, useState } from "react";
-import { View, ScrollView } from "react-native";
+import { View, ScrollView, Pressable } from "react-native";
 import { Text } from "~/components/ui/text";
 import { format } from "date-fns";
 import { de } from "date-fns/locale";
@@ -9,16 +9,17 @@ import { useUserProfileStore } from "~/stores/userProfileStore";
 import { TodaysWorkoutWidget } from "~/components/Dashboard/TodaysWorkoutWidget";
 import { useUserRoutineStore } from "~/stores/userRoutineStore";
 import { Card, CardHeader, CardTitle, CardContent } from "~/components/ui/card";
-import { BlockQuote, P } from "~/components/ui/typography";
-import { Link } from "expo-router";
-import { Button } from "~/components/ui/button";
+import { BlockQuote, H1, Lead } from "~/components/ui/typography";
+import { WeeklyPreviewWidget } from "~/components/Dashboard/WeeklyPreview.Widget";
+import { useExerciseStore } from "~/stores/exerciseStore";
 
 export default function Index() {
   const workoutHistoryStore = useWorkoutHistoryStore();
   const isWorkoutRunning = useActiveWorkoutStore((state) => state.workoutTimer.isRunning);
   const startWorkout = useActiveWorkoutStore((state) => state.startWorkout);
   const cancelWorkout = useActiveWorkoutStore((state) => state.cancelWorkout);
-
+  const sessions = useWorkoutHistoryStore((state) => state.sessions);
+  const exercises = useExerciseStore((state) => state.exercises);
   const { profile } = useUserProfileStore();
   const { routines, getActiveRoutine } = useUserRoutineStore();
   const activeRoutine = useMemo(() => {
@@ -56,7 +57,7 @@ export default function Index() {
   const getGreeting = () => {
     const hour = new Date().getHours();
     if (hour < 12) return "Guten Morgen";
-    if (hour < 18) return "Guten Tag";
+    if (hour < 18) return "Hey";
     return "Guten Abend";
   };
 
@@ -82,17 +83,20 @@ export default function Index() {
 
   return (
     <ScrollView className="bg-background">
-      <View className="p-4">
+      <View className="p-4 gap-4">
         {/* Personalisierter Header */}
-        <View className="mb-6">
-          <Text className="text-2xl text-muted-foreground">
-            {greeting}, {userName}! 👋
-          </Text>
-          <View className="flex-row items-baseline gap-2 mt-1">
-            <Text className="text-4xl font-bold capitalize">{today}</Text>
-            <Text className="text-sm text-muted-foreground">{format(new Date(), "dd. MMMM", { locale: de })}</Text>
+        <View className="flex-row items-center justify-between mb-2 px-1">
+          <H1>
+            {greeting}, {userName}!
+          </H1>
+          <View className="flex-row items-end">
+            <Lead>
+              {today}, {format(new Date(), "dd. MMMM", { locale: de })}
+            </Lead>
           </View>
         </View>
+
+        <WeeklyPreviewWidget activeRoutine={activeRoutine} allSessions={sessions} allExercises={exercises || []} />
 
         {/* Workout Widget */}
         {activeWorkout && activeRoutine ? (
@@ -104,7 +108,7 @@ export default function Index() {
             cancelWorkout={() => cancelWorkout()}
           />
         ) : (
-          <View className="bg-card p-6 rounded-xl border border-border/50 mb-6">
+          <View className="bg-card p-6 rounded-xl border border-border/50">
             <Text className="text-center text-muted-foreground text-lg">Kein Training für heute geplant 🛋️</Text>
           </View>
         )}

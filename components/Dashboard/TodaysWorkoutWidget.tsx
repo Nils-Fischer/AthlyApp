@@ -55,7 +55,7 @@ export const TodaysWorkoutWidget = ({ workout, skipWorkout, isStarted, startWork
   return (
     <>
       <Pressable onPress={handlePress} className="active:opacity-80">
-        <Card className="mb-4">
+        <Card>
           {/* Header Section */}
           <CardHeader className="px-4 py-4 flex-row items-center justify-between">
             <CardTitle className="font-medium text-base">Heutiges Training</CardTitle>

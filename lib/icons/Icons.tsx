@@ -1,4 +1,5 @@
 import {
+  BedDouble,
   Mic,
   SendHorizontal,
   ArrowUp,
@@ -88,6 +89,7 @@ import { iconWithClassName } from "./iconWithClassName";
 import { BarChart } from "./BarChartIcon";
 
 iconWithClassName([
+  BedDouble,
   Mic,
   SendHorizontal,
   ArrowUp,
@@ -176,6 +178,7 @@ iconWithClassName([
 ]);
 
 export {
+  BedDouble,
   ArrowUp,
   SendHorizontal,
   Mic,
