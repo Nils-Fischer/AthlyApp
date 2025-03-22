@@ -17,6 +17,7 @@ import { Workout } from "~/lib/types";
 import { WorkoutSession } from "~/lib/types";
 import { DailyWorkoutSummary } from "~/components/Dashboard/DailyWorkoutSummary";
 import { ActiveWorkoutCancelConfirmation } from "~/components/ActiveWorkout/ActiveWorkoutCancelConfirmation";
+import { quotes } from "~/lib/quotes";
 
 export default function Index() {
   const isWorkoutRunning = useActiveWorkoutStore((state) => state.workoutTimer.isRunning);
@@ -58,13 +59,6 @@ export default function Index() {
   const userName = profile?.firstName || "Sportler";
 
   const motivationQuote = useMemo(() => {
-    const quotes = [
-      "Jeder Tag ist eine neue Chance! 💪",
-      "Dein Körper kann fast alles. Es ist dein Geist, den du überzeugen musst. 🧠",
-      "Wachse an deinen Herausforderungen! 🌱",
-      "Es wird schwer, aber du bist stärker. 💥",
-      "Konsistenz ist der Schlüssel! 🔑",
-    ];
     return quotes[Math.floor(Math.random() * quotes.length)];
   }, []);
 
@@ -119,7 +113,8 @@ export default function Index() {
             <CardTitle>Tägliche Motivation</CardTitle>
           </CardHeader>
           <CardContent className="justify-center items-center mb-6">
-            <BlockQuote className="text-lg text-foreground">{motivationQuote}</BlockQuote>
+            <BlockQuote className="text-md self-start">„{motivationQuote.translation}“</BlockQuote>
+            <P className="text-muted-foreground self-end">- {motivationQuote.author}</P>
           </CardContent>
         </Card>
       </View>
