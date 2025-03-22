@@ -82,11 +82,9 @@ export default function Index() {
           <P className="text-2xl text-foreground font-bold">
             {greeting}, {userName}!
           </P>
-          <View className="flex-row items-end">
-            <Lead>
-              {today}, {format(new Date(), "dd. MMMM", { locale: de })}
-            </Lead>
-          </View>
+          <P className="text-muted-foreground">
+            {today}, {format(new Date(), "dd. MMMM", { locale: de })}
+          </P>
         </View>
 
         <WeeklyPreviewWidget schedule={weeklySchedule} />
