@@ -9,12 +9,13 @@ import { useUserProfileStore } from "~/stores/userProfileStore";
 import { TodaysWorkoutWidget } from "~/components/Dashboard/TodaysWorkoutWidget";
 import { useUserRoutineStore } from "~/stores/userRoutineStore";
 import { Card, CardHeader, CardTitle, CardContent } from "~/components/ui/card";
-import { BlockQuote, H1, Lead } from "~/components/ui/typography";
+import { BlockQuote, CardLabel, H1, H2, Large, Lead, P } from "~/components/ui/typography";
 import { WeeklyPreviewWidget } from "~/components/Dashboard/WeeklyPreview.Widget";
 import { useExerciseStore } from "~/stores/exerciseStore";
 import { getDailyIndex, getWorkoutSchedule, WeekDay, WeeklySchedule } from "~/lib/workoutPlanning";
 import { Workout } from "~/lib/types";
 import { WorkoutSession } from "~/lib/types";
+import { DailyWorkoutSummary } from "~/components/Dashboard/DailyWorkoutSummary";
 
 export default function Index() {
   const isWorkoutRunning = useActiveWorkoutStore((state) => state.workoutTimer.isRunning);
@@ -74,9 +75,9 @@ export default function Index() {
       <View className="p-4 gap-4">
         {/* Personalisierter Header */}
         <View className="flex-row items-center justify-between mb-2 px-1">
-          <H1>
+          <P className="text-2xl text-foreground font-bold">
             {greeting}, {userName}!
-          </H1>
+          </P>
           <View className="flex-row items-end">
             <Lead>
               {today}, {format(new Date(), "dd. MMMM", { locale: de })}
@@ -85,10 +86,9 @@ export default function Index() {
         </View>
 
         <WeeklyPreviewWidget schedule={weeklySchedule} />
-
         {/* Workout Widget */}
         {Array.isArray(todaysActivity) ? (
-          <></>
+          <DailyWorkoutSummary sessions={todaysActivity} />
         ) : todaysActivity ? (
           <TodaysWorkoutWidget
             workout={todaysActivity as Workout}
