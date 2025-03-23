@@ -4,13 +4,13 @@ import { Text } from "~/components/ui/text";
 import { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter } from "~/components/ui/card";
 import { Dumbbell, Clock, Play, ChevronRight, Flame, SkipForward } from "~/lib/icons/Icons";
 import { Workout } from "~/lib/types";
-import { useRouter } from "expo-router";
+import { router, useRouter } from "expo-router";
 import { useExerciseStore } from "~/stores/exerciseStore";
 import * as Haptics from "expo-haptics";
 import { getRepsRange } from "~/lib/utils";
 import { H3, P } from "../ui/typography";
 import { Badge } from "../ui/badge";
-import { CircleStop } from "lucide-react-native";
+import { CircleStop, Trash, Trash2 } from "lucide-react-native";
 import { AnimatedIconButton } from "../ui/animated-icon-button";
 
 interface TodaysWorkoutWidgetProps {
@@ -20,6 +20,7 @@ interface TodaysWorkoutWidgetProps {
   cancelWorkout: () => void;
   skipWorkout: () => void;
   showCancelDialog: () => void;
+  isCustomWorkout?: boolean;
 }
 
 export const TodaysWorkoutWidget = ({
@@ -28,6 +29,7 @@ export const TodaysWorkoutWidget = ({
   isStarted,
   startWorkout,
   showCancelDialog,
+  isCustomWorkout,
 }: TodaysWorkoutWidgetProps) => {
   const router = useRouter();
   const exerciseStore = useExerciseStore();
@@ -144,13 +146,23 @@ export const TodaysWorkoutWidget = ({
               </>
             ) : (
               <>
-                <AnimatedIconButton
-                  onPress={handleSkip}
-                  icon={<SkipForward className="text-primary-foreground" />}
-                  label="Überspringen"
-                  haptics="light"
-                  className="flex-1"
-                />
+                {isCustomWorkout ? (
+                  <AnimatedIconButton
+                    onPress={handleSkip}
+                    icon={<Trash2 className="text-destructive-foreground" />}
+                    label="Löschen"
+                    haptics="light"
+                    className="flex-1 bg-destructive"
+                  />
+                ) : (
+                  <AnimatedIconButton
+                    onPress={handleSkip}
+                    icon={<SkipForward className="text-primary-foreground" />}
+                    label="Überspringen"
+                    haptics="light"
+                    className="flex-1"
+                  />
+                )}
                 <AnimatedIconButton
                   onPress={handleStartWorkout}
                   icon={<Play className="text-primary-foreground" />}

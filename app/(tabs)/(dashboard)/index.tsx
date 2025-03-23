@@ -48,7 +48,8 @@ export default function Index() {
 
   const dailyIndex = getDailyIndex(new Date());
 
-  const todaysActivity: WorkoutSession[] | Workout | null = weeklySchedule.get(dailyIndex)?.activity || null;
+  const todaysActivity: WorkoutSession[] | Workout | null =
+    customPlannedWorkout ?? (weeklySchedule.get(dailyIndex)?.activity || null);
 
   // Persönliche Begrüßung
   const getGreeting = () => {
@@ -66,7 +67,8 @@ export default function Index() {
   }, []);
 
   const skipWorkout = () => {
-    setSkipOffset((prev) => (prev + 1) % (activeRoutine?.workouts.length || 100));
+    if (customPlannedWorkout) setCustomPlannedWorkout(null);
+    else setSkipOffset((prev) => (prev + 1) % (activeRoutine?.workouts.length || 100));
   };
 
   const today = format(new Date(), "EEEE", { locale: de });
@@ -93,9 +95,12 @@ export default function Index() {
             workout={todaysActivity as Workout}
             skipWorkout={skipWorkout}
             isStarted={isWorkoutRunning}
-            startWorkout={() => startWorkout((todaysActivity as Workout).id)}
+            startWorkout={() => {
+              startWorkout((todaysActivity as Workout).id);
+            }}
             showCancelDialog={() => setShowCancelDialog(true)}
             cancelWorkout={() => cancelWorkout()}
+            isCustomWorkout={customPlannedWorkout !== null}
           />
         ) : (
           <Card>

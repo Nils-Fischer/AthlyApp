@@ -146,11 +146,6 @@ export const quotes = [
     translation: "Deine Aufmerksamkeit ist dein wichtigstes Gut. Geh bewusst damit um.",
   },
   {
-    quote: "Things work out best for those who make the best of how things work out.",
-    author: "John Wooden",
-    translation: "Es läuft am besten für die, die das Beste daraus machen, wie die Dinge laufen.",
-  },
-  {
     quote: "If you are not willing to risk the usual you will have to settle for the ordinary.",
     author: "Jim Rohn",
     translation:
