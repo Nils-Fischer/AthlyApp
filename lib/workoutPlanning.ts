@@ -96,7 +96,7 @@ function getRemainingWorkoutSchedule(
   const weeklySchedule: WeeklySchedule = new Map();
   [1, 2, 3, 4, 5, 6, 0].forEach((day) => {
     const sessions = sessionsThisWeek.filter((session) => new Date(session.date).getDay() === day);
-    weeklySchedule.set(((day - 1) % 7) as 0 | 1 | 2 | 3 | 4 | 5 | 6, {
+    weeklySchedule.set(((day + 6) % 7) as 0 | 1 | 2 | 3 | 4 | 5 | 6, {
       activity: sessions.length > 0 ? sessions : null,
     });
   });
@@ -186,7 +186,7 @@ function getRemainingWorkouts(
 }
 
 export function getDailyIndex(date: Date): 0 | 1 | 2 | 3 | 4 | 5 | 6 {
-  return ((date.getDay() - 1) % 7) as 0 | 1 | 2 | 3 | 4 | 5 | 6;
+  return ((date.getDay() + 6) % 7) as 0 | 1 | 2 | 3 | 4 | 5 | 6;
 }
 
 export function getWorkoutSchedule(
@@ -201,8 +201,8 @@ export function getWorkoutSchedule(
 
   const today = getDailyIndex(new Date());
   const todaysSession = sessionsThisWeek.find((session) => new Date(session.date).getDate() === new Date().getDate());
-  console.log("todaysSession", todaysSession);
   const remainingDays = 7 - today - (todaysSession ? 1 : 0);
+  console.log("remainingDays", remainingDays);
 
   const frequency = activeRoutine?.frequency || sessionsThisWeek.length;
 
