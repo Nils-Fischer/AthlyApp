@@ -86,6 +86,7 @@ export default function RoutineScreen() {
                 addButtonDropdownItems={dropdownItems}
                 onDelete={handleDelete}
                 onToggleActive={handleToggleActive}
+                onRoutinePress={(routineId) => router.push(`/workout/${routineId}`)}
               />
             </TabsContent>
 

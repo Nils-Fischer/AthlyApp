@@ -7,19 +7,19 @@ import { Plus, Search } from "~/lib/icons/Icons";
 import { CustomDropdownMenu } from "~/components/ui/custom-dropdown-menu";
 import { Routine } from "~/lib/types";
 import { RoutineCard } from "./RoutineCard";
-import { router } from "expo-router";
 
 interface RoutineLibraryProps {
   routines: Routine[];
   searchQuery: string;
   onSearchChange: (query: string) => void;
-  addButtonDropdownItems: Array<{
+  onRoutinePress: (routineId: string) => void;
+  addButtonDropdownItems?: Array<{
     name: string;
     icon: any;
     onPress: () => void;
   }>;
-  onDelete: (id: string) => void;
-  onToggleActive: (id: string) => void;
+  onDelete?: (id: string) => void;
+  onToggleActive?: (id: string) => void;
 }
 
 export const RoutineLibrary = ({
@@ -29,6 +29,7 @@ export const RoutineLibrary = ({
   addButtonDropdownItems,
   onDelete,
   onToggleActive,
+  onRoutinePress,
 }: RoutineLibraryProps) => {
   return (
     <View className="flex-1 px-4">
@@ -42,14 +43,17 @@ export const RoutineLibrary = ({
             startContent={<Search size={20} className="text-muted-foreground" />}
           />
         </View>
-        <CustomDropdownMenu
-          items={addButtonDropdownItems}
-          trigger={
-            <Button size="icon" variant="ghost" className="h-10 w-10 rounded-full" haptics="light">
-              <Plus className="text-foreground" size={24} />
-            </Button>
-          }
-        />
+
+        {addButtonDropdownItems && (
+          <CustomDropdownMenu
+            items={addButtonDropdownItems}
+            trigger={
+              <Button size="icon" variant="ghost" className="h-10 w-10 rounded-full" haptics="light">
+                <Plus className="text-foreground" size={24} />
+              </Button>
+            }
+          />
+        )}
       </View>
 
       {/* Routines List */}
@@ -57,15 +61,17 @@ export const RoutineLibrary = ({
         {routines.length === 0 ? (
           <View className="flex-1 justify-center items-center mt-20 py-20">
             <Text className="text-muted-foreground text-center mb-6">Keine Trainingspläne gefunden</Text>
-            <CustomDropdownMenu
-              items={addButtonDropdownItems}
-              trigger={
-                <Button size="lg" haptics="medium" className="flex-row items-center bg-primary">
-                  <Plus className="mr-2 text-primary-foreground" size={20} />
-                  <Text className="font-medium text-primary-foreground">Trainingsplan erstellen</Text>
-                </Button>
-              }
-            />
+            {addButtonDropdownItems && (
+              <CustomDropdownMenu
+                items={addButtonDropdownItems}
+                trigger={
+                  <Button size="lg" haptics="medium" className="flex-row items-center bg-primary">
+                    <Plus className="mr-2 text-primary-foreground" size={20} />
+                    <Text className="font-medium text-primary-foreground">Trainingsplan erstellen</Text>
+                  </Button>
+                }
+              />
+            )}
           </View>
         ) : (
           routines
@@ -76,7 +82,7 @@ export const RoutineLibrary = ({
               <RoutineCard
                 key={routine.id}
                 routine={routine}
-                onPress={() => router.push(`/workout/${routine.id}`)}
+                onPress={() => onRoutinePress(routine.id)}
                 onDelete={onDelete}
                 onToggleActive={onToggleActive}
               />

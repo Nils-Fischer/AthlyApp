@@ -20,7 +20,7 @@ export const RoutineCard = ({
   onPress,
   onDelete,
   onToggleActive,
-  showDropdown = true,
+  showDropdown = !!onDelete || !!onToggleActive,
   showActive,
 }: RoutineCardProps) => {
   const dropdownItems: DropdownItem[] = [
