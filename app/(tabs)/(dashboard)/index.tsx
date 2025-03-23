@@ -9,7 +9,7 @@ import { useUserProfileStore } from "~/stores/userProfileStore";
 import { TodaysWorkoutWidget } from "~/components/Dashboard/TodaysWorkoutWidget";
 import { useUserRoutineStore } from "~/stores/userRoutineStore";
 import { Card, CardHeader, CardTitle, CardContent } from "~/components/ui/card";
-import { BlockQuote, CardLabel, P } from "~/components/ui/typography";
+import { BlockQuote, CardLabel, Muted, P } from "~/components/ui/typography";
 import { WeeklyPreviewWidget } from "~/components/Dashboard/WeeklyPreview.Widget";
 import { useExerciseStore } from "~/stores/exerciseStore";
 import { getDailyIndex, getWorkoutSchedule, WeeklySchedule } from "~/lib/workoutPlanning";
@@ -19,6 +19,8 @@ import { DailyWorkoutSummary } from "~/components/Dashboard/DailyWorkoutSummary"
 import { ActiveWorkoutCancelConfirmation } from "~/components/ActiveWorkout/ActiveWorkoutCancelConfirmation";
 import { quotes } from "~/lib/quotes";
 import { ChooseNewWorkoutSheet } from "~/components/Dashboard/ChooseNewWorkoutSheet";
+import { Button } from "~/components/ui/button";
+import { Plus } from "~/lib/icons/Icons";
 
 export default function Index() {
   const isWorkoutRunning = useActiveWorkoutStore((state) => state.workoutTimer.isRunning);
@@ -109,8 +111,17 @@ export default function Index() {
                 <CardLabel>Training</CardLabel>
               </CardTitle>
             </CardHeader>
-            <CardContent className="justify-center items-center mb-4">
+            <CardContent className="justify-center items-center mb-2 gap-6">
               <Text className="text-center text-foreground text-lg">Kein Training für heute geplant 🛋️</Text>
+              <Button
+                variant="ghost"
+                className="flex-row gap-2 w-full border border-border/50"
+                haptics="light"
+                onPress={() => setShowChooseNewWorkoutSheet(true)}
+              >
+                <Plus size={16} className="text-muted-foreground" />
+                <Muted className="text-sm">Neues Training starten</Muted>
+              </Button>
             </CardContent>
           </Card>
         )}
