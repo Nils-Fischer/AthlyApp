@@ -1,19 +1,19 @@
 import React from "react";
 import { View } from "react-native";
 import { Card, CardHeader, CardTitle, CardContent } from "~/components/ui/card";
-import { H3, P, Lead, CardLabel, Small, Large } from "~/components/ui/typography";
-import { Badge } from "~/components/ui/badge";
-import { Progress } from "~/components/ui/progress";
+import { P, Lead, CardLabel, Muted } from "~/components/ui/typography";
 import { format } from "date-fns";
 import { de } from "date-fns/locale";
 import { WorkoutSession } from "~/lib/types";
-import { CheckCircle } from "~/lib/icons/Icons";
+import { CheckCircle, Plus } from "~/lib/icons/Icons";
+import { Button } from "~/components/ui/button";
 
 interface DailyWorkoutSummaryProps {
   sessions: WorkoutSession[];
+  onStartNewWorkout: () => void;
 }
 
-export const DailyWorkoutSummary: React.FC<DailyWorkoutSummaryProps> = ({ sessions }) => {
+export const DailyWorkoutSummary: React.FC<DailyWorkoutSummaryProps> = ({ sessions, onStartNewWorkout }) => {
   const today = format(new Date(), "EEEE", { locale: de });
   const completedWorkouts = sessions.filter(
     (session) => format(new Date(session.date), "EEEE", { locale: de }) === today
@@ -44,9 +44,18 @@ export const DailyWorkoutSummary: React.FC<DailyWorkoutSummaryProps> = ({ sessio
                 {totalExercises} {totalExercises === 1 ? "Übung" : "Übungen"}
               </Lead>
             </View>
-            <View className="flex-row items-start justify-center pt-2">
+            <View className="items-center justify-center pt-2">
               <CardLabel className="text-primary text-sm font-bold">Training erfolgreich abgeschlossen!</CardLabel>
             </View>
+            <Button
+              variant="ghost"
+              className="flex-row gap-2 w-full border border-border/50"
+              haptics="light"
+              onPress={onStartNewWorkout}
+            >
+              <Plus size={16} className="text-muted-foreground" />
+              <Muted className="text-sm">Neues Training starten</Muted>
+            </Button>
           </>
         ) : (
           <View className="items-center py-4">

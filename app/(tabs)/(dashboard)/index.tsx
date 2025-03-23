@@ -9,7 +9,7 @@ import { useUserProfileStore } from "~/stores/userProfileStore";
 import { TodaysWorkoutWidget } from "~/components/Dashboard/TodaysWorkoutWidget";
 import { useUserRoutineStore } from "~/stores/userRoutineStore";
 import { Card, CardHeader, CardTitle, CardContent } from "~/components/ui/card";
-import { BlockQuote, CardLabel, Lead, P } from "~/components/ui/typography";
+import { BlockQuote, CardLabel, P } from "~/components/ui/typography";
 import { WeeklyPreviewWidget } from "~/components/Dashboard/WeeklyPreview.Widget";
 import { useExerciseStore } from "~/stores/exerciseStore";
 import { getDailyIndex, getWorkoutSchedule, WeeklySchedule } from "~/lib/workoutPlanning";
@@ -18,6 +18,7 @@ import { WorkoutSession } from "~/lib/types";
 import { DailyWorkoutSummary } from "~/components/Dashboard/DailyWorkoutSummary";
 import { ActiveWorkoutCancelConfirmation } from "~/components/ActiveWorkout/ActiveWorkoutCancelConfirmation";
 import { quotes } from "~/lib/quotes";
+import { ChooseNewWorkoutSheet } from "~/components/Dashboard/ChooseNewWorkoutSheet";
 
 export default function Index() {
   const isWorkoutRunning = useActiveWorkoutStore((state) => state.workoutTimer.isRunning);
@@ -29,6 +30,8 @@ export default function Index() {
   const { routines, getActiveRoutine } = useUserRoutineStore();
   const [showCancelDialog, setShowCancelDialog] = useState(false);
   const [skipOffset, setSkipOffset] = useState(0);
+  const [showChooseNewWorkoutSheet, setShowChooseNewWorkoutSheet] = useState(false);
+  const [customPlannedWorkout, setCustomPlannedWorkout] = useState<Workout | null>(null);
 
   const activeRoutine = useMemo(() => {
     const activeRoutine = getActiveRoutine();
@@ -84,7 +87,7 @@ export default function Index() {
         <WeeklyPreviewWidget schedule={weeklySchedule} />
         {/* Workout Widget */}
         {Array.isArray(todaysActivity) ? (
-          <DailyWorkoutSummary sessions={todaysActivity} />
+          <DailyWorkoutSummary sessions={todaysActivity} onStartNewWorkout={() => setShowChooseNewWorkoutSheet(true)} />
         ) : todaysActivity ? (
           <TodaysWorkoutWidget
             workout={todaysActivity as Workout}
@@ -123,6 +126,17 @@ export default function Index() {
         showCancelDialog={showCancelDialog}
         setShowCancelDialog={setShowCancelDialog}
         confirmCancel={cancelWorkout}
+      />
+
+      <ChooseNewWorkoutSheet
+        isOpen={showChooseNewWorkoutSheet}
+        onClose={() => setShowChooseNewWorkoutSheet(false)}
+        onSelect={(workout) => {
+          setCustomPlannedWorkout(workout);
+          setShowChooseNewWorkoutSheet(false);
+        }}
+        routines={routines}
+        exercises={exercises || []}
       />
     </ScrollView>
   );
