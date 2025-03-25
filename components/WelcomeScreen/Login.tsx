@@ -1,18 +1,14 @@
 import React, { useState } from "react";
-import { ActivityIndicator, Platform, View } from "react-native";
-import { H1, P, Small } from "~/components/ui/typography";
+import { ActivityIndicator, Platform, Pressable, View, ScrollView } from "react-native";
+import { H1, H2, H3, P, Small } from "~/components/ui/typography";
 import { Card, CardContent, CardFooter, CardHeader } from "~/components/ui/card";
 import * as AppleAuthentication from "expo-apple-authentication";
 import { supabase } from "~/lib/supabase";
 import { User } from "@supabase/auth-js";
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogHeader,
-  AlertDialogTitle,
-} from "~/components/ui/alert-dialog";
+import { Link } from "~/components/ui/typography";
+import PrivacyPolicy from "../Legal/PrivacyPolicy";
+import TermsOfService from "../Legal/TermsOfService";
+import { X } from "~/lib/icons/Icons";
 
 interface LoginProps {
   onNext: (user: User) => void;
@@ -21,7 +17,8 @@ interface LoginProps {
 export const Login: React.FC<LoginProps> = ({ onNext }) => {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [showErrorDialog, setShowErrorDialog] = useState(false);
+  const [isLegalModalOpen, setIsLegalModalOpen] = useState(false);
+  const [activeDocument, setActiveDocument] = useState<"terms" | "privacy">("terms");
 
   const handleAppleLogin = async () => {
     if (isLoading) return;
@@ -53,7 +50,6 @@ export const Login: React.FC<LoginProps> = ({ onNext }) => {
         } else if (error) {
           console.error("Auth error:", error);
           setError("Bei der Anmeldung ist ein Fehler aufgetreten. Bitte versuche es erneut.");
-          setShowErrorDialog(true);
         }
       } else {
         throw new Error("No identityToken.");
@@ -65,12 +61,44 @@ export const Login: React.FC<LoginProps> = ({ onNext }) => {
       } else {
         console.error(e);
         setError("Bei der Anmeldung ist ein Fehler aufgetreten. Bitte versuche es erneut.");
-        setShowErrorDialog(true);
       }
     } finally {
       setIsLoading(false);
     }
   };
+
+  const openTerms = () => {
+    setActiveDocument("terms");
+    setIsLegalModalOpen(true);
+  };
+
+  const openPrivacyPolicy = () => {
+    setActiveDocument("privacy");
+    setIsLegalModalOpen(true);
+  };
+
+  const closeLegalModal = () => {
+    setIsLegalModalOpen(false);
+  };
+
+  if (isLegalModalOpen) {
+    return (
+      <View className="flex-1 bg-background">
+        <View className="flex-row items-center justify-between bg-background pb-4">
+          {activeDocument === "terms" ? <H3>Nutzungsbedingungen</H3> : <H3>Datenschutzerklärung</H3>}
+          <Pressable
+            onPress={closeLegalModal}
+            className="rounded-2xl bg-muted p-6 w-10 h-10 items-center justify-center"
+          >
+            <X size={24} className="text-foreground" />
+          </Pressable>
+        </View>
+        <ScrollView className="p-4">
+          {activeDocument === "terms" ? <TermsOfService showHeader={false} /> : <PrivacyPolicy showHeader={false} />}
+        </ScrollView>
+      </View>
+    );
+  }
 
   return (
     <View className="flex-1 items-center justify-center p-6 bg-background">
@@ -104,26 +132,14 @@ export const Login: React.FC<LoginProps> = ({ onNext }) => {
         <CardFooter className="flex-col space-y-4">
           <View className="w-full flex-row items-center">
             <View className="flex-1 h-px bg-border" />
-            {/* TODO: Add link to terms and conditions */}
-            <P className="px-4 text-xs text-muted-foreground">
-              Durch die Anmeldung akzeptierst du unsere Nutzungsbedingungen
-            </P>
+            <Small className="px-4 text-xs text-muted-foreground text-center">
+              Durch die Anmeldung akzeptierst du unsere <Link onPress={openTerms}>Nutzungsbedingungen</Link> und{" "}
+              <Link onPress={openPrivacyPolicy}>Datenschutzerklärung</Link>{" "}
+            </Small>
             <View className="flex-1 h-px bg-border" />
           </View>
         </CardFooter>
       </Card>
-
-      <AlertDialog open={showErrorDialog} onOpenChange={setShowErrorDialog}>
-        <AlertDialogContent>
-          <AlertDialogHeader>
-            <AlertDialogTitle>Anmeldung fehlgeschlagen</AlertDialogTitle>
-            <AlertDialogDescription>{error}</AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogAction haptics="error" onPress={() => setShowErrorDialog(false)}>
-            OK
-          </AlertDialogAction>
-        </AlertDialogContent>
-      </AlertDialog>
     </View>
   );
 };

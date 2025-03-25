@@ -1,20 +1,22 @@
 import React from "react";
-import { ScrollView, View } from "react-native";
-import { H1, P } from "../ui/typography";
+import { View } from "react-native";
+import { H2, Large, Muted, P, H3 } from "../ui/typography";
 import { Text } from "../ui/text";
 
-const TermsOfService = () => {
+export type TermsOfServiceProps = {
+  showHeader?: boolean;
+};
+
+const TermsOfService: React.FC<TermsOfServiceProps> = ({ showHeader = true }) => {
   return (
-    <ScrollView className="flex-1 p-4 bg-background">
-      <View className="mb-8">
-        <H1>Nutzungsbedingungen</H1>
-        <P>Gültig ab: 25. März 2025</P>
+    <View className="flex-1 p-1 pt-0 mt-0 bg-background gap-4">
+      <View className="mb-6">
+        {showHeader && <H2>Nutzungsbedingungen</H2>}
+        <Muted>Gültig ab: 25. März 2025</Muted>
       </View>
 
-      <View className="mb-6">
-        <P>
-          <Text>Einleitung</Text>
-        </P>
+      <H3>1. Einleitung</H3>
+      <View className="gap-3 mb-6">
         <P>
           Athly ist eine KI-gestützte Trainings-App, die ihren Nutzerinnen und Nutzern personalisierte
           Trainingsprogramme zur Verfügung stellt. Diese Nutzungsbedingungen regeln den Zugang zur und die Nutzung von
@@ -27,39 +29,29 @@ const TermsOfService = () => {
         </P>
       </View>
 
-      <View className="mb-6">
+      <H3>2. Registrierung und Teilnahmeberechtigung</H3>
+      <View className="gap-3 mb-6">
+        <Large className="mt-3 mb-0">Mindestalter:</Large>
+        <P>Zur Nutzung der Athly App müssen Sie mindestens 18 Jahre alt sein.</P>
+        <Large className="mt-3 mb-0">Anmeldung:</Large>
         <P>
-          <Text>1. Registrierung und Teilnahmeberechtigung</Text>
-        </P>
-        <P>
-          <Text className="font-semibold">Mindestalter:</Text> Zur Nutzung der Athly App müssen Sie mindestens 18 Jahre
-          alt sein.
-        </P>
-        <P>
-          <Text className="font-semibold">Anmeldung:</Text> Für die Nutzung aller Funktionen der App ist eine
-          Registrierung erforderlich. Sie verpflichten sich, bei der Registrierung wahrheitsgemäße und vollständige
-          Angaben zu machen und Ihre Zugangsdaten nicht an Dritte weiterzugeben. Werden unrichtige Angaben gemacht oder
-          wird gegen diese Bedingungen verstoßen, behalten wir uns vor, den Zugang zur App einzuschränken oder zu
-          beenden.
+          Für die Nutzung aller Funktionen der App ist eine Registrierung erforderlich. Sie verpflichten sich, bei der
+          Registrierung wahrheitsgemäße und vollständige Angaben zu machen und Ihre Zugangsdaten nicht an Dritte
+          weiterzugeben. Werden unrichtige Angaben gemacht oder wird gegen diese Bedingungen verstoßen, behalten wir uns
+          vor, den Zugang zur App einzuschränken oder zu beenden.
         </P>
       </View>
 
-      <View className="mb-6">
-        <P>
-          <Text>2. Wichtige Haftungsausschlüsse</Text>
-        </P>
+      <H3>3. Wichtige Haftungsausschlüsse</H3>
+      <View className="gap-3 mb-6">
         <P>Die Nutzung der Athly App erfolgt ausschließlich auf eigenes Risiko. Insbesondere beachten Sie bitte:</P>
-        <P>
-          <Text className="font-semibold">A. Allgemeiner Haftungsausschluss</Text>
-        </P>
+        <Large className="mt-3 mb-0">A. Allgemeiner Haftungsausschluss</Large>
         <P>
           Die App dient ausschließlich der Bereitstellung von automatisiert generierten, KI-gestützten
           Trainingsprogrammen. Sie ersetzen niemals den persönlichen ärztlichen Rat oder individuelle
           Trainingsanweisungen.
         </P>
-        <P>
-          <Text className="font-semibold">B. Haftungsausschluss für Trainingsprogramme</Text>
-        </P>
+        <Large className="mt-3 mb-0">B. Haftungsausschluss für Trainingsprogramme</Large>
         <P>
           Die von Athly bereitgestellten Trainingsprogramme basieren auf algorithmischen Berechnungen und werden ohne
           persönliche Betreuung erstellt.
@@ -72,9 +64,7 @@ const TermsOfService = () => {
           Sie übernehmen das volle Risiko einer etwaigen Verletzung oder Verschlechterung Ihres Gesundheitszustandes.
           Athly haftet nicht für direkte oder indirekte Schäden, die aus der Nutzung der Trainingsprogramme entstehen.
         </P>
-        <P>
-          <Text className="font-semibold">C. Medizinischer Haftungsausschluss</Text>
-        </P>
+        <Large className="mt-3 mb-0">C. Medizinischer Haftungsausschluss</Large>
         <P>
           Mit der Nutzung der App bestätigen Sie, dass Sie sich in gesundheitlich weitgehend einwandfreiem Zustand
           befinden und für körperliche Belastungen selbst verantwortlich sind.
@@ -85,65 +75,47 @@ const TermsOfService = () => {
         </P>
       </View>
 
-      <View className="mb-6">
-        <P>
-          <Text>3. Nutzung unserer Dienste</Text>
-        </P>
-        <P>
-          <Text className="font-semibold">Allgemeine Nutzung:</Text>
-        </P>
+      <H3>4. Nutzung unserer Dienste</H3>
+      <View className="gap-3 mb-6">
+        <Large className="mt-3 mb-0">Allgemeine Nutzung:</Large>
         <P>
           Sie verpflichten sich, die Athly App ausschließlich zur persönlichen und nicht-kommerziellen Nutzung zu
           verwenden. Jede missbräuchliche oder rechtswidrige Nutzung, insbesondere das Zurückentwickeln, Dekompilieren
           oder die unbefugte Weitergabe von Inhalten, ist untersagt.
         </P>
-        <P>
-          <Text className="font-semibold">Datenschutz:</Text>
-        </P>
+        <Large className="mt-3 mb-0">Datenschutz:</Large>
         <P>
           Details zur Erhebung, Speicherung und Verarbeitung personenbezogener Daten entnehmen Sie bitte unserer
           separaten Datenschutzerklärung. Dort wird insbesondere erklärt, inwieweit Daten, wie beispielsweise Angaben zu
           Ihrer Person oder Nutzungsdaten, verarbeitet werden.
         </P>
-        <P>
-          <Text className="font-semibold">Verhaltensregeln:</Text>
-        </P>
+        <Large className="mt-3 mb-0">Verhaltensregeln:</Large>
         <P>
           Es ist untersagt, Inhalte in die App einzustellen oder zu übermitteln, die gegen geltende Gesetze oder Rechte
           Dritter verstoßen. Ebenso dürfen Sie die App nicht dazu nutzen, um rechtswidrige Handlungen zu begehen.
         </P>
       </View>
 
-      <View className="mb-6">
-        <P>
-          <Text>4. Abonnements</Text>
-        </P>
+      <H3>5. Abonnements</H3>
+      <View className="gap-3 mb-6">
         <P>Athly bietet sowohl Testphasen als auch kostenpflichtige Abonnements an.</P>
-        <P>
-          <Text className="font-semibold">Testphase:</Text>
-        </P>
+        <Large className="mt-3 mb-0">Testphase:</Large>
         <P>
           Falls eine kostenlose Testphase angeboten wird, erfolgt dies ausdrücklich und wird auf der Kaufseite bzw. im
           Zahlungsdialog deutlich kommuniziert.
         </P>
-        <P>
-          <Text className="font-semibold">Kostenpflichtige Abonnements:</Text>
-        </P>
+        <Large className="mt-3 mb-0">Kostenpflichtige Abonnements:</Large>
         <P>
           Nach Ablauf einer Testphase (sofern angeboten) oder direkt bei Abschluss eines kostenpflichtigen Abonnements
           werden Ihnen die festgelegten Gebühren in Rechnung gestellt. Die entstehenden Kosten werden über Stripe oder
           den Apple App Store abgerechnet – je nachdem, welche Zahlungsmethode Sie wählen.
         </P>
-        <P>
-          <Text className="font-semibold">Automatische Verlängerung:</Text>
-        </P>
+        <Large className="mt-3 mb-0">Automatische Verlängerung:</Large>
         <P>
           Abonnements verlängern sich automatisch um den jeweils gewählten Zeitraum (z. B. monatlich oder jährlich),
           sofern sie nicht fristgerecht gekündigt werden.
         </P>
-        <P>
-          <Text className="font-semibold">Kündigung:</Text>
-        </P>
+        <Large className="mt-3 mb-0">Kündigung:</Large>
         <P>
           Um eine automatische Verlängerung zu verhindern, müssen Sie das Abonnement mindestens 24 Stunden vor Ablauf
           des aktuellen Zahlungszeitraums kündigen. Bei Abonnements, die über den Apple App Store abgeschlossen wurden,
@@ -151,29 +123,21 @@ const TermsOfService = () => {
           Eine Kündigung über die App selbst beendet nicht das bestehende Abonnement – die Nutzung bleibt bis zum Ende
           des aktuellen Zahlungszeitraums weiterhin möglich.
         </P>
-        <P>
-          <Text className="font-semibold">Rückerstattungen:</Text>
-        </P>
+        <Large className="mt-3 mb-0">Rückerstattungen:</Large>
         <P>
           Rückerstattungsansprüche richten sich nach den geltenden gesetzlichen Regelungen und den Bestimmungen der
           jeweiligen Zahlungsanbieter.
         </P>
       </View>
 
-      <View className="mb-6">
-        <P>
-          <Text>5. Lizenz</Text>
-        </P>
-        <P>
-          <Text className="font-semibold">Nutzungsrecht:</Text>
-        </P>
+      <H3>6. Lizenz</H3>
+      <View className="gap-3 mb-6">
+        <Large className="mt-3 mb-0">Nutzungsrecht:</Large>
         <P>
           Athly gewährt Ihnen eine persönliche, nicht übertragbare, nicht ausschließliche und widerrufliche Lizenz zur
           Nutzung der App ausschließlich für Ihren privaten, nicht-kommerziellen Gebrauch.
         </P>
-        <P>
-          <Text className="font-semibold">Eigentumsrechte:</Text>
-        </P>
+        <Large className="mt-3 mb-0">Eigentumsrechte:</Large>
         <P>
           Alle Inhalte, Grafiken, Texte, Software und sonstige Bestandteile der App sind Eigentum von Athly –
           ausgenommen sind sämtliche von Ihnen bereitgestellte Nutzerdaten, die im alleinigen Eigentum des Nutzers
@@ -185,10 +149,8 @@ const TermsOfService = () => {
         </P>
       </View>
 
-      <View className="mb-6">
-        <P>
-          <Text>6. Schadloshaltung</Text>
-        </P>
+      <H3>7. Schadloshaltung</H3>
+      <View className="gap-3 mb-6">
         <P>
           Sie erklären sich damit einverstanden, Athly, seine Geschäftsführer, Mitarbeiter und sonstige Beauftragte von
           sämtlichen Ansprüchen Dritter freizustellen, die aus einer Verletzung dieser Nutzungsbedingungen oder aus
@@ -196,10 +158,8 @@ const TermsOfService = () => {
         </P>
       </View>
 
-      <View className="mb-6">
-        <P>
-          <Text>7. Nutzung auf eigene Gefahr</Text>
-        </P>
+      <H3>8. Nutzung auf eigene Gefahr</H3>
+      <View className="gap-3 mb-6">
         <P>
           Die Nutzung der Athly App erfolgt ausschließlich auf Ihr eigenes Risiko. Athly übernimmt keine Haftung oder
           Garantie für:
@@ -211,47 +171,33 @@ const TermsOfService = () => {
         </P>
       </View>
 
-      <View className="mb-6">
-        <P>
-          <Text>8. Gewährleistungsausschluss</Text>
-        </P>
-        <P>
-          <Text className="font-semibold">"Wie besehen":</Text>
-        </P>
+      <H3>9. Gewährleistungsausschluss</H3>
+      <View className="gap-3 mb-6">
+        <Large className="mt-3 mb-0">"Wie besehen":</Large>
         <P>
           Die Athly App wird ohne jegliche ausdrückliche oder stillschweigende Gewährleistungen, insbesondere
           hinsichtlich der Funktionsfähigkeit, Genauigkeit oder Eignung für bestimmte Zwecke bereitgestellt.
         </P>
-        <P>
-          <Text className="font-semibold">Inhalte Dritter:</Text>
-        </P>
+        <Large className="mt-3 mb-0">Inhalte Dritter:</Large>
         <P>Sollten Inhalte von Dritten in der App zugänglich sein, so übernehmen wir hierfür keine Gewähr.</P>
       </View>
 
-      <View className="mb-6">
-        <P>
-          <Text>9. Haftungsbeschränkung</Text>
-        </P>
-        <P>
-          <Text className="font-semibold">Haftungsumfang:</Text>
-        </P>
+      <H3>10. Haftungsbeschränkung</H3>
+      <View className="gap-3 mb-6">
+        <Large className="mt-3 mb-0">Haftungsumfang:</Large>
         <P>
           In keinem Fall haftet Athly für indirekte, zufällige, spezielle oder Folgeschäden (einschließlich entgangenen
           Gewinns oder Datenverlusts), selbst wenn Athly auf die Möglichkeit solcher Schäden hingewiesen wurde.
         </P>
-        <P>
-          <Text className="font-semibold">Haftungsbegrenzung:</Text>
-        </P>
+        <Large className="mt-3 mb-0">Haftungsbegrenzung:</Large>
         <P>
           Soweit gesetzlich zulässig, ist die Gesamthaftung von Athly für alle Ansprüche aus der Nutzung der App auf den
           Betrag begrenzt, den Sie für die Nutzung der App gezahlt haben – maximal jedoch 100 €.
         </P>
       </View>
 
-      <View className="mb-6">
-        <P>
-          <Text>10. Export- und Wirtschaftssanktionskontrolle</Text>
-        </P>
+      <H3>11. Export- und Wirtschaftssanktionskontrolle</H3>
+      <View className="gap-3 mb-6">
         <P>
           Die Software und Inhalte der Athly App unterliegen den einschlägigen deutschen Exportbestimmungen. Mit der
           Nutzung der App versichern Sie, dass Sie nicht in einem Land ansässig sind, für das besondere Export- oder
@@ -259,10 +205,8 @@ const TermsOfService = () => {
         </P>
       </View>
 
-      <View className="mb-6">
-        <P>
-          <Text>11. Dienste und Links Dritter</Text>
-        </P>
+      <H3>12. Dienste und Links Dritter</H3>
+      <View className="gap-3 mb-6">
         <P>
           Die Athly App kann Links zu Websites, Apps oder anderen Diensten Dritter enthalten. Wir haben keinen Einfluss
           auf deren Inhalte und übernehmen keine Haftung hierfür. Die Nutzung dieser Angebote erfolgt auf eigenes
@@ -270,10 +214,8 @@ const TermsOfService = () => {
         </P>
       </View>
 
-      <View className="mb-6">
-        <P>
-          <Text>12. Ihr Feedback</Text>
-        </P>
+      <H3>13. Ihr Feedback</H3>
+      <View className="gap-3 mb-6">
         <P>
           Feedback, das Sie uns über die App oder andere Kanäle übermitteln, gilt als nicht vertraulich. Mit der
           Übermittlung räumen Sie Athly das uneingeschränkte Recht ein, dieses Feedback zu nutzen, zu verwerten, zu
@@ -281,10 +223,8 @@ const TermsOfService = () => {
         </P>
       </View>
 
-      <View className="mb-6">
-        <P>
-          <Text>13. Änderungen der Dienste und Bedingungen</Text>
-        </P>
+      <H3>14. Änderungen der Dienste und Bedingungen</H3>
+      <View className="gap-3 mb-6">
         <P>
           Athly behält sich das Recht vor, diese Nutzungsbedingungen sowie die Funktionalität der App jederzeit – und,
           soweit gesetzlich zulässig, ohne vorherige gesonderte Benachrichtigung – zu ändern. Änderungen werden mit
@@ -293,30 +233,22 @@ const TermsOfService = () => {
         </P>
       </View>
 
-      <View className="mb-6">
-        <P>
-          <Text>14. Beendigung</Text>
-        </P>
-        <P>
-          <Text className="font-semibold">Kündigung durch Athly:</Text>
-        </P>
+      <H3>15. Beendigung</H3>
+      <View className="gap-3 mb-6">
+        <Large className="mt-3 mb-0">Kündigung durch Athly:</Large>
         <P>
           Wir behalten uns vor, Ihren Zugang zur App ohne Vorankündigung zu sperren oder zu beenden, wenn Sie gegen
           diese Nutzungsbedingungen verstoßen.
         </P>
-        <P>
-          <Text className="font-semibold">Beendigung durch den Nutzer:</Text>
-        </P>
+        <Large className="mt-3 mb-0">Beendigung durch den Nutzer:</Large>
         <P>
           Sie können Ihr Abonnement gemäß den unter Abschnitt 4 genannten Kündigungsregelungen beenden. Nach Beendigung
           aller vertraglichen Beziehungen erlöschen sämtliche Ihnen eingeräumten Rechte zur Nutzung der App.
         </P>
       </View>
 
-      <View className="mb-6">
-        <P>
-          <Text>15. Salvatorische Klausel</Text>
-        </P>
+      <H3>16. Salvatorische Klausel</H3>
+      <View className="gap-3 mb-6">
         <P>
           Sollte eine Bestimmung dieser Nutzungsbedingungen unwirksam sein oder werden, bleibt die Wirksamkeit der
           übrigen Bestimmungen unberührt. Anstelle der unwirksamen Bestimmung gilt eine dem wirtschaftlichen Zweck
@@ -324,10 +256,8 @@ const TermsOfService = () => {
         </P>
       </View>
 
-      <View className="mb-6">
-        <P>
-          <Text>16. Urheberrechtsansprüche</Text>
-        </P>
+      <H3>17. Urheberrechtsansprüche</H3>
+      <View className="gap-3 mb-6">
         <P>
           Sollten Sie der Ansicht sein, dass in der Athly App durch Urheberrechtsverletzungen geschützte Materialien
           unbefugt verwendet werden, kontaktieren Sie uns bitte unter den nachstehenden Kontaktdaten. Bitte übermitteln
@@ -338,55 +268,37 @@ const TermsOfService = () => {
         <P>Ihre Kontaktdaten zur Weiterverfolgung der Angelegenheit.</P>
       </View>
 
-      <View className="mb-6">
-        <P>
-          <Text>17. Streitbeilegung</Text>
-        </P>
-        <P>
-          <Text className="font-semibold">Anwendbares Recht:</Text>
-        </P>
+      <H3>18. Streitbeilegung</H3>
+      <View className="gap-3 mb-6">
+        <Large className="mt-3 mb-0">Anwendbares Recht:</Large>
         <P>Es gilt das Recht der Bundesrepublik Deutschland unter Ausschluss des internationalen Privatrechts.</P>
-        <P>
-          <Text className="font-semibold">Gerichtsstand:</Text>
-        </P>
+        <Large className="mt-3 mb-0">Gerichtsstand:</Large>
         <P>
           Sofern gesetzlich zulässig, vereinbaren wir als ausschließlichen Gerichtsstand für Streitigkeiten, die sich
           aus oder im Zusammenhang mit diesen Nutzungsbedingungen ergeben, den Sitz von Athly in Köln.
         </P>
-        <P>
-          <Text className="font-semibold">Hinweis für Verbraucher:</Text>
-        </P>
+        <Large className="mt-3 mb-0">Hinweis für Verbraucher:</Large>
         <P>Sofern Sie Verbraucherin oder Verbraucher sind, bleiben Ihre gesetzlichen Rechte unberührt.</P>
       </View>
 
-      <View className="mb-6">
-        <P>
-          <Text>18. Sonstiges</Text>
-        </P>
-        <P>
-          <Text className="font-semibold">Gesamte Vereinbarung:</Text>
-        </P>
+      <H3>19. Sonstiges</H3>
+      <View className="gap-3 mb-6">
+        <Large className="mt-3 mb-0">Gesamte Vereinbarung:</Large>
         <P>
           Diese Nutzungsbedingungen stellen die gesamte Vereinbarung zwischen Ihnen und Athly in Bezug auf die Nutzung
           der App dar.
         </P>
-        <P>
-          <Text className="font-semibold">Kein Verzicht:</Text>
-        </P>
+        <Large className="mt-3 mb-0">Kein Verzicht:</Large>
         <P>
           Das Versäumnis von Athly, einzelne Rechte oder Bestimmungen durchzusetzen, stellt keinen Verzicht auf diese
           Rechte oder Bestimmungen dar.
         </P>
-        <P>
-          <Text className="font-semibold">Schriftform:</Text>
-        </P>
+        <Large className="mt-3 mb-0">Schriftform:</Large>
         <P>Änderungen oder Ergänzungen dieser Vereinbarung bedürfen der Schriftform.</P>
       </View>
 
-      <View className="mb-6">
-        <P>
-          <Text>19. Kontaktdaten</Text>
-        </P>
+      <H3>20. Kontaktdaten</H3>
+      <View className="gap-3 mb-6">
         <P>
           Falls Sie Fragen, Anmerkungen oder Beanstandungen zu diesen Nutzungsbedingungen haben, erreichen Sie uns
           unter:
@@ -396,20 +308,8 @@ const TermsOfService = () => {
         <P>50823 Köln</P>
         <P>Deutschland</P>
         <P>E-Mail: info@athly.de</P>
-        <P>
-          <Text className="font-semibold">Abschließende Hinweise</Text>
-        </P>
-        <P>
-          Bitte überprüfen Sie diesen Entwurf sorgfältig und teilen Sie uns mit, ob einzelne Punkte weiter angepasst
-          oder ergänzt werden sollen. Insbesondere sollten wir prüfen, ob alle Formulierungen den aktuellen rechtlichen
-          Anforderungen im deutschen Verbraucherrecht entsprechen. Beachten Sie, dass insbesondere Klauseln zu Haftung,
-          Kündigung und Streitbeilegung regelmäßig einer juristischen Prüfung bedürfen, um konform zu sein.
-        </P>
-        <P>
-          Dies ist ein erster Entwurf, der als Grundlage für die weitere Abstimmung und juristische Prüfung dienen kann.
-        </P>
       </View>
-    </ScrollView>
+    </View>
   );
 };
 

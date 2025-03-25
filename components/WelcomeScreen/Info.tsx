@@ -49,7 +49,7 @@ export const Info: React.FC<InfoProps> = ({ onNext }) => {
   return (
     <View className="flex-1 items-center justify-start w-full">
       {/* Animierter Titel */}
-      <Animated.View className="absolute left-0 right-0 items-center" style={[{ top: "40%" }, animatedTitleStyle]}>
+      <Animated.View className="absolute left-0 right-0 items-center" style={[{ top: "30%" }, animatedTitleStyle]}>
         <Text className="text-4xl font-bold text-accent">Athly</Text>
       </Animated.View>
 

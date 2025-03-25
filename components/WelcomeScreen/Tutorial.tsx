@@ -12,11 +12,7 @@ interface TutorialProps {
 
 export const Tutorial: React.FC<TutorialProps> = ({ onNext }) => {
   return (
-    <ScrollView
-      className="flex-1 w-full"
-      showsVerticalScrollIndicator={false}
-      contentContainerStyle={{ paddingBottom: 20 }}
-    >
+    <View className="flex-1 w-full">
       <View className="p-6">
         {/* Dev Notice */}
         <Animated.View entering={FadeIn.duration(500)} className="bg-accent p-4 rounded-xl mb-6">
@@ -70,6 +66,6 @@ export const Tutorial: React.FC<TutorialProps> = ({ onNext }) => {
           </Text>
         </Animated.View>
       </View>
-    </ScrollView>
+    </View>
   );
 };
