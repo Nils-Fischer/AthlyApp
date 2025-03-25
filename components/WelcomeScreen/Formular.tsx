@@ -10,7 +10,6 @@ import Animated, {
   withTiming,
   interpolate,
 } from "react-native-reanimated";
-import { randomUUID } from "expo-crypto";
 import { Input } from "~/components/ui/input";
 import DateTimePicker from "@react-native-community/datetimepicker";
 import { Platform } from "react-native";
@@ -86,7 +85,7 @@ export const Formular: React.FC<FormularProps> = ({ onFinish }) => {
       weight !== null
     ) {
       const profile: UserProfile = {
-        id: randomUUID(),
+        id: "",
         firstName: formState.firstName,
         lastName: formState.lastName,
         birthday: formState.birthday,

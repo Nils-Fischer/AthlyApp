@@ -4,35 +4,32 @@ import { useState } from "react";
 import { Info } from "~/components/WelcomeScreen/Info";
 import { Tutorial } from "~/components/WelcomeScreen/Tutorial";
 import { Formular } from "~/components/WelcomeScreen/Formular";
-import { supabase } from "~/lib/supabase";
 import Animated, { FadeIn } from "react-native-reanimated";
-import { dateToISOString } from "~/lib/utils";
+import { Login } from "./WelcomeScreen/Login";
+import { User } from "@supabase/supabase-js";
+import { useUserProfileStore } from "~/stores/userProfileStore";
 
 interface WelcomeScreenProps {
-  finish: (profile: UserProfile) => void;
+  finish: (profile: UserProfile | null) => void;
 }
 
 export const WelcomeScreen: React.FC<WelcomeScreenProps> = ({ finish }) => {
-  const [step, setStep] = useState<"info" | "tutorial" | "form">("info");
+  const [step, setStep] = useState<"info" | "tutorial" | "login" | "form">("info");
+  const [user, setUser] = useState<User | null>(null);
+  const { isProfileComplete } = useUserProfileStore();
 
   const handleFinish = async (profile: UserProfile) => {
-    try {
-      console.log("birthday", profile);
-      const { error } = await supabase.from("profiles").insert({
-        id: profile.id,
-        first_name: profile.firstName,
-        last_name: profile.lastName,
-        birthday: dateToISOString(profile.birthday),
-        gender: profile.gender,
-      });
+    profile.id = user?.id ?? profile.id;
+    finish(profile);
+  };
 
-      if (error) {
-        console.error("Profilfehler:", error);
-      }
-
-      finish(profile);
-    } catch (e) {
-      console.error("Unerwarteter Fehler:", e);
+  const handleLogin = async (user: User) => {
+    console.log("user", user);
+    setUser(user);
+    if (!isProfileComplete()) {
+      setStep("form");
+    } else {
+      finish(null);
     }
   };
 
@@ -46,7 +43,9 @@ export const WelcomeScreen: React.FC<WelcomeScreenProps> = ({ finish }) => {
         {step === "info" ? (
           <Info onNext={() => setStep("tutorial")} />
         ) : step === "tutorial" ? (
-          <Tutorial onNext={() => setStep("form")} />
+          <Tutorial onNext={() => setStep("login")} />
+        ) : step === "login" ? (
+          <Login onNext={handleLogin} />
         ) : (
           <Formular onFinish={handleFinish} />
         )}

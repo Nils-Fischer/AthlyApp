@@ -69,11 +69,11 @@ export default function RootLayout() {
   // const { colorScheme, setColorScheme, isDarkColorScheme } = useColorScheme();
   const [isReady, setIsReady] = React.useState(false);
   const [firstLaunch, setFirstLaunch] = React.useState(false);
-  const { setProfile } = useUserProfileStore();
+  const { updateProfile } = useUserProfileStore();
   const exerciseStore = useExerciseStore();
 
   const checkFirstLaunch = async () => {
-    // await AsyncStorage.removeItem("FIRST_LAUNCH");
+    await AsyncStorage.removeItem("FIRST_LAUNCH");
     const __first_launch = await AsyncStorage.getItem("FIRST_LAUNCH");
     if (!__first_launch) {
       console.log("First launch");
@@ -134,7 +134,9 @@ export default function RootLayout() {
       <SessionProvider>
         <WelcomeScreen
           finish={async (profile) => {
-            await setProfile(profile);
+            if (profile) {
+              await updateProfile(profile);
+            }
             await AsyncStorage.setItem("FIRST_LAUNCH", "Done");
             setFirstLaunch(false);
           }}

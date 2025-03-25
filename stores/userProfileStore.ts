@@ -2,24 +2,18 @@ import { create } from "zustand";
 import { createJSONStorage, persist } from "zustand/middleware";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { UserProfile, Gender } from "~/lib/types";
+import { supabase } from "~/lib/supabase";
 
 interface UserProfileState {
   profile: UserProfile;
   isLoading: boolean;
   error: string | null;
+  isSyncing: boolean;
 
   // Actions
-  setProfile: (profile: UserProfile) => void;
-  updateProfile: (updates: Partial<UserProfile>) => void;
-  resetProfile: () => void;
-
-  // Field-specific setters
-  setFirstName: (firstName: string) => void;
-  setLastName: (lastName: string) => void;
-  setAge: (age: number) => void;
-  setGender: (gender: Gender) => void;
-  setHeight: (height: number) => void;
-  setWeight: (weight: number) => void;
+  updateProfile: (updates: Partial<UserProfile>) => Promise<void>;
+  resetProfile: () => Promise<void>;
+  isProfileComplete: () => boolean;
 }
 
 const initialProfile: UserProfile = {
@@ -33,70 +27,85 @@ const initialProfile: UserProfile = {
   weight: 0,
 };
 
+/**
+ * Converts UserProfile to Supabase format
+ */
+const toSupabaseFormat = (profile: UserProfile) => {
+  return {
+    id: profile.id,
+    first_name: profile.firstName,
+    last_name: profile.lastName,
+    birthday:
+      profile.birthday instanceof Date ? profile.birthday.toISOString() : new Date(profile.birthday).toISOString(),
+    gender: profile.gender,
+    height: profile.height,
+    weight: profile.weight,
+    language: profile.language,
+  };
+};
+
 export const useUserProfileStore = create<UserProfileState>()(
   persist(
-    (set) => ({
+    (set, get) => ({
       profile: initialProfile,
       isLoading: false,
       error: null,
+      isSyncing: false,
 
-      setProfile: (profile) => set({ profile, error: null }),
+      isProfileComplete: () => {
+        const { profile } = get();
 
-      updateProfile: (updates) =>
+        // Check if any required fields are missing
+        return !!(
+          profile.id &&
+          profile.firstName &&
+          profile.lastName &&
+          profile.birthday &&
+          profile.gender &&
+          profile.height > 0 &&
+          profile.weight > 0
+        );
+      },
+
+      updateProfile: async (updates) => {
         set((state) => ({
-          profile: state.profile ? { ...state.profile, ...updates } : initialProfile,
+          profile: state.profile ? { ...state.profile, ...updates } : { ...initialProfile, ...updates },
+          isSyncing: true,
           error: null,
-        })),
+        }));
 
-      resetProfile: () => set({ profile: initialProfile, error: null }),
+        try {
+          const updatedProfile = get().profile;
 
-      setFirstName: (firstName) =>
-        set((state) => ({
-          profile: state.profile ? { ...state.profile, firstName } : { ...initialProfile, firstName },
-        })),
+          if (updatedProfile.id) {
+            const { error } = await supabase.from("user_profiles").upsert(toSupabaseFormat(updatedProfile));
 
-      setLastName: (lastName) =>
-        set((state) => ({
-          profile: state.profile ? { ...state.profile, lastName } : { ...initialProfile, lastName },
-        })),
-
-      setAge: (age) =>
-        set((state) => {
-          if (age < 0) {
-            return { error: "Age must be positive" };
+            if (error) {
+              set({ error: error.message, isSyncing: false });
+              return;
+            }
           }
-          return {
-            profile: state.profile ? { ...state.profile, age } : { ...initialProfile, age },
-            error: null,
-          };
-        }),
+        } catch (error) {
+          set({ error: error instanceof Error ? error.message : "Unknown error", isSyncing: false });
+        } finally {
+          set({ isSyncing: false });
+        }
+      },
 
-      setGender: (gender) =>
-        set((state) => ({
-          profile: state.profile ? { ...state.profile, gender } : { ...initialProfile, gender },
-        })),
+      resetProfile: async () => {
+        set({ profile: initialProfile, error: null, isSyncing: true });
 
-      setHeight: (height) =>
-        set((state) => {
-          if (height < 0) {
-            return { error: "Height must be positive" };
+        try {
+          const { id } = get().profile;
+          if (id) {
+            await supabase.from("user_profiles").delete().eq("id", id);
           }
-          return {
-            profile: state.profile ? { ...state.profile, height } : { ...initialProfile, height },
-            error: null,
-          };
-        }),
-
-      setWeight: (weight) =>
-        set((state) => {
-          if (weight < 0) {
-            return { error: "Weight must be positive" };
-          }
-          return {
-            profile: state.profile ? { ...state.profile, weight } : { ...initialProfile, weight },
-            error: null,
-          };
-        }),
+        } catch (error) {
+          set({ error: error instanceof Error ? error.message : "Unknown error" });
+        } finally {
+          set({ isSyncing: false });
+        }
+      },
     }),
     {
       name: "user-profile-storage",
