@@ -1,7 +1,7 @@
 import * as Slot from "@rn-primitives/slot";
 import { SlottableTextProps, TextRef } from "@rn-primitives/types";
 import * as React from "react";
-import { Platform, Text as RNText } from "react-native";
+import { Platform, Text as RNText, Pressable } from "react-native";
 import { cn } from "~/lib/utils";
 
 /**
@@ -236,4 +236,30 @@ const CardLabel = React.forwardRef<TextRef, SlottableTextProps>(({ className, as
 
 CardLabel.displayName = "CardLabel";
 
-export { BlockQuote, Code, H1, H2, H3, H4, Large, Lead, Muted, P, Small, CardLabel };
+/**
+ * Link - Pressable link text
+ * - Blue color (text-primary)
+ * - Underlined (underline)
+ * - For interactive links within text content
+ */
+const Link = React.forwardRef<TextRef, SlottableTextProps & { onPress?: () => void; href?: string }>(
+  ({ className, asChild = false, onPress, href, ...props }, ref) => {
+    const Component = asChild ? Slot.Text : RNText;
+    return (
+      <Component
+        // @ts-ignore - role of link renders a element on the web
+        role={Platform.OS === "web" ? "link" : undefined}
+        // @ts-ignore - href for web
+        href={Platform.OS === "web" ? href : undefined}
+        onPress={onPress}
+        className={cn("text-blue-500", className)}
+        ref={ref}
+        {...props}
+      />
+    );
+  }
+);
+
+Link.displayName = "Link";
+
+export { BlockQuote, Code, H1, H2, H3, H4, Large, Lead, Muted, P, Small, CardLabel, Link };
