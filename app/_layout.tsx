@@ -73,7 +73,7 @@ export default function RootLayout() {
   const exerciseStore = useExerciseStore();
 
   const checkFirstLaunch = async () => {
-    await AsyncStorage.removeItem("FIRST_LAUNCH");
+    // await AsyncStorage.removeItem("FIRST_LAUNCH");
     const __first_launch = await AsyncStorage.getItem("FIRST_LAUNCH");
     if (!__first_launch) {
       console.log("First launch");
