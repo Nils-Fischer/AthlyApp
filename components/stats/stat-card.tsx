@@ -30,70 +30,69 @@ export const StatCard: React.FC<StatCardProps> = ({
   const showTrend = trend !== undefined && trend !== 0;
   const isPositive = trend && trend > 0;
   
-  // Bestimme Farbschemata basierend auf Variante für iOS-Stil
+  // Bestimme Farbschemata basierend auf Variante mit den neuen Neon-Farben
   const getColorScheme = () => {
     switch(variant) {
       case "secondary":
         return {
-          textColor: fitnessLightColors.secondary.default,
-          backgroundColor: 'rgba(0, 136, 255, 0.05)',
-          borderColor: 'rgba(0, 136, 255, 0.1)'
+          textColor: fitnessLightColors.secondary.default, // Neon-Pink
+          backgroundColor: 'rgba(255, 45, 202, 0.06)',
+          borderColor: 'rgba(255, 45, 202, 0.1)'
         };
       case "success":
         return {
-          textColor: fitnessLightColors.tertiary.default,
-          backgroundColor: 'rgba(0, 200, 83, 0.05)',
-          borderColor: 'rgba(0, 200, 83, 0.1)'
+          textColor: fitnessLightColors.tertiary.default, // Neon-Grün
+          backgroundColor: 'rgba(0, 230, 118, 0.06)',
+          borderColor: 'rgba(0, 230, 118, 0.1)'
         };
       case "warning":
         return {
-          textColor: '#F59E0B',
-          backgroundColor: 'rgba(245, 158, 11, 0.05)',
-          borderColor: 'rgba(245, 158, 11, 0.1)'
+          textColor: fitnessLightColors.accent.default, // Leuchtendes Gelb
+          backgroundColor: 'rgba(255, 221, 0, 0.06)',
+          borderColor: 'rgba(255, 221, 0, 0.1)'
         };
       case "destructive":
         return {
-          textColor: '#EF4444',
-          backgroundColor: 'rgba(239, 68, 68, 0.05)',
-          borderColor: 'rgba(239, 68, 68, 0.1)'
+          textColor: fitnessLightColors.status.error, // Neon-Rot
+          backgroundColor: 'rgba(255, 23, 68, 0.06)',
+          borderColor: 'rgba(255, 23, 68, 0.1)'
         };
       default: // primary
         return {
-          textColor: fitnessLightColors.secondary.default,
-          backgroundColor: 'rgba(0, 136, 255, 0.05)',
-          borderColor: 'rgba(0, 136, 255, 0.1)'
+          textColor: fitnessLightColors.primary.default, // Neon-Blau
+          backgroundColor: 'rgba(0, 178, 255, 0.06)',
+          borderColor: 'rgba(0, 178, 255, 0.1)'
         };
     }
   };
 
   const colors = getColorScheme();
   
-  // Trend-Farben für iOS-Stil
-  const trendColor = isPositive ? fitnessLightColors.tertiary.default : '#EF4444';
-  const trendBg = isPositive ? 'rgba(0, 200, 83, 0.08)' : 'rgba(239, 68, 68, 0.08)';
+  // Trend-Farben mit Neon-Farben
+  const trendColor = isPositive ? fitnessLightColors.tertiary.default : fitnessLightColors.status.error;
+  const trendBg = isPositive ? 'rgba(0, 230, 118, 0.08)' : 'rgba(255, 23, 68, 0.08)';
   
   const TrendIcon = isPositive ? ArrowUp : ArrowDown;
 
   return compact ? (
-    // Kompakte Version für iOS-Stil
+    // Kompakte Version mit modernem Neon-Look
     <View 
-      className="flex-1 rounded-xl p-3 overflow-hidden"
+      className="flex-1 rounded-xl p-4 overflow-hidden"
       style={{ 
         backgroundColor: 'rgba(255, 255, 255, 0.95)',
-        borderWidth: 0.5,
-        borderColor: fitnessLightColors.ui.border,
+        borderWidth: 0,
         shadowColor: fitnessLightColors.ui.shadow,
-        shadowOffset: { width: 0, height: 1 },
-        shadowOpacity: 0.1,
-        shadowRadius: 2,
-        elevation: 1
+        shadowOffset: { width: 0, height: 2 },
+        shadowOpacity: 0.08,
+        shadowRadius: 8,
+        elevation: 2
       }}
     >
       <View className="flex-row justify-between items-start">
         <View className="flex-row items-center">
           {icon && (
             <View 
-              className="mr-2 p-1.5 rounded-full"
+              className="mr-2.5 p-2 rounded-full"
               style={{ backgroundColor: colors.backgroundColor }}
             >
               {icon}
@@ -109,7 +108,7 @@ export const StatCard: React.FC<StatCardProps> = ({
         
         {showTrend && (
           <View 
-            className="px-1.5 py-0.5 rounded-full flex-row items-center"
+            className="px-2 py-0.5 rounded-full flex-row items-center"
             style={{ backgroundColor: trendBg }}
           >
             <Text 
@@ -124,7 +123,7 @@ export const StatCard: React.FC<StatCardProps> = ({
       </View>
       
       <Text 
-        className="text-xl font-bold mt-2 mb-0.5"
+        className="text-xl font-bold mt-3 mb-1"
         style={{ color: fitnessLightColors.text.primary }}
       >
         {value}{valueSuffix}
@@ -137,32 +136,31 @@ export const StatCard: React.FC<StatCardProps> = ({
         {subtitle}
       </Text>
       
-      {/* iOS-Style Accent Line */}
+      {/* Moderner Neon Accent Line */}
       <View 
-        className="h-0.5 w-8 mt-2.5 rounded-full"
-        style={{ backgroundColor: colors.textColor, opacity: 0.2 }}
+        className="h-1 w-10 mt-3 rounded-full"
+        style={{ backgroundColor: colors.textColor, opacity: 0.25 }}
       />
     </View>
   ) : (
-    // Volle Version für iOS-Stil
+    // Volle Version mit modernem Neon-Look und mehr Whitespace
     <View 
-      className="rounded-xl p-4 mb-4"
+      className="rounded-xl p-6 mb-5"
       style={{ 
-        backgroundColor: 'rgba(255, 255, 255, 0.95)',
-        borderWidth: 0.5,
-        borderColor: fitnessLightColors.ui.border,
+        backgroundColor: 'rgba(255, 255, 255, 0.98)',
+        borderWidth: 0,
         shadowColor: fitnessLightColors.ui.shadow,
-        shadowOffset: { width: 0, height: 1 },
-        shadowOpacity: 0.1,
-        shadowRadius: 3,
-        elevation: 2
+        shadowOffset: { width: 0, height: 3 },
+        shadowOpacity: 0.08,
+        shadowRadius: 10,
+        elevation: 3
       }}
     >
       <View className="flex-row justify-between items-start">
         <View className="flex-row items-center">
           {icon && (
             <View 
-              className="mr-2.5 p-2 rounded-full"
+              className="mr-3 p-2.5 rounded-full"
               style={{ backgroundColor: colors.backgroundColor }}
             >
               {icon}
@@ -178,7 +176,7 @@ export const StatCard: React.FC<StatCardProps> = ({
         
         {showTrend && (
           <View 
-            className="px-2 py-1 rounded-full flex-row items-center"
+            className="px-2.5 py-1 rounded-full flex-row items-center"
             style={{ backgroundColor: trendBg }}
           >
             <Text 
@@ -187,14 +185,14 @@ export const StatCard: React.FC<StatCardProps> = ({
             >
               {Math.abs(trend)}%
             </Text>
-            <TrendIcon size={12} className="ml-0.5" color={trendColor} />
+            <TrendIcon size={12} className="ml-1" color={trendColor} />
           </View>
         )}
       </View>
       
-      <View className="mt-3">
+      <View className="mt-4">
         <Text 
-          className="text-2xl font-bold mb-1"
+          className="text-3xl font-bold mb-1.5"
           style={{ color: fitnessLightColors.text.primary }}
         >
           {value}{valueSuffix}
@@ -208,10 +206,10 @@ export const StatCard: React.FC<StatCardProps> = ({
         </Text>
       </View>
       
-      {/* iOS-Style Accent Line */}
+      {/* Moderner Neon Accent Line */}
       <View 
-        className="h-1 w-16 mt-3 rounded-full"
-        style={{ backgroundColor: colors.textColor, opacity: 0.2 }}
+        className="h-1 w-16 mt-4 rounded-full"
+        style={{ backgroundColor: colors.textColor, opacity: 0.25 }}
       />
     </View>
   );

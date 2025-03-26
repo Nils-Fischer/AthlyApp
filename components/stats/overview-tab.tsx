@@ -8,13 +8,11 @@ import { Separator } from "~/components/ui/separator";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "~/components/ui/dialog";
 import { useWorkoutStats } from "~/hooks/use-workout-stats";
 import { StatCard } from "~/components/stats/stat-card";
-import { MonthlyHeatmap } from "~/components/stats/workout-heatmap";
-import { Activity, Clock, BarChart, Weight, Dumbbell, Calendar, ChevronRight, Flame } from "~/lib/icons/Icons";
+import { Activity, Clock, BarChart, Dumbbell, Calendar, ChevronRight, Flame } from "~/lib/icons/Icons";
 import { Award } from "lucide-react-native";
 import { format } from "date-fns";
 import { de } from "date-fns/locale";
 import { fitnessLightColors } from "~/lib/theme/lightColors";
-import Animated, { FadeIn } from "react-native-reanimated";
 
 export const OverviewTab: React.FC = () => {
   const workoutStats = useWorkoutStats();
@@ -22,26 +20,11 @@ export const OverviewTab: React.FC = () => {
   const [dialogOpen, setDialogOpen] = useState(false);
   
   // Hole die Statistikdaten aus dem Hook
-  const { monthlyWorkouts, averageSessionDuration, weeklyWorkoutsAverage, totalVolume } = workoutStats;
+  const { monthlyWorkouts, averageSessionDuration, weeklyWorkoutsAverage } = workoutStats;
   
   // Top Übungen
   const topExercises = workoutStats.getTopExercises(3);
   const currentStreak = workoutStats.getCurrentStreak();
-  
-  // Funktion zum Anzeigen der Workout-Details
-  const handleDayPress = (date: Date) => {
-    setSelectedDay(date);
-    const workout = workoutStats.getWorkoutByDate(date);
-    if (workout) {
-      setDialogOpen(true);
-    }
-  };
-  
-  // Funktion zum direkten Öffnen der Workout-Details
-  const openWorkoutDetails = (date: Date) => {
-    setSelectedDay(date);
-    setDialogOpen(true);
-  };
   
   // Ausgewähltes Workout
   const selectedWorkout = selectedDay ? workoutStats.getWorkoutByDate(selectedDay) : null;
@@ -78,20 +61,20 @@ export const OverviewTab: React.FC = () => {
   };
   
   return (
-    <View className="space-y-4">
+    <View className="space-y-3">
       {/* iOS-Style Activity Summary Card */}
       <Card 
-        className="p-4 rounded-xl shadow-sm"
+        className="p-3 rounded-xl shadow-sm"
         style={{ backgroundColor: 'rgba(255, 255, 255, 0.95)' }}
       >
-        <View className="flex-row items-center mb-3">
+        <View className="flex-row items-center mb-2">
           <View 
             className="p-1.5 rounded-full mr-2"
             style={{ backgroundColor: 'rgba(0, 136, 255, 0.05)' }}
           >
             <Activity size={16} color={fitnessLightColors.secondary.default} />
           </View>
-          <Text className="font-medium text-base" style={{ color: fitnessLightColors.text.primary }}>
+          <Text className="font-medium" style={{ color: fitnessLightColors.text.primary }}>
             Aktivitätsübersicht
           </Text>
         </View>
@@ -117,25 +100,14 @@ export const OverviewTab: React.FC = () => {
           />
         </View>
         
-        <View className="flex-row space-x-3 mt-3">
+        <View className="flex-row space-x-3 mt-2">
           <StatCard 
             title="Wöchentlich" 
             value={weeklyWorkoutsAverage.current}
-            subtitle="Trainings im Schnitt" 
+            subtitle="Trainings im Ø" 
             trend={weeklyWorkoutsAverage.trend}
             icon={<BarChart size={16} color={fitnessLightColors.tertiary.default} />}
             variant="success"
-            compact
-          />
-          <StatCard 
-            title="Volumen" 
-            value={`${totalVolume.current / 1000 > 1 
-              ? (totalVolume.current / 1000).toFixed(1) + " t" 
-              : totalVolume.current + " kg"}`}
-            subtitle="Letzten 30 Tage" 
-            trend={totalVolume.trend}
-            icon={<Weight size={16} color="#F59E0B" />}
-            variant="warning"
             compact
           />
         </View>
@@ -143,7 +115,7 @@ export const OverviewTab: React.FC = () => {
       
       {/* Streak Card - neuer iOS-Stil */}
       {currentStreak > 0 && (
-        <Animated.View entering={FadeIn.delay(100)}>
+        <View>
           <Card 
             className="p-3 rounded-xl shadow-sm"
             style={{ backgroundColor: 'rgba(255, 255, 255, 0.95)' }}
@@ -191,22 +163,15 @@ export const OverviewTab: React.FC = () => {
               </Badge>
             </View>
           </Card>
-        </Animated.View>
+        </View>
       )}
-      
-      {/* iOS-Style Heatmap */}
-      <MonthlyHeatmap 
-        onDayPress={handleDayPress} 
-        months={1} 
-        openWorkoutDetails={openWorkoutDetails}
-      />
       
       {/* Top Übungen Card - modernisiertes iOS-Design */}
       <Card 
-        className="p-4 rounded-xl shadow-sm"
+        className="p-3 rounded-xl shadow-sm"
         style={{ backgroundColor: 'rgba(255, 255, 255, 0.95)' }}
       >
-        <View className="flex-row items-center justify-between mb-3">
+        <View className="flex-row items-center justify-between mb-2">
           <View className="flex-row items-center">
             <View 
               className="p-1.5 rounded-full mr-2"
@@ -243,11 +208,11 @@ export const OverviewTab: React.FC = () => {
           <View>
             {topExercises.map((exercise, index) => (
               <React.Fragment key={index}>
-                {index > 0 && <Separator className="my-2" />}
-                <TouchableOpacity className="flex-row items-center py-1.5">
+                {index > 0 && <Separator className="my-1.5" />}
+                <TouchableOpacity className="flex-row items-center py-1">
                   {/* Rank Circle - iOS-Style */}
                   <View 
-                    className="w-6 h-6 rounded-full items-center justify-center mr-2.5"
+                    className="w-6 h-6 rounded-full items-center justify-center mr-2"
                     style={{ 
                       backgroundColor: index === 0 
                         ? 'rgba(245, 158, 11, 0.1)' 
@@ -293,12 +258,6 @@ export const OverviewTab: React.FC = () => {
                           {exercise.sets}×
                         </Text>
                       </Badge>
-                      <Text 
-                        className="text-xs"
-                        style={{ color: fitnessLightColors.text.tertiary }}
-                      >
-                        {(exercise.volume / 1000).toFixed(1)}t
-                      </Text>
                     </View>
                   </View>
                   
@@ -310,16 +269,16 @@ export const OverviewTab: React.FC = () => {
           </View>
         ) : (
           <View 
-            className="py-6 items-center rounded-lg"
+            className="py-4 items-center rounded-lg"
             style={{ backgroundColor: 'rgba(0, 0, 0, 0.02)' }}
           >
             <Dumbbell 
-              size={24} 
+              size={20} 
               color={fitnessLightColors.text.tertiary}
               className="mb-2" 
             />
             <Text 
-              className="text-center text-sm"
+              className="text-center text-xs"
               style={{ color: fitnessLightColors.text.tertiary }}
             >
               Noch keine Trainingsübungen

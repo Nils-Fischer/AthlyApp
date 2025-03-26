@@ -10,7 +10,6 @@ import { format, startOfMonth, endOfMonth, eachDayOfInterval, addDays, eachWeekO
 import { de } from "date-fns/locale";
 import { ChevronLeft, ChevronRight, Calendar, Clock, Dumbbell, Flame } from "~/lib/icons/Icons";
 import { fitnessLightColors } from "~/lib/theme/lightColors";
-import Animated, { FadeIn } from "react-native-reanimated";
 
 interface WorkoutPreviewData {
   id: string;
@@ -87,12 +86,12 @@ export const MonthlyHeatmap: React.FC<MonthlyHeatmapProps> = ({ onDayPress, mont
     };
   }, [calendarData, currentDate]);
   
-  // Farbgebung für die Heatmap - sanftere Blautöne für iOS-Stil
+  // Farbgebung für die Heatmap mit Neon-Farben
   const getIntensityColor = (count: number) => {
     if (count === 0) return fitnessLightColors.background.card;      // Card-Hintergrund für Tage ohne Training
-    if (count === 1) return "rgba(0, 136, 255, 0.25)";               // Helles Blau
-    if (count === 2) return "rgba(0, 136, 255, 0.5)";                // Mittleres Blau
-    return "rgba(0, 136, 255, 0.9)";                                 // Intensives Blau für 3+ Trainings
+    if (count === 1) return "rgba(0, 178, 255, 0.25)";               // Neon-Blau mit niedriger Intensität
+    if (count === 2) return "rgba(0, 178, 255, 0.55)";               // Mittleres Neon-Blau
+    return "rgba(0, 178, 255, 0.85)";                               // Intensives Neon-Blau für 3+ Trainings
   };
   
   // Navigationshandler für Monate
@@ -150,23 +149,23 @@ export const MonthlyHeatmap: React.FC<MonthlyHeatmapProps> = ({ onDayPress, mont
 
   return (
     <Card className="rounded-xl overflow-hidden">
-      <View className="p-4">
+      <View className="p-6">
         {/* Monatstitel mit Navigation */}
-        <View className="flex-row items-center justify-between mb-3">
+        <View className="flex-row items-center justify-between mb-6">
           <View className="flex-row items-center">
             <View 
-              className="bg-primary/5 p-1.5 rounded-full mr-2"
-              style={{ backgroundColor: 'rgba(0, 136, 255, 0.05)' }}
+              className="p-2 rounded-full mr-3"
+              style={{ backgroundColor: 'rgba(0, 178, 255, 0.08)' }}
             >
-              <Calendar size={16} color={fitnessLightColors.secondary.default} />
+              <Calendar size={18} color={fitnessLightColors.primary.default} />
             </View>
-            <Text className="font-medium">{currentMonth.monthName} {currentMonth.year}</Text>
+            <Text className="font-medium text-base">{currentMonth.monthName} {currentMonth.year}</Text>
           </View>
           
           <View className="flex-row">
             <TouchableOpacity
               onPress={goToPreviousMonth}
-              className="w-7 h-7 items-center justify-center rounded-full mr-1"
+              className="w-8 h-8 items-center justify-center rounded-full mr-2"
               style={{ backgroundColor: 'rgba(0, 0, 0, 0.03)' }}
             >
               <ChevronLeft size={16} color={fitnessLightColors.text.secondary} />
@@ -174,7 +173,7 @@ export const MonthlyHeatmap: React.FC<MonthlyHeatmapProps> = ({ onDayPress, mont
             
             <TouchableOpacity
               onPress={goToNextMonth}
-              className="w-7 h-7 items-center justify-center rounded-full"
+              className="w-8 h-8 items-center justify-center rounded-full"
               style={{ backgroundColor: 'rgba(0, 0, 0, 0.03)' }}
             >
               <ChevronRight size={16} color={fitnessLightColors.text.secondary} />
@@ -184,12 +183,12 @@ export const MonthlyHeatmap: React.FC<MonthlyHeatmapProps> = ({ onDayPress, mont
         
         {/* Tage-Grid mit Wochentagen */}
         <View>
-          {/* Wochentage-Header - kompakter */}
-          <View className="flex-row mb-2 pl-1">
+          {/* Wochentage-Header - moderner, mit mehr Whitespace */}
+          <View className="flex-row mb-3 pl-1.5">
             {weekdays.map((day, index) => (
               <View key={`day-${index}`} className="flex-1 items-center">
                 <Small 
-                  className="text-xs"
+                  className="text-xs font-medium"
                   style={{ color: fitnessLightColors.text.tertiary }}
                 >
                   {day}
@@ -198,35 +197,36 @@ export const MonthlyHeatmap: React.FC<MonthlyHeatmapProps> = ({ onDayPress, mont
             ))}
           </View>
           
-          {/* Wochen-Reihen */}
+          {/* Wochen-Reihen mit mehr Abstand */}
           {currentMonth.weeks.map((week, weekIndex) => (
-            <View key={`week-${weekIndex}`} className="flex-row my-0.5">
+            <View key={`week-${weekIndex}`} className="flex-row my-1">
               {week.map((day, dayIndex) => (
                 <Pressable
                   key={`day-${weekIndex}-${dayIndex}`}
                   onPress={() => handleDayPress(day)}
-                  className="flex-1 aspect-square max-h-7"
+                  className="flex-1 aspect-square max-h-8"
                 >
                   <View
                     style={{
                       backgroundColor: getIntensityColor(day.workoutCount),
-                      opacity: !day.isCurrentMonth ? 0.3 : 1,
-                      width: '100%',
-                      height: '100%',
-                      borderRadius: 8,
+                      opacity: !day.isCurrentMonth ? 0.25 : 1,
+                      width: '90%',
+                      height: '90%',
+                      margin: '5%',
+                      borderRadius: 10,
                       justifyContent: 'center',
                       alignItems: 'center',
-                      borderWidth: day.isToday ? 1 : 0,
-                      borderColor: fitnessLightColors.ui.border,
-                      shadowColor: day.workoutCount > 0 ? fitnessLightColors.ui.shadow : 'transparent',
-                      shadowOffset: { width: 0, height: 1 },
-                      shadowOpacity: 0.1,
-                      shadowRadius: 1,
-                      elevation: day.workoutCount > 0 ? 1 : 0,
+                      borderWidth: day.isToday ? 1.5 : 0,
+                      borderColor: fitnessLightColors.primary.default,
+                      shadowColor: day.workoutCount > 0 ? fitnessLightColors.primary.default : 'transparent',
+                      shadowOffset: { width: 0, height: 2 },
+                      shadowOpacity: 0.15,
+                      shadowRadius: 4,
+                      elevation: day.workoutCount > 0 ? 2 : 0,
                     }}
                   >
                     <Text 
-                      className="text-[10px] font-medium"
+                      className="text-[11px] font-medium"
                       style={{ 
                         color: day.workoutCount > 1 
                           ? 'white' 
@@ -236,7 +236,7 @@ export const MonthlyHeatmap: React.FC<MonthlyHeatmapProps> = ({ onDayPress, mont
                       {day.dayOfMonth}
                     </Text>
                     
-                    {/* Workout-Indikator */}
+                    {/* Workout-Indikator - kleiner Punkt */}
                     {day.workoutCount > 0 && (
                       <View 
                         style={{ 
@@ -247,8 +247,8 @@ export const MonthlyHeatmap: React.FC<MonthlyHeatmapProps> = ({ onDayPress, mont
                           borderRadius: 1.5,
                           backgroundColor: day.workoutCount > 1 
                             ? 'white' 
-                            : fitnessLightColors.secondary.default
-                        }} 
+                            : fitnessLightColors.primary.default
+                        }}
                       />
                     )}
                   </View>
@@ -257,136 +257,107 @@ export const MonthlyHeatmap: React.FC<MonthlyHeatmapProps> = ({ onDayPress, mont
             </View>
           ))}
         </View>
-      </View>
-      
-      {/* Workout-Vorschau */}
-      {previewWorkout && (
-        <Animated.View 
-          entering={FadeIn.duration(300)}
-          className="px-4 pb-4 mt-1"
-        >
-          <Separator className="mb-3" />
-          
-          <View className="rounded-lg overflow-hidden border border-border/20 bg-background/50">
-            <View className="p-3">
-              {/* Workout-Header */}
-              <View className="flex-row justify-between items-center mb-2">
-                <View className="flex-row items-center">
-                  <Dumbbell size={14} color={fitnessLightColors.secondary.default} className="mr-1.5" />
-                  <Text className="font-medium text-sm">{previewWorkout.name}</Text>
-                </View>
-                
-                <Badge 
-                  variant="outline" 
-                  className="py-0.5 px-2 h-6"
-                  style={{ 
-                    backgroundColor: 'rgba(0, 0, 0, 0.03)',
-                    borderColor: fitnessLightColors.ui.border
-                  }}
+        
+        {/* Workout-Vorschau, wenn ein Tag mit Training ausgewählt ist */}
+        {previewWorkout && (
+          <View 
+            className="mt-6 pt-4 border-t"
+            style={{ borderTopColor: 'rgba(0, 0, 0, 0.04)' }}
+          >
+            <View className="flex-row justify-between items-center mb-3">
+              <Text className="font-medium text-base">
+                {format(previewWorkout.date, "dd. MMMM", { locale: de })}
+              </Text>
+              
+              {openWorkoutDetails && (
+                <TouchableOpacity
+                  onPress={() => openWorkoutDetails(previewWorkout.date)}
+                  className="px-3 py-1 rounded-full flex-row items-center"
+                  style={{ backgroundColor: fitnessLightColors.primary.faded }}
                 >
                   <Text 
-                    className="text-xs"
-                    style={{ color: fitnessLightColors.text.secondary }}
+                    className="text-xs font-medium mr-1"
+                    style={{ color: fitnessLightColors.primary.default }}
                   >
-                    {format(previewWorkout.date, "dd.MM.yyyy")}
+                    Details
                   </Text>
-                </Badge>
+                  <ChevronRight size={12} color={fitnessLightColors.primary.default} />
+                </TouchableOpacity>
+              )}
+            </View>
+            
+            <View className="bg-gray-50 rounded-xl p-4">
+              <View className="flex-row items-center mb-3">
+                <Dumbbell size={16} color={fitnessLightColors.primary.default} />
+                <Text 
+                  className="ml-2 font-medium"
+                  style={{ color: fitnessLightColors.text.primary }}
+                >
+                  {previewWorkout.name}
+                </Text>
               </View>
               
-              {/* Workout-Stats */}
-              <View className="flex-row mb-2 bg-muted/20 p-2 rounded-lg">
-                <View className="flex-1 items-center flex-row justify-center">
-                  <Clock size={12} color={fitnessLightColors.text.tertiary} className="mr-1" />
+              <View className="flex-row mb-3">
+                <View className="flex-row items-center mr-4">
+                  <Clock size={14} color={fitnessLightColors.text.secondary} />
                   <Text 
-                    className="text-xs"
+                    className="ml-1 text-xs"
                     style={{ color: fitnessLightColors.text.secondary }}
                   >
-                    {previewWorkout.duration} min
+                    {previewWorkout.duration} Min.
                   </Text>
                 </View>
                 
-                <View className="flex-1 items-center flex-row justify-center">
-                  <Dumbbell size={12} color={fitnessLightColors.text.tertiary} className="mr-1" />
+                <View className="flex-row items-center">
+                  <Flame size={14} color={fitnessLightColors.text.secondary} />
                   <Text 
-                    className="text-xs"
+                    className="ml-1 text-xs"
                     style={{ color: fitnessLightColors.text.secondary }}
                   >
-                    {previewWorkout.exercises.length} Übungen
-                  </Text>
-                </View>
-                
-                <View className="flex-1 items-center flex-row justify-center">
-                  <Flame size={12} color={fitnessLightColors.text.tertiary} className="mr-1" />
-                  <Text 
-                    className="text-xs"
-                    style={{ color: fitnessLightColors.text.secondary }}
-                  >
-                    {Math.round(previewWorkout.totalVolume)} kg
+                    {Math.round(previewWorkout.totalVolume / 100)} kg Volumen
                   </Text>
                 </View>
               </View>
               
-              {/* Übungen Vorschau */}
               {previewWorkout.exercises.length > 0 && (
                 <View>
+                  <Small 
+                    className="mb-1.5"
+                    style={{ color: fitnessLightColors.text.tertiary }}
+                  >
+                    Übungen:
+                  </Small>
+                  
                   {previewWorkout.exercises.map((exercise, index) => (
                     <View 
-                      key={index}
+                      key={`exercise-${index}`} 
                       className="flex-row items-center py-1"
+                      style={{
+                        borderTopWidth: index > 0 ? 1 : 0,
+                        borderTopColor: 'rgba(0, 0, 0, 0.03)'
+                      }}
                     >
-                      <View 
-                        className="w-1.5 h-1.5 rounded-full mr-2"
-                        style={{ backgroundColor: fitnessLightColors.secondary.default }}
-                      />
                       <Text 
-                        className="text-xs flex-1"
-                        style={{ color: fitnessLightColors.text.primary }}
+                        className="flex-1 text-xs"
+                        style={{ color: fitnessLightColors.text.secondary }}
                       >
                         {exercise.name}
                       </Text>
+                      
                       <Badge 
-                        variant="outline" 
-                        className="py-0 px-1 h-4"
-                        style={{ 
-                          backgroundColor: 'rgba(0, 0, 0, 0.03)',
-                          borderColor: 'transparent'
-                        }}
+                        variant="outline"
+                        className="text-[10px] px-1.5"
                       >
-                        <Text 
-                          className="text-[9px]"
-                          style={{ color: fitnessLightColors.text.tertiary }}
-                        >
-                          {exercise.sets}×
-                        </Text>
+                        {exercise.sets} {exercise.sets === 1 ? 'Satz' : 'Sätze'}
                       </Badge>
                     </View>
                   ))}
-                  
-                  <TouchableOpacity 
-                    className="flex-row items-center justify-center py-2 mt-1"
-                    style={{ backgroundColor: 'rgba(0, 0, 0, 0.02)' }}
-                    onPress={() => {
-                      if (openWorkoutDetails) {
-                        openWorkoutDetails(previewWorkout.date);
-                      } else if (onDayPress) {
-                        onDayPress(previewWorkout.date);
-                      }
-                    }}
-                  >
-                    <Text 
-                      className="text-xs"
-                      style={{ color: fitnessLightColors.secondary.default }}
-                    >
-                      Details anzeigen
-                    </Text>
-                    <ChevronRight size={12} color={fitnessLightColors.secondary.default} />
-                  </TouchableOpacity>
                 </View>
               )}
             </View>
           </View>
-        </Animated.View>
-      )}
+        )}
+      </View>
     </Card>
   );
 };

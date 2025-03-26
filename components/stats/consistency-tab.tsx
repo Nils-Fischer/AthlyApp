@@ -9,7 +9,6 @@ import { Separator } from "~/components/ui/separator";
 import { Activity, Calendar, Flame, TrendingUp } from "~/lib/icons/Icons";
 import { Award } from "lucide-react-native";
 import { fitnessLightColors } from "~/lib/theme/lightColors";
-import Animated, { FadeIn } from "react-native-reanimated";
 
 export const ConsistencyTab: React.FC = () => {
   const workoutStats = useWorkoutStats();
@@ -30,7 +29,7 @@ export const ConsistencyTab: React.FC = () => {
   ];
 
   return (
-    <View className="space-y-5">
+    <View className="space-y-3">
       {/* Streak Karten - iOS-Stil */}
       <View className="flex-row space-x-3">
         <StatCard 
@@ -55,15 +54,15 @@ export const ConsistencyTab: React.FC = () => {
       
       {/* Informationen zur Konstanz - iOS-Stil */}
       <Card 
-        className="p-4 rounded-xl shadow-sm"
+        className="p-3 rounded-xl shadow-sm"
         style={{ backgroundColor: 'rgba(255, 255, 255, 0.95)' }}
       >
-        <View className="flex-row items-center mb-3">
+        <View className="flex-row items-center mb-2">
           <View 
             className="p-1.5 rounded-full mr-2"
             style={{ backgroundColor: 'rgba(0, 136, 255, 0.05)' }}
           >
-            <TrendingUp size={18} color={fitnessLightColors.secondary.default} />
+            <TrendingUp size={16} color={fitnessLightColors.secondary.default} />
           </View>
           <Text 
             className="font-medium"
@@ -74,7 +73,7 @@ export const ConsistencyTab: React.FC = () => {
         </View>
         
         <View 
-          className="rounded-xl p-4 mb-3"
+          className="rounded-lg p-2 mb-2"
           style={{ backgroundColor: 'rgba(0, 0, 0, 0.02)' }}
         >
           <View className="flex-row justify-between items-center mb-1">
@@ -117,30 +116,29 @@ export const ConsistencyTab: React.FC = () => {
         
         {/* Beliebte Trainingstage - iOS-Stil */}
         <Text 
-          className="font-medium text-sm mb-2"
+          className="font-medium text-xs mb-1.5"
           style={{ color: fitnessLightColors.text.secondary }}
         >
           Beliebte Trainingstage
         </Text>
         
-        <Animated.View 
-          entering={FadeIn.duration(400)}
-          className="flex-row my-3"
+        <View 
+          className="flex-row my-2"
         >
           {weekdayData.labels.map((day, index) => {
             const count = weekdayData.counts[index];
             const maxCount = Math.max(...weekdayData.counts);
-            const height = maxCount > 0 ? Math.max(20, Math.round((count / maxCount) * 60)) : 20;
+            const height = maxCount > 0 ? Math.max(16, Math.round((count / maxCount) * 50)) : 16;
             const isBestDay = index === bestDayIndex && count > 0;
             
             return (
               <View key={index} className="flex-1 items-center">
-                <View className="flex-1 justify-end h-16">
+                <View className="flex-1 justify-end h-14">
                   <View 
                     style={{ 
                       height,
-                      width: 6,
-                      borderRadius: 3,
+                      width: 5,
+                      borderRadius: 2.5,
                       backgroundColor: isBestDay 
                         ? fitnessLightColors.secondary.default 
                         : 'rgba(0, 136, 255, 0.2)'
@@ -161,19 +159,19 @@ export const ConsistencyTab: React.FC = () => {
               </View>
             );
           })}
-        </Animated.View>
+        </View>
         
-        <Separator className="my-4" />
+        <Separator className="my-3" />
         
         {/* Beliebtester Tag Badge - iOS-Stil */}
         {Math.max(...weekdayData.counts) > 0 && (
           <View 
-            className="flex-row items-center p-3 rounded-xl"
+            className="flex-row items-center p-2 rounded-lg"
             style={{ backgroundColor: 'rgba(0, 0, 0, 0.02)' }}
           >
             <Calendar size={16} color={fitnessLightColors.secondary.default} className="mr-2" />
             <Text 
-              className="text-sm"
+              className="text-xs flex-1"
               style={{ color: fitnessLightColors.text.secondary }}
             >
               Dein intensivster Trainingstag ist <Text className="font-medium">{bestDay}</Text>
@@ -184,73 +182,78 @@ export const ConsistencyTab: React.FC = () => {
       
       {/* Streak Achievements - iOS-Stil */}
       <Card 
-        className="p-4 rounded-xl shadow-sm"
+        className="p-3 rounded-xl shadow-sm"
         style={{ backgroundColor: 'rgba(255, 255, 255, 0.95)' }}
       >
-        <View className="flex-row items-center mb-3">
+        <View className="flex-row items-center mb-2">
           <View 
             className="p-1.5 rounded-full mr-2"
             style={{ backgroundColor: 'rgba(245, 158, 11, 0.05)' }}
           >
-            <Award size={18} color="#F59E0B" />
+            <Award size={16} color="#F59E0B" />
           </View>
           <Text 
             className="font-medium"
             style={{ color: fitnessLightColors.text.primary }}
           >
-            Streak Achievements
+            Streak-Auszeichnungen
           </Text>
         </View>
         
-        {streakAchievements.map((achievement, index) => (
-          <React.Fragment key={index}>
-            {index > 0 && <Separator className="my-3" />}
-            <View className="flex-row items-center">
+        <View className="mt-1">
+          {streakAchievements.map((achievement, index) => (
+            <React.Fragment key={index}>
+              {index > 0 && <Separator className="my-1.5" />}
               <View 
-                className="w-10 h-10 rounded-full items-center justify-center mr-3"
-                style={{ 
-                  backgroundColor: achievement.achieved 
-                    ? 'rgba(239, 68, 68, 0.08)' 
-                    : 'rgba(0, 0, 0, 0.03)'
-                }}
+                className={`flex-row items-center py-1.5 ${achievement.achieved ? '' : 'opacity-50'}`}
               >
-                {achievement.achieved ? (
-                  <Flame size={18} color="#EF4444" />
-                ) : (
-                  <Activity size={18} color={fitnessLightColors.text.tertiary} />
-                )}
-              </View>
-              <View className="flex-1">
-                <Text 
-                  className="font-medium"
+                <View 
+                  className="w-6 h-6 rounded-full items-center justify-center mr-2"
                   style={{ 
-                    color: achievement.achieved 
-                      ? fitnessLightColors.text.primary 
-                      : fitnessLightColors.text.tertiary
+                    backgroundColor: achievement.achieved 
+                      ? 'rgba(245, 158, 11, 0.1)' 
+                      : 'rgba(0, 0, 0, 0.03)'
                   }}
                 >
-                  {achievement.title}
-                </Text>
-                <Text 
-                  className="text-xs"
-                  style={{ color: fitnessLightColors.text.tertiary }}
-                >
-                  {achievement.description}
-                </Text>
+                  <Text 
+                    className="text-xs font-medium"
+                    style={{ 
+                      color: achievement.achieved ? '#F59E0B' : fitnessLightColors.text.tertiary
+                    }}
+                  >
+                    {achievement.days}
+                  </Text>
+                </View>
+                
+                <View className="flex-1">
+                  <Text 
+                    className="font-medium text-sm"
+                    style={{ 
+                      color: achievement.achieved 
+                        ? fitnessLightColors.text.primary 
+                        : fitnessLightColors.text.tertiary
+                    }}
+                  >
+                    {achievement.title}
+                  </Text>
+                  <Text 
+                    className="text-xs"
+                    style={{ color: fitnessLightColors.text.tertiary }}
+                  >
+                    {achievement.description}
+                  </Text>
+                </View>
+                
+                {achievement.achieved && (
+                  <Award 
+                    size={16} 
+                    color="#F59E0B" 
+                  />
+                )}
               </View>
-              <Text 
-                className="text-sm font-medium mr-1"
-                style={{ 
-                  color: achievement.achieved 
-                    ? "#EF4444"
-                    : fitnessLightColors.text.tertiary
-                }}
-              >
-                {achievement.days}
-              </Text>
-            </View>
-          </React.Fragment>
-        ))}
+            </React.Fragment>
+          ))}
+        </View>
       </Card>
     </View>
   );

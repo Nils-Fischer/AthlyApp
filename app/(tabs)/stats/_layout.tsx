@@ -5,10 +5,10 @@ export default function StatsLayout() {
     <Stack
       screenOptions={{
         headerShown: true,
-        headerTitle: "stats",
+        headerTitle: "Statistiken",
       }}
     >
-      <Stack.Screen name="index" options={{ headerShown: true }} />
+      <Stack.Screen name="index" options={{ headerShown: false }} />
     </Stack>
   );
 }
