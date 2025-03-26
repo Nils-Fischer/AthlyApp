@@ -23,6 +23,9 @@ export interface SetConfiguration {
 }
 
 export interface WorkoutExercise {
+  id: Key | null | undefined;
+  name: ReactNode;
+  reps: string;
   exerciseId: number;
   alternatives: number[];
   sets: SetConfiguration[];
@@ -31,6 +34,7 @@ export interface WorkoutExercise {
 }
 
 export interface Workout {
+  estimatedMinutes: number;
   id: string;
   name: string;
   exercises: WorkoutExercise[];
@@ -48,6 +52,7 @@ export interface Routine {
 }
 
 export interface UserProfile {
+  avatar: any;
   language: string;
   id: string;
   firstName: string;
@@ -170,6 +175,8 @@ export interface SetInput {
 }
 
 export interface ExerciseRecord {
+  weight: number;
+  reps: number;
   exerciseId: number;
   exerciseName: string;
   sets: SetInput[];
@@ -178,6 +185,7 @@ export interface ExerciseRecord {
 }
 
 export interface WorkoutSession {
+  id: any;
   workoutId: string;
   date: Date;
   entries: ExerciseRecord[];

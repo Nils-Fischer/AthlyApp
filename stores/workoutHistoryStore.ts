@@ -4,6 +4,7 @@ import { persist, createJSONStorage } from "zustand/middleware";
 import { WorkoutSession, ExerciseRecord } from "~/lib/types";
 
 interface WorkoutHistoryState {
+  workouts: any;
   sessions: WorkoutSession[];
   addWorkoutSession: (session: WorkoutSession) => Promise<void>;
   getLastExerciseRecord: (exerciseId: number) => ExerciseRecord | undefined;

@@ -1,9 +1,10 @@
 import React from "react";
 import { View } from "react-native";
 import { Play, StopCircle, Check, CheckCheck, Timer, TimerOff } from "~/lib/icons/Icons";
-import Animated, { SlideInDown, SlideOutDown, Easing } from "react-native-reanimated";
-import { AnimatedIconButton } from "~/components/ui/animated-icon-button";
-import { formatTime } from "~/lib/utils";
+import Animated, { SlideInDown, SlideOutDown, Easing, FadeIn } from "react-native-reanimated";
+import { Button } from "~/components/ui/button";
+import { Text } from "~/components/ui/text";
+import { fitnessLightColors } from "~/lib/theme/lightColors";
 
 interface ActiveWorkoutControlsProps {
   isStarted: boolean;
@@ -32,56 +33,128 @@ export function ActiveWorkoutControls({
     <Animated.View
       entering={SlideInDown.springify().damping(15).mass(0.9).stiffness(100)}
       exiting={SlideOutDown.duration(150).easing(Easing.ease)}
-      className="absolute bottom-10 w-full px-4"
+      className="absolute bottom-5 left-0 right-0 px-4 z-50"
     >
-      <View className="flex-row justify-center items-center gap-4">
+      <View className="flex-row justify-center items-center w-full">
         {!isStarted ? (
-          <AnimatedIconButton
-            onPress={onStart}
-            haptics="heavy"
-            icon={<Play className="text-background" size={24} />}
-            label="Workout starten"
-          />
+          // Workout starten Button (vor dem Training)
+          <Animated.View 
+            entering={FadeIn.delay(400).duration(400)}
+            style={{ width: '85%' }}
+          >
+            <Button 
+              className="rounded-full py-3" 
+              onPress={onStart}
+              haptics="heavy"
+              style={{ 
+                backgroundColor: fitnessLightColors.primary.default,
+                shadowColor: 'rgba(0,0,0,0.15)',
+                shadowOffset: { width: 0, height: 2 },
+                shadowRadius: 6,
+                elevation: 3
+              }}
+            >
+              <View className="flex-row items-center justify-center">
+                <Play color="#fff" className="mr-2" size={18} />
+                <Text className="font-medium text-base" style={{ color: "#fff" }}>
+                  Workout starten
+                </Text>
+              </View>
+            </Button>
+          </Animated.View>
         ) : (
-          <View className="flex-row items-center gap-4">
-            <AnimatedIconButton
-              className="flex-none bg-destructive"
+          // Active Workout Controls (während des Trainings)
+          <View className="flex-row items-center justify-between w-full gap-3">
+            {/* Abbrechen Button */}
+            <Button 
+              className="w-11 h-11 rounded-full flex-none"
               onPress={onCancel}
               haptics="error"
-              icon={<StopCircle className="text-background" size={24} />}
-            />
+              style={{ 
+                backgroundColor: 'rgba(255, 61, 0, 0.9)',
+                shadowColor: 'rgba(0,0,0,0.1)',
+                shadowOffset: { width: 0, height: 1 },
+                shadowRadius: 3,
+                elevation: 2
+              }}
+            >
+              <StopCircle color="#fff" size={22} />
+            </Button>
+
+            {/* Mittlerer Button (Pause oder Fertig) */}
             {allExercisesCompleted ? (
-              <AnimatedIconButton
-                className="flex-1 bg-foreground"
+              <Button
+                className="flex-1 h-11 rounded-full"
                 onPress={onFinish}
                 haptics="success"
-                icon={<Check className="text-background" size={24} />}
-                label="Fertig"
-              />
+                style={{ 
+                  backgroundColor: 'rgba(0, 200, 83, 0.9)',
+                  shadowColor: 'rgba(0,0,0,0.1)',
+                  shadowOffset: { width: 0, height: 1 },
+                  shadowRadius: 3,
+                  elevation: 2
+                }}
+              >
+                <View className="flex-row items-center justify-center">
+                  <Check color="#fff" className="mr-1.5" size={18} />
+                  <Text className="font-medium" style={{ color: "#fff" }}>
+                    Fertig
+                  </Text>
+                </View>
+              </Button>
             ) : (
-              <AnimatedIconButton
-                className="flex-1 bg-foreground"
+              <Button
+                className="flex-1 h-11 rounded-full"
                 onPress={isResting ? onStopRest : onStartRest}
                 haptics="medium"
-                icon={
-                  isResting ? (
-                    <TimerOff className="text-background" size={24} />
+                style={{ 
+                  backgroundColor: 'rgba(0, 136, 255, 0.9)',
+                  shadowColor: 'rgba(0,0,0,0.1)',
+                  shadowOffset: { width: 0, height: 1 },
+                  shadowRadius: 3,
+                  elevation: 2
+                }}
+              >
+                <View className="flex-row items-center justify-center">
+                  {isResting ? (
+                    <>
+                      <TimerOff color="#fff" className="mr-1.5" size={18} />
+                      <Text className="font-medium" style={{ color: "#fff" }}>
+                        {remainingRestTime}s
+                      </Text>
+                    </>
                   ) : (
-                    <Timer className="text-background" size={24} />
-                  )
-                }
-                label={isResting ? `${remainingRestTime}s` : "Pause starten"}
-              />
+                    <>
+                      <Timer color="#fff" className="mr-1.5" size={18} />
+                      <Text className="font-medium" style={{ color: "#fff" }}>
+                        Pause starten
+                      </Text>
+                    </>
+                  )}
+                </View>
+              </Button>
             )}
-            <AnimatedIconButton
-              className="flex-none bg-foreground"
+
+            {/* Workout beenden Button */}
+            <Button
+              className="w-11 h-11 rounded-full flex-none"
               onPress={onFinish}
               haptics="rigid"
-              icon={<CheckCheck className="text-background" size={24} />}
-            />
+              style={{ 
+                backgroundColor: 'rgba(0, 200, 83, 0.9)',
+                shadowColor: 'rgba(0,0,0,0.1)',
+                shadowOffset: { width: 0, height: 1 },
+                shadowRadius: 3,
+                elevation: 2
+              }}
+            >
+              <CheckCheck color="#fff" size={22} />
+            </Button>
           </View>
         )}
       </View>
     </Animated.View>
   );
 }
+
+export default ActiveWorkoutControls;

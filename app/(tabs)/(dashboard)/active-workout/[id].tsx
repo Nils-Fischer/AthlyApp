@@ -3,7 +3,6 @@ import { View } from "react-native";
 import { useLocalSearchParams, router, Stack } from "expo-router";
 import { Text } from "~/components/ui/text";
 import { Button } from "~/components/ui/button";
-import { ActiveWorkoutStats } from "~/components/ActiveWorkout/ActiveWorkoutStats";
 import { ActiveWorkoutControls } from "~/components/ActiveWorkout/ActiveWorkoutControls";
 import { ActiveWorkoutExerciseList } from "~/components/ActiveWorkout/ActiveWorkoutExerciseList";
 import { useActiveWorkoutStore } from "~/stores/activeWorkoutStore";
@@ -26,8 +25,6 @@ import { WorkoutExercise } from "~/lib/types";
 import { SheetManager } from "react-native-actions-sheet";
 import { ExerciseEditAlternatives } from "~/components/Exercise/ExerciseEditAlternatives";
 import { BottomSheet } from "~/components/ui/bottom-sheet";
-import { H2 } from "~/components/ui/typography";
-import { formatTime } from "~/lib/utils";
 import { ExerciseLibrary } from "~/components/Exercise/ExerciseLibrary";
 
 export default function ActiveWorkoutScreen() {
@@ -122,44 +119,11 @@ export default function ActiveWorkoutScreen() {
     <>
       <Stack.Screen
         options={{
-          title: activeWorkout.name,
-          headerLeft: () => (
-            <Button variant="ghost" className="ml-2" onPress={() => router.back()} haptics="light">
-              <ChevronLeft size={24} />
-            </Button>
-          ),
-          headerRight: () =>
-            isStarted ? (
-              <Button variant="ghost" className="mr-2" onPress={() => setIsEditMode(!isEditMode)}>
-                <Text className="text-destructive">{isEditMode ? "Fertig" : "Bearbeiten"}</Text>
-              </Button>
-            ) : null,
+          headerShown: false,
         }}
       />
+      
       <View className="flex-1 bg-background">
-        {isStarted && !isEditMode ? (
-          <ActiveWorkoutStats
-            elapsedTime={workoutTimer.elapsedTime}
-            completedExercises={getCompletedExercises()}
-            remainingExercises={getRemainingExercises()}
-            totalVolume={getTotalVolume()}
-          />
-        ) : (
-          <View className="flex-row items-center justify-between pl-8 pr-2 pt-5">
-            <View className="flex-row items-center gap-2">
-              <H2>
-                {activeWorkout.exercises.length} Übung{activeWorkout.exercises.length === 1 ? "" : "en"}
-              </H2>
-              {isEditMode && (
-                <Text className="text-muted-foreground text-sm">{formatTime(workoutTimer.elapsedTime)}</Text>
-              )}
-            </View>
-            <Button variant="ghost" onPress={() => setShowAddExercise(true)}>
-              <Plus className="text-primary" size={30} />
-            </Button>
-          </View>
-        )}
-
         <ActiveWorkoutExerciseList
           workout={activeWorkout}
           exerciseRecords={exerciseRecords}
@@ -169,7 +133,21 @@ export default function ActiveWorkoutScreen() {
           onShowAlternatives={(exercise) => setShowAlternatives(exercise)}
           onShowEditSheet={handleExercisePress}
           onDelete={handleDeleteExercise}
+          onExercisesReorder={(updatedExercises) => {
+            updateExerciseInWorkout(activeWorkout.id, updatedExercises[0].exerciseId, updatedExercises[0]);
+          }}
+          onGoBack={() => router.back()}
+          onStartWorkout={() => startWorkout(activeWorkout.id)}
         />
+
+        {isEditMode && (
+          <Button 
+            className="absolute top-4 right-4 z-10 bg-orange-500 rounded-full"
+            onPress={() => setShowAddExercise(true)}
+          >
+            <Plus className="text-white" size={24} />
+          </Button>
+        )}
 
         <ActiveWorkoutControls
           isStarted={isStarted}
@@ -230,12 +208,18 @@ export default function ActiveWorkoutScreen() {
         <BottomSheet title="Übung hinzufügen" isOpen={showAddExercise} onClose={() => setShowAddExercise(false)}>
           <ExerciseLibrary
             onPress={(exerciseId) => {
-              addExerciseToWorkout(activeWorkout.id, {
-                exerciseId: exerciseId,
-                alternatives: [],
-                sets: Array(3).fill({ reps: 10 }),
-              });
-              setShowAddExercise(false);
+              const exercise = getExerciseById(exerciseId);
+              if (exercise) {
+                addExerciseToWorkout(activeWorkout.id, {
+                  id: Math.random().toString(),
+                  name: exercise.name,
+                  reps: "10-12",
+                  exerciseId: exerciseId,
+                  alternatives: [],
+                  sets: Array(3).fill({ reps: 10, weight: null }),
+                });
+                setShowAddExercise(false);
+              }
             }}
           />
         </BottomSheet>
