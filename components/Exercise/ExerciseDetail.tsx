@@ -18,6 +18,7 @@ import {
 import { getMuscleGroup } from "~/lib/utils";
 import { Badge } from "~/components/ui/badge";
 import * as Haptics from "expo-haptics";
+import { FullscreenCard } from "~/components/ui/fullscreen-card";
 
 const AnimatedScrollView = Animated.createAnimatedComponent(ScrollView);
 
@@ -47,15 +48,12 @@ export const ExerciseDetail: React.FC<{ exercise: Exercise; navigateToExercise: 
 
   return (
     <AnimatedScrollView onScroll={scrollHandler} scrollEventThrottle={16} className="flex-1" bounces={false}>
-      {/* Media Carousel Section */}
-      <Carousel mediaItems={mediaItems} />
-
-      {/* Content */}
-      <View className="px-4 -mt-2">
-        <Animated.View
-          entering={FadeInDown.duration(400).springify()}
-          className="bg-card rounded-3xl p-6 border border-border/50 shadow-lg"
-        >
+      <FullscreenCard>
+        <FullscreenCard.Top>
+          <Carousel mediaItems={mediaItems} />
+        </FullscreenCard.Top>
+        <FullscreenCard.Content overlap={20}>
+          {/* Karteninhalt */}
           <Text className="text-2xl font-bold mb-2">{exercise.name}</Text>
           <View className="flex-row gap-2 mb-2">
             {[...new Set(exercise.primaryMuscles.map(getMuscleGroup))].map((muscle, index) => (
@@ -206,8 +204,9 @@ export const ExerciseDetail: React.FC<{ exercise: Exercise; navigateToExercise: 
               )}
             </View>
           </Animated.View>
-        </Animated.View>
-      </View>
+        </FullscreenCard.Content>
+      </FullscreenCard>
+
       {/* Related Exercises */}
       <View className="mt-8 px-4">
         <Text className="font-semibold text-lg mb-4">Ähnliche Übungen</Text>
