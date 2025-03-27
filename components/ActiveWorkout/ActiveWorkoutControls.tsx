@@ -3,7 +3,6 @@ import { View } from "react-native";
 import { Play, StopCircle, Check, CheckCheck, Timer, TimerOff } from "~/lib/icons/Icons";
 import Animated, { SlideInDown, SlideOutDown, Easing } from "react-native-reanimated";
 import { AnimatedIconButton } from "~/components/ui/animated-icon-button";
-import { formatTime } from "~/lib/utils";
 
 interface ActiveWorkoutControlsProps {
   isStarted: boolean;
