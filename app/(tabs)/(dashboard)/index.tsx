@@ -78,7 +78,7 @@ export default function Index() {
 
   return (
     <ScrollView className="bg-background">
-      <View className="gap-3 pb-4">
+      <View className="gap-3 p-4 pb-4">
         {/* Personalisierter Header */}
         <View className="flex-row items-center justify-between mb-2 px-5">
           <P className="text-2xl text-foreground font-bold">
@@ -128,7 +128,7 @@ export default function Index() {
         )}
 
         {/* Motivationswidget */}
-        <Card className="mx-4 mb-6">
+        <Card className=" mb-6">
           <CardHeader>
             <CardTitle>Tägliche Motivation</CardTitle>
           </CardHeader>
