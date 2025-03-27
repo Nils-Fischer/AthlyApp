@@ -1,14 +1,5 @@
-import React, { useState, useRef, createRef } from "react";
-import {
-  View,
-  ScrollView,
-  Pressable,
-  ImageBackground,
-  Keyboard,
-  KeyboardAvoidingView,
-  Platform,
-  TextInput,
-} from "react-native";
+import React, { useState, useRef } from "react";
+import { View, ScrollView, Pressable, ImageBackground, KeyboardAvoidingView, Platform, TextInput } from "react-native";
 import { Text } from "~/components/ui/text";
 import { Button } from "~/components/ui/button";
 import { Card } from "~/components/ui/card";
@@ -34,6 +25,8 @@ import { BottomSheet } from "~/components/ui/bottom-sheet";
 import { ExerciseHistory } from "../Exercise/ExerciseHistory";
 import * as Haptics from "expo-haptics";
 import { Input } from "~/components/ui/input";
+import { P } from "../ui/typography";
+import SetLoggingWheelPicker from "./Logging/SetLoggingWheelPicker";
 
 interface ActiveWorkoutExerciseLoggingProps {
   exercise: Exercise;
@@ -74,6 +67,7 @@ export const ActiveWorkoutExerciseLogging = ({
   const [isDeleteMode, setIsDeleteMode] = useState(false);
   const [isWarmupExpanded, setIsWarmupExpanded] = useState(false);
   const [showHistory, setShowHistory] = useState(false);
+  const [showSetPicker, setShowSetPicker] = useState(false);
 
   // Create refs for the input fields to enable auto-focus
   const weightInputRefs = useRef<(TextInput | null)[]>([]);
@@ -123,6 +117,21 @@ export const ActiveWorkoutExerciseLogging = ({
               <View className="absolute inset-0 bg-background/30" />
             </ImageBackground>
           </View>
+
+          <Button onPress={() => setShowSetPicker(true)} className="w-full" haptics="light">
+            <P>Öffne Satz-Logger</P>
+          </Button>
+
+          <SetLoggingWheelPicker
+            exerciseName="Barbell Back Squats"
+            currentSet={2}
+            totalSets={3}
+            reps={12}
+            weight={51}
+            onSave={() => setShowSetPicker(false)}
+            onClose={() => setShowSetPicker(false)}
+            isVisible={showSetPicker}
+          />
 
           <View className="px-4 -mt-6">
             {/* Exercise Stats Card */}

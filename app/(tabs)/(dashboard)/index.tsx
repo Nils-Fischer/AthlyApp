@@ -9,7 +9,7 @@ import { useUserProfileStore } from "~/stores/userProfileStore";
 import { TodaysWorkoutWidget } from "~/components/Dashboard/TodaysWorkoutWidget";
 import { useUserRoutineStore } from "~/stores/userRoutineStore";
 import { Card, CardHeader, CardTitle, CardContent } from "~/components/ui/card";
-import { BlockQuote, CardLabel, Muted, P } from "~/components/ui/typography";
+import { BlockQuote, CardLabel, H1, H2, H3, Muted, P } from "~/components/ui/typography";
 import { WeeklyPreviewWidget } from "~/components/Dashboard/WeeklyPreview.Widget";
 import { useExerciseStore } from "~/stores/exerciseStore";
 import { getDailyIndex, getWorkoutSchedule, WeeklySchedule } from "~/lib/workoutPlanning";
@@ -21,6 +21,7 @@ import { quotes } from "~/lib/quotes";
 import { ChooseNewWorkoutSheet } from "~/components/Dashboard/ChooseNewWorkoutSheet";
 import { Button } from "~/components/ui/button";
 import { Plus } from "~/lib/icons/Icons";
+import SetLoggingWheelPicker from "~/components/ActiveWorkout/Logging/SetLoggingWheelPicker";
 
 export default function Index() {
   const isWorkoutRunning = useActiveWorkoutStore((state) => state.workoutTimer.isRunning);
@@ -77,9 +78,9 @@ export default function Index() {
 
   return (
     <ScrollView className="bg-background">
-      <View className="p-4 gap-4">
+      <View className="gap-3 pb-4">
         {/* Personalisierter Header */}
-        <View className="flex-row items-center justify-between mb-2 px-1">
+        <View className="flex-row items-center justify-between mb-2 px-5">
           <P className="text-2xl text-foreground font-bold">
             {greeting}, {userName}!
           </P>
@@ -127,12 +128,12 @@ export default function Index() {
         )}
 
         {/* Motivationswidget */}
-        <Card className="mb-6">
+        <Card className="mx-4 mb-6">
           <CardHeader>
             <CardTitle>Tägliche Motivation</CardTitle>
           </CardHeader>
           <CardContent className="justify-center items-center mb-6">
-            <BlockQuote className="text-md self-start">„{motivationQuote.translation}“</BlockQuote>
+            <BlockQuote className="text-md self-start">„{motivationQuote.translation}"</BlockQuote>
             <P className="text-muted-foreground self-end">- {motivationQuote.author}</P>
           </CardContent>
         </Card>
