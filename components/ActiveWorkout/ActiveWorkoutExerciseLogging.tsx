@@ -105,98 +105,38 @@ export const ActiveWorkoutExerciseLogging = ({
           contentContainerStyle={{ paddingBottom: 100 }}
         >
           {/* Header Image */}
-          <View className="w-full h-40">
-            <ImageBackground
-              source={{
-                uri:
-                  getThumbnail(exercise) ||
-                  "https://media.istockphoto.com/id/542197916/photo/running-on-treadmill.jpg?s=612x612&w=0&k=20&c=CYywmb71uOepSHWa534hG9230AzawSa4i3sA89o4qCQ=",
-              }}
-              className="w-full h-full"
-            >
-              <View className="absolute inset-0 bg-background/30" />
-            </ImageBackground>
-          </View>
-
-          <Button onPress={() => setShowSetPicker(true)} className="w-full" haptics="light">
-            <P>Öffne Satz-Logger</P>
-          </Button>
-
-          <SetLoggingWheelPicker
-            exerciseName="Barbell Back Squats"
-            currentSet={2}
-            totalSets={3}
-            reps={12}
-            weight={51}
-            onSave={() => setShowSetPicker(false)}
-            onClose={() => setShowSetPicker(false)}
-            isVisible={showSetPicker}
-          />
+          <ImageBackground
+            source={{
+              uri:
+                getThumbnail(exercise) ||
+                "https://media.istockphoto.com/id/542197916/photo/running-on-treadmill.jpg?s=612x612&w=0&k=20&c=CYywmb71uOepSHWa534hG9230AzawSa4i3sA89o4qCQ=",
+            }}
+            className="w-full h-40"
+          >
+            <View className="absolute inset-0 bg-background/30" />
+          </ImageBackground>
 
           <View className="px-4 -mt-6">
             {/* Exercise Stats Card */}
-            <Card className="bg-card/95 backdrop-blur-lg border-primary/10 mb-4">
-              <View className="p-4">
-                <Text className="text-2xl font-bold mb-3">{exercise.name}</Text>
-                {/* Quick Stats Grid */}
-                <View className="flex-row gap-4">
-                  <Card className="flex-1 p-3 border-primary/10">
-                    <View className="flex-row items-center">
-                      <Weight size={16} className="text-primary mr-2" />
-                      <Text className="text-sm text-muted-foreground">Equipment</Text>
-                    </View>
-                    <Text className="font-medium mt-1">{exercise.equipment || "Not specified"}</Text>
-                  </Card>
-                  <Card className="flex-1 p-3 ">
-                    <View className="flex-row items-center">
-                      <BarChart3 size={16} className="text-primary mr-2" />
-                      <Text className="text-sm text-muted-foreground">Level</Text>
-                    </View>
-                    <Text className="font-medium mt-1">{exercise.difficulty || "Not specified"}</Text>
-                  </Card>
-                </View>
+            <Card className="p-4 backdrop-blur-lg border-primary/10 mb-4">
+              <Text className="text-2xl font-bold mb-3">{exercise.name}</Text>
+              {/* Quick Stats Grid */}
+              <View className="flex-row gap-4">
+                <Card className="flex-1 p-3 border-primary/10">
+                  <View className="flex-row items-center">
+                    <Weight size={16} className="text-primary mr-2" />
+                    <Text className="text-sm text-muted-foreground">Equipment</Text>
+                  </View>
+                  <Text className="font-medium mt-1">{exercise.equipment || "Not specified"}</Text>
+                </Card>
+                <Card className="flex-1 p-3 ">
+                  <View className="flex-row items-center">
+                    <BarChart3 size={16} className="text-primary mr-2" />
+                    <Text className="text-sm text-muted-foreground">Level</Text>
+                  </View>
+                  <Text className="font-medium mt-1">{exercise.difficulty || "Not specified"}</Text>
+                </Card>
               </View>
-            </Card>
-
-            {/* Exercise Details & History Links */}
-            <Card className="mb-4 border-primary/10">
-              <Pressable
-                className="p-4 flex-row items-center justify-between active:opacity-70"
-                onPress={async () => {
-                  Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-                  router.push(`/(tabs)/workout/exercise/${exercise.id}`);
-                }}
-              >
-                <View className="flex-row items-center">
-                  <View className="w-10 h-10 rounded-full items-center justify-center mr-3">
-                    <Info size={20} className="text-primary" />
-                  </View>
-                  <View>
-                    <Text className="font-medium">Übungsdetails</Text>
-                    <Text className="text-sm text-muted-foreground">Anleitung & Ausführung</Text>
-                  </View>
-                </View>
-                <ChevronRight size={20} className="text-muted-foreground" />
-              </Pressable>
-              {/* Neuer Button für Workout History */}
-              <Pressable
-                className="p-4 flex-row items-center justify-between active:opacity-70"
-                onPress={() => {
-                  Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-                  setShowHistory(true);
-                }}
-              >
-                <View className="flex-row items-center">
-                  <View className="w-10 h-10 rounded-full items-center justify-center mr-3">
-                    <BarChart3 size={20} className="text-primary" />
-                  </View>
-                  <View>
-                    <Text className="font-medium">Trainings-Historie</Text>
-                    <Text className="text-sm text-muted-foreground">Vergangene Leistungen</Text>
-                  </View>
-                </View>
-                <ChevronRight size={20} className="text-muted-foreground" />
-              </Pressable>
             </Card>
 
             {/* Sets Management Card */}
@@ -366,6 +306,46 @@ export const ActiveWorkoutExerciseLogging = ({
                   ))}
                 </View>
               </View>
+            </Card>
+            {/* Exercise Details & History Links */}
+            <Card className="mb-4 border-primary/10">
+              <Pressable
+                className="p-4 flex-row items-center justify-between active:opacity-70"
+                onPress={async () => {
+                  Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+                  router.push(`/(tabs)/workout/exercise/${exercise.id}`);
+                }}
+              >
+                <View className="flex-row items-center">
+                  <View className="w-10 h-10 rounded-full items-center justify-center mr-3">
+                    <Info size={20} className="text-primary" />
+                  </View>
+                  <View>
+                    <Text className="font-medium">Übungsdetails</Text>
+                    <Text className="text-sm text-muted-foreground">Anleitung & Ausführung</Text>
+                  </View>
+                </View>
+                <ChevronRight size={20} className="text-muted-foreground" />
+              </Pressable>
+              {/* Neuer Button für Workout History */}
+              <Pressable
+                className="p-4 flex-row items-center justify-between active:opacity-70"
+                onPress={() => {
+                  Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+                  setShowHistory(true);
+                }}
+              >
+                <View className="flex-row items-center">
+                  <View className="w-10 h-10 rounded-full items-center justify-center mr-3">
+                    <BarChart3 size={20} className="text-primary" />
+                  </View>
+                  <View>
+                    <Text className="font-medium">Trainings-Historie</Text>
+                    <Text className="text-sm text-muted-foreground">Vergangene Leistungen</Text>
+                  </View>
+                </View>
+                <ChevronRight size={20} className="text-muted-foreground" />
+              </Pressable>
             </Card>
           </View>
         </ScrollView>
