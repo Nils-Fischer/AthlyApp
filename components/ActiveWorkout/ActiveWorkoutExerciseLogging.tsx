@@ -1,20 +1,9 @@
-import React, { useState, useRef } from "react";
+import React, { useState, useRef, useEffect } from "react";
 import { View, ScrollView, Pressable, ImageBackground, KeyboardAvoidingView, Platform, TextInput } from "react-native";
 import { Text } from "~/components/ui/text";
 import { Button } from "~/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "~/components/ui/card";
-import {
-  Weight,
-  BarChart3,
-  ChevronRight,
-  Info,
-  Plus,
-  Trash2,
-  CheckCheck,
-  Check,
-  HeartPulse,
-  TimerOff,
-} from "~/lib/icons/Icons";
+import { BarChart3, ChevronRight, Info, Plus, CheckCheck, Check, HeartPulse, TimerOff } from "~/lib/icons/Icons";
 import { Exercise, ExerciseRecord, SetInput, WorkoutExercise } from "~/lib/types";
 import { router } from "expo-router";
 import Animated, { FadeInDown } from "react-native-reanimated";
@@ -24,15 +13,14 @@ import { cn, getThumbnail } from "~/lib/utils";
 import { BottomSheet } from "~/components/ui/bottom-sheet";
 import { ExerciseHistory } from "../Exercise/ExerciseHistory";
 import * as Haptics from "expo-haptics";
-import { Input } from "~/components/ui/input";
-import { CardLabel, H1, H3, Large, P } from "../ui/typography";
+import { Lead, P } from "../ui/typography";
+import { SetLoggingWheelPicker } from "./Logging/SetLoggingWheelPicker";
 
 interface ActiveWorkoutExerciseLoggingProps {
   exercise: Exercise;
   workoutExercise: WorkoutExercise;
   exerciseRecord: ExerciseRecord;
-  onUpdateReps: (setIndex: number, reps: number) => void;
-  onUpdateWeight: (setIndex: number, weight: number) => void;
+  onUpdateSet: (setIndex: number, reps: number, weight: number) => void;
   onAddSet: () => void;
   onDeleteSet: (setIndex: number) => void;
   onCompleteExercise: () => void;
@@ -45,11 +33,12 @@ interface ActiveWorkoutExerciseLoggingProps {
   onToggleSetCompleted: (setIndex: number, completed: boolean) => void;
 }
 
+type SetInputWithIndex = SetInput & { index: number };
+
 export const ActiveWorkoutExerciseLogging = ({
   exercise,
   exerciseRecord,
-  onUpdateReps,
-  onUpdateWeight,
+  onUpdateSet,
   onAddSet,
   onDeleteSet,
   onCompleteExercise,
@@ -63,32 +52,11 @@ export const ActiveWorkoutExerciseLogging = ({
 }: ActiveWorkoutExerciseLoggingProps) => {
   const workoutHistory = useWorkoutHistoryStore();
 
-  const [isDeleteMode, setIsDeleteMode] = useState(false);
   const [isWarmupExpanded, setIsWarmupExpanded] = useState(false);
   const [showHistory, setShowHistory] = useState(false);
-
-  // Create refs for the input fields to enable auto-focus
-  const weightInputRefs = useRef<(TextInput | null)[]>([]);
-  const repsInputRefs = useRef<(TextInput | null)[]>([]);
-
-  // Initialize refs when sets change
-  if (weightInputRefs.current.length !== exerciseRecord.sets.length) {
-    weightInputRefs.current = Array(exerciseRecord.sets.length).fill(null);
-    repsInputRefs.current = Array(exerciseRecord.sets.length).fill(null);
-  }
+  const [logSet, setLogSet] = useState<SetInputWithIndex | null>(null);
 
   const isSetLogged = (set: SetInput) => set.reps !== null && set.weight !== null;
-
-  const handleUpdateSet = (index: number, field: "reps" | "weight", value: string) => {
-    const numValue = parseInt(value) || 0;
-    if (field === "reps") {
-      onUpdateReps(index, numValue);
-    } else {
-      onUpdateWeight(index, numValue);
-    }
-  };
-
-  const inputStyle = "h-10 px-3 rounded-lg text-xl font-medium text-left border border-border bg-card";
 
   return (
     <View className="flex-1 bg-background">
@@ -191,138 +159,115 @@ export const ActiveWorkoutExerciseLogging = ({
                   </View>
                 )}
 
-                {/* Working Sets Header */}
-                <View className="flex-row justify-between items-center mb-6">
-                  <View className="flex-row items-center">
-                    <Text className="text-lg font-semibold mr-2">Working Sets</Text>
-                    <Text className="text-sm text-muted-foreground">({exerciseRecord.sets.length} Sets)</Text>
+                {/* Logged Sets */}
+                <View className="mt-4">
+                  {/* Table Header */}
+                  <View className="flex-row mb-2 pb-2 border-b border-border items-center">
+                    <View className="w-16 pl-2 justify-center items-center">
+                      <Text className="font-medium text-muted-foreground">Satz</Text>
+                    </View>
+                    <View className="flex-1 items-center justify-center">
+                      <Text className="font-medium text-muted-foreground">Reps × Gewicht</Text>
+                    </View>
+                    <View className="w-12 items-center justify-center">
+                      <Check size={20} className="text-muted-foreground" />
+                    </View>
                   </View>
-                  <View className="flex-row gap-3">
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      className={`h-9 w-9 rounded-full ${isDeleteMode ? "bg-destructive/10" : "bg-secondary/10"}`}
-                      onPress={() => setIsDeleteMode(!isDeleteMode)}
-                      haptics="error"
-                    >
-                      <Trash2 size={16} className="text-destructive" />
-                    </Button>
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      className="h-9 w-9 rounded-full bg-primary/10"
-                      onPress={onAddSet}
-                      haptics="medium"
-                    >
-                      <Plus size={16} className="text-primary" />
-                    </Button>
-                  </View>
-                </View>
 
-                {/* Column Headers */}
-                <View className="flex-row items-center px-4 mb-2">
-                  <View className="w-10" />
-                  <View className="flex-1 mx-2">
-                    <Text className="text-sm text-muted-foreground ml-3">Wdh.</Text>
-                  </View>
-                  <View className="flex-1 mx-2">
-                    <Text className="text-sm text-muted-foreground ml-3">Gewicht (kg)</Text>
-                  </View>
-                  <View className="w-10" />
-                </View>
-
-                {/* Sets List */}
-                <View className="space-y-2">
+                  {/* Table Rows */}
                   {exerciseRecord.sets.map((set, index) => (
                     <Animated.View
                       key={index}
-                      entering={FadeInDown.delay(index * 50)}
-                      className="rounded-xl overflow-hidden px-4 py-2"
+                      entering={FadeInDown.delay(index * 100).springify()}
+                      className="flex-row items-center py-3 border-b border-border"
                     >
-                      <View className="flex-row items-center">
-                        {/* Set Number */}
-                        <View className="w-10 h-10 rounded-full bg-card items-center justify-center">
-                          <Text className="text-base font-medium text-foreground">{index + 1}</Text>
-                        </View>
+                      {/* Set Number */}
+                      <View className="w-16 pl-2 justify-center items-center">
+                        <Lead className="font-medium">{index + 1}</Lead>
+                      </View>
 
-                        {/* Reps Input */}
-                        <View className="flex-1 mx-2">
-                          <Input
-                            ref={(ref) => {
-                              repsInputRefs.current[index] = ref;
-                            }}
-                            className={inputStyle}
-                            value={set.reps?.toString() || ""}
-                            onChangeText={(value) => handleUpdateSet(index, "reps", value)}
-                            keyboardType="numeric"
-                            maxLength={2}
-                            placeholder={set.targetReps.toString()}
-                            fullWidth={true}
-                          />
-                        </View>
-
-                        {/* Weight Input */}
-                        <View className="flex-1 mx-2">
-                          <Input
-                            ref={(ref) => {
-                              weightInputRefs.current[index] = ref;
-                            }}
-                            className={inputStyle}
-                            value={set.weight?.toString() || ""}
-                            onChangeText={(value) => handleUpdateSet(index, "weight", value)}
-                            keyboardType="numeric"
-                            maxLength={3}
-                            placeholder={set.targetWeight.toString()}
-                          />
-                        </View>
-
-                        {/* Action Button */}
-                        {!isDeleteMode ? (
-                          <Button
-                            size="icon"
-                            variant="outline"
-                            onPress={() => {
-                              if (isSetLogged(set)) {
-                                // Toggle the completed state and start rest timer if newly completed
-                                const newCompletedState = !set.completed;
-                                onToggleSetCompleted(index, newCompletedState);
-
-                                if (newCompletedState) {
-                                  onStartRest();
-                                }
-
-                                Haptics.impactAsync(
-                                  newCompletedState
-                                    ? Haptics.ImpactFeedbackStyle.Medium
-                                    : Haptics.ImpactFeedbackStyle.Light
-                                );
-                              }
-                            }}
-                            disabled={!isSetLogged(set)}
-                            haptics="success"
-                            className={`w-10 h-10 rounded-full items-center justify-center ${
-                              set.completed ? "bg-primary" : "bg-card border border-border"
-                            }`}
+                      {/* Combined Reps and Weight */}
+                      <View className="flex-1 items-center justify-center">
+                        <Pressable
+                          className="py-2 px-4 bg-card rounded-lg gap-3 items-center flex-row justify-center"
+                          onPress={() => {
+                            Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+                            setLogSet({ ...set, index });
+                          }}
+                        >
+                          <Text className={set.reps && set.reps !== null ? "text-foreground" : "text-foreground/50"}>
+                            {set.reps || set.targetReps || 8}
+                          </Text>
+                          <Text
+                            className={
+                              set.weight && set.weight !== null ? "text-foreground mx-1" : "text-foreground/50"
+                            }
                           >
-                            <Check size={16} className={set.completed ? "text-primary-foreground" : "text-primary"} />
-                          </Button>
-                        ) : (
-                          <Pressable
-                            onPress={() => onDeleteSet(index)}
-                            className="w-10 h-10 rounded-full items-center justify-center bg-destructive"
+                            ×
+                          </Text>
+                          <Text
+                            className={
+                              set.weight && set.weight !== null ? "text-foreground mx-1" : "text-foreground/50"
+                            }
                           >
-                            <Trash2 size={16} className="text-destructive-foreground" />
-                          </Pressable>
-                        )}
+                            {set.weight || set.targetWeight || 0} kg
+                          </Text>
+                        </Pressable>
+                      </View>
+
+                      {/* Completed Status */}
+                      <View className="w-12 items-center">
+                        <Button
+                          variant="outline"
+                          size="icon"
+                          className="h-8 w-8 rounded-xl border border-border"
+                          haptics="success"
+                          onPress={() => onToggleSetCompleted(index, !set.completed)}
+                        >
+                          <Check
+                            size={16}
+                            strokeWidth={3}
+                            className={set.completed ? "text-primary" : "text-muted-foreground"}
+                          />
+                        </Button>
                       </View>
                     </Animated.View>
                   ))}
+
+                  {/* Add Set Button */}
+                  <Pressable
+                    className="flex-row items-center justify-center mt-4 py-3 rounded-lg border border-dashed border-border active:opacity-70"
+                    onPress={() => {
+                      Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
+                      onAddSet();
+                    }}
+                  >
+                    <Plus size={18} className="text-primary mr-2" />
+                    <P>Satz hinzufügen</P>
+                  </Pressable>
                 </View>
               </View>
             </Card>
           </View>
         </ScrollView>
       </KeyboardAvoidingView>
+
+      {logSet && (
+        <SetLoggingWheelPicker
+          isOpen={logSet !== null}
+          onClose={() => {
+            setLogSet(null);
+          }}
+          onSave={(reps, weight) => {
+            onUpdateSet(logSet.index, reps, weight);
+            setLogSet(null);
+          }}
+          exerciseName={exercise.name}
+          setInput={logSet}
+          currentSet={logSet.index + 1}
+          totalSets={exerciseRecord.sets.length}
+        />
+      )}
 
       {/* Footer Stats */}
       <View className="border-t border-border bg-card/95 backdrop-blur-lg mb-24">

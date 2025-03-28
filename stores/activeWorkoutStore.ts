@@ -34,8 +34,7 @@ interface ActiveWorkoutState {
   completeExercise: (exerciseId: number, intensity?: number) => void;
 
   // Set input management
-  updateReps: (exerciseId: number, setIndex: number, reps: number) => void;
-  updateWeight: (exerciseId: number, setIndex: number, weight: number) => void;
+  updateSetInput: (exerciseId: number, setIndex: number, reps: number, weight: number) => void;
   markSetCompleted: (exerciseId: number, setIndex: number, isCompleted: boolean) => void;
 
   // Timer controls
@@ -179,28 +178,14 @@ export const useActiveWorkoutStore = create<ActiveWorkoutState>()((set, get) => 
     };
   },
 
-  updateReps: (exerciseId, setIndex, reps) => {
+  updateSetInput: (exerciseId, setIndex, reps, weight) => {
     set((state) => {
       const records = new Map(state.exerciseRecords);
       const exercise = records.get(exerciseId);
       if (!exercise) return state;
 
       const updatedSets = [...exercise.sets];
-      updatedSets[setIndex] = { ...updatedSets[setIndex], reps };
-
-      records.set(exerciseId, { ...exercise, sets: updatedSets });
-      return { exerciseRecords: records };
-    });
-  },
-
-  updateWeight: (exerciseId, setIndex, weight) => {
-    set((state) => {
-      const records = new Map(state.exerciseRecords);
-      const exercise = records.get(exerciseId);
-      if (!exercise) return state;
-
-      const updatedSets = [...exercise.sets];
-      updatedSets[setIndex] = { ...updatedSets[setIndex], weight };
+      updatedSets[setIndex] = { ...updatedSets[setIndex], reps, weight };
 
       records.set(exerciseId, { ...exercise, sets: updatedSets });
       return { exerciseRecords: records };

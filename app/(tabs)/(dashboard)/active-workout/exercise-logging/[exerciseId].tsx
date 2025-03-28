@@ -20,8 +20,7 @@ export default function ExerciseLoggingScreen() {
   const startRestTimer = useActiveWorkoutStore((state) => state.startRestTimer);
   const pauseRestTimer = useActiveWorkoutStore((state) => state.pauseRestTimer);
   const completeExercise = useActiveWorkoutStore((state) => state.completeExercise);
-  const updateReps = useActiveWorkoutStore((state) => state.updateReps);
-  const updateWeight = useActiveWorkoutStore((state) => state.updateWeight);
+  const updateSet = useActiveWorkoutStore((state) => state.updateSetInput);
   const markSetCompleted = useActiveWorkoutStore((state) => state.markSetCompleted);
 
   const updateSetsInExercise = useUserRoutineStore((state) => state.updateSetsInExercise);
@@ -145,8 +144,7 @@ export default function ExerciseLoggingScreen() {
         exercise={exercise}
         workoutExercise={workoutExercise}
         exerciseRecord={exerciseRecord}
-        onUpdateReps={(setIndex, reps) => updateReps(exerciseIdNumber, setIndex, reps)}
-        onUpdateWeight={(setIndex, weight) => updateWeight(exerciseIdNumber, setIndex, weight)}
+        onUpdateSet={(setIndex, reps, weight) => updateSet(exerciseIdNumber, setIndex, reps, weight)}
         onAddSet={handleAddSet}
         onDeleteSet={handleDeleteSet}
         onCompleteExercise={handleExerciseComplete}

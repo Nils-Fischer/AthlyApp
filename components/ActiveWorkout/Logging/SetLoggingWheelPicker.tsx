@@ -1,37 +1,42 @@
-import React, { useState, useEffect } from "react";
-import { View, StyleSheet, TouchableWithoutFeedback, Modal } from "react-native";
-import { CardLabel, H3, Muted, P } from "~/components/ui/typography";
+import React, { useState } from "react";
+import { View, TouchableWithoutFeedback, Modal } from "react-native";
+import { H3, Muted, P } from "~/components/ui/typography";
 import { Button } from "~/components/ui/button";
 import { Picker, PickerColumn, PickerItem } from "react-native-picky";
 import { Card, CardHeader } from "~/components/ui/card";
+import { SetInput } from "~/lib/types";
 
 interface SetLoggingWheelPickerProps {
   exerciseName: string;
+  setInput: SetInput;
+  isOpen: boolean;
+  fallbackReps?: number;
+  fallbackWeight?: number;
   currentSet: number;
-  totalSets: number;
-  reps?: number;
-  weight?: number;
+  totalSets?: number;
   onSave: (reps: number, weight: number) => void;
   onClose?: () => void;
-  isVisible: boolean;
 }
 
 export const SetLoggingWheelPicker: React.FC<SetLoggingWheelPickerProps> = ({
   exerciseName,
+  setInput,
+  fallbackReps = 8,
+  fallbackWeight = 0,
   currentSet,
   totalSets,
-  reps = 8,
-  weight = 0,
   onSave,
   onClose,
-  isVisible,
+  isOpen,
 }) => {
-  const [selectedReps, setSelectedReps] = useState(reps);
-  const [selectedWeight, setSelectedWeight] = useState(weight);
+  const [selectedReps, setSelectedReps] = useState(setInput.reps || setInput.targetReps || fallbackReps);
+  const [selectedWeight, setSelectedWeight] = useState(setInput.weight || setInput.targetWeight || fallbackWeight);
 
-  if (!isVisible) return null;
+  if (!isOpen) return null;
 
   const handleSave = () => {
+    console.log("selectedReps", selectedReps);
+    console.log("selectedWeight", selectedWeight);
     onSave(selectedReps, selectedWeight);
     onClose?.();
   };
@@ -41,7 +46,7 @@ export const SetLoggingWheelPicker: React.FC<SetLoggingWheelPickerProps> = ({
   };
 
   return (
-    <Modal transparent visible={isVisible} animationType="fade" onRequestClose={onClose} statusBarTranslucent>
+    <Modal transparent visible={isOpen} animationType="fade" onRequestClose={onClose} statusBarTranslucent>
       <View className="flex-1 justify-end bg-black/70">
         <TouchableWithoutFeedback onPress={handleBackdropPress}>
           <View className="flex-1" />
@@ -52,19 +57,20 @@ export const SetLoggingWheelPicker: React.FC<SetLoggingWheelPickerProps> = ({
             <CardHeader className="gap-2">
               <H3>{exerciseName}</H3>
               <Muted>
-                Satz {currentSet}/{totalSets}
+                Satz {currentSet}
+                {totalSets ? `/${totalSets}` : ""}
               </Muted>
               <View className="h-[1px] mt-2 bg-border" />
             </CardHeader>
 
             <View className="p-7">
               <Picker>
-                <PickerColumn selectedValue={selectedReps} onChange={(value) => setSelectedReps(Number(value))}>
+                <PickerColumn selectedValue={selectedReps} onChange={(item) => setSelectedReps(Number(item.value))}>
                   {Array.from({ length: 30 }, (_, i) => (
                     <PickerItem key={`rep-${i + 1}`} label={`${i + 1} Wdh.`} value={i + 1} />
                   ))}
                 </PickerColumn>
-                <PickerColumn selectedValue={selectedWeight} onChange={(value) => setSelectedWeight(Number(value))}>
+                <PickerColumn selectedValue={selectedWeight} onChange={(item) => setSelectedWeight(Number(item.value))}>
                   {Array.from({ length: 601 }, (_, i) => (
                     <PickerItem key={`weight-${i}`} label={`${i} kg`} value={i} />
                   ))}
