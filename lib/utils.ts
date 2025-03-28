@@ -90,8 +90,9 @@ export function difficultyAsNumber(difficulty: Difficulty): number {
 }
 
 export function getRepsRange(exercise: WorkoutExercise): string {
+  if (!exercise || !exercise.sets || exercise.sets.length === 0) return "";
   if (exercise.sets.length === 1 || exercise.sets.every((set) => set.reps === exercise.sets[0].reps))
-    return `${exercise.sets[0].reps} Wdh.`;
+    return `${exercise.sets.at(0)?.reps} Wdh.`;
   return `${Math.min(...exercise.sets.map((set) => set.reps))}-${Math.max(
     ...exercise.sets.map((set) => set.reps)
   )} Wdh.`;
