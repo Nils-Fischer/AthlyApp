@@ -73,7 +73,12 @@ export const ActiveWorkoutExerciseLogging = ({
   const isSetLogged = (set: SetInput) => set.reps !== null && set.weight !== null;
 
   const handleToggleSetCompleted = (set: SetInput, index: number) => {
-    set.completed ?? onUpdateSet(index, set.reps || set.targetReps || 8, set.weight || set.targetWeight || 0);
+    if (!set.completed) {
+      onUpdateSet(index, set.reps || set.targetReps || 8, set.weight || set.targetWeight || 0);
+      onStartRest();
+    } else {
+      onStopRest();
+    }
     onToggleSetCompleted(index, !set.completed);
   };
 
