@@ -247,7 +247,7 @@ export const ActiveWorkoutExerciseLogging = ({
                           >
                             {/* Set Number */}
                             <View className="w-16 pl-2 justify-center items-center">
-                              <Lead className="font-medium">{index + 1}</Lead>
+                              <Lead className="font-medium text-foreground">{index + 1}</Lead>
                             </View>
 
                             {/* Combined Reps and Weight */}
@@ -261,25 +261,21 @@ export const ActiveWorkoutExerciseLogging = ({
                                   setLogSet({ ...set, index });
                                 }}
                               >
-                                <Text
+                                <P
                                   className={set.reps && set.weight !== null ? "text-foreground" : "text-foreground/50"}
                                 >
                                   {set.reps || set.targetReps || 8}
-                                </Text>
-                                <Text
-                                  className={
-                                    set.reps && set.weight !== null ? "text-foreground mx-1" : "text-foreground/50"
-                                  }
+                                </P>
+                                <P
+                                  className={set.reps && set.weight !== null ? "text-foreground" : "text-foreground/50"}
                                 >
                                   ×
-                                </Text>
-                                <Text
-                                  className={
-                                    set.reps && set.weight !== null ? "text-foreground mx-1" : "text-foreground/50"
-                                  }
+                                </P>
+                                <P
+                                  className={set.reps && set.weight !== null ? "text-foreground" : "text-foreground/50"}
                                 >
                                   {set.weight || set.targetWeight || 0} kg
-                                </Text>
+                                </P>
                               </Pressable>
                             </View>
 
