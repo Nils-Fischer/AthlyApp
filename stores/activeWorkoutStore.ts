@@ -307,17 +307,10 @@ export const useActiveWorkoutStore = create<ActiveWorkoutState>()((set, get) => 
   // Stats calculations
   getTotalVolume: () => {
     const state = get();
-    let volume = 0;
-
-    state.exerciseRecords.forEach((record) => {
-      record.sets.forEach((set) => {
-        if (set.reps && set.weight) {
-          volume += set.reps * set.weight;
-        }
-      });
-    });
-
-    return volume;
+    const completedSets = Array.from(state.exerciseRecords.values())
+      .flatMap((record) => record.sets)
+      .filter((set) => set.completed && set.weight);
+    return completedSets.reduce((acc, set) => acc + (set.weight || 0), 0);
   },
 
   getCompletedExercises: () => {

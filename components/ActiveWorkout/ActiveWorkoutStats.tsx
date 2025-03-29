@@ -41,7 +41,7 @@ export function ActiveWorkoutStats({
         <View className="flex-row justify-between">
           <StatItem
             icon={<Dumbbell size={20} className="text-primary" />}
-            value={`${totalVolume}kg`}
+            value={`${totalVolume} kg`}
             label="Gesamtvolumen"
           />
           <StatItem
