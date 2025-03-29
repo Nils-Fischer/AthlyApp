@@ -22,7 +22,7 @@ export default function ExerciseLoggingScreen() {
   const completeExercise = useActiveWorkoutStore((state) => state.completeExercise);
   const updateSet = useActiveWorkoutStore((state) => state.updateSetInput);
   const markSetCompleted = useActiveWorkoutStore((state) => state.markSetCompleted);
-
+  const deleteSet = useActiveWorkoutStore((state) => state.deleteSet);
   const updateSetsInExercise = useUserRoutineStore((state) => state.updateSetsInExercise);
   const getWorkoutById = useUserRoutineStore((state) => state.getWorkoutById);
   const getExerciseById = useExerciseStore((state) => state.getExerciseById);
@@ -101,6 +101,7 @@ export default function ExerciseLoggingScreen() {
 
   const handleDeleteSet = useCallback(
     (setIndex: number) => {
+      console.log(`[Debug] Deleting set ${setIndex} for exercise ${exerciseIdNumber}`);
       if (!workoutId || !exerciseIdNumber) return;
 
       // Get current workout exercise directly from store to avoid stale closures
@@ -109,11 +110,11 @@ export default function ExerciseLoggingScreen() {
 
       if (!currentExercise?.sets) return;
 
-      updateSetsInExercise(
-        workoutId,
-        exerciseIdNumber,
-        currentExercise.sets.filter((_, index) => index !== setIndex) || []
-      );
+      const filteredSets = currentExercise.sets.filter((_, index) => index !== setIndex);
+      console.log(`[Debug] Filtered sets: ${JSON.stringify(filteredSets)}`);
+
+      deleteSet(exerciseIdNumber, setIndex);
+      updateSetsInExercise(workoutId, exerciseIdNumber, filteredSets);
     },
     [workoutId, exerciseIdNumber, getWorkoutById, updateSetsInExercise]
   );

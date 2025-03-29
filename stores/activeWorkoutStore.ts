@@ -36,6 +36,8 @@ interface ActiveWorkoutState {
   // Set input management
   updateSetInput: (exerciseId: number, setIndex: number, reps: number, weight: number) => void;
   markSetCompleted: (exerciseId: number, setIndex: number, isCompleted: boolean) => void;
+  // Call before deleting a set from routine !!!
+  deleteSet: (exerciseId: number, setIndex: number) => void;
 
   // Timer controls
   startRestTimer: (duration: number) => void;
@@ -145,6 +147,7 @@ export const useActiveWorkoutStore = create<ActiveWorkoutState>()((set, get) => 
       updatedWorkout.exercises.forEach((exercise) => {
         const existingRecord = currentState.exerciseRecords.get(exercise.exerciseId);
 
+        console.log(exercise.sets);
         // Create new record while preserving user inputs
         const newRecord: ExerciseRecord = {
           exerciseId: exercise.exerciseId,
@@ -372,6 +375,24 @@ export const useActiveWorkoutStore = create<ActiveWorkoutState>()((set, get) => 
           }
           return set;
         }),
+      };
+
+      records.set(exerciseId, updatedExercise);
+      return { exerciseRecords: records };
+    });
+  },
+
+  deleteSet: (exerciseId, setIndex) => {
+    console.log(`[Workout] Deleting set ${setIndex} of exercise ${exerciseId}`);
+    set((state) => {
+      const records = new Map(state.exerciseRecords);
+      const exercise = records.get(exerciseId);
+      if (!exercise) return state;
+
+      // Create a new exercise record with the updated set completion status
+      const updatedExercise = {
+        ...exercise,
+        sets: exercise.sets.filter((_, index) => index !== setIndex),
       };
 
       records.set(exerciseId, updatedExercise);

@@ -16,7 +16,7 @@ import {
 } from "~/lib/icons/Icons";
 import { Exercise, ExerciseRecord, SetInput, WorkoutExercise } from "~/lib/types";
 import { router } from "expo-router";
-import Animated, { FadeInDown, SharedValue, useAnimatedStyle } from "react-native-reanimated";
+import Animated, { FadeInDown, SharedValue, useAnimatedStyle, runOnJS } from "react-native-reanimated";
 import { useWorkoutHistoryStore } from "~/stores/workoutHistoryStore";
 import { AnimatedIconButton } from "../ui/animated-icon-button";
 import { cn, getThumbnail } from "~/lib/utils";
@@ -69,24 +69,25 @@ export const ActiveWorkoutExerciseLogging = ({
 
   const isSetLogged = (set: SetInput) => set.reps !== null && set.weight !== null;
 
-  function RightAction(prog: SharedValue<number>, drag: SharedValue<number>, index: number) {
+  const renderRightActions = (index: number) => (prog: SharedValue<number>, drag: SharedValue<number>) => {
     const styleAnimation = useAnimatedStyle(() => {
-      console.log("showRightProgress:", prog.value);
-      console.log("appliedTranslation:", drag.value);
-
       return {
         transform: [{ translateX: drag.value + 70 }],
       };
     });
 
+    const handleDelete = () => {
+      onDeleteSet(index);
+    };
+
     return (
       <Animated.View style={styleAnimation} className="w-20 h-full bg-destructive justify-center items-center">
-        <Pressable onPress={() => onDeleteSet(index)}>
+        <Pressable onPress={handleDelete} className="w-full h-full justify-center items-center">
           <Trash2 size={20} className="text-destructive-foreground" />
         </Pressable>
       </Animated.View>
     );
-  }
+  };
 
   return (
     <View className="flex-1 bg-background">
@@ -206,12 +207,12 @@ export const ActiveWorkoutExerciseLogging = ({
 
                   {/* Table Rows */}
                   {exerciseRecord.sets.map((set, index) => (
-                    <>
+                    <View key={index}>
                       <ReanimatedSwipeable
                         friction={2}
                         enableTrackpadTwoFingerGesture
                         rightThreshold={40}
-                        renderRightActions={(prop, drag) => RightAction(prop, drag, index)}
+                        renderRightActions={(prog, drag) => renderRightActions(index)(prog, drag)}
                       >
                         <Animated.View
                           key={index}
@@ -233,20 +234,20 @@ export const ActiveWorkoutExerciseLogging = ({
                               }}
                             >
                               <Text
-                                className={set.reps && set.reps !== null ? "text-foreground" : "text-foreground/50"}
+                                className={set.reps && set.weight !== null ? "text-foreground" : "text-foreground/50"}
                               >
                                 {set.reps || set.targetReps || 8}
                               </Text>
                               <Text
                                 className={
-                                  set.weight && set.weight !== null ? "text-foreground mx-1" : "text-foreground/50"
+                                  set.reps && set.weight !== null ? "text-foreground mx-1" : "text-foreground/50"
                                 }
                               >
                                 ×
                               </Text>
                               <Text
                                 className={
-                                  set.weight && set.weight !== null ? "text-foreground mx-1" : "text-foreground/50"
+                                  set.reps && set.weight !== null ? "text-foreground mx-1" : "text-foreground/50"
                                 }
                               >
                                 {set.weight || set.targetWeight || 0} kg
@@ -273,7 +274,7 @@ export const ActiveWorkoutExerciseLogging = ({
                         </Animated.View>
                       </ReanimatedSwipeable>
                       <View className="h-px bg-border" />
-                    </>
+                    </View>
                   ))}
 
                   {/* Add Set Button */}
