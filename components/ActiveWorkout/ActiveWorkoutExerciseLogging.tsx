@@ -67,6 +67,9 @@ export const ActiveWorkoutExerciseLogging = ({
   const [showHistory, setShowHistory] = useState(false);
   const [logSet, setLogSet] = useState<SetInputWithIndex | null>(null);
 
+  // Create an object to store refs for each swipeable
+  const swipeableRefs = useRef<{ [key: number]: React.RefObject<any> }>({});
+
   const isSetLogged = (set: SetInput) => set.reps !== null && set.weight !== null;
 
   const renderRightActions = (index: number) => (prog: SharedValue<number>, drag: SharedValue<number>) => {
@@ -77,7 +80,13 @@ export const ActiveWorkoutExerciseLogging = ({
     });
 
     const handleDelete = () => {
-      onDeleteSet(index);
+      // Close the swipeable first
+      if (swipeableRefs.current[index] && swipeableRefs.current[index].current) {
+        swipeableRefs.current[index].current.close();
+      }
+      setTimeout(() => {
+        onDeleteSet(index);
+      }, 150);
     };
 
     return (
@@ -206,76 +215,84 @@ export const ActiveWorkoutExerciseLogging = ({
                   </View>
 
                   {/* Table Rows */}
-                  {exerciseRecord.sets.map((set, index) => (
-                    <View key={index}>
-                      <ReanimatedSwipeable
-                        friction={2}
-                        enableTrackpadTwoFingerGesture
-                        rightThreshold={40}
-                        renderRightActions={(prog, drag) => renderRightActions(index)(prog, drag)}
-                      >
-                        <Animated.View
-                          key={index}
-                          entering={FadeInDown.delay(index * 100).springify()}
-                          className="flex-row items-center py-2"
+                  {exerciseRecord.sets.map((set, index) => {
+                    // Create a ref for each swipeable if it doesn't exist
+                    if (!swipeableRefs.current[index]) {
+                      swipeableRefs.current[index] = React.createRef();
+                    }
+
+                    return (
+                      <View key={index}>
+                        <ReanimatedSwipeable
+                          ref={swipeableRefs.current[index]}
+                          friction={2}
+                          enableTrackpadTwoFingerGesture
+                          rightThreshold={40}
+                          renderRightActions={(prog, drag) => renderRightActions(index)(prog, drag)}
                         >
-                          {/* Set Number */}
-                          <View className="w-16 pl-2 justify-center items-center">
-                            <Lead className="font-medium">{index + 1}</Lead>
-                          </View>
+                          <Animated.View
+                            key={index}
+                            entering={FadeInDown.delay(index * 100).springify()}
+                            className="flex-row items-center py-2"
+                          >
+                            {/* Set Number */}
+                            <View className="w-16 pl-2 justify-center items-center">
+                              <Lead className="font-medium">{index + 1}</Lead>
+                            </View>
 
-                          {/* Combined Reps and Weight */}
-                          <View className="flex-1 items-center justify-center">
-                            <Pressable
-                              className="py-2 px-4 bg-card rounded-lg gap-3 items-center flex-row justify-center"
-                              onPress={() => {
-                                Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-                                setLogSet({ ...set, index });
-                              }}
-                            >
-                              <Text
-                                className={set.reps && set.weight !== null ? "text-foreground" : "text-foreground/50"}
+                            {/* Combined Reps and Weight */}
+                            <View className="flex-1 items-center justify-center">
+                              <Pressable
+                                className="py-2 px-4 bg-card rounded-lg gap-3 items-center flex-row justify-center"
+                                onPress={() => {
+                                  Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+                                  setLogSet({ ...set, index });
+                                }}
                               >
-                                {set.reps || set.targetReps || 8}
-                              </Text>
-                              <Text
-                                className={
-                                  set.reps && set.weight !== null ? "text-foreground mx-1" : "text-foreground/50"
-                                }
-                              >
-                                ×
-                              </Text>
-                              <Text
-                                className={
-                                  set.reps && set.weight !== null ? "text-foreground mx-1" : "text-foreground/50"
-                                }
-                              >
-                                {set.weight || set.targetWeight || 0} kg
-                              </Text>
-                            </Pressable>
-                          </View>
+                                <Text
+                                  className={set.reps && set.weight !== null ? "text-foreground" : "text-foreground/50"}
+                                >
+                                  {set.reps || set.targetReps || 8}
+                                </Text>
+                                <Text
+                                  className={
+                                    set.reps && set.weight !== null ? "text-foreground mx-1" : "text-foreground/50"
+                                  }
+                                >
+                                  ×
+                                </Text>
+                                <Text
+                                  className={
+                                    set.reps && set.weight !== null ? "text-foreground mx-1" : "text-foreground/50"
+                                  }
+                                >
+                                  {set.weight || set.targetWeight || 0} kg
+                                </Text>
+                              </Pressable>
+                            </View>
 
-                          {/* Completed Status */}
-                          <View className="w-12 items-center">
-                            <Button
-                              variant="outline"
-                              size="icon"
-                              className="h-8 w-8 rounded-xl border border-border"
-                              haptics="success"
-                              onPress={() => onToggleSetCompleted(index, !set.completed)}
-                            >
-                              <Check
-                                size={16}
-                                strokeWidth={3}
-                                className={set.completed ? "text-primary" : "text-muted-foreground"}
-                              />
-                            </Button>
-                          </View>
-                        </Animated.View>
-                      </ReanimatedSwipeable>
-                      <View className="h-px bg-border" />
-                    </View>
-                  ))}
+                            {/* Completed Status */}
+                            <View className="w-12 items-center">
+                              <Button
+                                variant="outline"
+                                size="icon"
+                                className="h-8 w-8 rounded-xl border border-border"
+                                haptics="success"
+                                onPress={() => onToggleSetCompleted(index, !set.completed)}
+                              >
+                                <Check
+                                  size={16}
+                                  strokeWidth={3}
+                                  className={set.completed ? "text-primary" : "text-muted-foreground"}
+                                />
+                              </Button>
+                            </View>
+                          </Animated.View>
+                        </ReanimatedSwipeable>
+                        <View className="h-px bg-border" />
+                      </View>
+                    );
+                  })}
 
                   {/* Add Set Button */}
                   <Pressable
