@@ -3,7 +3,96 @@ import { View } from "react-native";
 import { Text } from "~/components/ui/text";
 import { Small } from "~/components/ui/typography";
 import { ArrowUp, ArrowDown } from "lucide-react-native";
-import { fitnessLightColors } from "~/lib/theme/lightColors";
+
+// Design System Definition
+const designSystem = {
+  // Abstände
+  spacing: {
+    xs: 8,
+    sm: 12,
+    md: 16,
+    lg: 20,
+    xl: 24,
+    xxl: 32
+  },
+  // Radien
+  radii: {
+    sm: 16,
+    md: 20,
+    lg: 24
+  },
+  // Schatten
+  shadow: {
+    sm: {
+      shadowColor: 'rgba(0, 0, 0, 0.08)',
+      shadowOffset: { width: 0, height: 2 },
+      shadowOpacity: 0.12,
+      shadowRadius: 8,
+      elevation: 2
+    },
+    md: {
+      shadowColor: 'rgba(0, 0, 0, 0.08)',
+      shadowOffset: { width: 0, height: 4 },
+      shadowOpacity: 0.12,
+      shadowRadius: 12,
+      elevation: 3
+    }
+  },
+  // Farben - basierend auf neuen UI-Vorgaben
+  colors: {
+    background: '#FFFFFF',
+    backgroundSecondary: 'rgba(248, 250, 252, 0.95)',
+    primary: '#22C55E',  // Primäre Akzentfarbe - Kräftiges Grün
+    primaryLight: 'rgba(34, 197, 94, 0.08)',
+    secondary: '#7A86E8', // Sekundäre Akzentfarbe - Helles Lila-Blau
+    secondaryLight: 'rgba(122, 134, 232, 0.08)',
+    tertiary: '#F97316',  // Tertiäre Akzentfarbe - Warmes Orange
+    tertiaryLight: 'rgba(249, 115, 22, 0.08)',
+    success: '#22C55E',   // Grün für Erfolge und Fortschritt
+    successLight: 'rgba(34, 197, 94, 0.08)',
+    warning: '#FBBF24',   // Warnung - Gelb
+    warningLight: 'rgba(251, 191, 36, 0.08)',
+    error: '#EF4444',     // Fehler/Wichtig - Rot
+    errorLight: 'rgba(239, 68, 68, 0.08)',
+    textPrimary: '#111827',
+    textSecondary: '#4B5563',
+    textTertiary: '#9CA3AF',
+    border: 'rgba(229, 231, 235, 0.8)'
+  },
+  // Typografie
+  typography: {
+    heading1: {
+      fontSize: 28,
+      fontWeight: "700",
+      lineHeight: 34
+    },
+    heading2: {
+      fontSize: 22,
+      fontWeight: "700",
+      lineHeight: 28
+    },
+    heading3: {
+      fontSize: 18,
+      fontWeight: "600",
+      lineHeight: 24
+    },
+    body: {
+      fontSize: 16,
+      fontWeight: "400",
+      lineHeight: 22
+    },
+    caption: {
+      fontSize: 14,
+      fontWeight: "400",
+      lineHeight: 18
+    },
+    small: {
+      fontSize: 12,
+      fontWeight: "400",
+      lineHeight: 16
+    }
+  }
+};
 
 interface StatCardProps {
   title: string;
@@ -30,187 +119,210 @@ export const StatCard: React.FC<StatCardProps> = ({
   const showTrend = trend !== undefined && trend !== 0;
   const isPositive = trend && trend > 0;
   
-  // Bestimme Farbschemata basierend auf Variante mit den neuen Neon-Farben
+  // Bestimme Farbschemata basierend auf Variante mit den neuen Designfarben
   const getColorScheme = () => {
     switch(variant) {
       case "secondary":
         return {
-          textColor: fitnessLightColors.secondary.default, // Neon-Pink
-          backgroundColor: 'rgba(255, 45, 202, 0.06)',
-          borderColor: 'rgba(255, 45, 202, 0.1)'
+          textColor: designSystem.colors.secondary,
+          backgroundColor: designSystem.colors.secondaryLight
         };
       case "success":
         return {
-          textColor: fitnessLightColors.tertiary.default, // Neon-Grün
-          backgroundColor: 'rgba(0, 230, 118, 0.06)',
-          borderColor: 'rgba(0, 230, 118, 0.1)'
+          textColor: designSystem.colors.success,
+          backgroundColor: designSystem.colors.successLight
         };
       case "warning":
         return {
-          textColor: fitnessLightColors.accent.default, // Leuchtendes Gelb
-          backgroundColor: 'rgba(255, 221, 0, 0.06)',
-          borderColor: 'rgba(255, 221, 0, 0.1)'
+          textColor: designSystem.colors.warning,
+          backgroundColor: designSystem.colors.warningLight
         };
       case "destructive":
         return {
-          textColor: fitnessLightColors.status.error, // Neon-Rot
-          backgroundColor: 'rgba(255, 23, 68, 0.06)',
-          borderColor: 'rgba(255, 23, 68, 0.1)'
+          textColor: designSystem.colors.tertiary,  // Warmes Orange für "Destructive"
+          backgroundColor: designSystem.colors.tertiaryLight
         };
       default: // primary
         return {
-          textColor: fitnessLightColors.primary.default, // Neon-Blau
-          backgroundColor: 'rgba(0, 178, 255, 0.06)',
-          borderColor: 'rgba(0, 178, 255, 0.1)'
+          textColor: designSystem.colors.primary,
+          backgroundColor: designSystem.colors.primaryLight
         };
     }
   };
 
   const colors = getColorScheme();
   
-  // Trend-Farben mit Neon-Farben
-  const trendColor = isPositive ? fitnessLightColors.tertiary.default : fitnessLightColors.status.error;
-  const trendBg = isPositive ? 'rgba(0, 230, 118, 0.08)' : 'rgba(255, 23, 68, 0.08)';
+  // Trend-Farben
+  const trendColor = isPositive ? designSystem.colors.success : designSystem.colors.error;
+  const trendBg = isPositive ? designSystem.colors.successLight : designSystem.colors.errorLight;
   
   const TrendIcon = isPositive ? ArrowUp : ArrowDown;
 
   return compact ? (
-    // Kompakte Version mit modernem Neon-Look
-    <View 
-      className="flex-1 rounded-xl p-4 overflow-hidden"
-      style={{ 
-        backgroundColor: 'rgba(255, 255, 255, 0.95)',
-        borderWidth: 0,
-        shadowColor: fitnessLightColors.ui.shadow,
-        shadowOffset: { width: 0, height: 2 },
-        shadowOpacity: 0.08,
-        shadowRadius: 8,
-        elevation: 2
-      }}
-    >
-      <View className="flex-row justify-between items-start">
-        <View className="flex-row items-center">
+    // Kompakte Version
+    <View style={{ 
+      flex: 1,
+      borderRadius: designSystem.radii.md,
+      padding: designSystem.spacing.lg,
+      overflow: 'hidden',
+      backgroundColor: 'rgba(255, 255, 255, 0.95)',
+      ...designSystem.shadow.sm
+    }}>
+      <View style={{ 
+        flexDirection: 'row', 
+        justifyContent: 'space-between', 
+        alignItems: 'flex-start' 
+      }}>
+        <View style={{ flexDirection: 'row', alignItems: 'center' }}>
           {icon && (
-            <View 
-              className="mr-2.5 p-2 rounded-full"
-              style={{ backgroundColor: colors.backgroundColor }}
-            >
+            <View style={{ 
+              marginRight: designSystem.spacing.sm,
+              padding: designSystem.spacing.sm,
+              borderRadius: designSystem.radii.sm / 2,
+              backgroundColor: colors.backgroundColor
+            }}>
               {icon}
             </View>
           )}
-          <Text 
-            className="text-xs font-medium"
-            style={{ color: fitnessLightColors.text.secondary }}
-          >
+          <Text style={{ 
+            fontSize: designSystem.typography.caption.fontSize,
+            fontWeight: "600",
+            color: designSystem.colors.textSecondary
+          }}>
             {title}
           </Text>
         </View>
         
         {showTrend && (
-          <View 
-            className="px-2 py-0.5 rounded-full flex-row items-center"
-            style={{ backgroundColor: trendBg }}
-          >
-            <Text 
-              className="text-[10px] font-medium"
-              style={{ color: trendColor }}
-            >
+          <View style={{ 
+            paddingHorizontal: designSystem.spacing.sm,
+            paddingVertical: 4,
+            borderRadius: 12,
+            flexDirection: 'row',
+            alignItems: 'center',
+            backgroundColor: trendBg
+          }}>
+            <Text style={{ 
+              fontSize: 11,
+              fontWeight: "600",
+              color: trendColor
+            }}>
               {Math.abs(trend)}%
             </Text>
-            <TrendIcon size={10} className="ml-0.5" color={trendColor} />
+            <TrendIcon size={10} style={{ marginLeft: 2 }} color={trendColor} />
           </View>
         )}
       </View>
       
-      <Text 
-        className="text-xl font-bold mt-3 mb-1"
-        style={{ color: fitnessLightColors.text.primary }}
-      >
+      <Text style={{ 
+        fontSize: 24,
+        fontWeight: "700",
+        marginTop: designSystem.spacing.md,
+        marginBottom: 4,
+        color: designSystem.colors.textPrimary
+      }}>
         {value}{valueSuffix}
       </Text>
       
-      <Text 
-        className="text-xs"
-        style={{ color: fitnessLightColors.text.tertiary }}
-      >
+      <Text style={{ 
+        fontSize: designSystem.typography.small.fontSize,
+        color: designSystem.colors.textTertiary
+      }}>
         {subtitle}
       </Text>
       
-      {/* Moderner Neon Accent Line */}
-      <View 
-        className="h-1 w-10 mt-3 rounded-full"
-        style={{ backgroundColor: colors.textColor, opacity: 0.25 }}
-      />
+      {/* Accent Line */}
+      <View style={{ 
+        height: 3,
+        width: 32,
+        marginTop: designSystem.spacing.md,
+        borderRadius: 1.5,
+        backgroundColor: colors.textColor,
+        opacity: 0.25
+      }} />
     </View>
   ) : (
-    // Volle Version mit modernem Neon-Look und mehr Whitespace
-    <View 
-      className="rounded-xl p-6 mb-5"
-      style={{ 
-        backgroundColor: 'rgba(255, 255, 255, 0.98)',
-        borderWidth: 0,
-        shadowColor: fitnessLightColors.ui.shadow,
-        shadowOffset: { width: 0, height: 3 },
-        shadowOpacity: 0.08,
-        shadowRadius: 10,
-        elevation: 3
-      }}
-    >
-      <View className="flex-row justify-between items-start">
-        <View className="flex-row items-center">
+    // Volle Version
+    <View style={{ 
+      borderRadius: designSystem.radii.lg,
+      padding: designSystem.spacing.xl,
+      marginBottom: designSystem.spacing.xl,
+      backgroundColor: 'rgba(255, 255, 255, 0.95)',
+      ...designSystem.shadow.sm
+    }}>
+      <View style={{ 
+        flexDirection: 'row', 
+        justifyContent: 'space-between', 
+        alignItems: 'flex-start' 
+      }}>
+        <View style={{ flexDirection: 'row', alignItems: 'center' }}>
           {icon && (
-            <View 
-              className="mr-3 p-2.5 rounded-full"
-              style={{ backgroundColor: colors.backgroundColor }}
-            >
+            <View style={{ 
+              marginRight: designSystem.spacing.md,
+              padding: designSystem.spacing.sm,
+              borderRadius: designSystem.radii.sm,
+              backgroundColor: colors.backgroundColor
+            }}>
               {icon}
             </View>
           )}
-          <Text 
-            className="font-medium"
-            style={{ color: fitnessLightColors.text.primary }}
-          >
+          <Text style={{ 
+            fontSize: designSystem.typography.body.fontSize,
+            fontWeight: "600",
+            color: designSystem.colors.textPrimary
+          }}>
             {title}
           </Text>
         </View>
         
         {showTrend && (
-          <View 
-            className="px-2.5 py-1 rounded-full flex-row items-center"
-            style={{ backgroundColor: trendBg }}
-          >
-            <Text 
-              className="text-xs font-medium"
-              style={{ color: trendColor }}
-            >
+          <View style={{ 
+            paddingHorizontal: 10,
+            paddingVertical: 6,
+            borderRadius: designSystem.radii.sm,
+            flexDirection: 'row',
+            alignItems: 'center',
+            backgroundColor: trendBg
+          }}>
+            <Text style={{ 
+              fontSize: designSystem.typography.small.fontSize,
+              fontWeight: "600",
+              color: trendColor
+            }}>
               {Math.abs(trend)}%
             </Text>
-            <TrendIcon size={12} className="ml-1" color={trendColor} />
+            <TrendIcon size={12} style={{ marginLeft: 4 }} color={trendColor} />
           </View>
         )}
       </View>
       
-      <View className="mt-4">
-        <Text 
-          className="text-3xl font-bold mb-1.5"
-          style={{ color: fitnessLightColors.text.primary }}
-        >
+      <View style={{ marginTop: designSystem.spacing.lg }}>
+        <Text style={{ 
+          fontSize: 30,
+          fontWeight: "700",
+          marginBottom: 6,
+          color: designSystem.colors.textPrimary
+        }}>
           {value}{valueSuffix}
         </Text>
         
-        <Text 
-          className="text-xs"
-          style={{ color: fitnessLightColors.text.tertiary }}
-        >
+        <Text style={{ 
+          fontSize: designSystem.typography.small.fontSize,
+          color: designSystem.colors.textTertiary
+        }}>
           {subtitle}
         </Text>
       </View>
       
-      {/* Moderner Neon Accent Line */}
-      <View 
-        className="h-1 w-16 mt-4 rounded-full"
-        style={{ backgroundColor: colors.textColor, opacity: 0.25 }}
-      />
+      {/* Accent Line */}
+      <View style={{ 
+        height: 3,
+        width: 40,
+        marginTop: designSystem.spacing.lg,
+        borderRadius: 1.5,
+        backgroundColor: colors.textColor,
+        opacity: 0.25
+      }} />
     </View>
   );
 };

@@ -182,6 +182,7 @@ export interface ExerciseRecord {
   sets: SetInput[];
   intensity?: number;
   isCompleted: boolean;
+  date?: Date;
 }
 
 export interface WorkoutSession {

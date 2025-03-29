@@ -8,7 +8,59 @@ import { useWorkoutStats } from "~/hooks/use-workout-stats";
 import { Separator } from "~/components/ui/separator";
 import { Activity, Calendar, Flame, TrendingUp } from "~/lib/icons/Icons";
 import { Award } from "lucide-react-native";
-import { fitnessLightColors } from "~/lib/theme/lightColors";
+
+// Design System Definition
+const designSystem = {
+  // Abstände
+  spacing: {
+    xs: 8,
+    sm: 12,
+    md: 16,
+    lg: 20,
+    xl: 24,
+    xxl: 32
+  },
+  // Radien
+  radii: {
+    sm: 16,
+    md: 20,
+    lg: 24
+  },
+  // Schatten
+  shadow: {
+    sm: {
+      shadowColor: 'rgba(0, 0, 0, 0.08)',
+      shadowOffset: { width: 0, height: 2 },
+      shadowOpacity: 0.12,
+      shadowRadius: 8,
+      elevation: 2
+    },
+    md: {
+      shadowColor: 'rgba(0, 0, 0, 0.08)',
+      shadowOffset: { width: 0, height: 4 },
+      shadowOpacity: 0.12,
+      shadowRadius: 12,
+      elevation: 3
+    }
+  },
+  // Farben - basierend auf neuen UI-Vorgaben
+  colors: {
+    background: '#FFFFFF',
+    backgroundSecondary: 'rgba(248, 250, 252, 0.95)',
+    primary: '#22C55E',  // Primäre Akzentfarbe - Kräftiges Grün für Aktionen und Fortschritt
+    primaryLight: 'rgba(34, 197, 94, 0.08)',
+    secondary: '#7A86E8', // Sekundäre Akzentfarbe - Helles Lila-Blau
+    secondaryLight: 'rgba(122, 134, 232, 0.08)',
+    tertiary: '#F97316',  // Tertiäre Akzentfarbe - Warmes Orange
+    tertiaryLight: 'rgba(249, 115, 22, 0.08)',
+    success: '#22C55E',   // Grün für Erfolge und Fortschritt
+    successLight: 'rgba(34, 197, 94, 0.08)',
+    textPrimary: '#111827',
+    textSecondary: '#4B5563',
+    textTertiary: '#9CA3AF',
+    border: 'rgba(229, 231, 235, 0.8)'
+  }
+};
 
 export const ConsistencyTab: React.FC = () => {
   const workoutStats = useWorkoutStats();
@@ -29,102 +81,179 @@ export const ConsistencyTab: React.FC = () => {
   ];
 
   return (
-    <View className="space-y-3">
-      {/* Streak Karten - iOS-Stil */}
-      <View className="flex-row space-x-3">
-        <StatCard 
-          title="Aktuelle Streak" 
-          value={currentStreak}
-          valueSuffix=" Tage" 
-          subtitle="aktuelle Serie"
-          icon={<Flame size={18} color="#EF4444" />}
-          variant="destructive"
-          compact
-        />
-        <StatCard 
-          title="Längste Streak" 
-          value={longestStreak.days}
-          valueSuffix=" Tage" 
-          subtitle="dein Rekord"
-          icon={<Award size={18} color="#F59E0B" />}
-          variant="warning"
-          compact
-        />
+    <View style={{ gap: designSystem.spacing.md }}>
+      {/* Streak Karten - Moderner Stil */}
+      <View style={{ 
+        flexDirection: 'row', 
+        gap: designSystem.spacing.md,
+      }}>
+        <View style={{ 
+          flex: 1,
+          backgroundColor: 'rgba(255, 255, 255, 0.95)',
+          borderRadius: designSystem.radii.md,
+          padding: designSystem.spacing.lg,
+          ...designSystem.shadow.sm
+        }}>
+          <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: designSystem.spacing.xs }}>
+            <View style={{ 
+              backgroundColor: 'rgba(249, 115, 22, 0.1)',
+              padding: designSystem.spacing.xs,
+              borderRadius: designSystem.radii.sm / 2,
+              marginRight: designSystem.spacing.xs
+            }}>
+              <Flame size={18} color={designSystem.colors.tertiary} />
+            </View>
+            <Text style={{ 
+              fontSize: 14,
+              fontWeight: "600",
+              color: designSystem.colors.textPrimary
+            }}>
+              Aktuelle Streak
+            </Text>
+          </View>
+          <Text style={{ 
+            fontSize: 28,
+            fontWeight: '700',
+            color: designSystem.colors.textPrimary,
+            marginBottom: 2
+          }}>
+            {currentStreak}
+          </Text>
+          <Text style={{ 
+            fontSize: 12,
+            color: designSystem.colors.textTertiary
+          }}>
+            aktuelle Serie
+          </Text>
+        </View>
+        
+        <View style={{ 
+          flex: 1,
+          backgroundColor: 'rgba(255, 255, 255, 0.95)',
+          borderRadius: designSystem.radii.md,
+          padding: designSystem.spacing.lg,
+          ...designSystem.shadow.sm
+        }}>
+          <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: designSystem.spacing.xs }}>
+            <View style={{ 
+              backgroundColor: designSystem.colors.secondaryLight,
+              padding: designSystem.spacing.xs,
+              borderRadius: designSystem.radii.sm / 2,
+              marginRight: designSystem.spacing.xs
+            }}>
+              <Award size={18} color={designSystem.colors.secondary} />
+            </View>
+            <Text style={{ 
+              fontSize: 14,
+              fontWeight: "600",
+              color: designSystem.colors.textPrimary
+            }}>
+              Längste Streak
+            </Text>
+          </View>
+          <Text style={{ 
+            fontSize: 28,
+            fontWeight: '700',
+            color: designSystem.colors.textPrimary,
+            marginBottom: 2
+          }}>
+            {longestStreak.days}
+          </Text>
+          <Text style={{ 
+            fontSize: 12,
+            color: designSystem.colors.textTertiary
+          }}>
+            dein Rekord
+          </Text>
+        </View>
       </View>
       
-      {/* Informationen zur Konstanz - iOS-Stil */}
-      <Card 
-        className="p-3 rounded-xl shadow-sm"
-        style={{ backgroundColor: 'rgba(255, 255, 255, 0.95)' }}
-      >
-        <View className="flex-row items-center mb-2">
-          <View 
-            className="p-1.5 rounded-full mr-2"
-            style={{ backgroundColor: 'rgba(0, 136, 255, 0.05)' }}
-          >
-            <TrendingUp size={16} color={fitnessLightColors.secondary.default} />
+      {/* Informationen zur Konstanz - Moderner Stil */}
+      <View style={{ 
+        backgroundColor: 'rgba(255, 255, 255, 0.95)',
+        borderRadius: designSystem.radii.lg,
+        padding: designSystem.spacing.lg,
+        ...designSystem.shadow.sm
+      }}>
+        <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: designSystem.spacing.md }}>
+          <View style={{ 
+            padding: designSystem.spacing.xs,
+            borderRadius: designSystem.radii.sm,
+            backgroundColor: designSystem.colors.secondaryLight,
+            marginRight: designSystem.spacing.sm
+          }}>
+            <TrendingUp size={18} color={designSystem.colors.secondary} />
           </View>
-          <Text 
-            className="font-medium"
-            style={{ color: fitnessLightColors.text.primary }}
-          >
+          <Text style={{ 
+            fontSize: 16,
+            fontWeight: "600",
+            color: designSystem.colors.textPrimary
+          }}>
             Trainingsgewohnheiten
           </Text>
         </View>
         
-        <View 
-          className="rounded-lg p-2 mb-2"
-          style={{ backgroundColor: 'rgba(0, 0, 0, 0.02)' }}
-        >
-          <View className="flex-row justify-between items-center mb-1">
-            <Text 
-              className="font-medium text-sm"
-              style={{ color: fitnessLightColors.text.primary }}
-            >
+        <View style={{ 
+          borderRadius: designSystem.radii.md,
+          padding: designSystem.spacing.md,
+          marginBottom: designSystem.spacing.md,
+          backgroundColor: 'rgba(248, 250, 252, 0.95)'
+        }}>
+          <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: designSystem.spacing.xs }}>
+            <Text style={{ 
+              fontWeight: "600",
+              fontSize: 14,
+              color: designSystem.colors.textPrimary
+            }}>
               Wöchentliches Training
             </Text>
-            <View 
-              className="px-2 py-1 rounded-lg"
-              style={{ backgroundColor: 'rgba(0, 136, 255, 0.08)' }}
-            >
-              <Text 
-                className="text-sm font-medium"
-                style={{ color: fitnessLightColors.secondary.default }}
-              >
+            <View style={{ 
+              paddingHorizontal: designSystem.spacing.sm,
+              paddingVertical: 6,
+              borderRadius: designSystem.radii.sm,
+              backgroundColor: designSystem.colors.secondaryLight
+            }}>
+              <Text style={{ 
+                fontSize: 14,
+                fontWeight: "600",
+                color: designSystem.colors.secondary
+              }}>
                 {weeklyAverage.current}
               </Text>
             </View>
           </View>
-          <Text 
-            className="text-xs"
-            style={{ color: fitnessLightColors.text.tertiary }}
-          >
+          <Text style={{ 
+            fontSize: 12,
+            color: designSystem.colors.textSecondary
+          }}>
             Du trainierst durchschnittlich {weeklyAverage.current} mal pro Woche.
             {weeklyAverage.trend !== 0 && (
-              <Text
-                style={{ 
-                  color: weeklyAverage.trend > 0 
-                    ? fitnessLightColors.tertiary.default 
-                    : '#EF4444' 
-                }}
-              >
+              <Text style={{ 
+                color: weeklyAverage.trend > 0 
+                  ? designSystem.colors.success
+                  : designSystem.colors.tertiary
+              }}>
                 {" "}{weeklyAverage.trend > 0 ? "+" : ""}{weeklyAverage.trend}% im Vergleich zum Vormonat.
               </Text>
             )}
           </Text>
         </View>
         
-        {/* Beliebte Trainingstage - iOS-Stil */}
-        <Text 
-          className="font-medium text-xs mb-1.5"
-          style={{ color: fitnessLightColors.text.secondary }}
-        >
+        {/* Beliebte Trainingstage */}
+        <Text style={{ 
+          fontWeight: "600",
+          fontSize: 14,
+          color: designSystem.colors.textSecondary,
+          marginBottom: designSystem.spacing.sm
+        }}>
           Beliebte Trainingstage
         </Text>
         
-        <View 
-          className="flex-row my-2"
-        >
+        <View style={{ 
+          flexDirection: 'row',
+          marginVertical: designSystem.spacing.sm,
+          height: 70
+        }}>
           {weekdayData.labels.map((day, index) => {
             const count = weekdayData.counts[index];
             const maxCount = Math.max(...weekdayData.counts);
@@ -132,28 +261,25 @@ export const ConsistencyTab: React.FC = () => {
             const isBestDay = index === bestDayIndex && count > 0;
             
             return (
-              <View key={index} className="flex-1 items-center">
-                <View className="flex-1 justify-end h-14">
-                  <View 
-                    style={{ 
-                      height,
-                      width: 5,
-                      borderRadius: 2.5,
-                      backgroundColor: isBestDay 
-                        ? fitnessLightColors.secondary.default 
-                        : 'rgba(0, 136, 255, 0.2)'
-                    }} 
-                  />
+              <View key={index} style={{ flex: 1, alignItems: 'center' }}>
+                <View style={{ flex: 1, justifyContent: 'flex-end', height: 56 }}>
+                  <View style={{ 
+                    height,
+                    width: 6,
+                    borderRadius: 3,
+                    backgroundColor: isBestDay 
+                      ? designSystem.colors.primary
+                      : designSystem.colors.primaryLight
+                  }} />
                 </View>
-                <Text 
-                  className="mt-1 text-xs"
-                  style={{ 
-                    color: isBestDay 
-                      ? fitnessLightColors.text.primary 
-                      : fitnessLightColors.text.tertiary,
-                    fontWeight: isBestDay ? '500' : 'normal'
-                  }}
-                >
+                <Text style={{ 
+                  marginTop: 8,
+                  fontSize: 12,
+                  color: isBestDay 
+                    ? designSystem.colors.textPrimary 
+                    : designSystem.colors.textTertiary,
+                  fontWeight: isBestDay ? '500' : 'normal'
+                }}>
                   {day}
                 </Text>
               </View>
@@ -161,100 +287,124 @@ export const ConsistencyTab: React.FC = () => {
           })}
         </View>
         
-        <Separator className="my-3" />
+        <View style={{ 
+          height: 1, 
+          backgroundColor: designSystem.colors.border,
+          marginVertical: designSystem.spacing.md
+        }} />
         
-        {/* Beliebtester Tag Badge - iOS-Stil */}
+        {/* Beliebtester Tag Badge */}
         {Math.max(...weekdayData.counts) > 0 && (
-          <View 
-            className="flex-row items-center p-2 rounded-lg"
-            style={{ backgroundColor: 'rgba(0, 0, 0, 0.02)' }}
-          >
-            <Calendar size={16} color={fitnessLightColors.secondary.default} className="mr-2" />
-            <Text 
-              className="text-xs flex-1"
-              style={{ color: fitnessLightColors.text.secondary }}
-            >
-              Dein intensivster Trainingstag ist <Text className="font-medium">{bestDay}</Text>
+          <View style={{ 
+            flexDirection: 'row',
+            alignItems: 'center',
+            padding: designSystem.spacing.md,
+            borderRadius: designSystem.radii.md,
+            backgroundColor: 'rgba(248, 250, 252, 0.95)'
+          }}>
+            <Calendar size={18} color={designSystem.colors.primary} style={{ marginRight: designSystem.spacing.sm }} />
+            <Text style={{ 
+              fontSize: 14,
+              flex: 1,
+              color: designSystem.colors.textSecondary
+            }}>
+              Dein intensivster Trainingstag ist{" "}
+              <Text style={{ fontWeight: "600", color: designSystem.colors.textPrimary }}>
+                {bestDay}
+              </Text>
             </Text>
           </View>
         )}
-      </Card>
+      </View>
       
-      {/* Streak Achievements - iOS-Stil */}
-      <Card 
-        className="p-3 rounded-xl shadow-sm"
-        style={{ backgroundColor: 'rgba(255, 255, 255, 0.95)' }}
-      >
-        <View className="flex-row items-center mb-2">
-          <View 
-            className="p-1.5 rounded-full mr-2"
-            style={{ backgroundColor: 'rgba(245, 158, 11, 0.05)' }}
-          >
-            <Award size={16} color="#F59E0B" />
+      {/* Streak Achievements */}
+      <View style={{ 
+        backgroundColor: 'rgba(255, 255, 255, 0.95)',
+        borderRadius: designSystem.radii.lg,
+        padding: designSystem.spacing.lg,
+        ...designSystem.shadow.sm
+      }}>
+        <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: designSystem.spacing.md }}>
+          <View style={{ 
+            padding: designSystem.spacing.xs,
+            borderRadius: designSystem.radii.sm,
+            backgroundColor: 'rgba(249, 115, 22, 0.08)',
+            marginRight: designSystem.spacing.sm
+          }}>
+            <Award size={18} color={designSystem.colors.tertiary} />
           </View>
-          <Text 
-            className="font-medium"
-            style={{ color: fitnessLightColors.text.primary }}
-          >
+          <Text style={{ 
+            fontSize: 16,
+            fontWeight: "600",
+            color: designSystem.colors.textPrimary
+          }}>
             Streak-Auszeichnungen
           </Text>
         </View>
         
-        <View className="mt-1">
+        <View style={{ marginTop: designSystem.spacing.xs }}>
           {streakAchievements.map((achievement, index) => (
             <React.Fragment key={index}>
-              {index > 0 && <Separator className="my-1.5" />}
-              <View 
-                className={`flex-row items-center py-1.5 ${achievement.achieved ? '' : 'opacity-50'}`}
-              >
-                <View 
-                  className="w-6 h-6 rounded-full items-center justify-center mr-2"
-                  style={{ 
-                    backgroundColor: achievement.achieved 
-                      ? 'rgba(245, 158, 11, 0.1)' 
-                      : 'rgba(0, 0, 0, 0.03)'
-                  }}
-                >
-                  <Text 
-                    className="text-xs font-medium"
-                    style={{ 
-                      color: achievement.achieved ? '#F59E0B' : fitnessLightColors.text.tertiary
-                    }}
-                  >
+              {index > 0 && <View style={{ 
+                height: 1, 
+                backgroundColor: designSystem.colors.border,
+                marginVertical: designSystem.spacing.sm
+              }} />}
+              <View style={{ 
+                flexDirection: 'row',
+                alignItems: 'center',
+                paddingVertical: designSystem.spacing.sm,
+                opacity: achievement.achieved ? 1 : 0.5
+              }}>
+                <View style={{ 
+                  width: 32,
+                  height: 32,
+                  borderRadius: 16,
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  marginRight: designSystem.spacing.sm,
+                  backgroundColor: achievement.achieved 
+                    ? designSystem.colors.tertiaryLight
+                    : 'rgba(0, 0, 0, 0.03)'
+                }}>
+                  <Text style={{ 
+                    fontSize: 12,
+                    fontWeight: "600",
+                    color: achievement.achieved 
+                      ? designSystem.colors.tertiary
+                      : designSystem.colors.textTertiary
+                  }}>
                     {achievement.days}
                   </Text>
                 </View>
                 
-                <View className="flex-1">
-                  <Text 
-                    className="font-medium text-sm"
-                    style={{ 
-                      color: achievement.achieved 
-                        ? fitnessLightColors.text.primary 
-                        : fitnessLightColors.text.tertiary
-                    }}
-                  >
+                <View style={{ flex: 1 }}>
+                  <Text style={{ 
+                    fontWeight: "600",
+                    fontSize: 14,
+                    marginBottom: 2,
+                    color: achievement.achieved 
+                      ? designSystem.colors.textPrimary
+                      : designSystem.colors.textTertiary
+                  }}>
                     {achievement.title}
                   </Text>
-                  <Text 
-                    className="text-xs"
-                    style={{ color: fitnessLightColors.text.tertiary }}
-                  >
+                  <Text style={{ 
+                    fontSize: 12,
+                    color: designSystem.colors.textTertiary
+                  }}>
                     {achievement.description}
                   </Text>
                 </View>
                 
                 {achievement.achieved && (
-                  <Award 
-                    size={16} 
-                    color="#F59E0B" 
-                  />
+                  <Award size={18} color={designSystem.colors.tertiary} />
                 )}
               </View>
             </React.Fragment>
           ))}
         </View>
-      </Card>
+      </View>
     </View>
   );
 };

@@ -12,7 +12,63 @@ import { Activity, Clock, BarChart, Dumbbell, Calendar, ChevronRight, Flame } fr
 import { Award } from "lucide-react-native";
 import { format } from "date-fns";
 import { de } from "date-fns/locale";
-import { fitnessLightColors } from "~/lib/theme/lightColors";
+
+// Design System Definition
+const designSystem = {
+  // Abstände
+  spacing: {
+    xs: 8,
+    sm: 12,
+    md: 16,
+    lg: 20,
+    xl: 24,
+    xxl: 32
+  },
+  // Radien
+  radii: {
+    sm: 16,
+    md: 20,
+    lg: 24
+  },
+  // Schatten
+  shadow: {
+    sm: {
+      shadowColor: 'rgba(0, 0, 0, 0.08)',
+      shadowOffset: { width: 0, height: 2 },
+      shadowOpacity: 0.12,
+      shadowRadius: 8,
+      elevation: 2
+    },
+    md: {
+      shadowColor: 'rgba(0, 0, 0, 0.08)',
+      shadowOffset: { width: 0, height: 4 },
+      shadowOpacity: 0.12,
+      shadowRadius: 12,
+      elevation: 3
+    }
+  },
+  // Farben - basierend auf neuen UI-Vorgaben
+  colors: {
+    background: '#FFFFFF',
+    backgroundSecondary: 'rgba(248, 250, 252, 0.95)',
+    primary: '#22C55E',  // Primäre Akzentfarbe - Kräftiges Grün
+    primaryLight: 'rgba(34, 197, 94, 0.08)',
+    secondary: '#7A86E8', // Sekundäre Akzentfarbe - Helles Lila-Blau
+    secondaryLight: 'rgba(122, 134, 232, 0.08)',
+    tertiary: '#F97316',  // Tertiäre Akzentfarbe - Warmes Orange
+    tertiaryLight: 'rgba(249, 115, 22, 0.08)',
+    success: '#22C55E',   // Grün für Erfolge und Fortschritt
+    successLight: 'rgba(34, 197, 94, 0.08)',
+    warning: '#FBBF24',   // Warnung - Gelb
+    warningLight: 'rgba(251, 191, 36, 0.08)',
+    error: '#EF4444',     // Fehler/Wichtig - Rot
+    errorLight: 'rgba(239, 68, 68, 0.08)',
+    textPrimary: '#111827',
+    textSecondary: '#4B5563',
+    textTertiary: '#9CA3AF',
+    border: 'rgba(229, 231, 235, 0.8)'
+  }
+};
 
 export const OverviewTab: React.FC = () => {
   const workoutStats = useWorkoutStats();
@@ -61,245 +117,296 @@ export const OverviewTab: React.FC = () => {
   };
   
   return (
-    <View className="space-y-3">
-      {/* iOS-Style Activity Summary Card */}
-      <Card 
-        className="p-3 rounded-xl shadow-sm"
-        style={{ backgroundColor: 'rgba(255, 255, 255, 0.95)' }}
-      >
-        <View className="flex-row items-center mb-2">
-          <View 
-            className="p-1.5 rounded-full mr-2"
-            style={{ backgroundColor: 'rgba(0, 136, 255, 0.05)' }}
-          >
-            <Activity size={16} color={fitnessLightColors.secondary.default} />
+    <View style={{ gap: designSystem.spacing.md }}>
+      {/* Activity Summary Card */}
+      <View style={{ 
+        backgroundColor: 'rgba(255, 255, 255, 0.95)',
+        borderRadius: designSystem.radii.lg,
+        padding: designSystem.spacing.lg,
+        ...designSystem.shadow.sm
+      }}>
+        <View style={{ 
+          flexDirection: 'row', 
+          alignItems: 'center', 
+          marginBottom: designSystem.spacing.md 
+        }}>
+          <View style={{ 
+            padding: designSystem.spacing.xs,
+            borderRadius: designSystem.radii.sm / 2,
+            marginRight: designSystem.spacing.sm,
+            backgroundColor: designSystem.colors.primaryLight
+          }}>
+            <Activity size={18} color={designSystem.colors.primary} />
           </View>
-          <Text className="font-medium" style={{ color: fitnessLightColors.text.primary }}>
+          <Text style={{ 
+            fontSize: 16,
+            fontWeight: "600",
+            color: designSystem.colors.textPrimary
+          }}>
             Aktivitätsübersicht
           </Text>
         </View>
         
-        <View className="flex-row space-x-3">
+        <View style={{ 
+          flexDirection: 'row',
+          gap: designSystem.spacing.md,
+          marginBottom: designSystem.spacing.md
+        }}>
           <StatCard 
             title="Trainings" 
             value={monthlyWorkouts.current}
             subtitle="Diesen Monat" 
             trend={monthlyWorkouts.trend}
-            icon={<Activity size={16} color={fitnessLightColors.secondary.default} />}
+            icon={<Activity size={16} color={designSystem.colors.primary} />}
             variant="primary"
             compact
           />
           <StatCard 
             title="Ø Dauer" 
-            value={`${averageSessionDuration.current} min`}
+            value={averageSessionDuration.current}
+            valueSuffix=" min"
             subtitle="Pro Training" 
             trend={averageSessionDuration.trend}
-            icon={<Clock size={16} color={fitnessLightColors.secondary.default} />}
+            icon={<Clock size={16} color={designSystem.colors.secondary} />}
             variant="secondary"
             compact
           />
         </View>
         
-        <View className="flex-row space-x-3 mt-2">
-          <StatCard 
-            title="Wöchentlich" 
-            value={weeklyWorkoutsAverage.current}
-            subtitle="Trainings im Ø" 
-            trend={weeklyWorkoutsAverage.trend}
-            icon={<BarChart size={16} color={fitnessLightColors.tertiary.default} />}
-            variant="success"
-            compact
-          />
+        <View style={{ flexDirection: 'row' }}>
+          <View style={{ flex: 1 }}>
+            <StatCard 
+              title="Wöchentlich" 
+              value={weeklyWorkoutsAverage.current}
+              subtitle="Trainings im Ø" 
+              trend={weeklyWorkoutsAverage.trend}
+              icon={<BarChart size={16} color={designSystem.colors.tertiary} />}
+              variant="success"
+              compact
+            />
+          </View>
+          <View style={{ flex: 1 }}></View> {/* Spacer for layout balance */}
         </View>
-      </Card>
+      </View>
       
-      {/* Streak Card - neuer iOS-Stil */}
+      {/* Streak Card */}
       {currentStreak > 0 && (
-        <View>
-          <Card 
-            className="p-3 rounded-xl shadow-sm"
-            style={{ backgroundColor: 'rgba(255, 255, 255, 0.95)' }}
-          >
-            <View className="flex-row items-center justify-between">
-              <View className="flex-row items-center">
-                <View 
-                  className="p-1.5 rounded-full mr-2"
-                  style={{ backgroundColor: 'rgba(239, 68, 68, 0.05)' }}
-                >
-                  <Flame size={16} color="#EF4444" />
-                </View>
-                <View>
-                  <Text 
-                    className="font-medium text-sm"
-                    style={{ color: fitnessLightColors.text.primary }}
-                  >
-                    Aktuelle Streak
-                  </Text>
-                  <Text 
-                    className="text-xs"
-                    style={{ color: fitnessLightColors.text.tertiary }}
-                  >
-                    Halte deine Serie aufrecht
-                  </Text>
-                </View>
+        <View style={{ 
+          backgroundColor: 'rgba(255, 255, 255, 0.95)',
+          borderRadius: designSystem.radii.lg,
+          padding: designSystem.spacing.lg,
+          ...designSystem.shadow.sm
+        }}>
+          <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
+            <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+              <View style={{ 
+                padding: designSystem.spacing.xs,
+                borderRadius: designSystem.radii.sm / 2,
+                marginRight: designSystem.spacing.sm,
+                backgroundColor: designSystem.colors.tertiaryLight
+              }}>
+                <Flame size={18} color={designSystem.colors.tertiary} />
               </View>
-              
-              <Badge 
-                className="font-medium px-2 py-1"
-                style={{ 
-                  backgroundColor: 'rgba(239, 68, 68, 0.08)',
-                  borderColor: 'transparent'
-                }}
-              >
-                <View className="flex-row items-center">
-                  <Flame size={12} color="#EF4444" className="mr-1" />
-                  <Text 
-                    className="text-xs font-medium"
-                    style={{ color: "#EF4444" }}
-                  >
-                    {currentStreak} Tage
-                  </Text>
-                </View>
-              </Badge>
+              <View>
+                <Text style={{ 
+                  fontSize: 16,
+                  fontWeight: "600",
+                  color: designSystem.colors.textPrimary,
+                  marginBottom: 2
+                }}>
+                  Aktuelle Streak
+                </Text>
+                <Text style={{ 
+                  fontSize: 12,
+                  color: designSystem.colors.textTertiary
+                }}>
+                  Halte deine Serie aufrecht
+                </Text>
+              </View>
             </View>
-          </Card>
+            
+            <View style={{ 
+              paddingHorizontal: designSystem.spacing.md,
+              paddingVertical: 8,
+              borderRadius: designSystem.radii.sm,
+              backgroundColor: designSystem.colors.tertiaryLight,
+              flexDirection: 'row',
+              alignItems: 'center'
+            }}>
+              <Flame size={14} color={designSystem.colors.tertiary} style={{ marginRight: 4 }} />
+              <Text style={{ 
+                fontSize: 14,
+                fontWeight: "600",
+                color: designSystem.colors.tertiary
+              }}>
+                {currentStreak} Tage
+              </Text>
+            </View>
+          </View>
         </View>
       )}
       
-      {/* Top Übungen Card - modernisiertes iOS-Design */}
-      <Card 
-        className="p-3 rounded-xl shadow-sm"
-        style={{ backgroundColor: 'rgba(255, 255, 255, 0.95)' }}
-      >
-        <View className="flex-row items-center justify-between mb-2">
-          <View className="flex-row items-center">
-            <View 
-              className="p-1.5 rounded-full mr-2"
-              style={{ backgroundColor: 'rgba(0, 136, 255, 0.05)' }}
-            >
-              <Dumbbell size={16} color={fitnessLightColors.secondary.default} />
+      {/* Top Übungen Card */}
+      <View style={{ 
+        backgroundColor: 'rgba(255, 255, 255, 0.95)',
+        borderRadius: designSystem.radii.lg,
+        padding: designSystem.spacing.lg,
+        ...designSystem.shadow.sm
+      }}>
+        <View style={{ 
+          flexDirection: 'row', 
+          alignItems: 'center', 
+          justifyContent: 'space-between',
+          marginBottom: designSystem.spacing.md
+        }}>
+          <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+            <View style={{ 
+              padding: designSystem.spacing.xs,
+              borderRadius: designSystem.radii.sm / 2,
+              marginRight: designSystem.spacing.sm,
+              backgroundColor: designSystem.colors.secondaryLight
+            }}>
+              <Dumbbell size={18} color={designSystem.colors.secondary} />
             </View>
-            <Text 
-              className="font-medium"
-              style={{ color: fitnessLightColors.text.primary }}
-            >
+            <Text style={{ 
+              fontSize: 16,
+              fontWeight: "600",
+              color: designSystem.colors.textPrimary
+            }}>
               Top Übungen
             </Text>
           </View>
           
-          <Badge 
-            variant="outline" 
-            className="text-xs"
-            style={{ 
-              backgroundColor: 'rgba(0, 0, 0, 0.03)',
-              borderColor: fitnessLightColors.ui.border
-            }}
-          >
-            <Text 
-              className="text-xs"
-              style={{ color: fitnessLightColors.text.tertiary }}
-            >
+          <View style={{ 
+            paddingHorizontal: designSystem.spacing.sm,
+            paddingVertical: 4,
+            borderRadius: designSystem.radii.sm,
+            backgroundColor: designSystem.colors.backgroundSecondary,
+            borderWidth: 0.5,
+            borderColor: designSystem.colors.border
+          }}>
+            <Text style={{ 
+              fontSize: 12,
+              fontWeight: "500",
+              color: designSystem.colors.textTertiary
+            }}>
               {topExercises.length}
             </Text>
-          </Badge>
+          </View>
         </View>
         
         {topExercises.length > 0 ? (
           <View>
             {topExercises.map((exercise, index) => (
               <React.Fragment key={index}>
-                {index > 0 && <Separator className="my-1.5" />}
-                <TouchableOpacity className="flex-row items-center py-1">
-                  {/* Rank Circle - iOS-Style */}
-                  <View 
-                    className="w-6 h-6 rounded-full items-center justify-center mr-2"
-                    style={{ 
-                      backgroundColor: index === 0 
-                        ? 'rgba(245, 158, 11, 0.1)' 
+                {index > 0 && <View style={{ 
+                  height: 1,
+                  backgroundColor: designSystem.colors.border,
+                  marginVertical: designSystem.spacing.sm
+                }} />}
+                <TouchableOpacity style={{ 
+                  flexDirection: 'row', 
+                  alignItems: 'center', 
+                  paddingVertical: designSystem.spacing.xs
+                }}>
+                  {/* Rank Circle */}
+                  <View style={{ 
+                    width: 32,
+                    height: 32,
+                    borderRadius: 16,
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    marginRight: designSystem.spacing.sm,
+                    backgroundColor: index === 0 
+                      ? designSystem.colors.warningLight
+                      : index === 1 
+                        ? 'rgba(209, 213, 219, 0.2)' 
+                        : 'rgba(229, 231, 235, 0.3)'
+                  }}>
+                    <Text style={{ 
+                      fontSize: 12,
+                      fontWeight: "600",
+                      color: index === 0 
+                        ? designSystem.colors.warning
                         : index === 1 
-                          ? 'rgba(107, 114, 128, 0.1)' 
-                          : 'rgba(0, 0, 0, 0.03)'
-                    }}
-                  >
-                    <Text 
-                      className="text-xs font-medium"
-                      style={{ 
-                        color: index === 0 
-                          ? '#F59E0B' 
-                          : index === 1 
-                            ? fitnessLightColors.text.secondary 
-                            : fitnessLightColors.text.tertiary
-                      }}
-                    >
+                          ? designSystem.colors.textSecondary
+                          : designSystem.colors.textTertiary
+                    }}>
                       {index + 1}
                     </Text>
                   </View>
                   
                   {/* Info */}
-                  <View className="flex-1">
-                    <Text 
-                      className="font-medium text-sm"
-                      style={{ color: fitnessLightColors.text.primary }}
-                    >
+                  <View style={{ flex: 1 }}>
+                    <Text style={{ 
+                      fontSize: 14,
+                      fontWeight: "600",
+                      color: designSystem.colors.textPrimary,
+                      marginBottom: 2
+                    }}>
                       {exercise.name}
                     </Text>
-                    <View className="flex-row mt-0.5 items-center">
-                      <Badge 
-                        className="mr-2 py-0 px-1.5 h-5"
-                        style={{ 
-                          backgroundColor: 'rgba(0, 0, 0, 0.03)',
-                          borderColor: 'transparent'
-                        }}
-                      >
-                        <Text 
-                          className="text-xs"
-                          style={{ color: fitnessLightColors.text.tertiary }}
-                        >
+                    <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+                      <View style={{ 
+                        paddingHorizontal: designSystem.spacing.sm,
+                        paddingVertical: 4,
+                        borderRadius: designSystem.radii.sm / 2,
+                        marginRight: designSystem.spacing.sm,
+                        backgroundColor: designSystem.colors.primaryLight
+                      }}>
+                        <Text style={{ 
+                          fontSize: 12,
+                          fontWeight: "500",
+                          color: designSystem.colors.primary
+                        }}>
                           {exercise.sets}×
                         </Text>
-                      </Badge>
+                      </View>
                     </View>
                   </View>
                   
                   {/* Arrow */}
-                  <ChevronRight size={14} color={fitnessLightColors.text.tertiary} />
+                  <ChevronRight size={16} color={designSystem.colors.textTertiary} />
                 </TouchableOpacity>
               </React.Fragment>
             ))}
           </View>
         ) : (
-          <View 
-            className="py-4 items-center rounded-lg"
-            style={{ backgroundColor: 'rgba(0, 0, 0, 0.02)' }}
-          >
-            <Dumbbell 
-              size={20} 
-              color={fitnessLightColors.text.tertiary}
-              className="mb-2" 
-            />
-            <Text 
-              className="text-center text-xs"
-              style={{ color: fitnessLightColors.text.tertiary }}
-            >
+          <View style={{ 
+            padding: designSystem.spacing.xl,
+            alignItems: 'center',
+            borderRadius: designSystem.radii.md,
+            backgroundColor: designSystem.colors.backgroundSecondary
+          }}>
+            <Dumbbell size={24} color={designSystem.colors.textTertiary} style={{ marginBottom: designSystem.spacing.sm }} />
+            <Text style={{ 
+              textAlign: 'center',
+              fontSize: 14,
+              color: designSystem.colors.textTertiary
+            }}>
               Noch keine Trainingsübungen
             </Text>
           </View>
         )}
-      </Card>
+      </View>
       
-      {/* Workout Details Dialog - iOS-Style */}
+      {/* Workout Details Dialog */}
       <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
-        <DialogContent 
-          className="rounded-2xl"
-          style={{ backgroundColor: 'rgba(255, 255, 255, 0.98)' }}
-        >
-          <DialogHeader>
-            <DialogTitle className="text-center">
+        <DialogContent style={{ 
+          backgroundColor: 'rgba(255, 255, 255, 0.98)',
+          borderRadius: designSystem.radii.lg,
+          borderWidth: 1,
+          borderColor: designSystem.colors.border,
+          ...designSystem.shadow.md
+        }}>
+          <DialogHeader style={{ marginBottom: designSystem.spacing.sm }}>
+            <DialogTitle style={{ textAlign: 'center' }}>
               {selectedDay && (
-                <Text 
-                  className="text-base font-semibold"
-                  style={{ color: fitnessLightColors.text.primary }}
-                >
+                <Text style={{ 
+                  fontSize: 16,
+                  fontWeight: "600",
+                  color: designSystem.colors.textPrimary
+                }}>
                   {format(selectedDay, "EEEE, dd. MMMM", { locale: de })}
                 </Text>
               )}
@@ -307,142 +414,151 @@ export const OverviewTab: React.FC = () => {
           </DialogHeader>
           
           {selectedWorkout ? (
-            <View className="mt-2">
+            <View style={{ marginTop: designSystem.spacing.sm }}>
               {/* Workout Title with Icon */}
-              <Card 
-                className="p-3 rounded-lg"
-                style={{ 
-                  backgroundColor: 'rgba(255, 255, 255, 0.9)',
-                  borderWidth: 0.5,
-                  borderColor: fitnessLightColors.ui.border
-                }}
-              >
-                <View className="flex-row justify-between items-center">
-                  <View className="flex-row items-center">
-                    <View 
-                      className="p-1.5 rounded-full mr-2"
-                      style={{ backgroundColor: 'rgba(0, 136, 255, 0.05)' }}
-                    >
-                      <Dumbbell size={16} color={fitnessLightColors.secondary.default} />
+              <View style={{ 
+                backgroundColor: 'rgba(255, 255, 255, 0.95)',
+                borderRadius: designSystem.radii.md,
+                padding: designSystem.spacing.md,
+                borderWidth: 0.5,
+                borderColor: designSystem.colors.border,
+                marginBottom: designSystem.spacing.md
+              }}>
+                <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
+                  <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+                    <View style={{ 
+                      padding: designSystem.spacing.xs,
+                      borderRadius: designSystem.radii.sm / 2,
+                      marginRight: designSystem.spacing.sm,
+                      backgroundColor: designSystem.colors.primaryLight
+                    }}>
+                      <Dumbbell size={18} color={designSystem.colors.primary} />
                     </View>
-                    <Text 
-                      className="text-sm font-medium"
-                      style={{ color: fitnessLightColors.text.primary }}
-                    >
+                    <Text style={{ 
+                      fontSize: 16,
+                      fontWeight: "600",
+                      color: designSystem.colors.textPrimary
+                    }}>
                       {selectedWorkout.workoutName}
                     </Text>
                   </View>
                   
-                  <Badge 
-                    variant="outline" 
-                    className="text-xs h-6 px-2"
-                    style={{ 
-                      backgroundColor: 'rgba(0, 0, 0, 0.03)',
-                      borderColor: 'transparent'
-                    }}
-                  >
-                    <View className="flex-row items-center">
-                      <Clock size={12} color={fitnessLightColors.text.tertiary} className="mr-1" />
-                      <Text 
-                        className="text-xs"
-                        style={{ color: fitnessLightColors.text.secondary }}
-                      >
-                        {formatDuration(selectedWorkout.duration)}
-                      </Text>
-                    </View>
-                  </Badge>
+                  <View style={{ 
+                    paddingHorizontal: designSystem.spacing.sm,
+                    paddingVertical: 6,
+                    borderRadius: designSystem.radii.sm,
+                    backgroundColor: designSystem.colors.backgroundSecondary,
+                    flexDirection: 'row',
+                    alignItems: 'center'
+                  }}>
+                    <Clock size={14} color={designSystem.colors.textTertiary} style={{ marginRight: 4 }} />
+                    <Text style={{ 
+                      fontSize: 12,
+                      color: designSystem.colors.textSecondary
+                    }}>
+                      {formatDuration(selectedWorkout.duration)}
+                    </Text>
+                  </View>
                 </View>
-              </Card>
+              </View>
               
               {/* Übungen Liste */}
-              <Text 
-                className="font-medium text-sm ml-1 mt-3 mb-2"
-                style={{ color: fitnessLightColors.text.secondary }}
-              >
+              <Text style={{ 
+                fontSize: 14,
+                fontWeight: "600",
+                marginLeft: 4,
+                marginBottom: designSystem.spacing.sm,
+                color: designSystem.colors.textSecondary
+              }}>
                 Übungen
               </Text>
               
-              <Card 
-                className="rounded-lg overflow-hidden"
-                style={{ 
-                  backgroundColor: 'rgba(255, 255, 255, 0.9)',
-                  borderWidth: 0.5,
-                  borderColor: fitnessLightColors.ui.border
-                }}
-              >
+              <View style={{ 
+                backgroundColor: 'rgba(255, 255, 255, 0.95)',
+                borderRadius: designSystem.radii.md,
+                overflow: 'hidden',
+                borderWidth: 0.5,
+                borderColor: designSystem.colors.border
+              }}>
                 {selectedWorkout.entries.map((entry, index) => (
                   <React.Fragment key={index}>
-                    {index > 0 && <Separator />}
-                    <View className="p-2.5">
-                      <Text 
-                        className="font-medium text-sm"
-                        style={{ color: fitnessLightColors.text.primary }}
-                      >
+                    {index > 0 && <View style={{ 
+                      height: 1,
+                      backgroundColor: designSystem.colors.border
+                    }} />}
+                    <View style={{ padding: designSystem.spacing.md }}>
+                      <Text style={{ 
+                        fontSize: 14,
+                        fontWeight: "600",
+                        color: designSystem.colors.textPrimary,
+                        marginBottom: designSystem.spacing.xs
+                      }}>
                         {entry.exerciseName}
                       </Text>
-                      <View className="flex-row mt-1.5">
-                        <Badge 
-                          className="mr-1.5 py-0 px-1.5 h-5"
-                          style={{ 
-                            backgroundColor: 'rgba(0, 136, 255, 0.1)',
-                            borderColor: 'transparent'
-                          }}
-                        >
-                          <Text 
-                            className="text-xs"
-                            style={{ color: fitnessLightColors.secondary.default }}
-                          >
+                      <View style={{ flexDirection: 'row' }}>
+                        <View style={{ 
+                          paddingHorizontal: designSystem.spacing.sm,
+                          paddingVertical: 4,
+                          borderRadius: designSystem.radii.sm / 2,
+                          marginRight: designSystem.spacing.sm,
+                          backgroundColor: designSystem.colors.primaryLight
+                        }}>
+                          <Text style={{ 
+                            fontSize: 12,
+                            fontWeight: "500",
+                            color: designSystem.colors.primary
+                          }}>
                             {getSetsDisplay(entry.sets)}×
                           </Text>
-                        </Badge>
-                        <Badge 
-                          className="mr-1.5 py-0 px-1.5 h-5"
-                          style={{ 
-                            backgroundColor: 'rgba(0, 0, 0, 0.03)',
-                            borderColor: 'transparent'
-                          }}
-                        >
-                          <Text 
-                            className="text-xs"
-                            style={{ color: fitnessLightColors.text.tertiary }}
-                          >
+                        </View>
+                        <View style={{ 
+                          paddingHorizontal: designSystem.spacing.sm,
+                          paddingVertical: 4,
+                          borderRadius: designSystem.radii.sm / 2,
+                          marginRight: designSystem.spacing.sm,
+                          backgroundColor: designSystem.colors.backgroundSecondary
+                        }}>
+                          <Text style={{ 
+                            fontSize: 12,
+                            color: designSystem.colors.textSecondary
+                          }}>
                             {entry.reps || 0} Wdh.
                           </Text>
-                        </Badge>
-                        <Badge 
-                          className="py-0 px-1.5 h-5"
-                          style={{ 
-                            backgroundColor: 'rgba(0, 0, 0, 0.03)',
-                            borderColor: 'transparent'
-                          }}
-                        >
-                          <Text 
-                            className="text-xs"
-                            style={{ color: fitnessLightColors.text.tertiary }}
-                          >
+                        </View>
+                        <View style={{ 
+                          paddingHorizontal: designSystem.spacing.sm,
+                          paddingVertical: 4,
+                          borderRadius: designSystem.radii.sm / 2,
+                          backgroundColor: designSystem.colors.backgroundSecondary
+                        }}>
+                          <Text style={{ 
+                            fontSize: 12,
+                            color: designSystem.colors.textSecondary
+                          }}>
                             {entry.weight || 0} kg
                           </Text>
-                        </Badge>
+                        </View>
                       </View>
                     </View>
                   </React.Fragment>
                 ))}
-              </Card>
+              </View>
             </View>
           ) : (
-            <View 
-              className="py-10 items-center rounded-lg my-4"
-              style={{ backgroundColor: 'rgba(0, 0, 0, 0.02)' }}
-            >
-              <Calendar 
-                size={28} 
-                color={fitnessLightColors.text.tertiary}
-                className="mb-2" 
-              />
-              <Text 
-                className="text-center"
-                style={{ color: fitnessLightColors.text.tertiary }}
-              >
+            <View style={{ 
+              padding: designSystem.spacing.xxl,
+              alignItems: 'center',
+              borderRadius: designSystem.radii.md,
+              backgroundColor: designSystem.colors.backgroundSecondary,
+              margin: designSystem.spacing.md
+            }}>
+              <Calendar size={32} color={designSystem.colors.textTertiary} style={{ marginBottom: designSystem.spacing.md }} />
+              <Text style={{ 
+                textAlign: 'center',
+                fontSize: 16,
+                fontWeight: "500",
+                color: designSystem.colors.textSecondary
+              }}>
                 Kein Training an diesem Tag
               </Text>
             </View>
