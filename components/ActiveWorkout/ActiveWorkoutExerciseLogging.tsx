@@ -72,6 +72,11 @@ export const ActiveWorkoutExerciseLogging = ({
 
   const isSetLogged = (set: SetInput) => set.reps !== null && set.weight !== null;
 
+  const handleToggleSetCompleted = (set: SetInput, index: number) => {
+    set.completed ?? onUpdateSet(index, set.reps || set.targetReps || 8, set.weight || set.targetWeight || 0);
+    onToggleSetCompleted(index, !set.completed);
+  };
+
   const renderRightActions = (index: number) => (prog: SharedValue<number>, drag: SharedValue<number>) => {
     const styleAnimation = useAnimatedStyle(() => {
       return {
@@ -233,7 +238,7 @@ export const ActiveWorkoutExerciseLogging = ({
                           <Animated.View
                             key={index}
                             entering={FadeInDown.delay(index * 100).springify()}
-                            className="flex-row items-center py-2"
+                            className={cn("flex-row items-center py-2", set.completed && "bg-green-500/40")}
                           >
                             {/* Set Number */}
                             <View className="w-16 pl-2 justify-center items-center">
@@ -243,7 +248,9 @@ export const ActiveWorkoutExerciseLogging = ({
                             {/* Combined Reps and Weight */}
                             <View className="flex-1 items-center justify-center">
                               <Pressable
-                                className="py-2 px-4 bg-card rounded-lg gap-3 items-center flex-row justify-center"
+                                className={
+                                  "py-2 px-4 bg-transparent rounded-lg gap-3 items-center flex-row justify-center"
+                                }
                                 onPress={() => {
                                   Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
                                   setLogSet({ ...set, index });
@@ -276,14 +283,17 @@ export const ActiveWorkoutExerciseLogging = ({
                               <Button
                                 variant="outline"
                                 size="icon"
-                                className="h-8 w-8 rounded-xl border border-border"
+                                className={cn(
+                                  "h-8 w-8 rounded-xl border border-border",
+                                  set.completed ? "bg-green-500" : "bg-muted"
+                                )}
                                 haptics="success"
-                                onPress={() => onToggleSetCompleted(index, !set.completed)}
+                                onPress={() => handleToggleSetCompleted(set, index)}
                               >
                                 <Check
                                   size={16}
                                   strokeWidth={3}
-                                  className={set.completed ? "text-primary" : "text-muted-foreground"}
+                                  className={set.completed ? "text-background" : "text-muted-foreground"}
                                 />
                               </Button>
                             </View>

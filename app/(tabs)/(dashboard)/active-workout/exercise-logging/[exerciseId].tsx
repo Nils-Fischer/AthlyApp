@@ -88,13 +88,13 @@ export default function ExerciseLoggingScreen() {
     const currentWorkout = getWorkoutById(workoutId);
     const currentExercise = currentWorkout?.exercises.find((ex) => ex.exerciseId === exerciseIdNumber);
 
-    if (!currentExercise?.sets?.length) return;
+    if (!currentExercise) return;
 
     updateSetsInExercise(workoutId, exerciseIdNumber, [
       ...currentExercise.sets,
       {
-        reps: 8,
-        weight: currentExercise.sets[currentExercise.sets.length - 1].weight,
+        reps: currentExercise.sets.at(-1)?.reps || 8,
+        weight: currentExercise.sets.at(-1)?.weight || 0,
       },
     ]);
   }, [workoutId, exerciseIdNumber, getWorkoutById, updateSetsInExercise]);
