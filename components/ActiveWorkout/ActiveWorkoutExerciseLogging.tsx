@@ -243,7 +243,7 @@ export const ActiveWorkoutExerciseLogging = ({
                           <Animated.View
                             key={index}
                             entering={FadeInDown.delay(index * 100).springify()}
-                            className={cn("flex-row items-center py-2", set.completed && "bg-green-500/40")}
+                            className={cn("flex-row items-center py-2", set.completed && "bg-success-background")}
                           >
                             {/* Set Number */}
                             <View className="w-16 pl-2 justify-center items-center">
@@ -286,7 +286,7 @@ export const ActiveWorkoutExerciseLogging = ({
                                 size="icon"
                                 className={cn(
                                   "h-8 w-8 rounded-xl border border-border",
-                                  set.completed ? "bg-green-500" : "bg-muted"
+                                  set.completed ? "bg-success" : "bg-muted"
                                 )}
                                 haptics="success"
                                 onPress={() => handleToggleSetCompleted(set, index)}
@@ -294,7 +294,7 @@ export const ActiveWorkoutExerciseLogging = ({
                                 <Check
                                   size={16}
                                   strokeWidth={3}
-                                  className={set.completed ? "text-background" : "text-muted-foreground"}
+                                  className={set.completed ? "text-success-foreground" : "text-muted-foreground"}
                                 />
                               </Button>
                             </View>

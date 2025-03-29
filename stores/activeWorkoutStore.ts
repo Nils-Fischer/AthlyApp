@@ -158,6 +158,7 @@ export const useActiveWorkoutStore = create<ActiveWorkoutState>()((set, get) => 
               weight: existingSet?.weight ?? null,
               targetReps: set.reps,
               targetWeight: set.weight || 0,
+              completed: existingSet?.completed ?? false,
             };
           }),
           isCompleted: existingRecord?.isCompleted ?? false,

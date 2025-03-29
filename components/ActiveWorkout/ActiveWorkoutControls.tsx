@@ -73,10 +73,10 @@ export function ActiveWorkoutControls({
               />
             )}
             <AnimatedIconButton
-              className="flex-none bg-foreground"
+              className="flex-none bg-success"
               onPress={onFinish}
-              haptics="rigid"
-              icon={<CheckCheck className="text-background" size={24} />}
+              haptics="success"
+              icon={<CheckCheck className="text-success-foreground" size={24} />}
             />
           </View>
         )}
