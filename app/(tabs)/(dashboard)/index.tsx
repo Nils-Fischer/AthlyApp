@@ -21,7 +21,6 @@ import { quotes } from "~/lib/quotes";
 import { ChooseNewWorkoutSheet } from "~/components/Dashboard/ChooseNewWorkoutSheet";
 import { Button } from "~/components/ui/button";
 import { Plus } from "~/lib/icons/Icons";
-import SetLoggingWheelPicker from "~/components/ActiveWorkout/Logging/SetLoggingWheelPicker";
 
 export default function Index() {
   const isWorkoutRunning = useActiveWorkoutStore((state) => state.workoutTimer.isRunning);

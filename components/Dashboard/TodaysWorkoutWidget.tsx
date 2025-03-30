@@ -74,7 +74,11 @@ export const TodaysWorkoutWidget = ({
         {/* Content Section */}
         <CardContent>
           <H3>{workout.name}</H3>
-          {workout.description && <CardDescription className="text-base mb-4">{workout.description}</CardDescription>}
+          {workout.description && (
+            <CardDescription className="text-base mb-4" numberOfLines={1} ellipsizeMode="tail">
+              {workout.description}
+            </CardDescription>
+          )}
 
           {/* Quick Stats */}
           <View className="flex-row items-center mb-6">
