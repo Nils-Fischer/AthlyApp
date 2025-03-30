@@ -2,6 +2,7 @@ import React from "react";
 import { View } from "react-native";
 import { Text } from "~/components/ui/text";
 import { Timer, Dumbbell, CheckSquare } from "~/lib/icons/Icons";
+import { Card } from "../ui/card";
 
 interface StatItemProps {
   icon: React.ReactNode;
@@ -36,7 +37,7 @@ export function ActiveWorkoutStats({
   totalVolume: number;
 }) {
   return (
-    <View className="px-4 pt-3">
+    <Card className="p-4 mt-4 mx-4">
       <View className="backdrop-blur-lg">
         <View className="flex-row justify-between">
           <StatItem
@@ -51,12 +52,11 @@ export function ActiveWorkoutStats({
           />
           <StatItem
             icon={<CheckSquare size={20} className="text-primary" />}
-            value={completedExercises}
+            value={`${completedExercises} / ${remainingExercises + completedExercises}`}
             label="Abgeschlossen"
           />
         </View>
-        <View className="h-[1px] bg-border mt-3" />
       </View>
-    </View>
+    </Card>
   );
 }

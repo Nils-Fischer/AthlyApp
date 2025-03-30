@@ -26,9 +26,10 @@ import { WorkoutExercise } from "~/lib/types";
 import { SheetManager } from "react-native-actions-sheet";
 import { ExerciseEditAlternatives } from "~/components/Exercise/ExerciseEditAlternatives";
 import { BottomSheet } from "~/components/ui/bottom-sheet";
-import { H2 } from "~/components/ui/typography";
+import { H2, Muted, P, Small } from "~/components/ui/typography";
 import { formatTime } from "~/lib/utils";
 import { ExerciseLibrary } from "~/components/Exercise/ExerciseLibrary";
+import { Card } from "~/components/ui/card";
 
 export default function ActiveWorkoutScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
@@ -145,19 +146,22 @@ export default function ActiveWorkoutScreen() {
             totalVolume={getTotalVolume()}
           />
         ) : (
-          <View className="flex-row items-center justify-between pl-8 pr-2 pt-5">
-            <View className="flex-row items-center gap-2">
-              <H2>
-                {activeWorkout.exercises.length} Übung{activeWorkout.exercises.length === 1 ? "" : "en"}
-              </H2>
-              {isEditMode && (
-                <Text className="text-muted-foreground text-sm">{formatTime(workoutTimer.elapsedTime)}</Text>
-              )}
+          <Card className="pl-8 pr-2 py-5 mx-4 mt-4">
+            <View className="flex-row items-center justify-between">
+              <View className="flex-row items-center gap-2">
+                <H2>
+                  {activeWorkout.exercises.length} Übung{activeWorkout.exercises.length === 1 ? "" : "en"}
+                </H2>
+                {isEditMode && (
+                  <Text className="text-muted-foreground text-sm">{formatTime(workoutTimer.elapsedTime)}</Text>
+                )}
+              </View>
+              <Button variant="ghost" onPress={() => setShowAddExercise(true)}>
+                <Plus className="text-primary" size={30} />
+              </Button>
             </View>
-            <Button variant="ghost" onPress={() => setShowAddExercise(true)}>
-              <Plus className="text-primary" size={30} />
-            </Button>
-          </View>
+            <Muted>{activeWorkout.description}</Muted>
+          </Card>
         )}
 
         <ActiveWorkoutExerciseList

@@ -19,6 +19,7 @@ import { getRepsRange, getThumbnail } from "~/lib/utils";
 import { CustomDropdownMenu } from "~/components/ui/custom-dropdown-menu";
 import DraggableFlatList, { RenderItemParams } from "react-native-draggable-flatlist";
 import * as Haptics from "expo-haptics";
+import { Card } from "../ui/card";
 
 interface ActiveWorkoutExerciseListProps {
   workout: Workout;
@@ -117,7 +118,7 @@ export function ActiveWorkoutExerciseList({
       keyExtractor={(item) => item.exerciseId.toString()}
       renderItem={renderItem}
       containerStyle={{ flex: 1 }}
-      contentContainerStyle={{ paddingHorizontal: 16, paddingVertical: 8, paddingBottom: 128 }}
+      contentContainerStyle={{ paddingHorizontal: 16, paddingVertical: 8, paddingBottom: 128, gap: 8 }}
       dragHitSlop={{ top: 0, bottom: 0, left: 0, right: 0 }}
       animationConfig={{ duration: 200 }}
     />
@@ -196,84 +197,76 @@ function ExerciseCard({
   };
 
   return (
-    <Animated.View entering={FadeIn}>
-      <TouchableOpacity
-        onPress={handlePress}
-        onLongPress={isDraggable ? handleLongPress : undefined}
-        delayLongPress={150}
-        className="active:opacity-90"
-      >
-        <View
-          className={`bg-card border-b border-border/30 ${isCompleted ? "opacity-50" : ""} ${
-            isActive ? "bg-muted/10" : ""
-          }`}
-        >
-          <View className="flex-row p-4">
-            {isDraggable && (
-              <View className="mr-2 items-center justify-center">
-                <GripVertical size={20} className="text-muted-foreground" />
+    <TouchableOpacity
+      onPress={handlePress}
+      onLongPress={isDraggable ? handleLongPress : undefined}
+      delayLongPress={150}
+      className="active:opacity-90"
+    >
+      <Card className={isCompleted ? "opacity-50" : ""}>
+        <View className="flex-row px-4 py-2 items-center">
+          {isDraggable && (
+            <View className="mr-2 items-center justify-center">
+              <GripVertical size={20} className="text-muted-foreground" />
+            </View>
+          )}
+          <View className="mr-4">
+            {imageUrl ? (
+              <Image
+                source={{ uri: imageUrl }}
+                className={`w-16 h-16 rounded-lg bg-muted ${isCompleted ? "opacity-50" : ""}`}
+                contentFit="cover"
+                transition={200}
+                placeholder="L5H2EC=PM+yV0g-mq.wG9c010J}I"
+                contentPosition="center"
+                cachePolicy="memory"
+              />
+            ) : (
+              <View
+                className={`w-16 h-16 rounded-lg bg-muted items-center justify-center ${
+                  isCompleted ? "opacity-50" : ""
+                }`}
+              >
+                <Dumbbell size={24} className="text-muted-foreground" />
               </View>
             )}
-            <View className="mr-4">
-              {imageUrl ? (
-                <Image
-                  source={{ uri: imageUrl }}
-                  className={`w-16 h-16 rounded-lg bg-muted ${isCompleted ? "opacity-50" : ""}`}
-                  contentFit="cover"
-                  transition={200}
-                  placeholder="L5H2EC=PM+yV0g-mq.wG9c010J}I"
-                  contentPosition="center"
-                  cachePolicy="memory"
-                />
-              ) : (
-                <View
-                  className={`w-16 h-16 rounded-lg bg-muted items-center justify-center ${
-                    isCompleted ? "opacity-50" : ""
-                  }`}
-                >
-                  <Dumbbell size={24} className="text-muted-foreground" />
-                </View>
-              )}
+          </View>
+
+          <View className="flex-1">
+            <View className="flex-row items-center justify-between">
+              <Text className={`text-base font-medium ${isCompleted ? "text-muted-foreground" : "text-foreground"}`}>
+                {exercise.name}
+              </Text>
+              {isStarted && <ProgressIndicator total={totalSets} completed={completedSets} isCompleted={isCompleted} />}
             </View>
 
-            <View className="flex-1">
-              <View className="flex-row items-center justify-between">
-                <Text className={`text-base font-medium ${isCompleted ? "text-muted-foreground" : "text-foreground"}`}>
-                  {exercise.name}
-                </Text>
-                {isStarted && (
-                  <ProgressIndicator total={totalSets} completed={completedSets} isCompleted={isCompleted} />
-                )}
-              </View>
-
-              <View className="flex-row mt-1 items-center">
-                <Text className="text-sm text-muted-foreground">
-                  {totalSets} {totalSets > 1 ? "Sätze" : "Satz"} × {repsRange}
-                </Text>
-              </View>
-            </View>
-
-            <View className="justify-center">
-              {isStarted ? (
-                <ChevronRight size={20} className={`text-muted-foreground ml-2 ${isCompleted ? "opacity-50" : ""}`} />
-              ) : (
-                <CustomDropdownMenu
-                  items={dropdownItems}
-                  side="top"
-                  align="start"
-                  trigger={
-                    <Button variant="ghost" size="icon" className="h-8 w-8" haptics="light">
-                      <MoreHorizontal size={20} className="text-muted-foreground ml-2" />
-                    </Button>
-                  }
-                />
-              )}
+            <View className="flex-row mt-1 items-center">
+              <Text className="text-sm text-muted-foreground">
+                {totalSets} {totalSets > 1 ? "Sätze" : "Satz"} × {repsRange}
+              </Text>
             </View>
           </View>
-          <View className="h-[1px] bg-border/10" />
+
+          <View className="justify-center">
+            {isStarted ? (
+              <ChevronRight size={20} className={`text-muted-foreground ml-2 ${isCompleted ? "opacity-50" : ""}`} />
+            ) : (
+              <CustomDropdownMenu
+                items={dropdownItems}
+                side="top"
+                align="start"
+                trigger={
+                  <Button variant="ghost" size="icon" className="h-8 w-8" haptics="light">
+                    <MoreHorizontal size={20} className="text-muted-foreground ml-2" />
+                  </Button>
+                }
+              />
+            )}
+          </View>
         </View>
-      </TouchableOpacity>
-    </Animated.View>
+        <View className="h-[1px] bg-border/10" />
+      </Card>
+    </TouchableOpacity>
   );
 }
 
