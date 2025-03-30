@@ -3,20 +3,21 @@ import { View, Pressable } from "react-native";
 import { Text } from "~/components/ui/text";
 import { Image } from "react-native";
 import { Exercise, WorkoutExercise } from "~/lib/types";
-import { getRepsRange, getThumbnail } from "~/lib/utils";
+import { getRepsRange, getThumbnail, getWeightRange } from "~/lib/utils";
 import { Card } from "../ui/card";
 
 interface ExerciseCardProps {
   exercise: Exercise;
   workoutExercise?: WorkoutExercise;
   onPress?: (exerciseId: number) => void;
+  rightAccessory?: React.ReactNode;
 }
 
-export const ExerciseOverviewCard = ({ exercise, workoutExercise, onPress }: ExerciseCardProps) => {
+export const ExerciseOverviewCard = ({ exercise, workoutExercise, onPress, rightAccessory }: ExerciseCardProps) => {
   const image = getThumbnail(exercise);
   return (
     <Pressable onPress={() => onPress?.(exercise.id)} className="active:opacity-70 my-1">
-      <Card className="p-4 flex-row gap-4 items-center">
+      <Card className="p-4 items-center flex-row gap-4 justify-between">
         <View className="w-16 h-16 bg-muted rounded-xl items-center justify-center overflow-hidden">
           {image && <Image source={{ uri: image }} alt={exercise.name} className="w-full h-full" />}
         </View>
@@ -26,20 +27,21 @@ export const ExerciseOverviewCard = ({ exercise, workoutExercise, onPress }: Exe
           </View>
           <Text className="text-muted-foreground text-sm mb-2">{exercise.equipment}</Text>
           <View className="flex-row flex-wrap gap-2">
-            {exercise.primaryMuscles.map((muscle, index) => (
-              <View key={index} className="bg-primary/10 rounded-full px-3 py-1">
-                <Text className="text-xs text-primary font-medium">{muscle}</Text>
-              </View>
-            ))}
-          </View>
-          {workoutExercise && (
-            <View className="mt-2 pt-2 border-t border-border/50">
+            {workoutExercise ? (
               <Text className="text-sm text-muted-foreground">
                 {workoutExercise.sets.length} Sätze • {getRepsRange(workoutExercise)}
+                {getWeightRange(workoutExercise) ? ` • ${getWeightRange(workoutExercise)}` : ""}
               </Text>
-            </View>
-          )}
+            ) : (
+              exercise.primaryMuscles.map((muscle, index) => (
+                <View key={index} className="bg-primary/10 rounded-full px-3 py-1">
+                  <Text className="text-xs text-primary font-medium">{muscle}</Text>
+                </View>
+              ))
+            )}
+          </View>
         </View>
+        {rightAccessory && rightAccessory}
       </Card>
     </Pressable>
   );

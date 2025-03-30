@@ -1,10 +1,9 @@
 import { useExerciseStore } from "~/stores/exerciseStore";
-import { Pressable, View } from "react-native";
+import { Pressable, TouchableOpacity, View } from "react-native";
 import { Workout, WorkoutExercise } from "~/lib/types";
-import { Text } from "~/components/ui/text";
-import { Plus } from "~/lib/icons/Icons";
+import { Edit3, MoreHorizontal, Plus, Repeat, Trash2, X } from "~/lib/icons/Icons";
 import React, { useState, useEffect } from "react";
-import { Card } from "~/components/ui/card";
+import { Card, CardTitle } from "~/components/ui/card";
 import { ExerciseLibrary } from "~/components/Exercise/ExerciseLibrary";
 import { BottomSheet } from "~/components/ui/bottom-sheet";
 import { SheetManager } from "react-native-actions-sheet";
@@ -12,7 +11,10 @@ import { registerSheet } from "react-native-actions-sheet";
 import ExerciseBottomSheetEditor from "~/components/Exercise/ExerciseBottomSheetEditor";
 import { ExerciseEditAlternatives } from "../Exercise/ExerciseEditAlternatives";
 import DraggableFlatList, { RenderItemParams } from "react-native-draggable-flatlist";
-import { WorkoutExerciseItem } from "./WorkoutExerciseItem";
+import { Button } from "../ui/button";
+import { DeleteConfirmation } from "../DeleteConfirmation";
+import { CustomDropdownMenu } from "../ui/custom-dropdown-menu";
+import { ExerciseOverviewCard } from "../Exercise/ExerciseOverviewCard";
 
 registerSheet("sheet-with-router", ExerciseBottomSheetEditor);
 
@@ -107,51 +109,87 @@ export function WorkoutPage({
     });
   };
 
-  const renderItem = ({ item: workoutExercise, drag, isActive }: RenderItemParams<WorkoutExercise>) => {
+  const renderItem = ({ item: workoutExercise, drag }: RenderItemParams<WorkoutExercise>) => {
     const exercise = exerciseStore.getExerciseById(workoutExercise.exerciseId);
     if (!exercise) return null;
+    const dropdownItems = [
+      {
+        name: "Alternative Übung",
+        icon: Repeat,
+        onPress: () => setShowAlternatives(workoutExercise),
+      },
+      {
+        name: "Details bearbeiten",
+        icon: Edit3,
+        onPress: () => showEditExerciseSheet(workoutExercise),
+      },
+      {
+        name: "Übung löschen",
+        icon: Trash2,
+        onPress: () => deleteExercise(workoutExercise.exerciseId),
+        destructive: true,
+      },
+    ];
 
-    return (
-      <WorkoutExerciseItem
-        key={workoutExercise.exerciseId}
-        workoutExercise={workoutExercise}
-        exercise={exercise}
-        isEditMode={isEditMode}
-        isActive={isActive}
-        deleteExerciseId={deleteExerciseId}
-        onPress={() => {
-          if (isEditMode) {
-            showEditExerciseSheet(workoutExercise);
-          } else {
-            onExercisePress?.(exercise.id);
-          }
+    const rightAccessory = isEditMode ? (
+      <DeleteConfirmation
+        open={deleteExerciseId === workoutExercise.exerciseId}
+        onOpenChange={(open: boolean) => {
+          setDeleteExerciseId(open ? workoutExercise.exerciseId : null);
         }}
-        onLongPress={isEditMode ? drag : undefined}
-        onDeleteConfirm={() => {
+        onConfirm={() => {
           deleteExercise(workoutExercise.exerciseId);
           setDeleteExerciseId(null);
         }}
-        onDeleteChange={(open) => {
-          setDeleteExerciseId(open ? workoutExercise.exerciseId : null);
-        }}
-        onShowAlternatives={() => setShowAlternatives(workoutExercise)}
-        onShowEditSheet={() => showEditExerciseSheet(workoutExercise)}
-        onDelete={() => deleteExercise(workoutExercise.exerciseId)}
+        trigger={
+          <Button variant="ghost" size="icon" className="h-8 w-8" haptics="light">
+            <X size={18} className="text-destructive" />
+          </Button>
+        }
+        title="Übung löschen?"
+        description="Möchtest du diese Übung wirklich aus dem Workout entfernen?"
       />
+    ) : (
+      <CustomDropdownMenu
+        items={dropdownItems}
+        side="top"
+        align="start"
+        trigger={
+          <Button variant="ghost" size="icon" className="h-8 w-8">
+            <MoreHorizontal className="text-muted-foreground" />
+          </Button>
+        }
+      />
+    );
+    const onPress = () => {
+      if (isEditMode) {
+        showEditExerciseSheet(workoutExercise);
+      } else {
+        onExercisePress?.(exercise.id);
+      }
+    };
+
+    return (
+      <TouchableOpacity onPress={onPress} onLongPress={isEditMode ? drag : undefined}>
+        <ExerciseOverviewCard
+          exercise={exercise}
+          workoutExercise={workoutExercise}
+          onPress={onPress}
+          rightAccessory={rightAccessory}
+        />
+      </TouchableOpacity>
     );
   };
 
   return (
     <View className="flex-1 px-4">
       {isEditMode && (
-        <View className="mb-4 flex-row items-center">
-          <Pressable onPress={() => setShowAddExercise(true)} className="flex-1">
-            <Card className="shadow-none p-4 flex-row justify-between items-center bg-background">
-              <Text className="text-sm font-medium">Übung hinzufügen</Text>
-              <Plus size={20} className="text-primary" />
-            </Card>
-          </Pressable>
-        </View>
+        <Pressable onPress={() => setShowAddExercise(true)}>
+          <Card className="p-4 mb-2 flex-row justify-between items-center">
+            <CardTitle className="text-sm font-medium">Übung hinzufügen</CardTitle>
+            <Plus size={20} className="text-primary" />
+          </Card>
+        </Pressable>
       )}
 
       <DraggableFlatList
