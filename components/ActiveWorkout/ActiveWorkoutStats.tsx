@@ -3,6 +3,8 @@ import { View } from "react-native";
 import { Text } from "~/components/ui/text";
 import { Timer, Dumbbell, CheckSquare } from "~/lib/icons/Icons";
 import { Card } from "../ui/card";
+import { Progress } from "../ui/progress";
+import { cn } from "~/lib/utils";
 
 interface StatItemProps {
   icon: React.ReactNode;
@@ -38,7 +40,11 @@ export function ActiveWorkoutStats({
 }) {
   return (
     <Card className="p-4 mt-4 mx-4">
-      <View className="backdrop-blur-lg">
+      <View className="flex-column gap-4 items-center">
+        <Progress
+          className={cn("h-1 w-[95%]", remainingExercises === 0 && "bg-success")}
+          value={(completedExercises / (remainingExercises + completedExercises)) * 100}
+        />
         <View className="flex-row justify-between">
           <StatItem
             icon={<Dumbbell size={20} className="text-primary" />}

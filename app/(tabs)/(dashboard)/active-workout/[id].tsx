@@ -1,5 +1,5 @@
 import React, { useEffect, useMemo, useState } from "react";
-import { View } from "react-native";
+import { Pressable, View } from "react-native";
 import { useLocalSearchParams, router, Stack } from "expo-router";
 import { Text } from "~/components/ui/text";
 import { Button } from "~/components/ui/button";
@@ -146,7 +146,7 @@ export default function ActiveWorkoutScreen() {
             totalVolume={getTotalVolume()}
           />
         ) : (
-          <Card className="pl-8 pr-2 py-5 mx-4 mt-4">
+          <Card className="pl-8 pr-4 py-5 mx-4 mt-4">
             <View className="flex-row items-center justify-between">
               <View className="flex-row items-center gap-2">
                 <H2>
@@ -156,9 +156,9 @@ export default function ActiveWorkoutScreen() {
                   <Text className="text-muted-foreground text-sm">{formatTime(workoutTimer.elapsedTime)}</Text>
                 )}
               </View>
-              <Button variant="ghost" onPress={() => setShowAddExercise(true)}>
+              <Pressable onPress={() => setShowAddExercise(true)}>
                 <Plus className="text-primary" size={30} />
-              </Button>
+              </Pressable>
             </View>
             <Muted>{activeWorkout.description}</Muted>
           </Card>
