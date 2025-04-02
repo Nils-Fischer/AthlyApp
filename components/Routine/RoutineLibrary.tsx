@@ -1,14 +1,13 @@
 import React from "react";
-import { Pressable, ScrollView, View } from "react-native";
+import { ScrollView, View } from "react-native";
 import { Text } from "~/components/ui/text";
 import { Input } from "~/components/ui/input";
 import { Button } from "~/components/ui/button";
-import { MoreHorizontal, Plus, Search, Trash2 } from "~/lib/icons/Icons";
+import { Plus, Search } from "~/lib/icons/Icons";
 import { CustomDropdownMenu } from "~/components/ui/custom-dropdown-menu";
 import { Routine } from "~/lib/types";
-import { Ionicons } from "@expo/vector-icons";
 import { RoutineCard } from "./RoutineCard";
-import * as Haptics from "expo-haptics";
+import { Card } from "../ui/card";
 
 interface RoutineLibraryProps {
   routines: Routine[];
@@ -20,8 +19,7 @@ interface RoutineLibraryProps {
     icon: any;
     onPress: () => void;
   }>;
-  onDelete?: (id: string) => void;
-  onToggleActive?: (id: string) => void;
+  rightContent?: (routine: Routine) => React.ReactNode;
 }
 
 export const RoutineLibrary = ({
@@ -29,50 +27,20 @@ export const RoutineLibrary = ({
   searchQuery,
   onSearchChange,
   addButtonDropdownItems,
-  onDelete,
-  onToggleActive,
   onRoutinePress,
+  rightContent,
 }: RoutineLibraryProps) => {
-  const getDropdownItems = (routine: Routine) => [
-    {
-      name: routine.active ? "Deaktivieren" : "Aktivieren",
-      icon: ({ size, className }: { size: number; className: string }) => (
-        <Ionicons name={routine.active ? "radio-button-on" : "radio-button-off"} size={size} className={className} />
-      ),
-      onPress: () => onToggleActive?.(routine.id),
-    },
-    {
-      name: "Routine Löschen",
-      icon: ({ size, className }: { size: number; className: string }) => <Trash2 size={size} className={className} />,
-      onPress: () => onDelete?.(routine.id),
-      destructive: true,
-    },
-  ];
-
-  const getRightContent = (routine: Routine) => {
-    return (
-      <CustomDropdownMenu
-        items={getDropdownItems(routine)}
-        align="start"
-        trigger={
-          <Button size="icon" variant="ghost" className="h-10 w-10 rounded-full" haptics="light">
-            <MoreHorizontal size={20} className="text-primary" />
-          </Button>
-        }
-      />
-    );
-  };
-
   return (
-    <View className="flex-1 px-4">
+    <View className="flex-1 px-4 ">
       {/* Search Bar */}
-      <View className="flex-row justify-between items-center mb-4">
+      <Card className="flex-row justify-between items-center mb-4 py-1 px-4">
         <View className="flex-1 mr-2">
           <Input
             placeholder="Trainingsplan suchen..."
             value={searchQuery}
             onChangeText={onSearchChange}
             startContent={<Search size={20} className="text-muted-foreground" />}
+            className="bg-card border-card items-center justify-center"
           />
         </View>
 
@@ -86,7 +54,7 @@ export const RoutineLibrary = ({
             }
           />
         )}
-      </View>
+      </Card>
 
       {/* Routines List */}
       <ScrollView
@@ -118,7 +86,7 @@ export const RoutineLibrary = ({
               <RoutineCard
                 key={routine.id}
                 routine={routine}
-                rightContent={getRightContent(routine)}
+                rightContent={rightContent?.(routine)}
                 onPress={() => onRoutinePress(routine.id)}
               />
             ))

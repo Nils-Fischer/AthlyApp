@@ -19,7 +19,7 @@ export const RoutineCard = ({ routine, showActive, rightContent, onPress }: Rout
 
   return (
     <Pressable onPress={() => onPress?.()} className="active:opacity-80">
-      <Card className={cn("overflow-hidden", active ? "bg-destructive/5 border-l-4 border-l-destructive" : "bg-card")}>
+      <Card className={cn("overflow-hidden bg-card", active ? "border-l-4 border-l-destructive" : "")}>
         <CardHeader className="flex-row justify-between items-center justify-between pr-12">
           <View className="flex-row justify-between items-center gap-4">
             <H3 numberOfLines={1} className="text-lg font-semibold text-foreground flex-1">

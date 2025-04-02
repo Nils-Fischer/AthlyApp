@@ -1,5 +1,6 @@
 // TrainTechApp/app/(tabs)/workout.tsx
 import * as React from "react";
+import { Ionicons } from "@expo/vector-icons";
 import { View } from "react-native";
 import { WorkoutForm } from "~/components/ExerciseForms/WorkoutForm";
 import { Routine } from "~/lib/types";
@@ -12,6 +13,9 @@ import { RoutineCreationDialog } from "~/components/Routine/RoutineCreationDialo
 import { RoutineLibrary } from "~/components/Routine/RoutineLibrary";
 import { AIRoutineCreationDialog } from "~/components/Routine/AIRoutineCreationDialog";
 import { useUserRoutineStore } from "~/stores/userRoutineStore";
+import { MoreHorizontal, Trash2 } from "~/lib/icons/Icons";
+import { Button } from "~/components/ui/button";
+import { CustomDropdownMenu } from "~/components/ui/custom-dropdown-menu";
 
 export default function RoutineScreen() {
   const { routines, addRoutine, deleteRoutine, toggleRoutineActive } = useUserRoutineStore();
@@ -62,20 +66,48 @@ export default function RoutineScreen() {
     return <WorkoutForm onRoutineCreated={handleRoutineCreation} />;
   }
 
+  const getDropdownItems = (routine: Routine) => [
+    {
+      name: routine.active ? "Deaktivieren" : "Aktivieren",
+      icon: ({ size, className }: { size: number; className: string }) => (
+        <Ionicons name={routine.active ? "radio-button-on" : "radio-button-off"} size={size} className={className} />
+      ),
+      onPress: () => handleToggleActive(routine.id),
+    },
+    {
+      name: "Routine Löschen",
+      icon: ({ size, className }: { size: number; className: string }) => <Trash2 size={size} className={className} />,
+      onPress: () => handleDelete(routine.id),
+      destructive: true,
+    },
+  ];
+
+  const getRightContent = (routine: Routine) => {
+    return (
+      <CustomDropdownMenu
+        items={getDropdownItems(routine)}
+        align="start"
+        trigger={
+          <Button size="icon" variant="ghost" className="h-10 w-10 rounded-full" haptics="light">
+            <MoreHorizontal size={20} className="text-primary" />
+          </Button>
+        }
+      />
+    );
+  };
+
   return (
     <>
       <View className="flex-1 bg-background">
-        <Tabs value={activeTab} onValueChange={setActiveTab} className="flex-1">
-          <View className="px-4">
-            <TabsList className="flex-row h-12 bg-muted rounded-lg p-1 w-full">
-              <TabsTrigger value="routines" className="flex-1 rounded-md data-[state=active]:bg-background">
-                <Text className="text-sm font-medium">Trainingspläne</Text>
-              </TabsTrigger>
-              <TabsTrigger value="exercises" className="flex-1 rounded-md data-[state=active]:bg-background">
-                <Text className="text-sm font-medium">Übungen</Text>
-              </TabsTrigger>
-            </TabsList>
-          </View>
+        <Tabs value={activeTab} onValueChange={setActiveTab} className="flex-1 bg-background p-0">
+          <TabsList className="flex-row h-12 bg-muted rounded-lg w-full ">
+            <TabsTrigger value="routines" className="flex-1 rounded-md data-[state=active]:bg-card">
+              <Text className="text-sm font-medium">Trainingspläne</Text>
+            </TabsTrigger>
+            <TabsTrigger value="exercises" className="flex-1 rounded-md data-[state=active]:bg-background">
+              <Text className="text-sm font-medium">Übungen</Text>
+            </TabsTrigger>
+          </TabsList>
 
           <View className="flex-1 mt-4">
             <TabsContent value="routines" className="flex-1 h-full">
@@ -84,9 +116,8 @@ export default function RoutineScreen() {
                 searchQuery={searchQuery}
                 onSearchChange={setSearchQuery}
                 addButtonDropdownItems={dropdownItems}
-                onDelete={handleDelete}
-                onToggleActive={handleToggleActive}
                 onRoutinePress={(routineId) => router.push(`/workout/${routineId}`)}
+                rightContent={getRightContent}
               />
             </TabsContent>
 
