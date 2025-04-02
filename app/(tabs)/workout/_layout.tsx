@@ -15,7 +15,7 @@ export default function WorkoutLayout() {
         }}
       />
       <Stack.Screen
-        name="[id]"
+        name="[routineId]"
         options={{
           headerShown: false,
         }}

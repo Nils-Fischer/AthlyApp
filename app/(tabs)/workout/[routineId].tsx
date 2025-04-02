@@ -9,9 +9,9 @@ import { TextInput, View } from "react-native";
 import { useUserRoutineStore } from "~/stores/userRoutineStore";
 
 export default function RoutineDetails() {
-  const { id } = useLocalSearchParams<{ id: string }>();
+  const { routineId } = useLocalSearchParams<{ routineId: string }>();
   const { routines } = useUserRoutineStore();
-  const routine: Routine | undefined = useMemo(() => routines.find((p) => p.id === id), [routines, id]);
+  const routine: Routine | undefined = useMemo(() => routines.find((p) => p.id === routineId), [routines, routineId]);
   const [isEditMode, setIsEditMode] = useState(
     () => routine?.workouts.length === 1 && routine.workouts[0].exercises.length === 0
   );

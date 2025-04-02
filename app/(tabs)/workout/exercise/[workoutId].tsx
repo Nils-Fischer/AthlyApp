@@ -9,9 +9,9 @@ import { Button } from "~/components/ui/button";
 import { ChevronLeft } from "~/lib/icons/Icons";
 
 export default function ExerciseDetailScreen() {
-  const { id } = useLocalSearchParams<{ id: string }>();
+  const { workoutId } = useLocalSearchParams<{ workoutId: string }>();
   const exerciseStore = useExerciseStore();
-  const exercise = exerciseStore.getExerciseById(Number(id));
+  const exercise = exerciseStore.getExerciseById(Number(workoutId));
 
   if (!exercise) {
     return (

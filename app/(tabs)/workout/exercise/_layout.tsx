@@ -9,7 +9,7 @@ export default function ExerciseLayout() {
         animation: "slide_from_right",
       }}
     >
-      <Stack.Screen name="[id]" />
+      <Stack.Screen name="[workoutId]" />
     </Stack>
   );
 }

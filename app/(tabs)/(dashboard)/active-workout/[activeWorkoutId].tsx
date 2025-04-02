@@ -32,15 +32,15 @@ import { ExerciseLibrary } from "~/components/Exercise/ExerciseLibrary";
 import { Card } from "~/components/ui/card";
 
 export default function ActiveWorkoutScreen() {
-  const { id } = useLocalSearchParams<{ id: string }>();
+  const { activeWorkoutId } = useLocalSearchParams<{ activeWorkoutId: string }>();
   const workoutHistoryStore = useWorkoutHistoryStore();
   const { exercises, getExerciseById } = useExerciseStore();
   const { getActiveRoutine, updateExerciseInWorkout, deleteExerciseFromWorkout, routines, addExerciseToWorkout } =
     useUserRoutineStore();
   const [showAlternatives, setShowAlternatives] = useState<WorkoutExercise | null>(null);
   const activeWorkout = useMemo(
-    () => getActiveRoutine()?.workouts.find((workout) => workout.id === id),
-    [getActiveRoutine, id, routines]
+    () => getActiveRoutine()?.workouts.find((workout) => workout.id === activeWorkoutId),
+    [getActiveRoutine, activeWorkoutId, routines]
   );
 
   const {
