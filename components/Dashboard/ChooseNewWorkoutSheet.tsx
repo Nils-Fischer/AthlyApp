@@ -3,12 +3,9 @@ import { Exercise, Routine, Workout } from "~/lib/types";
 import { BottomSheet } from "../ui/bottom-sheet";
 import { RoutineLibrary } from "../Routine/RoutineLibrary";
 import { useMemo, useState } from "react";
-import { Card, CardContent, CardHeader, CardTitle } from "../ui/card";
 import { Pressable, ScrollView, View } from "react-native";
-import { CardLabel, P, Small } from "../ui/typography";
-import { ChevronDown } from "lucide-react-native";
-import { cn } from "~/lib/utils";
-import { Separator } from "../ui/separator";
+import { WorkoutCard } from "../Workout/WorkoutCard";
+import { P } from "../ui/typography";
 
 export type ChooseNewWorkoutSheetProps = {
   isOpen: boolean;
@@ -89,67 +86,13 @@ export const ChooseNewWorkoutSheet = ({
             selectedRoutine.workouts.map((workout) => {
               const isSelected = selectedWorkout?.id === workout.id;
               return (
-                <Pressable key={workout.id} onPress={() => handleSelectWorkout(workout)} className="active:opacity-50">
-                  <Card className={isSelected ? "border-2 border-green-500/50 bg-green-100/10" : ""}>
-                    <CardHeader>
-                      <CardTitle>
-                        <View className="flex-row items-center justify-between">
-                          <CardLabel className={cn("text-foreground font-bold", isSelected && "text-primary")}>
-                            {workout.name}
-                          </CardLabel>
-                        </View>
-                      </CardTitle>
-                    </CardHeader>
-                    <CardContent>
-                      <View className="flex-row justify-between items-center">
-                        <View className="flex-row items-center gap-2">
-                          <P className="text-muted-foreground">
-                            {workout.exercises.length} {workout.exercises.length === 1 ? "Übung" : "Übungen"}
-                          </P>
-                          {workout.duration && (
-                            <>
-                              <P className="text-muted-foreground">•</P>
-                              <P className="text-muted-foreground">{workout.duration} min</P>
-                            </>
-                          )}
-                        </View>
-                      </View>
-                      <Pressable
-                        className="border-t border-border mt-3 items-center flex-row justify-between pt-2"
-                        onPress={() => showDetails(workout.id)}
-                      >
-                        <CardLabel className="text-muted-foreground">Details</CardLabel>
-                        <ChevronDown
-                          className={cn("text-muted-foreground", expandedWorkouts.includes(workout.id) && "rotate-180")}
-                          size={24}
-                        />
-                      </Pressable>
-                      {expandedWorkouts.includes(workout.id) && (
-                        <View className="gap-3 p-1 pt-3 mt-1 ">
-                          {workout.exercises.map((exercise, index) => (
-                            <React.Fragment key={exercise.exerciseId}>
-                              {index > 0 && <Separator className="my-1" />}
-                              <View className="flex-row items-center">
-                                <View className="w-7 h-7 rounded-full bg-muted shadow-xs items-center justify-center mr-3">
-                                  <Small className="text-primary font-semibold">{index + 1}</Small>
-                                </View>
-                                <View className="flex-1 gap-1">
-                                  <Small className="text-foreground font-medium">
-                                    {exercises.find((e) => e.id === exercise.exerciseId)?.name}
-                                  </Small>
-                                  <Small className="text-muted-foreground">
-                                    {exercise.sets.length} {exercise.sets.length === 1 ? "Satz" : "Sätze"}
-                                    {exercise.restPeriod && ` • ${exercise.restPeriod}s Pause`}
-                                  </Small>
-                                </View>
-                              </View>
-                            </React.Fragment>
-                          ))}
-                        </View>
-                      )}
-                    </CardContent>
-                  </Card>
-                </Pressable>
+                <WorkoutCard
+                  key={workout.id}
+                  workout={workout}
+                  isSelected={isSelected}
+                  onPress={handleSelectWorkout}
+                  exercises={exercises}
+                />
               );
             })}
         </View>
