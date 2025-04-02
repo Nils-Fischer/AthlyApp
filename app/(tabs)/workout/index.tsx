@@ -64,7 +64,7 @@ export default function RoutineScreen() {
 
   return (
     <>
-      <View className="flex-1">
+      <View className="flex-1 bg-background">
         <Tabs value={activeTab} onValueChange={setActiveTab} className="flex-1">
           <View className="px-4">
             <TabsList className="flex-row h-12 bg-muted rounded-lg p-1 w-full">

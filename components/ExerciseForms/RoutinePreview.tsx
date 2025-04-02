@@ -130,8 +130,6 @@ const AnimatedRoutineCard = ({ index, routine, isSelected, onSelect, shouldAnima
           ...routine,
           active: isSelected,
         }}
-        onToggleActive={() => onSelect(routine.id)}
-        showDropdown={false}
         showActive={isSelected}
       />
     </Animated.View>

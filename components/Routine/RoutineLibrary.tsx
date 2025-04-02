@@ -1,12 +1,14 @@
 import React from "react";
-import { ScrollView, View } from "react-native";
+import { Pressable, ScrollView, View } from "react-native";
 import { Text } from "~/components/ui/text";
 import { Input } from "~/components/ui/input";
 import { Button } from "~/components/ui/button";
-import { Plus, Search } from "~/lib/icons/Icons";
+import { MoreHorizontal, Plus, Search, Trash2 } from "~/lib/icons/Icons";
 import { CustomDropdownMenu } from "~/components/ui/custom-dropdown-menu";
 import { Routine } from "~/lib/types";
+import { Ionicons } from "@expo/vector-icons";
 import { RoutineCard } from "./RoutineCard";
+import * as Haptics from "expo-haptics";
 
 interface RoutineLibraryProps {
   routines: Routine[];
@@ -31,6 +33,36 @@ export const RoutineLibrary = ({
   onToggleActive,
   onRoutinePress,
 }: RoutineLibraryProps) => {
+  const getDropdownItems = (routine: Routine) => [
+    {
+      name: routine.active ? "Deaktivieren" : "Aktivieren",
+      icon: ({ size, className }: { size: number; className: string }) => (
+        <Ionicons name={routine.active ? "radio-button-on" : "radio-button-off"} size={size} className={className} />
+      ),
+      onPress: () => onToggleActive?.(routine.id),
+    },
+    {
+      name: "Routine Löschen",
+      icon: ({ size, className }: { size: number; className: string }) => <Trash2 size={size} className={className} />,
+      onPress: () => onDelete?.(routine.id),
+      destructive: true,
+    },
+  ];
+
+  const getRightContent = (routine: Routine) => {
+    return (
+      <CustomDropdownMenu
+        items={getDropdownItems(routine)}
+        align="start"
+        trigger={
+          <Button size="icon" variant="ghost" className="h-10 w-10 rounded-full" haptics="light">
+            <MoreHorizontal size={20} className="text-primary" />
+          </Button>
+        }
+      />
+    );
+  };
+
   return (
     <View className="flex-1 px-4">
       {/* Search Bar */}
@@ -57,7 +89,11 @@ export const RoutineLibrary = ({
       </View>
 
       {/* Routines List */}
-      <ScrollView className="flex-1" showsVerticalScrollIndicator={false} contentContainerStyle={{ paddingBottom: 20 }}>
+      <ScrollView
+        className="flex-1"
+        showsVerticalScrollIndicator={false}
+        contentContainerStyle={{ paddingBottom: 20, gap: 12 }}
+      >
         {routines.length === 0 ? (
           <View className="flex-1 justify-center items-center mt-20 py-20">
             <Text className="text-muted-foreground text-center mb-6">Keine Trainingspläne gefunden</Text>
@@ -82,9 +118,8 @@ export const RoutineLibrary = ({
               <RoutineCard
                 key={routine.id}
                 routine={routine}
+                rightContent={getRightContent(routine)}
                 onPress={() => onRoutinePress(routine.id)}
-                onDelete={onDelete}
-                onToggleActive={onToggleActive}
               />
             ))
         )}
