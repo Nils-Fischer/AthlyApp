@@ -23,7 +23,7 @@ const routes: Route[] = [
   },
   {
     name: "Workout",
-    label: "workout",
+    label: "routine",
     icon: {
       outlined: Dumbbell,
       filled: DumbbellFilled,

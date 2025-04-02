@@ -1,4 +1,3 @@
-// TrainTechApp/app/(tabs)/workout.tsx
 import * as React from "react";
 import { Ionicons } from "@expo/vector-icons";
 import { View } from "react-native";
@@ -116,13 +115,13 @@ export default function RoutineScreen() {
                 searchQuery={searchQuery}
                 onSearchChange={setSearchQuery}
                 addButtonDropdownItems={dropdownItems}
-                onRoutinePress={(routineId) => router.push(`/workout/${routineId}`)}
+                onRoutinePress={(routineId) => router.push(`/routine/${routineId}`)}
                 rightContent={getRightContent}
               />
             </TabsContent>
 
             <TabsContent value="exercises" className="flex-1 h-full">
-              <ExerciseLibrary onPress={(exerciseId) => router.push(`/workout/exercise/${exerciseId}`)} />
+              <ExerciseLibrary onPress={(exerciseId) => router.push(`/routine/workout/exercise/${exerciseId}`)} />
             </TabsContent>
           </View>
         </Tabs>
@@ -134,7 +133,7 @@ export default function RoutineScreen() {
         onCreate={(routine) => {
           addRoutine(routine);
           setShowRoutineCreationDialog(false);
-          router.push(`/workout/${routine.id}`);
+          router.push(`/routine/${routine.id}`);
         }}
       />
 
@@ -144,7 +143,7 @@ export default function RoutineScreen() {
         onCreate={(routine) => {
           addRoutine(routine);
           setShowAIRoutineDialog(false);
-          router.push(`/workout/${routine.id}`);
+          router.push(`/routine/${routine.id}`);
         }}
       />
     </>

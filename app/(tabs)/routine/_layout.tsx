@@ -21,7 +21,7 @@ export default function WorkoutLayout() {
         }}
       />
       <Stack.Screen
-        name="exercise"
+        name="workout"
         options={{
           headerShown: false,
         }}

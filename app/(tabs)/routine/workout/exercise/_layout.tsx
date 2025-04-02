@@ -9,13 +9,7 @@ export default function ExerciseLayout() {
         animation: "slide_from_right",
       }}
     >
-      <Stack.Screen name="[workoutId]" />
-      <Stack.Screen
-        name="exercise"
-        options={{
-          headerShown: false,
-        }}
-      />
+      <Stack.Screen name="[exerciseId]" />
     </Stack>
   );
 }

@@ -18,7 +18,7 @@ export default function RoutineDetails() {
   const navigation = useNavigation();
 
   const handleExercisePress = (exerciseId: number) => {
-    router.push(`./exercise/${exerciseId}`);
+    router.push(`./workout/exercise/${exerciseId}`);
   };
 
   useEffect(() => {
