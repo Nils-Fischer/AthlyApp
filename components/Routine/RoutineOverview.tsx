@@ -1,41 +1,70 @@
-import { useState, useEffect } from "react";
-import { View, TextInput } from "react-native";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "~/components/ui/tabs";
+import React, { useEffect, useState } from "react";
+import { Pressable, ScrollView, View } from "react-native";
 import { Text } from "~/components/ui/text";
-import { Routine, Workout } from "~/lib/types";
-import { WorkoutPage } from "~/components/Workout/WorkoutPage";
-import { Button } from "~/components/ui/button";
-import { MoreHorizontal } from "lucide-react-native";
-import { Plus, Trash2 } from "~/lib/icons/Icons";
-import { CustomDropdownMenu } from "~/components/ui/custom-dropdown-menu";
-import { useUserRoutineStore } from "~/stores/userRoutineStore";
+import { Exercise, Routine, Workout } from "~/lib/types";
 import { generateId } from "~/lib/utils";
+import { CardLabel, H3, P } from "../ui/typography";
+import { FullscreenCard } from "../ui/fullscreen-card";
+import { Calendar, CircleAlert, CheckCircle, Plus, MoreHorizontal, Trash2 } from "~/lib/icons/Icons";
+import { WorkoutCard } from "../Workout/WorkoutCard";
+import { H3Input, PInput } from "../ui/typography-inputs";
+import WheelPicker from "../ui/wheel-picker";
+import { Card, CardHeader } from "../ui/card";
+import { CustomDropdownMenu } from "../ui/custom-dropdown-menu";
+import { Button } from "../ui/button";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "../ui/alert-dialog";
 
 export function RoutineOverview({
   routine: initialRoutine,
-  handleExercisePress,
-  isEditMode = false,
+  handleWorkoutPress,
+  exercises,
+  isEditMode,
+  updateRoutine,
 }: {
   routine: Routine;
-  handleExercisePress?: (exerciseId: number) => void;
-  isEditMode?: boolean;
+  handleWorkoutPress?: (workoutId: string) => void;
+  exercises: Exercise[];
+  isEditMode: boolean;
+  updateRoutine: (routine: Routine) => void;
 }) {
-  const { updateRoutine } = useUserRoutineStore();
   const [routine, setRoutine] = useState(initialRoutine);
-  const [activeTab, setActiveTab] = useState(routine?.workouts[0]?.id.toString() || "0");
+  const [name, setName] = useState(routine.name);
+  const [description, setDescription] = useState(routine.description);
+  const [active, setActive] = useState(routine.active);
+  const [frequency, setFrequency] = useState(routine.frequency);
+  const [showFrequency, setShowFrequency] = useState(false);
+  const [showDeleteWorkoutAlert, setShowDeleteWorkoutAlert] = useState<string | null>(null);
 
   useEffect(() => {
-    setRoutine(initialRoutine);
-  }, [initialRoutine]);
+    if (!isEditMode) {
+      const updatedRoutine: Routine = {
+        ...routine,
+        name: name,
+        description: description,
+        active: active,
+        frequency: frequency,
+      };
 
-  const handleUpdateWorkout = async (updatedWorkout: Workout) => {
-    const updatedRoutine: Routine = {
-      ...routine,
-      workouts: routine.workouts.map((workout) => (workout.id === updatedWorkout.id ? updatedWorkout : workout)),
-    };
-    setRoutine(updatedRoutine);
-    await updateRoutine(updatedRoutine);
-  };
+      if (
+        updatedRoutine.name !== routine.name ||
+        updatedRoutine.description !== routine.description ||
+        updatedRoutine.active !== routine.active ||
+        updatedRoutine.frequency !== routine.frequency
+      ) {
+        updateRoutine(updatedRoutine);
+        setRoutine(updatedRoutine);
+      }
+    }
+  }, [isEditMode]);
 
   const handleUpdateRoutine = async (updatedRoutine: Routine) => {
     setRoutine(updatedRoutine);
@@ -46,6 +75,7 @@ export function RoutineOverview({
     const newWorkout: Workout = {
       id: generateId(),
       name: `Workout ${routine.workouts.length + 1}`,
+      description: "Neues Workout",
       exercises: [],
     };
 
@@ -53,8 +83,6 @@ export function RoutineOverview({
       ...routine,
       workouts: [...routine.workouts, newWorkout],
     };
-
-    setActiveTab(newWorkout.id.toString());
     await handleUpdateRoutine(updatedRoutine);
   };
 
@@ -67,6 +95,29 @@ export function RoutineOverview({
     await updateRoutine(updatedRoutine);
   };
 
+  const getDropdownItems = (workout: Workout) => [
+    {
+      name: "Workout löschen",
+      icon: ({ size, className }: { size: number; className: string }) => <Trash2 size={size} className={className} />,
+      onPress: () => setShowDeleteWorkoutAlert(workout.id),
+      destructive: true,
+    },
+  ];
+
+  const getRightContent = (workout: Workout) => {
+    return (
+      <CustomDropdownMenu
+        items={getDropdownItems(workout)}
+        align="start"
+        trigger={
+          <Button size="icon" variant="ghost" className="h-10 w-10 rounded-full" haptics="light">
+            <MoreHorizontal size={20} className="text-primary" />
+          </Button>
+        }
+      />
+    );
+  };
+
   if (!routine || !routine.workouts.length) {
     return (
       <View className="flex-1 justify-center items-center">
@@ -76,81 +127,119 @@ export function RoutineOverview({
   }
 
   return (
-    <View className="flex-1">
-      <Tabs value={activeTab} onValueChange={setActiveTab} className="flex-1">
-        <View className="px-4 pt-2 flex-row">
-          <TabsList className="mb-4 flex-row flex-1 items-center">
-            {routine.workouts.map((workout) => (
-              <TabsTrigger key={workout.id} value={workout.id.toString()} className="flex-1">
-                {isEditMode && activeTab === workout.id.toString() ? (
-                  <View className="flex-row items-center justify-center w-full">
-                    <TextInput
-                      className="flex-1 py-1 rounded-md bg-background text-center text-foreground"
-                      defaultValue={workout.name}
-                      showSoftInputOnFocus={false}
-                      autoFocus
-                      numberOfLines={1}
-                      maxLength={20}
-                      onChangeText={(text) => {
-                        const updatedWorkout = { ...workout, name: text };
-                        handleUpdateWorkout(updatedWorkout);
-                      }}
-                      onPressIn={() => {
-                        TextInput.State.currentlyFocusedInput()?.setNativeProps({ showSoftInputOnFocus: true });
-                      }}
+    <>
+      <ScrollView>
+        <FullscreenCard className="h-full pb-20">
+          <FullscreenCard.Top className="p-4 min-h-80 max-h-96 bg-foreground justify-between gap-2 pb-8">
+            <View className="flex-column gap-2">
+              {isEditMode ? (
+                <H3Input className="text-background" defaultValue={name} onChangeText={(text) => setName(text)} />
+              ) : (
+                <H3 className="text-background">{routine.name}</H3>
+              )}
+
+              {routine.description && (
+                <>
+                  {isEditMode ? (
+                    <PInput
+                      className="text-background"
+                      defaultValue={description}
+                      onChangeText={(text) => setDescription(text)}
                     />
-                  </View>
-                ) : (
-                  <Text numberOfLines={1} className="px-2">
-                    {workout.name}
-                  </Text>
-                )}
-              </TabsTrigger>
-            ))}
-          </TabsList>
-          {isEditMode && (
-            <CustomDropdownMenu
-              items={[
-                {
-                  name: "Workout hinzufügen",
-                  icon: Plus,
-                  onPress: handleAddWorkout,
-                },
-                {
-                  name: "Workout löschen",
-                  icon: Trash2,
-                  onPress: () => {
-                    setActiveTab(routine.workouts[0].id.toString());
-                    deleteWorkout(activeTab);
-                  },
-                  destructive: true,
-                },
-              ]}
-              trigger={
-                <Button
-                  variant="ghost"
-                  className="flex-none h-8 w-8 p-0 ml-2 justify-center items-center"
-                  haptics="light"
-                >
-                  <MoreHorizontal size={20} className="text-primary" />
-                </Button>
-              }
-              side="bottom"
-              align="end"
-            />
-          )}
-        </View>
-        {routine.workouts.map((workout) => (
-          <TabsContent key={workout.id} value={workout.id.toString()} className="flex-1">
-            <WorkoutPage
-              workout={workout}
-              onExercisePress={handleExercisePress}
-              onUpdateWorkout={handleUpdateWorkout}
-              isEditMode={isEditMode}
-            />
-          </TabsContent>
-        ))}
-      </Tabs>
-    </View>
+                  ) : (
+                    <P className="text-background">{routine.description}</P>
+                  )}
+                </>
+              )}
+            </View>
+
+            <View className="flex-row justify-between">
+              <Pressable onPress={() => setShowFrequency(!showFrequency)} className="p-0 m-0" disabled={!isEditMode}>
+                <View className="flex-row items-center gap-2">
+                  <Calendar className="text-background" size={18} />
+                  <P className="text-background">{frequency}x pro Woche</P>
+                </View>
+              </Pressable>
+
+              <View className="flex-row items-center gap-2">
+                <Pressable onPress={() => setActive(!active)} className="p-0 m-0" disabled={!isEditMode}>
+                  {active ? (
+                    <View className="flex-row items-center gap-2">
+                      <CheckCircle className="text-primary-foreground" size={18} />
+                      <P className="text-background">Aktiv</P>
+                    </View>
+                  ) : (
+                    <View className="flex-row items-center gap-2">
+                      <CircleAlert className="text-destructive-foreground" size={18} />
+                      <P className="text-background">Inaktiv</P>
+                    </View>
+                  )}
+                </Pressable>
+              </View>
+            </View>
+          </FullscreenCard.Top>
+          <FullscreenCard.Content overlap={20} className="h-full">
+            <View className="gap-2">
+              {routine.workouts.map((workout) => (
+                <WorkoutCard
+                  workout={workout}
+                  exercises={exercises}
+                  rightAccessory={getRightContent(workout)}
+                  onPress={() => handleWorkoutPress?.(workout.id)}
+                />
+              ))}
+              {isEditMode && (
+                <Pressable onPress={handleAddWorkout}>
+                  <Card>
+                    <CardHeader className="flex-row items-center justify-between gap-2">
+                      <CardLabel className="text-foreground">Workout hinzufügen</CardLabel>
+                      <Plus className="text-foreground" size={24} />
+                    </CardHeader>
+                  </Card>
+                </Pressable>
+              )}
+            </View>
+          </FullscreenCard.Content>
+        </FullscreenCard>
+      </ScrollView>
+
+      <WheelPicker
+        isOpen={showFrequency}
+        value={frequency}
+        rangeStart={1}
+        rangeEnd={7}
+        step={1}
+        onSave={(value) => {
+          setFrequency(value);
+          setShowFrequency(false);
+        }}
+        onClose={() => setShowFrequency(false)}
+      />
+
+      {showDeleteWorkoutAlert && (
+        <AlertDialog open={showDeleteWorkoutAlert !== null} onOpenChange={() => setShowDeleteWorkoutAlert(null)}>
+          <AlertDialogContent className="w-[90%] max-w-[400px]">
+            <AlertDialogHeader>
+              <AlertDialogTitle className="text-center">Workout löschen?</AlertDialogTitle>
+              <AlertDialogDescription>
+                <Text className="text-foreground text-center">Dieser Workout wird unwiderruflich gelöscht.</Text>
+              </AlertDialogDescription>
+            </AlertDialogHeader>
+            <AlertDialogFooter className="flex flex-row justify-center mt-4 gap-3">
+              <AlertDialogCancel className="flex-1 max-w-[160px]" haptics="light">
+                <Text>Abbrechen</Text>
+              </AlertDialogCancel>
+              <AlertDialogAction
+                className="flex-1 max-w-[160px] bg-destructive text-destructive-foreground"
+                onPress={() => deleteWorkout(showDeleteWorkoutAlert)}
+                haptics="medium"
+              >
+                <Text>Löschen</Text>
+              </AlertDialogAction>
+            </AlertDialogFooter>
+          </AlertDialogContent>
+        </AlertDialog>
+      )}
+    </>
   );
 }
