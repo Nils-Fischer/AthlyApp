@@ -21,15 +21,11 @@ export const WorkoutCard = ({ workout, isSelected, onPress, exercises, rightAcce
   return (
     <Pressable key={workout.id} onPress={() => onPress?.(workout)} className="active:opacity-50">
       <Card className={isSelected ? "border-2 border-success/50 bg-success/10" : ""}>
-        <CardHeader>
-          <CardTitle>
-            <View className="flex-row items-center justify-between">
-              <CardLabel className={cn("text-foreground font-bold text-md", isSelected && "text-primary")}>
-                {workout.name}
-              </CardLabel>
-              {rightAccessory}
-            </View>
-          </CardTitle>
+        <CardHeader className="flex-row items-center justify-between">
+          <CardLabel className={cn("text-foreground font-bold text-md", isSelected && "text-primary")}>
+            {workout.name}
+          </CardLabel>
+          {rightAccessory}
         </CardHeader>
         <CardContent className="gap-2">
           <P numberOfLines={3}>{workout.description}</P>
@@ -56,7 +52,7 @@ export const WorkoutCard = ({ workout, isSelected, onPress, exercises, rightAcce
               {workout.exercises.map((exercise, index) => (
                 <React.Fragment key={exercise.exerciseId}>
                   {index > 0 && <Separator className="my-1" />}
-                  <View className="flex-row items-center">
+                  <View className="flex-row items-center justify-center">
                     <View className="w-7 h-7 rounded-full bg-background shadow-sm items-center justify-center mr-3">
                       <Small className="text-primary font-semibold">{index + 1}</Small>
                     </View>
