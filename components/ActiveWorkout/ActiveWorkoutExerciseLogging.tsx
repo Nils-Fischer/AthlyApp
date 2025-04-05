@@ -145,7 +145,7 @@ export const ActiveWorkoutExerciseLogging = ({
                   className="flex-row items-center flex-1 p-2 rounded-lg active:opacity-70"
                   onPress={async () => {
                     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-                    router.push(`/(tabs)/workout/exercise/${exercise.id}`);
+                    router.push(`/(tabs)/routine/exercise/${exercise.id}`);
                   }}
                 >
                   <Info size={20} className="text-foreground mr-2" />

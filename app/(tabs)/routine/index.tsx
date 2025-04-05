@@ -121,7 +121,7 @@ export default function RoutineScreen() {
             </TabsContent>
 
             <TabsContent value="exercises" className="flex-1 h-full">
-              <ExerciseLibrary onPress={(exercise) => router.push(`/routine/workout/exercise/${exercise.id}`)} />
+              <ExerciseLibrary onPress={(exercise) => router.push(`/routine/exercise/${exercise.id}`)} />
             </TabsContent>
           </View>
         </Tabs>

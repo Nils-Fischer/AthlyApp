@@ -20,7 +20,7 @@ export default function ExerciseDetailScreen() {
   const [isEditMode, setIsEditMode] = useState(false);
 
   const handleExercisePress = (exerciseId: number) => {
-    router.push(`/routine/workout/exercise/${exerciseId}`);
+    router.push(`../exercise/${exerciseId}`);
   };
 
   const handleUpdateWorkout = (updatedWorkout: Workout) => {
