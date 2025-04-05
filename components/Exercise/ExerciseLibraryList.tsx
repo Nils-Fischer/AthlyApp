@@ -7,7 +7,7 @@ import { Text } from "~/components/ui/text";
 
 interface ExerciseListProps {
   exercises: Exercise[];
-  onPress?: (exerciseId: number) => void;
+  onPress?: (exercise: Exercise) => void;
 }
 
 export const ExerciseLibraryList = ({ exercises, onPress }: ExerciseListProps) => {

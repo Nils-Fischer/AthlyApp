@@ -1,7 +1,7 @@
 import { useExerciseStore } from "~/stores/exerciseStore";
 import { Pressable, TouchableOpacity, View } from "react-native";
 import { Workout, WorkoutExercise } from "~/lib/types";
-import { Edit3, MoreHorizontal, Plus, Repeat, Trash2, X } from "~/lib/icons/Icons";
+import { Edit3, GripVertical, MoreHorizontal, Plus, Repeat, Trash2, X } from "~/lib/icons/Icons";
 import React, { useState, useEffect } from "react";
 import { Card, CardTitle } from "~/components/ui/card";
 import { ExerciseLibrary } from "~/components/Exercise/ExerciseLibrary";
@@ -22,14 +22,20 @@ interface WorkoutPageProps {
   workout: Workout;
   onExercisePress?: (exerciseId: number) => void;
   isEditMode: boolean;
-  onUpdateWorkout?: (workout: Workout) => void;
+  onAddExercise: (exercise: WorkoutExercise) => void;
+  onDeleteExercise: (exerciseId: number) => void;
+  onUpdateExercise: (exerciseId: number, updatedExercise: WorkoutExercise) => void;
+  onUpdateWorkout: (updatedWorkout: Workout) => void;
 }
 
-export function WorkoutPage({
+export function WorkoutOverview({
   workout: initialWorkout,
   onExercisePress,
-  onUpdateWorkout,
+  onAddExercise,
+  onDeleteExercise,
+  onUpdateExercise,
   isEditMode,
+  onUpdateWorkout,
 }: WorkoutPageProps) {
   const exerciseStore = useExerciseStore();
   const [workout, setWorkout] = useState(initialWorkout);
@@ -40,46 +46,6 @@ export function WorkoutPage({
   useEffect(() => {
     setWorkout(initialWorkout);
   }, [initialWorkout]);
-
-  const deleteExercise = (exerciseId: number) => {
-    const updatedWorkout = {
-      ...workout,
-      exercises: workout.exercises.filter((ex) => ex.exerciseId !== exerciseId),
-    };
-    setWorkout(updatedWorkout);
-    onUpdateWorkout?.(updatedWorkout);
-  };
-
-  const updateWorkoutExercise = (oldExercises: WorkoutExercise, updatedExercise: WorkoutExercise) => {
-    const exerciseIndex = workout.exercises.findIndex((ex) => ex.exerciseId === oldExercises.exerciseId);
-    if (exerciseIndex === -1) return;
-
-    const newExercises = [...workout.exercises];
-    newExercises[exerciseIndex] = { ...newExercises[exerciseIndex], ...updatedExercise };
-    const updatedWorkout = { ...workout, exercises: newExercises };
-
-    setWorkout(updatedWorkout);
-    onUpdateWorkout?.(updatedWorkout);
-  };
-
-  const addExercise = (exerciseId: number) => {
-    const newExercise: WorkoutExercise = {
-      exerciseId,
-      alternatives: [],
-      sets: Array(3).fill({ reps: 10 }),
-    };
-
-    if (workout.exercises.map((exercise) => exercise.exerciseId).includes(exerciseId)) return;
-
-    const updatedWorkout = {
-      ...workout,
-      exercises: [...workout.exercises, newExercise],
-    };
-
-    setWorkout(updatedWorkout);
-    onUpdateWorkout?.(updatedWorkout);
-    setShowAddExercise(false);
-  };
 
   const showEditExerciseSheet: (workoutExercise: WorkoutExercise) => void = async (
     workoutExercise: WorkoutExercise
@@ -92,7 +58,7 @@ export function WorkoutPage({
       },
     });
     if (result) {
-      updateWorkoutExercise(workoutExercise, result);
+      onUpdateExercise(workoutExercise.exerciseId, result);
     }
   };
 
@@ -126,7 +92,7 @@ export function WorkoutPage({
       {
         name: "Übung löschen",
         icon: Trash2,
-        onPress: () => deleteExercise(workoutExercise.exerciseId),
+        onPress: () => onDeleteExercise(workoutExercise.exerciseId),
         destructive: true,
       },
     ];
@@ -138,7 +104,7 @@ export function WorkoutPage({
           setDeleteExerciseId(open ? workoutExercise.exerciseId : null);
         }}
         onConfirm={() => {
-          deleteExercise(workoutExercise.exerciseId);
+          onDeleteExercise(workoutExercise.exerciseId);
           setDeleteExerciseId(null);
         }}
         trigger={
@@ -175,6 +141,7 @@ export function WorkoutPage({
           exercise={exercise}
           workoutExercise={workoutExercise}
           onPress={onPress}
+          onLongPress={isEditMode ? drag : undefined}
           rightAccessory={rightAccessory}
         />
       </TouchableOpacity>
@@ -182,7 +149,7 @@ export function WorkoutPage({
   };
 
   return (
-    <View className="flex-1 px-4">
+    <View className="flex-1">
       {isEditMode && (
         <Pressable onPress={() => setShowAddExercise(true)}>
           <Card className="p-4 mb-2 flex-row justify-between items-center">
@@ -205,8 +172,17 @@ export function WorkoutPage({
 
       <BottomSheet title="Übung hinzufügen" isOpen={showAddExercise} onClose={() => setShowAddExercise(false)}>
         <ExerciseLibrary
-          onPress={(exerciseId) => {
-            addExercise(exerciseId);
+          onPress={(exercise) => {
+            onAddExercise({
+              exerciseId: exercise.id,
+              alternatives: [],
+              sets: [
+                { reps: 10, weight: 0 },
+                { reps: 10, weight: 0 },
+                { reps: 10, weight: 0 },
+              ],
+            });
+            setShowAddExercise(false);
           }}
         />
       </BottomSheet>
@@ -220,7 +196,7 @@ export function WorkoutPage({
           <ExerciseEditAlternatives
             workoutExercise={showAlternatives}
             onSelection={(updatedWorkoutExercise) => {
-              updateWorkoutExercise(showAlternatives, updatedWorkoutExercise);
+              onUpdateExercise(showAlternatives.exerciseId, updatedWorkoutExercise);
               setShowAlternatives(null);
             }}
             withConfirmation={false}

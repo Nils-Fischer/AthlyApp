@@ -6,10 +6,10 @@ import { ExerciseLibraryFilter } from "~/components/Exercise/ExerciseLibraryFilt
 import { ExerciseLibraryList } from "~/components/Exercise/ExerciseLibraryList";
 import { Search } from "~/lib/icons/Icons";
 import { getMuscleGroup } from "~/lib/utils";
-import { MuscleGroup } from "~/lib/types";
+import { Exercise, MuscleGroup } from "~/lib/types";
 
 interface ExerciseLibraryProps {
-  onPress?: (exerciseId: number) => void;
+  onPress?: (exercise: Exercise) => void;
 }
 
 export const ExerciseLibrary = ({ onPress }: ExerciseLibraryProps) => {

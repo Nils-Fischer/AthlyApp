@@ -259,7 +259,7 @@ const CardLabelInput = React.forwardRef<TextInput, Omit<TextInputProps, "classNa
         ref={ref}
         className={cn(
           "bg-transparent border-0 p-0 placeholder:text-muted-foreground", // Base transparent input styles
-          "text-sm text-muted-foreground font-bold tracking-widest uppercase web:select-text", // CardLabel styles
+          "text-sm text-muted-foreground font-bold tracking-widest web:select-text", // CardLabel styles
           className
         )}
         style={[{ fontFamily: "Avenir" }, props.style]}

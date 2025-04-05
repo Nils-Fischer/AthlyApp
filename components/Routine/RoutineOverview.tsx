@@ -37,10 +37,10 @@ export function RoutineOverview({
   updateRoutine: (routine: Routine) => void;
 }) {
   const [routine, setRoutine] = useState(initialRoutine);
-  const [name, setName] = useState(routine.name);
-  const [description, setDescription] = useState(routine.description);
-  const [active, setActive] = useState(routine.active);
-  const [frequency, setFrequency] = useState(routine.frequency);
+  const [name, setName] = useState(initialRoutine.name);
+  const [description, setDescription] = useState(initialRoutine.description);
+  const [active, setActive] = useState(initialRoutine.active);
+  const [frequency, setFrequency] = useState(initialRoutine.frequency);
   const [showFrequency, setShowFrequency] = useState(false);
   const [showDeleteWorkoutAlert, setShowDeleteWorkoutAlert] = useState<string | null>(null);
 
@@ -65,6 +65,14 @@ export function RoutineOverview({
       }
     }
   }, [isEditMode]);
+
+  useEffect(() => {
+    setRoutine(initialRoutine);
+    setName(initialRoutine.name);
+    setDescription(initialRoutine.description);
+    setActive(initialRoutine.active);
+    setFrequency(initialRoutine.frequency);
+  }, [initialRoutine]);
 
   const handleUpdateRoutine = async (updatedRoutine: Routine) => {
     setRoutine(updatedRoutine);

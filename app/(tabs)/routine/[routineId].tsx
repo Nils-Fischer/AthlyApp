@@ -5,7 +5,7 @@ import { Exercise, Routine } from "~/lib/types";
 import { RoutineOverview } from "~/components/Routine/RoutineOverview";
 import { ChevronLeft } from "~/lib/icons/Icons";
 import { Button } from "~/components/ui/button";
-import { TextInput, View } from "react-native";
+import { View } from "react-native";
 import { useUserRoutineStore } from "~/stores/userRoutineStore";
 
 export default function RoutineDetails() {

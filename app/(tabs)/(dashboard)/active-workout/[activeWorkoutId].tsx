@@ -233,9 +233,9 @@ export default function ActiveWorkoutScreen() {
 
         <BottomSheet title="Übung hinzufügen" isOpen={showAddExercise} onClose={() => setShowAddExercise(false)}>
           <ExerciseLibrary
-            onPress={(exerciseId) => {
+            onPress={(exercise) => {
               addExerciseToWorkout(activeWorkout.id, {
-                exerciseId: exerciseId,
+                exerciseId: exercise.id,
                 alternatives: [],
                 sets: Array(3).fill({ reps: 10 }),
               });
