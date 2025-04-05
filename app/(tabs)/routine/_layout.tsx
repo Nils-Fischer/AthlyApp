@@ -26,6 +26,12 @@ export default function WorkoutLayout() {
           headerShown: false,
         }}
       />
+      <Stack.Screen
+        name="exercise"
+        options={{
+          headerShown: false,
+        }}
+      />
     </Stack>
   );
 }

@@ -10,12 +10,6 @@ export default function ExerciseLayout() {
       }}
     >
       <Stack.Screen name="[workoutId]" />
-      <Stack.Screen
-        name="exercise"
-        options={{
-          headerShown: false,
-        }}
-      />
     </Stack>
   );
 }
