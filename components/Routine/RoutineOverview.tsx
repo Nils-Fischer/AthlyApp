@@ -2,10 +2,10 @@ import React, { useEffect, useState } from "react";
 import { Pressable, ScrollView, View } from "react-native";
 import { Text } from "~/components/ui/text";
 import { Exercise, Routine, Workout } from "~/lib/types";
-import { generateId } from "~/lib/utils";
+import { cn, generateId } from "~/lib/utils";
 import { CardLabel, H3, P } from "../ui/typography";
 import { FullscreenCard } from "../ui/fullscreen-card";
-import { Calendar, CircleAlert, CheckCircle, Plus, MoreHorizontal, Trash2 } from "~/lib/icons/Icons";
+import { Calendar, CircleAlert, CheckCircle, Plus, MoreHorizontal, Trash2, Pencil } from "~/lib/icons/Icons";
 import { WorkoutCard } from "../Workout/WorkoutCard";
 import { H3Input, PInput } from "../ui/typography-inputs";
 import WheelPicker from "../ui/wheel-picker";
@@ -133,7 +133,14 @@ export function RoutineOverview({
           <FullscreenCard.Top className="p-4 min-h-80 max-h-96 bg-foreground justify-between gap-2 pb-8">
             <View className="flex-column gap-2">
               {isEditMode ? (
-                <H3Input className="text-background" defaultValue={name} onChangeText={(text) => setName(text)} />
+                <View className="flex-row gap-2 items-center">
+                  <H3Input
+                    className="italic text-background"
+                    defaultValue={name}
+                    onChangeText={(text) => setName(text)}
+                  />
+                  {isEditMode && <Pencil className="text-background/80" size={12} />}
+                </View>
               ) : (
                 <H3 className="text-background">{routine.name}</H3>
               )}
@@ -142,7 +149,7 @@ export function RoutineOverview({
                 <>
                   {isEditMode ? (
                     <PInput
-                      className="text-background"
+                      className="text-background/80"
                       defaultValue={description}
                       onChangeText={(text) => setDescription(text)}
                     />
@@ -154,19 +161,28 @@ export function RoutineOverview({
             </View>
 
             <View className="flex-row justify-between">
-              <Pressable onPress={() => setShowFrequency(!showFrequency)} className="p-0 m-0" disabled={!isEditMode}>
+              <Pressable
+                onPress={() => setShowFrequency(!showFrequency)}
+                className="p-0 m-0 active:opacity-70"
+                disabled={!isEditMode}
+              >
                 <View className="flex-row items-center gap-2">
                   <Calendar className="text-background" size={18} />
-                  <P className="text-background">{frequency}x pro Woche</P>
+                  <P className={cn("text-background", isEditMode && "italic")}>{frequency}x pro Woche</P>
+                  {isEditMode && <Pencil className="text-background/80" size={12} />}
                 </View>
               </Pressable>
 
               <View className="flex-row items-center gap-2">
-                <Pressable onPress={() => setActive(!active)} className="p-0 m-0" disabled={!isEditMode}>
+                <Pressable
+                  onPress={() => setActive(!active)}
+                  className="p-0 m-0 active:opacity-70"
+                  disabled={!isEditMode}
+                >
                   {active ? (
                     <View className="flex-row items-center gap-2">
                       <CheckCircle className="text-primary-foreground" size={18} />
-                      <P className="text-background">Aktiv</P>
+                      <P className={cn("text-background", isEditMode && "italic")}>Aktiv</P>
                     </View>
                   ) : (
                     <View className="flex-row items-center gap-2">
@@ -182,6 +198,7 @@ export function RoutineOverview({
             <View className="gap-2">
               {routine.workouts.map((workout) => (
                 <WorkoutCard
+                  key={workout.id}
                   workout={workout}
                   exercises={exercises}
                   rightAccessory={getRightContent(workout)}

@@ -26,7 +26,7 @@ export default function RoutineDetails() {
   useEffect(() => {
     navigation.setOptions({
       headerShown: true,
-      headerTitle: routine?.name,
+      headerTitle: "Trainingsplan",
     });
   }, [routine]);
 
@@ -34,7 +34,6 @@ export default function RoutineDetails() {
     <>
       <Stack.Screen
         options={{
-          headerTitle: "Trainingsplan",
           headerLeft: () => (
             <Button variant="ghost" className="ml-2" onPress={() => router.back()}>
               <ChevronLeft size={24} />

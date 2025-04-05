@@ -12,7 +12,7 @@ const H1Input = React.forwardRef<TextInput, Omit<TextInputProps, OmittedInputPro
       <TextInput
         ref={ref}
         className={cn(
-          "bg-transparent border-0 p-0 text-foreground placeholder:text-muted-foreground", // Base transparent input styles
+          "bg-transparent border-0 p-0 text-foreground/80 placeholder:text-muted-foreground", // Base transparent input styles
           "web:scroll-m-20 text-4xl font-extrabold tracking-tight lg:text-5xl web:select-text", // H1 styles
           className
         )}
@@ -34,7 +34,7 @@ const H2Input = React.forwardRef<TextInput, Omit<TextInputProps, OmittedInputPro
       <TextInput
         ref={ref}
         className={cn(
-          "bg-transparent border-0 p-0 text-foreground placeholder:text-muted-foreground", // Base transparent input styles
+          "bg-transparent border-0 p-0 text-foreground/80 placeholder:text-muted-foreground", // Base transparent input styles
           "web:scroll-m-20 pb-2 text-3xl font-semibold tracking-tight first:mt-0 web:select-text", // H2 styles (removed border-b)
           className
         )}
@@ -79,7 +79,7 @@ const H4Input = React.forwardRef<TextInput, Omit<TextInputProps, OmittedInputPro
       <TextInput
         ref={ref}
         className={cn(
-          "bg-transparent border-0 p-0 text-foreground placeholder:text-muted-foreground", // Base transparent input styles
+          "bg-transparent border-0 p-0 text-foreground/80 placeholder:text-muted-foreground", // Base transparent input styles
           "web:scroll-m-20 text-xl font-semibold tracking-tight web:select-text", // H4 styles
           className
         )}
@@ -101,7 +101,7 @@ const PInput = React.forwardRef<TextInput, Omit<TextInputProps, OmittedInputProp
       <TextInput
         ref={ref}
         className={cn(
-          "bg-transparent border-0 p-0 text-foreground placeholder:text-muted-foreground", // Base transparent input styles
+          "bg-transparent border-0 p-0 text-foreground/80 placeholder:text-muted-foreground", // Base transparent input styles
           "text-base web:select-text", // P styles
           className
         )}
@@ -124,7 +124,7 @@ const BlockQuoteInput = React.forwardRef<TextInput, Omit<TextInputProps, Omitted
       <TextInput
         ref={ref}
         className={cn(
-          "bg-transparent border-0 p-0 text-foreground placeholder:text-muted-foreground", // Base transparent input styles
+          "bg-transparent border-0 p-0 text-foreground/80 placeholder:text-muted-foreground", // Base transparent input styles
           "mt-6 native:mt-4 pl-6 native:pl-3 text-base italic web:select-text", // BlockQuote styles (removed border)
           className
         )}
@@ -146,7 +146,7 @@ const CodeInput = React.forwardRef<TextInput, Omit<TextInputProps, OmittedInputP
       <TextInput
         ref={ref}
         className={cn(
-          "bg-transparent border-0 p-0 text-foreground placeholder:text-muted-foreground", // Base transparent input styles
+          "bg-transparent border-0 p-0 text-foreground/80 placeholder:text-muted-foreground", // Base transparent input styles
           "relative px-[0.3rem] py-[0.2rem] text-sm font-semibold web:select-text", // Code styles (removed bg-muted, rounded-md)
           className
         )}
@@ -192,7 +192,7 @@ const LargeInput = React.forwardRef<TextInput, Omit<TextInputProps, OmittedInput
       <TextInput
         ref={ref}
         className={cn(
-          "bg-transparent border-0 p-0 text-foreground placeholder:text-muted-foreground", // Base transparent input styles
+          "bg-transparent border-0 p-0 text-foreground/80 placeholder:text-muted-foreground", // Base transparent input styles
           "text-xl font-semibold web:select-text", // Large styles
           className
         )}
@@ -214,7 +214,7 @@ const SmallInput = React.forwardRef<TextInput, Omit<TextInputProps, OmittedInput
       <TextInput
         ref={ref}
         className={cn(
-          "bg-transparent border-0 p-0 text-foreground placeholder:text-muted-foreground", // Base transparent input styles
+          "bg-transparent border-0 p-0 text-foreground/80 placeholder:text-muted-foreground", // Base transparent input styles
           "text-sm font-medium leading-none web:select-text", // Small styles
           className
         )}
