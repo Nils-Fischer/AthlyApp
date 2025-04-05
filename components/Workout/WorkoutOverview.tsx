@@ -1,6 +1,6 @@
 import { useExerciseStore } from "~/stores/exerciseStore";
-import { Pressable, TouchableOpacity, View } from "react-native";
-import { Workout, WorkoutExercise } from "~/lib/types";
+import { Pressable, TouchableOpacity, View, Text } from "react-native";
+import { Exercise, Workout, WorkoutExercise } from "~/lib/types";
 import { Edit3, GripVertical, MoreHorizontal, Plus, Repeat, Trash2, X } from "~/lib/icons/Icons";
 import React, { useState, useEffect } from "react";
 import { Card, CardTitle } from "~/components/ui/card";
@@ -15,6 +15,7 @@ import { Button } from "../ui/button";
 import { DeleteConfirmation } from "../DeleteConfirmation";
 import { CustomDropdownMenu } from "../ui/custom-dropdown-menu";
 import { ExerciseOverviewCard } from "../Exercise/ExerciseOverviewCard";
+import { WorkoutOverviewSummaryCard } from "./WorkoutOverviewSummaryCard";
 
 registerSheet("sheet-with-router", ExerciseBottomSheetEditor);
 
@@ -26,6 +27,7 @@ interface WorkoutPageProps {
   onDeleteExercise: (exerciseId: number) => void;
   onUpdateExercise: (exerciseId: number, updatedExercise: WorkoutExercise) => void;
   onUpdateWorkout: (updatedWorkout: Workout) => void;
+  getExerciseById: (id: number) => Exercise | null;
 }
 
 export function WorkoutOverview({
@@ -36,6 +38,7 @@ export function WorkoutOverview({
   onUpdateExercise,
   isEditMode,
   onUpdateWorkout,
+  getExerciseById,
 }: WorkoutPageProps) {
   const exerciseStore = useExerciseStore();
   const [workout, setWorkout] = useState(initialWorkout);
@@ -150,15 +153,6 @@ export function WorkoutOverview({
 
   return (
     <View className="flex-1">
-      {isEditMode && (
-        <Pressable onPress={() => setShowAddExercise(true)}>
-          <Card className="p-4 mb-2 flex-row justify-between items-center">
-            <CardTitle className="text-sm font-medium">Übung hinzufügen</CardTitle>
-            <Plus size={20} className="text-primary" />
-          </Card>
-        </Pressable>
-      )}
-
       <DraggableFlatList
         data={workout.exercises}
         onDragEnd={onDragEnd}
@@ -168,6 +162,24 @@ export function WorkoutOverview({
         contentContainerStyle={{ paddingBottom: 20 }}
         dragHitSlop={{ top: 0, bottom: 0, left: 0, right: 0 }}
         animationConfig={{ duration: 200 }}
+        ListHeaderComponent={
+          <View className="flex-1 gap-2 mb-4">
+            <WorkoutOverviewSummaryCard
+              workout={workout}
+              isEditMode={isEditMode}
+              getExerciseById={getExerciseById}
+              onUpdateWorkout={onUpdateWorkout}
+            />
+            {isEditMode && (
+              <Pressable onPress={() => setShowAddExercise(true)}>
+                <Card className="p-4 flex-row justify-between items-center">
+                  <CardTitle className="text-sm font-medium">Übung hinzufügen</CardTitle>
+                  <Plus size={20} className="text-primary" />
+                </Card>
+              </Pressable>
+            )}
+          </View>
+        }
       />
 
       <BottomSheet title="Übung hinzufügen" isOpen={showAddExercise} onClose={() => setShowAddExercise(false)}>
