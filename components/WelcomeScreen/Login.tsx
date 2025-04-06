@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { ActivityIndicator, Platform, Pressable, View, ScrollView } from "react-native";
-import { H1, H2, H3, P, Small } from "~/components/ui/typography";
+import { H1, H2, H3, Large, P, Small } from "~/components/ui/typography";
 import { Card, CardContent, CardFooter, CardHeader } from "~/components/ui/card";
 import * as AppleAuthentication from "expo-apple-authentication";
 import { supabase } from "~/lib/supabase";
@@ -8,17 +8,106 @@ import { User } from "@supabase/auth-js";
 import { Link } from "~/components/ui/typography";
 import PrivacyPolicy from "../Legal/PrivacyPolicy";
 import TermsOfService from "../Legal/TermsOfService";
-import { X } from "~/lib/icons/Icons";
+import { Mail, X, Lock, Eye, EyeOff } from "~/lib/icons/Icons";
+import { Button } from "~/components/ui/button";
+import { Input } from "../ui/input";
+import { Separator } from "~/components/ui/separator";
 
 interface LoginProps {
   onNext: (user: User) => void;
 }
 
+type ActiveView = "main" | "legal" | "register";
+
 export const Login: React.FC<LoginProps> = ({ onNext }) => {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [isLegalModalOpen, setIsLegalModalOpen] = useState(false);
+  const [activeView, setActiveView] = useState<ActiveView>("main");
   const [activeDocument, setActiveDocument] = useState<"terms" | "privacy">("terms");
+  const [showPassword, setShowPassword] = useState(false);
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
+  const [emailError, setEmailError] = useState<string | null>(null);
+  const [passwordError, setPasswordError] = useState<string | null>(null);
+
+  const validatePassword = (password: string, isRegistering = false) => {
+    if (!password) {
+      setPasswordError("Passwort ist erforderlich");
+      return false;
+    } else if (isRegistering && password.length < 8) {
+      setPasswordError("Passwort muss mindestens 8 Zeichen lang sein");
+      return false;
+    }
+    setPasswordError(null);
+    return true;
+  };
+
+  const handleSignIn = async () => {
+    if (isLoading) return;
+
+    const isPasswordValid = validatePassword(password);
+
+    if (!isPasswordValid) return;
+
+    setIsLoading(true);
+    setError(null);
+
+    try {
+      const { error, data } = await supabase.auth.signInWithPassword({
+        email,
+        password,
+      });
+
+      if (!error && data.user) {
+        onNext(data.user);
+      } else if (error) {
+        console.error("Auth error:", error);
+        setError("Bei der Anmeldung ist ein Fehler aufgetreten. Bitte überprüfe deine E-Mail und dein Passwort.");
+      }
+    } catch (e) {
+      console.error(e);
+      setError("Bei der Anmeldung ist ein Fehler aufgetreten. Bitte versuche es erneut.");
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleSignUp = async () => {
+    if (isLoading) return;
+
+    const isPasswordValid = validatePassword(password, true);
+
+    if (!isPasswordValid) return;
+
+    if (password !== confirmPassword) {
+      setPasswordError("Passwörter stimmen nicht überein");
+      return;
+    }
+
+    setIsLoading(true);
+    setError(null);
+
+    try {
+      const { error, data } = await supabase.auth.signUp({
+        email,
+        password,
+      });
+
+      if (!error && data.user) {
+        setError(null);
+        onNext(data.user);
+      } else if (error) {
+        console.error("Sign up error:", error);
+        setError("Bei der Registrierung ist ein Fehler aufgetreten. Bitte versuche es erneut.");
+      }
+    } catch (e) {
+      console.error(e);
+      setError("Bei der Registrierung ist ein Fehler aufgetreten. Bitte versuche es erneut.");
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   const handleAppleLogin = async () => {
     if (isLoading) return;
@@ -69,26 +158,26 @@ export const Login: React.FC<LoginProps> = ({ onNext }) => {
 
   const openTerms = () => {
     setActiveDocument("terms");
-    setIsLegalModalOpen(true);
+    setActiveView("legal");
   };
 
   const openPrivacyPolicy = () => {
     setActiveDocument("privacy");
-    setIsLegalModalOpen(true);
+    setActiveView("legal");
   };
 
-  const closeLegalModal = () => {
-    setIsLegalModalOpen(false);
+  const closeLegalOrEmailView = () => {
+    setActiveView("main");
   };
 
-  if (isLegalModalOpen) {
+  if (activeView === "legal") {
     return (
-      <View className="flex-1 bg-background">
+      <View className="flex-1 bg-background p-4 pt-6">
         <View className="flex-row items-center justify-between bg-background pb-4">
           {activeDocument === "terms" ? <H3>Nutzungsbedingungen</H3> : <H3>Datenschutzerklärung</H3>}
           <Pressable
-            onPress={closeLegalModal}
-            className="rounded-2xl bg-muted p-6 w-10 h-10 items-center justify-center"
+            onPress={closeLegalOrEmailView}
+            className="rounded-2xl bg-muted p-2 w-10 h-10 items-center justify-center"
           >
             <X size={24} className="text-foreground" />
           </Pressable>
@@ -101,14 +190,62 @@ export const Login: React.FC<LoginProps> = ({ onNext }) => {
   }
 
   return (
-    <View className="flex-1 items-center justify-center p-6 bg-background">
-      <Card className="w-full max-w-md">
-        <CardHeader>
+    <View className="flex-1 items-center justify-center bg-background">
+      <Card className="w-full">
+        <CardHeader className="flex-col gap-2">
           <H1 className="text-center">Willkommen</H1>
-          <P className="text-center text-muted-foreground mt-2">Melde dich an, um fortzufahren</P>
+          <Small className="text-muted-foreground text-center">
+            Keinen Account? <Link onPress={() => setActiveView("register")}>Jetzt erstellen</Link>
+          </Small>
+          {error && <Small className="text-destructive text-center mt-2">{error}</Small>}
         </CardHeader>
 
-        <CardContent className="gap-3">
+        <CardContent className="gap-4">
+          <View className="flex-column gap-2">
+            <Input
+              placeholder="E-Mail"
+              className="bg-muted"
+              value={email}
+              onChangeText={(text) => {
+                setEmail(text);
+              }}
+              startContent={<Mail size={20} className="text-muted-foreground" />}
+            />
+            {emailError && <Small className="text-destructive pl-2">{emailError}</Small>}
+
+            <Input
+              placeholder="Passwort"
+              className="bg-muted"
+              value={password}
+              onChangeText={(text) => {
+                setPassword(text);
+                if (passwordError) validatePassword(text);
+              }}
+              onBlur={() => validatePassword(password)}
+              secureTextEntry={!showPassword}
+              startContent={<Lock size={20} className="text-muted-foreground" />}
+              endContent={
+                <Pressable onPress={() => setShowPassword(!showPassword)}>
+                  {showPassword ? (
+                    <EyeOff size={20} className="text-muted-foreground" />
+                  ) : (
+                    <Eye size={20} className="text-muted-foreground" />
+                  )}
+                </Pressable>
+              }
+            />
+            {passwordError && <Small className="text-destructive pl-2">{passwordError}</Small>}
+          </View>
+          <Button
+            onPress={handleSignIn}
+            className="h-12 rounded-md items-center justify-center flex-row gap-2"
+            haptics="medium"
+            disabled={isLoading}
+          >
+            <Mail size={18} className="text-primary-foreground" strokeWidth={2.5} />
+            <Large className="text-primary-foreground font-semibold text-xl">Mit E-Mail anmelden</Large>
+          </Button>
+          <Separator text="oder" />
           {Platform.OS === "ios" && (
             <>
               {isLoading ? (
@@ -121,7 +258,7 @@ export const Login: React.FC<LoginProps> = ({ onNext }) => {
                   buttonType={AppleAuthentication.AppleAuthenticationButtonType.SIGN_IN}
                   buttonStyle={AppleAuthentication.AppleAuthenticationButtonStyle.BLACK}
                   cornerRadius={5}
-                  style={{ width: "100%", height: 64 }}
+                  style={{ width: "100%", height: 48 }}
                   onPress={handleAppleLogin}
                 />
               )}

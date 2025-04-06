@@ -27,7 +27,7 @@ const Input = React.forwardRef<React.ElementRef<typeof TextInput>, InputProps>(
         <TextInput
           ref={ref}
           className={cn(
-            "flex-auto h-10 native:h-12 rounded-md border border-input bg-background px-3 web:py-2 text-foreground placeholder:text-muted-foreground web:ring-offset-background file:border-0 file:bg-transparent file:font-medium web:focus-visible:outline-none web:focus-visible:ring-2 web:focus-visible:ring-ring web:focus-visible:ring-offset-2",
+            "flex-auto h-10 native:h-12 rounded-xl border border-input bg-background px-3 web:py-2 text-foreground placeholder:text-muted-foreground web:ring-offset-background file:border-0 file:bg-transparent file:font-medium web:focus-visible:outline-none web:focus-visible:ring-2 web:focus-visible:ring-ring web:focus-visible:ring-offset-2",
             textSizeClasses[textSize],
             startContent && "pl-10",
             endContent && "pr-10",

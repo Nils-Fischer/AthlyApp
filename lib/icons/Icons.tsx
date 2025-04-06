@@ -1,4 +1,8 @@
 import {
+  Lock,
+  Eye,
+  EyeOff,
+  Mail,
   BedDouble,
   Mic,
   SendHorizontal,
@@ -89,6 +93,10 @@ import { iconWithClassName } from "./iconWithClassName";
 import { BarChart } from "./BarChartIcon";
 
 iconWithClassName([
+  Lock,
+  Eye,
+  EyeOff,
+  Mail,
   BedDouble,
   Mic,
   SendHorizontal,
@@ -178,6 +186,10 @@ iconWithClassName([
 ]);
 
 export {
+  Lock,
+  Eye,
+  EyeOff,
+  Mail,
   BedDouble,
   ArrowUp,
   SendHorizontal,
