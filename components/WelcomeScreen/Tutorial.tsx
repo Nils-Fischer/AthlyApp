@@ -5,6 +5,7 @@ import { Text } from "~/components/ui/text";
 import { Button } from "~/components/ui/button";
 import Animated, { FadeInDown, FadeIn } from "react-native-reanimated";
 import { MessageSquare, ArrowRight } from "lucide-react-native";
+import { H3, P, Small } from "~/components/ui/typography";
 
 interface TutorialProps {
   onNext: () => void;
@@ -18,29 +19,31 @@ export const Tutorial: React.FC<TutorialProps> = ({ onNext }) => {
         <Animated.View entering={FadeIn.duration(500)} className="bg-accent p-4 rounded-xl mb-6">
           <Text className="text-background font-semibold mb-2">🚧 Early Access Notice</Text>
           <Text className="text-sm text-accent-foreground">
-            Du testest eine frühe Version der App. Probiere die KI- und Appfunktionen aus und teile uns deine
+            Du testest eine frühe kostenlose Version der App. Probiere die KI- und Appfunktionen aus und teile uns deine
             Erfahrungen mit. Dein Feedback ist wertvoll für die Weiterentwicklung
           </Text>
         </Animated.View>
 
         {/* Main Content */}
         <Animated.View entering={FadeInDown.duration(500).delay(100)} className="bg-card p-6 rounded-2xl mb-4">
-          <View className="flex-row items-center space-x-3 mb-4">
-            <MessageSquare size={24} />
-            <Text className="text-xl font-semibold">So funktioniert's</Text>
+          <View className="flex-row items-center gap-3 mb-4">
+            <MessageSquare size={24} className="text-card-foreground" />
+            <H3>So funktioniert's</H3>
           </View>
-          <Text className="text-card-foreground text-base leading-relaxed mb-4">
-            Starte eine Unterhaltung mit deinem KI-Coach und beschreibe einfach, was du erreichen möchtest.
-          </Text>
-          <View className="space-y-3">
-            <Text className="text-card-foreground text-base leading-relaxed">Zum Beispiel:</Text>
-            <View className="flex-row items-center space-x-2">
-              <ArrowRight size={16} />
-              <Text className="text-card-foreground">"Erstelle mir einen Trainingsplan für 3x pro Woche"</Text>
+          <P className="text-card-foreground mb-4">
+            Beginne ein Gespräch mit deinem KI-Coach. Teile ihm einfach deine Fitnessziele oder Fragen mit.
+          </P>
+          <View className="gap-3">
+            <P className="text-card-foreground">Zum Beispiel:</P>
+            <View className="flex-row items-center gap-2">
+              <ArrowRight size={16} className="text-muted-foreground" />
+              <P className="text-card-foreground">
+                "Erstelle mir einen Trainingsplan für 3 Tage pro Woche, Fokus Muskelaufbau."
+              </P>
             </View>
-            <View className="flex-row items-center space-x-2">
-              <ArrowRight size={16} />
-              <Text className="text-card-foreground">"Wie verbessere ich meine Kniebeuge?"</Text>
+            <View className="flex-row items-center gap-2">
+              <ArrowRight size={16} className="text-muted-foreground" />
+              <P className="text-card-foreground">"Analysiere meine Kniebeugentechnik anhand eines Videos."</P>
             </View>
           </View>
         </Animated.View>
