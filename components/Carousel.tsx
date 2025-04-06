@@ -1,7 +1,7 @@
 import React, { useCallback, useEffect, useRef, useState } from "react";
-import { View, Dimensions, Pressable, StyleSheet, Button } from "react-native";
+import { View, Dimensions, Pressable, StyleSheet } from "react-native";
 import { Image } from "expo-image";
-import { VideoView, VideoPlayer, useVideoPlayer } from "expo-video";
+import { VideoView, useVideoPlayer } from "expo-video";
 import RNCarousel from "react-native-reanimated-carousel";
 import { useEvent } from "expo";
 import { PauseFilled, PlayFilled } from "~/lib/icons/FilledIcons";

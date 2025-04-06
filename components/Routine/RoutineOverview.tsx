@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { Pressable, ScrollView, View } from "react-native";
+import { Pressable, ScrollView, View, ImageBackground, StyleSheet } from "react-native";
 import { Text } from "~/components/ui/text";
 import { Exercise, Routine, Workout } from "~/lib/types";
 import { cn, generateId } from "~/lib/utils";
@@ -22,6 +22,28 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "../ui/alert-dialog";
+import { BlurView } from "expo-blur";
+
+function getImageUriForTimeOfDay(): string {
+  const hour = new Date().getHours();
+
+  // Morning (5am - 11am)
+  if (hour >= 5 && hour < 12) {
+    return "https://images.pexels.com/photos/29485381/pexels-photo-29485381/free-photo-of-silhouette-of-person-stretching-at-sunrise-by-the-sea.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2";
+  }
+  // Midday (12pm - 5pm)
+  else if (hour >= 12 && hour < 18) {
+    return "https://images.pexels.com/photos/31381391/pexels-photo-31381391/free-photo-of-dynamic-outdoor-fitness-training-in-peru.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2";
+  }
+  // Evening (6pm - 9pm)
+  else if (hour >= 18 && hour < 22) {
+    return "https://images.pexels.com/photos/31407831/pexels-photo-31407831/free-photo-of-silhouette-of-a-runner-at-sunset-in-vibrant-landscape.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2";
+  }
+  // Night (10pm - 4am)
+  else {
+    return "https://images.pexels.com/photos/9845424/pexels-photo-9845424.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2";
+  }
+}
 
 export function RoutineOverview({
   routine: initialRoutine,
@@ -138,37 +160,46 @@ export function RoutineOverview({
     <>
       <ScrollView>
         <FullscreenCard className="h-full pb-20">
-          <FullscreenCard.Top className="p-4 min-h-80 max-h-96 bg-foreground justify-between gap-2 pb-8">
-            <View className="flex-column gap-2">
-              {isEditMode ? (
-                <View className="flex-row gap-2 items-center">
-                  <H3Input
-                    className="italic text-background"
-                    defaultValue={name}
-                    onChangeText={(text) => setName(text)}
-                  />
-                  {isEditMode && <Pencil className="text-background/80" size={12} />}
-                </View>
-              ) : (
-                <H3 className="text-background">{routine.name}</H3>
-              )}
+          <FullscreenCard.Top className="relative overflow-hidden p-4 min-h-80 max-h-96 justify-between gap-2 pb-8">
+            <ImageBackground
+              source={{
+                uri: getImageUriForTimeOfDay(),
+              }}
+              resizeMode="cover"
+              style={StyleSheet.absoluteFillObject}
+            />
+            <View className="flex-column gap-2 z-10 rounded-lg overflow-hidden p-2">
+              <BlurView intensity={10} tint="dark" className="rounded-xl p-2">
+                {isEditMode ? (
+                  <View className="flex-row gap-2 items-center ">
+                    <H3Input
+                      className="italic text-card font-bold"
+                      defaultValue={name}
+                      onChangeText={(text) => setName(text)}
+                    />
+                    {isEditMode && <Pencil className="text-card" size={12} />}
+                  </View>
+                ) : (
+                  <H3 className="text-card font-bold">{routine.name}</H3>
+                )}
+              </BlurView>
 
               {routine.description && (
-                <>
+                <BlurView intensity={10} tint="dark" className="rounded-lg p-2">
                   {isEditMode ? (
                     <PInput
-                      className="text-background/80"
+                      className="text-card"
                       defaultValue={description}
                       onChangeText={(text) => setDescription(text)}
                     />
                   ) : (
-                    <P className="text-background">{routine.description}</P>
+                    <P className="text-card">{routine.description}</P>
                   )}
-                </>
+                </BlurView>
               )}
             </View>
 
-            <View className="flex-row justify-between">
+            <View className="flex-row justify-between z-10">
               <Pressable
                 onPress={() => setShowFrequency(!showFrequency)}
                 className="p-0 m-0 active:opacity-70"
