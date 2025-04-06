@@ -1,0 +1,139 @@
+---
+description: 
+globs: 
+alwaysApply: true
+---
+# General Best Practices
+
+- Use functional components with hooks
+- Utilize Expo SDK features and APIs
+- Implement proper navigation using React Navigation
+- Use Expo's asset system for images and fonts
+- Implement proper error handling and crash reporting
+- Utilize Expo's push notification system
+- Use TypeScript for type safety
+- Implement proper offline support
+- Follow React Native best practices for performance
+- Use Expo's OTA updates for quick deployments
+- Utilize Expo's EAS Build and Updates for continuous deployment and Over-The-Air (OTA) updates
+- Follow React Native's threading model to ensure smooth UI performance
+- Use React Navigation for handling navigation and deep linking with best practices
+
+# Project Structure
+assets/
+src/
+components/
+screens/
+navigation/
+hooks/
+utils/
+App.js
+app.json
+
+- Organize files by feature, grouping related components, hooks, and styles
+
+# Component & Library Usage
+
+1. Always use custom UI components from components/ui/ instead of their React Native counterparts:
+
+   - Use <Button /> from components/ui/button.tsx instead of React Native's Button (Wrapper for a Text component)
+   - Use <Input /> from components/ui/input.tsx instead of TextInput
+   - Use <Text /> from components/ui/text.tsx instead of React Native's Text
+   - Use Typography components from components/ui/typography.tsx for consistent text styling:
+     - Use <H1 /> for main page headings and primary content titles
+     - Use <H2 /> for section headings with underline
+     - Use <H3 /> for subsection headings within major sections
+     - Use <H4 /> for the finest level of section organization
+     - Use <P /> for standard paragraph and body text
+     - Use <BlockQuote /> for quoted text or highlighted passages
+     - Use <Code /> for code snippets, commands, or technical terms
+     - Use <Lead /> for introductory text at the start of content sections
+     - Use <Large /> for important information that should stand out
+     - Use <Small /> for metadata, timestamps, or auxiliary information
+     - Use <Muted /> for helper text, hints, or less important information
+   - Use <Card /> from components/ui/card.tsx instead of creating custom card containers
+   - Use <AlertDialog /> from components/ui/alert-dialog.tsx for alerts instead of Alert.alert()
+   - Use <BottomSheet /> from components/ui/bottom-sheet.tsx for bottom sheets
+   - Use <Tabs /> from components/ui/tabs.tsx for tab navigation UI
+   - Use <Select /> from components/ui/select.tsx and <CustomDropdownMenu /> from components/ui/custom-dropdown-menu.tsx for dropdown menus
+   - Use <Textarea /> from components/ui/textarea.tsx for multiline text input
+   - Use <Dialog /> from components/ui/dialog.tsx for modal dialogs
+   - Use <Badge /> from components/ui/badge.tsx for notification badges (Wrapper for a Text Component)
+   - Use <Avatar /> from components/ui/avatar.tsx for user avatars
+   - Use <Separator /> from components/ui/separator.tsx for divider lines
+   - Use <Tooltip /> from components/ui/tooltip.tsx for informational tooltips
+   - Use <AnimatedIconButton /> from components/ui/animated-icon-button.tsx for animated buttons with icons
+   - Use <Progress /> from components/ui/progress.tsx for progress indicators
+
+2. Library preferences:
+   - Use Expo's Image from 'expo-image' instead of React Native's Image component
+   - Use Expo's ImagePicker over React Native's image picking solutions
+   - Prefer FlashList from 'react-native-flash-list' over FlatList for long lists
+   - Use Expo's Font loading utilities instead of custom font loading
+   - Utilize Expo's Haptics module for all haptic feedback
+   - Use Expo's SecureStore for sensitive data instead of AsyncStorage
+   - Use Lucide icons available at ~/lib/icons/Icons for all icon needs
+
+- Utilize Expo's vector icons
+- For long lists use FlashList
+
+# Coding Style & TypeScript
+
+- Write concise, type-safe TypeScript code
+- Ensure components are modular, reusable, and maintainable
+- Use TypeScript for all components, favoring interfaces for props and state
+- Enable strict typing in `tsconfig.json`
+- Avoid using `any`; strive for precise types
+- Utilize `React.FC` for defining functional components with props
+- Use camelCase for variable and function names (e.g., `isFetchingData`, `handleUserInput`)
+- Use PascalCase for component names (e.g., `UserProfile`, `ChatScreen`)
+- Directory names should be lowercase and hyphenated (e.g., `user-profile`, `chat-screen`)
+
+# Performance Optimization
+
+- Minimize `useEffect`, `useState`, and heavy computations inside render methods
+- Use `React.memo()` for components with static props to prevent unnecessary re-renders
+- Optimize FlatLists with props like `removeClippedSubviews`, `maxToRenderPerBatch`, and `windowSize`
+- Use `getItemLayout` for FlatLists when items have a consistent size to improve performance
+- Avoid anonymous functions in `renderItem` or event handlers to prevent re-renders
+
+# UI & Styling Guidelines
+
+- Implement proper styling using StyleSheet
+- Ensure responsive design by considering different screen sizes and orientations
+- Optimize image handling using libraries designed for React Native
+- Always use nativewind styling, no custom stylesheets
+- Always use the custom color variables defined in `global.css` when styling with Nativewind to maintain design consistency.
+- Available color variables are:
+  --background
+  --foreground
+  --card
+  --card-foreground
+  --popover
+  --popover-foreground
+  --primary
+  --primary-foreground
+  --secondary
+  --secondary-foreground
+  --muted
+  --muted-foreground
+  --accent
+  --accent-foreground
+  --destructive
+  --destructive-foreground
+  --border
+  --input
+  --ring
+
+# Haptics & User Feedback
+
+- Always use the 'haptics' prop on Button and AnimatedIconButton components with appropriate feedback:
+  - Destructive actions: Use 'error' haptic
+  - Primary actions: Use 'heavy' or 'medium' impact
+  - Success states: Use 'success' notification
+  - Toggle actions: Use 'selection' or 'light'
+  - Follow haptic guidelines from Button component documentation
+
+# Localization
+
+- All user text should be in German (No code and comments though)
