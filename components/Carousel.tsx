@@ -1,12 +1,15 @@
 import React, { useCallback, useEffect, useRef, useState } from "react";
-import { View, Dimensions, Pressable, Image, StyleSheet } from "react-native";
-import { Video, ResizeMode, AVPlaybackStatus } from "expo-av";
+import { View, Dimensions, Pressable, StyleSheet, Button } from "react-native";
+import { Image } from "expo-image";
+import { VideoView, VideoPlayer, useVideoPlayer } from "expo-video";
 import RNCarousel from "react-native-reanimated-carousel";
-import { PlayFilled } from "~/lib/icons/FilledIcons";
-import * as Haptics from "expo-haptics";
+import { useEvent } from "expo";
+import { PauseFilled, PlayFilled } from "~/lib/icons/FilledIcons";
 
 const SCREEN_WIDTH = Dimensions.get("window").width;
 const CAROUSEL_HEIGHT = SCREEN_WIDTH * 0.75;
+const blurhash =
+  "|rF?hV%2WCj[ayj[a|j[az_NaeWBj@ayfRayfQfQM{M|azj[azf6fQfQfQIpWXofj[ayj[j[fQayWCoeoeaya}j[ayfQa{oLj?j[WVj[ayayj[fQoff7azayj[ayj[j[ayofayayayj[fQj[ayayj[ayfjj[j[ayjuayj[";
 
 export type MediaType = "image" | "video";
 
@@ -25,73 +28,60 @@ interface VideoItemProps {
 }
 
 const VideoItem: React.FC<VideoItemProps> = ({ item, isActive }) => {
-  const videoRef = useRef<Video>(null);
-  const [isPlaying, setIsPlaying] = useState(false);
+  const player = useVideoPlayer(item.url, (player) => {
+    player.loop = true;
+    player.play();
+  });
 
-  const togglePlayback = useCallback(async () => {
-    if (!videoRef.current) return;
-    try {
-      const status = await videoRef.current.getStatusAsync();
-      if (status.isLoaded) {
-        if (status.isPlaying) {
-          await videoRef.current.pauseAsync();
-          setIsPlaying(false);
-        } else {
-          await videoRef.current.playAsync();
-          setIsPlaying(true);
-        }
-      }
-    } catch (error) {
-      console.error("Error toggling video playback:", error);
-    }
-  }, []);
+  const { isPlaying } = useEvent(player, "playingChange", { isPlaying: player.playing });
 
-  // Pause video when the slide is no longer active.
+  const [controlsVisible, setControlsVisible] = useState(false);
+  const timeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
   useEffect(() => {
-    const pauseVideo = async () => {
-      if (videoRef.current) {
-        const status = await videoRef.current.getStatusAsync();
-        if (status.isLoaded && status.isPlaying) {
-          await videoRef.current.pauseAsync();
-          setIsPlaying(false);
-        }
-      }
-    };
-
-    if (!isActive) {
-      pauseVideo();
+    if (isActive) {
+      player.play();
+    } else {
+      player.pause();
     }
   }, [isActive]);
 
-  const handlePlaybackStatusUpdate = (status: AVPlaybackStatus) => {
-    if (status.isLoaded) {
-      setIsPlaying(status.isPlaying);
+  useEffect(() => {
+    return () => {
+      if (timeoutRef.current) clearTimeout(timeoutRef.current);
+    };
+  }, []);
+
+  const handlePress = () => {
+    if (isPlaying) {
+      player.pause();
+    } else {
+      player.play();
     }
+    setControlsVisible(true);
+    if (timeoutRef.current) clearTimeout(timeoutRef.current);
+    timeoutRef.current = setTimeout(() => setControlsVisible(false), 750);
   };
 
-  const handlePress = useCallback(() => {
-    // Toggle haptic feedback for toggle actions: using light impact.
-    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-    togglePlayback();
-  }, [togglePlayback]);
-
   return (
-    <View style={styles.mediaContainer}>
-      <Video
-        ref={videoRef}
-        source={{ uri: item.url }}
-        resizeMode={ResizeMode.CONTAIN}
-        useNativeControls
-        style={styles.video}
-        shouldPlay={false}
-        onPlaybackStatusUpdate={handlePlaybackStatusUpdate}
-      />
-      <Pressable onPress={handlePress} style={styles.overlay}>
-        {!isPlaying && (
-          <View style={styles.playIconContainer}>
-            <PlayFilled style={styles.playIcon} />
-          </View>
-        )}
+    <View style={styles.contentContainer}>
+      <View style={styles.mediaContainer}>
+        <VideoView
+          style={styles.media}
+          player={player}
+          allowsFullscreen
+          allowsPictureInPicture
+          contentFit="cover"
+          nativeControls={false}
+        />
+      </View>
+      <Pressable style={styles.iconContainer} onPress={handlePress}>
+        {controlsVisible &&
+          (isPlaying ? (
+            <PauseFilled className="text-white" size={48} />
+          ) : (
+            <PlayFilled className="text-white" size={48} />
+          ))}
       </Pressable>
     </View>
   );
@@ -105,7 +95,7 @@ export function Carousel({ mediaItems }: CarouselProps) {
   }, []);
 
   return (
-    <View style={styles.carouselContainer}>
+    <View className="relative">
       <RNCarousel
         loop
         width={SCREEN_WIDTH}
@@ -116,7 +106,19 @@ export function Carousel({ mediaItems }: CarouselProps) {
           if (item.type === "video") {
             return <VideoItem item={item} isActive={index === currentIndex} />;
           }
-          return <Image source={{ uri: item.url }} style={styles.image} resizeMode="cover" />;
+          return (
+            <View style={styles.contentContainer}>
+              <View style={styles.mediaContainer}>
+                <Image
+                  source={{ uri: item.url }}
+                  placeholder={{ blurhash }}
+                  contentFit="cover"
+                  transition={300}
+                  style={styles.media}
+                />
+              </View>
+            </View>
+          );
         }}
       />
     </View>
@@ -124,10 +126,18 @@ export function Carousel({ mediaItems }: CarouselProps) {
 }
 
 const styles = StyleSheet.create({
-  carouselContainer: {
-    position: "relative",
+  contentContainer: {
+    flex: 1,
+    padding: 0,
   },
   mediaContainer: {
+    width: "100%",
+    height: "100%",
+    justifyContent: "center",
+    alignItems: "center",
+    overflow: "hidden",
+  },
+  media: {
     width: "100%",
     height: "100%",
   },
@@ -135,11 +145,16 @@ const styles = StyleSheet.create({
     width: "100%",
     height: "100%",
   },
-  image: {
-    width: "100%",
-    height: "100%",
+  controlsContainer: {
+    position: "absolute",
+    bottom: 10,
+    left: 0,
+    right: 0,
+    justifyContent: "center",
+    alignItems: "center",
+    padding: 10,
   },
-  overlay: {
+  iconContainer: {
     position: "absolute",
     top: 0,
     left: 0,
@@ -147,16 +162,6 @@ const styles = StyleSheet.create({
     bottom: 0,
     justifyContent: "center",
     alignItems: "center",
-  },
-  playIconContainer: {
-    backgroundColor: "rgba(0, 0, 0, 0.4)", // Adjust color as needed.
-    padding: 16,
-    borderRadius: 9999, // Creates a fully-rounded container.
-    // For blur effects, consider using Expo's BlurView if required.
-  },
-  playIcon: {
-    height: 32,
-    width: 32,
-    color: "#FFF", // Adjust based on your theme.
+    backgroundColor: "rgba(0, 0, 0, 0.2)",
   },
 });

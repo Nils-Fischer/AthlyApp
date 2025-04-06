@@ -6,7 +6,6 @@ import Animated, { FadeInDown, useAnimatedScrollHandler, useSharedValue } from "
 import { Text } from "~/components/ui/text";
 import { useExerciseStore } from "~/stores/exerciseStore";
 import {
-  Activity,
   AlertTriangle,
   BicepsFlexed,
   Check,
@@ -31,7 +30,10 @@ export const ExerciseDetail: React.FC<{ exercise: Exercise; navigateToExercise: 
 }) => {
   const exerciseStore = useExerciseStore();
   const mediaItems: MediaItem[] = [
-    { type: "image" as const, url: "https://images.pexels.com/photos/841130/pexels-photo-841130.jpeg" },
+    {
+      type: "image" as const,
+      url: "https://images.pexels.com/photos/841130/pexels-photo-841130.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2",
+    },
     { type: "video" as const, url: "https://videos.pexels.com/video-files/4065388/4065388-uhd_2560_1440_30fps.mp4" },
     ...(exercise?.media?.map((url) => {
       const type = url.endsWith(".jpg") || url.endsWith(".png") ? "image" : "video";
