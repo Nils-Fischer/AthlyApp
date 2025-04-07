@@ -1,4 +1,5 @@
 import {
+  KeySquare,
   Lock,
   Eye,
   EyeOff,
@@ -93,6 +94,7 @@ import { iconWithClassName } from "./iconWithClassName";
 import { BarChart } from "./BarChartIcon";
 
 iconWithClassName([
+  KeySquare,
   Lock,
   Eye,
   EyeOff,
@@ -276,4 +278,5 @@ export {
   X,
   Zap,
   CircleX,
+  KeySquare,
 };

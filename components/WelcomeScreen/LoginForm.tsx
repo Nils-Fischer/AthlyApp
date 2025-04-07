@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { Pressable, View, ActivityIndicator } from "react-native";
 import { Input } from "~/components/ui/input";
 import { Button } from "~/components/ui/button";
-import { Small, Large } from "~/components/ui/typography";
+import { Small, Large, Link } from "~/components/ui/typography";
 import { Mail, Lock, Eye, EyeOff } from "~/lib/icons/Icons";
 import { supabase } from "~/lib/supabase";
 import { User } from "@supabase/auth-js";
@@ -10,9 +10,10 @@ import { User } from "@supabase/auth-js";
 interface LoginFormProps {
   onNext: (user: User) => void;
   onError: (message: string | null) => void;
+  onResetPassword: () => void;
 }
 
-const LoginForm: React.FC<LoginFormProps> = ({ onNext, onError }) => {
+const LoginForm: React.FC<LoginFormProps> = ({ onNext, onError, onResetPassword }) => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
@@ -114,6 +115,11 @@ const LoginForm: React.FC<LoginFormProps> = ({ onNext, onError }) => {
           }
         />
         {passwordError && <Small className="text-destructive pl-2">{passwordError}</Small>}
+        <View className="flex-row justify-end">
+          <Link className="text-muted-foreground active:text-primary" onPress={onResetPassword}>
+            Passwort vergessen?
+          </Link>
+        </View>
       </View>
       <Button
         onPress={handleSignIn}

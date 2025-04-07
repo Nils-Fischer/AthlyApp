@@ -80,6 +80,8 @@ const SignUpForm: React.FC<SignUpFormProps> = ({ onNext, onError }) => {
         password,
       });
 
+      console.log(data);
+
       if (!error && data.user) {
         setConfirmEmail(email);
       } else if (error) {
@@ -173,7 +175,7 @@ const SignUpForm: React.FC<SignUpFormProps> = ({ onNext, onError }) => {
           className="bg-muted"
           value={email}
           onChangeText={(text) => {
-            setEmail(text.trim());
+            setEmail(text.trim().toLowerCase());
             if (emailError) validateEmail(); // Re-validate on change
           }}
           onBlur={validateEmail} // Validate on blur

@@ -12,13 +12,14 @@ import { X } from "~/lib/icons/Icons";
 import { Separator } from "~/components/ui/separator";
 import SignUpForm from "./SignUpForm";
 import LoginForm from "./LoginForm";
+import LoginWithOtpForm from "./LoginWithOTPForm";
 
 interface LoginProps {
   onNext: (user: User) => void;
 }
 
 type ActiveView = "main" | "legal";
-type AuthView = "login" | "register";
+type AuthView = "login" | "register" | "otpLogin";
 
 export const Login: React.FC<LoginProps> = ({ onNext }) => {
   const [isLoading, setIsLoading] = useState(false);
@@ -110,30 +111,74 @@ export const Login: React.FC<LoginProps> = ({ onNext }) => {
     );
   }
 
+  const getTitle = () => {
+    switch (authView) {
+      case "login":
+        return "Willkommen";
+      case "register":
+        return "Konto erstellen";
+      case "otpLogin":
+        return "Anmelden mit OTP";
+      default:
+        return "Willkommen";
+    }
+  };
+
+  const getSubtitle = () => {
+    switch (authView) {
+      case "login":
+        return (
+          <>
+            Keinen Account? <Link onPress={() => switchAuthView("register")}>Jetzt erstellen</Link>
+          </>
+        );
+      case "register":
+        return (
+          <>
+            Bereits einen Account? <Link onPress={() => switchAuthView("login")}>Jetzt anmelden</Link>
+          </>
+        );
+      case "otpLogin":
+        return (
+          <>
+            Zurück zur normalen <Link onPress={() => switchAuthView("login")}>Anmeldung</Link>
+          </>
+        );
+      default:
+        return null;
+    }
+  };
+
+  const getFooterText = () => {
+    switch (authView) {
+      case "login":
+        return "Anmeldung";
+      case "register":
+        return "Registrierung";
+      case "otpLogin":
+        return "Fortfahren";
+      default:
+        return "Fortfahren";
+    }
+  };
+
+  // Nils-Fischer7@web.de
   return (
     <View className="flex-1 items-center justify-center bg-background">
       <Card className="w-full">
         <CardHeader className="flex-col gap-2">
-          <H1 className="text-center">Willkommen</H1>
-          <Small className="text-muted-foreground text-center">
-            {authView === "login" ? (
-              <>
-                Keinen Account? <Link onPress={() => switchAuthView("register")}>Jetzt erstellen</Link>
-              </>
-            ) : (
-              <>
-                Bereits einen Account? <Link onPress={() => switchAuthView("login")}>Jetzt anmelden</Link>
-              </>
-            )}
-          </Small>
+          <H1 className="text-center w-full">{getTitle()}</H1>
+          {authView !== "otpLogin" && <Small className="text-muted-foreground text-center">{getSubtitle()}</Small>}
           {error && <Small className="text-destructive text-center mt-2">{error}</Small>}
         </CardHeader>
 
         <CardContent className="gap-4">
           {authView === "login" ? (
-            <LoginForm onNext={onNext} onError={setError} />
-          ) : (
+            <LoginForm onNext={onNext} onError={setError} onResetPassword={() => switchAuthView("otpLogin")} />
+          ) : authView === "register" ? (
             <SignUpForm onNext={onNext} onError={setError} />
+          ) : (
+            <LoginWithOtpForm onBackToLogin={() => switchAuthView("login")} onError={setError} onNext={onNext} />
           )}
 
           {authView === "login" && (
@@ -161,17 +206,18 @@ export const Login: React.FC<LoginProps> = ({ onNext }) => {
           )}
         </CardContent>
 
-        <CardFooter className="flex-col space-y-4">
-          <View className="w-full flex-row items-center">
-            <View className="flex-1 h-px bg-border" />
-            <Small className="px-4 text-xs text-muted-foreground text-center">
-              Durch die {authView === "login" ? "Anmeldung" : "Registrierung"} akzeptierst du unsere{" "}
-              <Link onPress={openTerms}>Nutzungsbedingungen</Link> und{" "}
-              <Link onPress={openPrivacyPolicy}>Datenschutzerklärung</Link>.
-            </Small>
-            <View className="flex-1 h-px bg-border" />
-          </View>
-        </CardFooter>
+        {authView !== "otpLogin" && (
+          <CardFooter className="flex-col space-y-4">
+            <View className="w-full flex-row items-center">
+              <View className="flex-1 h-px bg-border" />
+              <Small className="px-4 text-xs text-muted-foreground text-center">
+                Durch die {getFooterText()} akzeptierst du unsere <Link onPress={openTerms}>Nutzungsbedingungen</Link>{" "}
+                und <Link onPress={openPrivacyPolicy}>Datenschutzerklärung</Link>.
+              </Small>
+              <View className="flex-1 h-px bg-border" />
+            </View>
+          </CardFooter>
+        )}
       </Card>
     </View>
   );
