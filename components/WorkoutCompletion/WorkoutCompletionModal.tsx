@@ -162,12 +162,12 @@ export const WorkoutCompletionModal: React.FC<WorkoutCompletionModalProps> = ({
                   <View key={index} className="flex flex-row items-center">
                     <View className="flex-1 flex-row items-center gap-2">
                       <P>{improvement.exerciseName}</P>
-                      {improvement.pr && <CardLabel className="text-green-500 text-sm mt-0.5">NEW PR</CardLabel>}
+                      {improvement.pr && <CardLabel className="text-success text-sm mt-0.5">NEW PR</CardLabel>}
                     </View>
                     <View className="flex-row items-center gap-1">
                       <Muted>{improvement.weight} kg</Muted>
                       {improvement.percentageImprovement && (
-                        <Small className="text-green-500 mt-0.5">{`+${improvement.percentageImprovement.toFixed(
+                        <Small className="text-success mt-0.5">{`+${improvement.percentageImprovement.toFixed(
                           1
                         )}%`}</Small>
                       )}

@@ -18,7 +18,7 @@ export const WeeklyPreviewWidget = ({ schedule }: { schedule: WeeklySchedule }) 
     if (Array.isArray(dayInfo.activity)) {
       // Completed session
       return (
-        <Pressable className="rounded-full bg-green-500 p-2 shadow-sm">
+        <Pressable className="rounded-full bg-success p-2 shadow-sm">
           <Check size={24} className={isToday ? "text-white" : "text-white/70"} />
         </Pressable>
       );

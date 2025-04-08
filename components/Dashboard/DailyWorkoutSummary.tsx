@@ -29,7 +29,7 @@ export const DailyWorkoutSummary: React.FC<DailyWorkoutSummaryProps> = ({ sessio
         <CardTitle>
           <CardLabel>Heutiges Training</CardLabel>
         </CardTitle>
-        <CheckCircle size={24} className="text-green-500" />
+        <CheckCircle size={24} className="text-success" />
       </CardHeader>
       <CardContent className="gap-4">
         {completedWorkouts.length > 0 ? (

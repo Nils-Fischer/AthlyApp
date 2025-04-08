@@ -47,7 +47,7 @@ export const RoutinePreview = ({
           </Button>
         ) : state === "added" ? (
           <Button variant="ghost" size="icon" className="w-24 flex-shrink-0" disabled>
-            <Text className="text-green-500 text-center text-lg">Gespeichert</Text>
+            <Text className="text-success text-center text-lg">Gespeichert</Text>
           </Button>
         ) : (
           <Button variant="ghost" size="icon" className="w-24 flex-shrink-0" onPress={modifyRoutine}>

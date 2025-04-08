@@ -54,7 +54,7 @@ export function RoutineComparisonOverview({
                   className={cn(
                     "px-2",
                     state === "new"
-                      ? "text-green-500"
+                      ? "text-success"
                       : state === "modified"
                       ? "italic"
                       : state === "removed"

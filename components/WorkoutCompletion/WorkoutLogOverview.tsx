@@ -46,8 +46,8 @@ export const WorkoutSessionLog: React.FC<WorkoutSessionLogProps> = ({ workout })
                   )}
                   {/* Status Icons using Lucide */}
                   <View className="flex items-center justify-center w-6 h-6">
-                    {allCompleted && <CheckCircle size={24} className="text-green-500" />}
-                    {!allCompleted && !noneCompleted && <AlertCircle size={24} className="text-amber-500" />}
+                    {allCompleted && <CheckCircle size={24} className="text-success" />}
+                    {!allCompleted && !noneCompleted && <AlertCircle size={24} className="text-warning" />}
                     {noneCompleted && <CircleX size={24} className="text-destructive" />}
                   </View>
                 </View>

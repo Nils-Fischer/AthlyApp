@@ -38,7 +38,7 @@ export function RoutineComparisonWorkoutExerciseItem({
                 className={cn(
                   "font-medium mb-1",
                   state === "removed" && "text-destructive line-through",
-                  state === "new" && "text-green-500",
+                  state === "new" && "text-success",
                   state === "modified" && "italic"
                 )}
               >
@@ -51,7 +51,7 @@ export function RoutineComparisonWorkoutExerciseItem({
         {state === "modified" && oldComparisonExercise ? (
           <View className="flex-column">
             <P className="mt-3 text-sm text-destructive">{exerciseDetails(oldComparisonExercise)}</P>
-            <P className="m-0 text-sm text-green-500">{exerciseDetails(workoutExercise)}</P>
+            <P className="m-0 text-sm text-success">{exerciseDetails(workoutExercise)}</P>
           </View>
         ) : (
           <P className="mt-3 text-sm text-muted-foreground">{exerciseDetails(workoutExercise)}</P>

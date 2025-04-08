@@ -199,7 +199,7 @@ export default function FeedbackScreen() {
             }}
           >
             <View className="bg-card/90 p-8 rounded-2xl items-center space-y-4 border border-border">
-              <CheckCircle size={48} className="text-green-500" />
+              <CheckCircle size={48} className="text-success" />
               <Text className="text-2xl font-bold text-foreground">Vielen Dank!</Text>
               <Text className="text-muted-foreground text-center">Ihr Feedback wurde erfolgreich übermittelt.</Text>
             </View>
