@@ -52,6 +52,11 @@ module.exports = {
           foreground: "hsl(var(--success-foreground))",
           background: "hsl(var(--success-background))",
         },
+        warning: {
+          DEFAULT: "hsl(var(--warning))",
+          foreground: "hsl(var(--warning-foreground))",
+          background: "hsl(var(--warning-background))",
+        },
       },
       borderWidth: {
         hairline: hairlineWidth(),

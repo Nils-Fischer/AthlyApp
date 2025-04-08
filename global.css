@@ -28,6 +28,9 @@
     --success: 143 96% 40%;
     --success-foreground: 0 0% 98%;
     --success-background: 95 97% 81%;
+    --warning: 35 100% 50%;
+    --warning-foreground: 0 0% 98%;
+    --warning-background: 35 100% 81%;
     --highlight: 55 100% 50%;
     --highlight-foreground: 240 10% 15%;
     --highlight-background: 55 100% 70%;
