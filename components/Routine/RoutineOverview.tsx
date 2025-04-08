@@ -160,7 +160,7 @@ export function RoutineOverview({
     <>
       <ScrollView>
         <FullscreenCard className="h-full pb-20">
-          <FullscreenCard.Top className="relative overflow-hidden p-4 min-h-80 max-h-96 justify-between gap-2 pb-8">
+          <FullscreenCard.Top className="relative overflow-hidden p-4 min-h-80 justify-between gap-2 pb-8">
             <ImageBackground
               source={{
                 uri: getImageUriForTimeOfDay(),

@@ -51,7 +51,7 @@ export const WorkoutCard = ({ workout, isSelected, onPress, exercises, rightAcce
             <View className="gap-3 p-1 pt-3 mt-1 ">
               {workout.exercises.map((exercise, index) => (
                 <React.Fragment key={exercise.exerciseId}>
-                  {index > 0 && <Separator className="my-1" />}
+                  {index > 0 && <Separator />}
                   <View className="flex-row items-center justify-center">
                     <View className="w-7 h-7 rounded-full bg-background shadow-sm items-center justify-center mr-3">
                       <Small className="text-primary font-semibold">{index + 1}</Small>

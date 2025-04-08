@@ -7,12 +7,13 @@ import { ChevronLeft } from "~/lib/icons/Icons";
 import { Button } from "~/components/ui/button";
 import { View } from "react-native";
 import { useUserRoutineStore } from "~/stores/userRoutineStore";
+import { useExerciseStore } from "~/stores/exerciseStore";
 
 export default function RoutineDetails() {
   const { routineId } = useLocalSearchParams<{ routineId: string }>();
   const { routines, updateRoutine } = useUserRoutineStore();
+  const exercises = useExerciseStore((state) => state.exercises);
   const routine: Routine | undefined = useMemo(() => routines.find((p) => p.id === routineId), [routines, routineId]);
-  const [exercises, setExercises] = useState<Exercise[]>([]);
   const [isEditMode, setIsEditMode] = useState(
     () => routine?.workouts.length === 1 && routine.workouts[0].exercises.length === 0
   );
@@ -50,7 +51,7 @@ export default function RoutineDetails() {
         <RoutineOverview
           routine={routine}
           handleWorkoutPress={handleWorkoutPress}
-          exercises={exercises}
+          exercises={exercises ?? []}
           isEditMode={isEditMode}
           updateRoutine={updateRoutine}
         />
