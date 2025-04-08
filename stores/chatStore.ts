@@ -10,6 +10,9 @@ const API_URL = "https://api-proxy-worker.nils-fischer7.workers.dev";
 
 const INITIAL_MESSAGE_TEXT = "Hey! Ich bin Alex, dein AI Coach. Wie kann ich dir helfen?";
 
+const INITIAL_TECHNICAL_MESSAGE =
+  "<thinking>Das ist meine erste Nachricht an den Nutzer. Ich muss mich erst einmal selbst vorstellen.</thinking><text>Hey! Ich bin Alex, dein AI Coach. Wie kann ich dir helfen?</text>";
+
 const INITIAL_CHAT_MESSAGE: AssistantChatMessage = {
   role: "assistant",
   id: randomUUID(),
@@ -19,7 +22,7 @@ const INITIAL_CHAT_MESSAGE: AssistantChatMessage = {
   technicalMessage: [
     {
       role: "assistant",
-      content: [{ type: "text", text: INITIAL_MESSAGE_TEXT }],
+      content: [{ type: "text", text: INITIAL_TECHNICAL_MESSAGE }],
     },
   ],
 };
@@ -125,7 +128,7 @@ export const useChatStore = create<ChatState>()(
         try {
           set({ isLoading: true });
 
-          console.log("Fetching API with message:", message, "and context:", get().context);
+          console.log("Fetching API with message:", JSON.stringify(message, null, 2));
           const lastMessages = get().messages.slice(-5);
 
           const lastTechnicalMessages: CoreMessage[] = lastMessages.map((message) => message.technicalMessage).flat();
@@ -172,6 +175,7 @@ export const useChatStore = create<ChatState>()(
 
           if (errorType) {
             set({ error: errorMessage });
+            console.error("error", errorMessage);
             set((state) => ({
               messages: state.messages.map((msg) => (msg.id === message.id ? { ...msg, status: "failed" } : msg)),
             }));

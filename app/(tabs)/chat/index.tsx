@@ -1,6 +1,6 @@
 import * as React from "react";
 import { View } from "react-native";
-import { useRef, useEffect } from "react";
+import { useEffect, useRef } from "react";
 import ActionSheet, { ActionSheetRef } from "react-native-actions-sheet";
 import ChatInterface from "~/components/Chat/chatinterface";
 import { Routine, WorkoutSession } from "~/lib/types";
@@ -49,7 +49,7 @@ export default function ChatScreen() {
     }
   };
 
-  React.useEffect(() => {
+  useEffect(() => {
     if (messages.length > 0 && messages.at(-1)?.role === "assistant") {
       console.log("Getting message suggestions", messages.at(-1)?.message);
       getMessageSuggestions(messages, JSON.stringify(profile, null, 2)).then((suggestions) => {

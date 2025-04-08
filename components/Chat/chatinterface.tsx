@@ -159,11 +159,14 @@ export default function ChatInterface({
   }, [inputMessage, onSendMessage, capturedImage, audioUrl]);
 
   const handleSuggestionPress = React.useCallback(
-    (suggestion: string) => {
+    async (suggestion: string) => {
       onSendMessage(suggestion, []);
+      setInputMessage("");
+      setCapturedImage(null);
+      setAudioUrl(null);
       inputRef.current?.blur();
     },
-    [onSendMessage]
+    [onSendMessage, messageSuggestions]
   );
 
   const imageOptions = [
