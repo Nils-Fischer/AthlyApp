@@ -22,12 +22,7 @@ export default function ChatScreen() {
   const [previewContent, setPreviewContent] = React.useState<"routine" | "workoutSession" | null>(null);
   const [previewRoutine, setPreviewRoutine] = React.useState<Routine | null>(null);
   const [previewWorkoutSessionLog, setPreviewWorkoutSessionLog] = React.useState<WorkoutSession | null>(null);
-  const [messageSuggestions, setMessageSuggestions] = React.useState<string[]>([
-    "Hey, Kannst du mir helfen, einen Trainingsplan zu erstellen",
-    "Was sind gute Übungen für Anfänger?",
-    "Ich möchte abnehmen. Hast du Tipps für mich?",
-    "Ich möchte Muskeln aufbauen. Kannst du mir einen Plan dafür machen?",
-  ]);
+  const [messageSuggestions, setMessageSuggestions] = React.useState<string[]>([]);
 
   const showPreviewRoutine = (routine: Routine) => {
     setPreviewRoutine(routine);
