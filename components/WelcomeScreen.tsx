@@ -1,4 +1,3 @@
-import { ScrollView, View } from "react-native";
 import { UserProfile } from "~/lib/types";
 import { useState } from "react";
 import { Info } from "~/components/WelcomeScreen/Info";

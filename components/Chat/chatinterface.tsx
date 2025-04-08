@@ -1,5 +1,5 @@
 import * as React from "react";
-import { View, KeyboardAvoidingView, Platform, Keyboard, Image as RNImage } from "react-native";
+import { View, KeyboardAvoidingView, Platform, Keyboard, Image as RNImage, ScrollView, Animated } from "react-native";
 import { ChatMessage, WorkoutSession } from "~/lib/types";
 import { Button } from "~/components/ui/button";
 import { Text } from "~/components/ui/text";
@@ -18,6 +18,7 @@ import { FlashList } from "@shopify/flash-list";
 import { Input } from "~/components/ui/input";
 import ChatAudioMessagePreview from "./ChatAudioMessagePreview";
 import { SquareFilled } from "~/lib/icons/FilledIcons";
+import { useEffect } from "react";
 
 interface ChatInterfaceProps {
   messages: ChatMessage[];
@@ -27,6 +28,7 @@ interface ChatInterfaceProps {
   showPreviewWorkoutSessionLog?: (workoutSession: WorkoutSession) => void;
   deleteMessage: (messageId: string) => void;
   resendMessage: (messageId: string) => void;
+  messageSuggestions: string[];
 }
 
 export default function ChatInterface({
@@ -37,6 +39,7 @@ export default function ChatInterface({
   showPreviewWorkoutSessionLog,
   deleteMessage,
   resendMessage,
+  messageSuggestions,
 }: ChatInterfaceProps) {
   const [inputMessage, setInputMessage] = React.useState("");
   const flashListRef = React.useRef<FlashList<ChatMessage>>(null);
@@ -45,6 +48,9 @@ export default function ChatInterface({
   const [capturedImage, setCapturedImage] = React.useState<string | null>(null);
   const [isRecording, setIsRecording] = React.useState(false);
   const [audioUrl, setAudioUrl] = React.useState<string | null>(null);
+  const suggestionsSlideAnim = React.useRef(new Animated.Value(100)).current;
+  const suggestionsOpacityAnim = React.useRef(new Animated.Value(0)).current;
+  const [prevSuggestionsLength, setPrevSuggestionsLength] = React.useState(0);
 
   const recordingPresets: RecordingOptions = {
     extension: ".aac",
@@ -84,18 +90,56 @@ export default function ChatInterface({
     }, 100);
   }, [messages]);
 
-  React.useEffect(() => {
+  useEffect(() => {
+    // Animate suggestions when they appear or disappear
+    if (messageSuggestions.length > 0 && prevSuggestionsLength === 0) {
+      // Suggestions appeared - animate in
+      Animated.parallel([
+        Animated.timing(suggestionsSlideAnim, {
+          toValue: 0,
+          duration: 300,
+          useNativeDriver: true,
+        }),
+        Animated.timing(suggestionsOpacityAnim, {
+          toValue: 1,
+          duration: 300,
+          useNativeDriver: true,
+        }),
+      ]).start();
+
+      // Scroll chat up to accommodate suggestions
+      scrollToBottom();
+    } else if (messageSuggestions.length === 0 && prevSuggestionsLength > 0) {
+      // Suggestions disappeared - animate out
+      Animated.parallel([
+        Animated.timing(suggestionsSlideAnim, {
+          toValue: 100,
+          duration: 200,
+          useNativeDriver: true,
+        }),
+        Animated.timing(suggestionsOpacityAnim, {
+          toValue: 0,
+          duration: 200,
+          useNativeDriver: true,
+        }),
+      ]).start();
+    }
+
+    setPrevSuggestionsLength(messageSuggestions.length);
+  }, [messageSuggestions.length, prevSuggestionsLength, suggestionsSlideAnim, suggestionsOpacityAnim, scrollToBottom]);
+
+  useEffect(() => {
     const showSubscription = Keyboard.addListener("keyboardDidShow", () => {
       scrollToBottom();
     });
     return () => showSubscription.remove();
   }, [scrollToBottom]);
 
-  React.useEffect(() => {
+  useEffect(() => {
     scrollToBottom();
   }, [messages, scrollToBottom]);
 
-  React.useEffect(() => {
+  useEffect(() => {
     (async () => {
       const status = await AudioModule.requestRecordingPermissionsAsync();
       if (!status.granted) {
@@ -113,6 +157,14 @@ export default function ChatInterface({
     setAudioUrl(null);
     inputRef.current?.blur();
   }, [inputMessage, onSendMessage, capturedImage, audioUrl]);
+
+  const handleSuggestionPress = React.useCallback(
+    (suggestion: string) => {
+      onSendMessage(suggestion, []);
+      inputRef.current?.blur();
+    },
+    [onSendMessage]
+  );
 
   const imageOptions = [
     {
@@ -222,92 +274,124 @@ export default function ChatInterface({
           keyExtractor={(item) => item.id}
           estimatedItemSize={100}
           showsVerticalScrollIndicator={false}
-          contentContainerStyle={{ paddingTop: 20, paddingBottom: 20, paddingHorizontal: 16 }}
+          contentContainerStyle={{ paddingTop: 20, paddingBottom: 0, paddingHorizontal: 16 }}
           ListFooterComponent={isTyping ? <TypingIndicator /> : null}
         />
 
-        <View className="px-4 py-2 bg-card shadow-md shadow-foreground/10 rounded-t-3xl">
-          {capturedImage && (
-            <View className="mb-2 flex-row items-center">
-              <View className="relative">
-                <RNImage
-                  source={{
-                    uri: capturedImage !== "" ? capturedImage : LOADING_SPINNER,
-                  }}
-                  className="w-20 h-20 rounded-lg"
-                />
+        <View className="gap-2">
+          {messageSuggestions && messageSuggestions.length > 0 && (
+            <Animated.View
+              style={{
+                transform: [{ translateY: suggestionsSlideAnim }],
+                opacity: suggestionsOpacityAnim,
+              }}
+            >
+              <ScrollView
+                horizontal
+                showsHorizontalScrollIndicator={false}
+                contentContainerClassName="px-4 gap-2 py-2"
+                keyboardShouldPersistTaps="handled"
+              >
+                {messageSuggestions.map((suggestion) => (
+                  <Button
+                    key={suggestion}
+                    variant="outline"
+                    size="sm"
+                    className="px-5 bg-card h-20 rounded-3xl"
+                    onPress={() => handleSuggestionPress(suggestion)}
+                    haptics="light"
+                  >
+                    <Text textBreakStrategy="balanced" numberOfLines={2} className="max-w-80 text-foreground text-sm">
+                      {suggestion}
+                    </Text>
+                  </Button>
+                ))}
+              </ScrollView>
+            </Animated.View>
+          )}
+          <View className="px-4 py-2 bg-card shadow-md shadow-foreground/10 rounded-t-3xl">
+            {capturedImage && (
+              <View className="mb-2 flex-row items-center">
+                <View className="relative">
+                  <RNImage
+                    source={{
+                      uri: capturedImage !== "" ? capturedImage : LOADING_SPINNER,
+                    }}
+                    className="w-20 h-20 rounded-lg"
+                  />
+                  <Button
+                    size="icon"
+                    variant="default"
+                    className="absolute -top-2 -right-2 w-6 h-6"
+                    onPress={() => setCapturedImage(null)}
+                    haptics="light"
+                  >
+                    <Text className="text-xs">✕</Text>
+                  </Button>
+                </View>
+              </View>
+            )}
+            <View className="flex-row items-center gap-2">
+              <CustomDropdownMenu
+                items={imageOptions}
+                trigger={
+                  <Button size="icon" variant="ghost" className="px-0 mx-0" haptics="light">
+                    <Plus size={30} className="text-foreground" />
+                  </Button>
+                }
+                side="top"
+                align="end"
+              />
+              {audioUrl ? (
+                <ChatAudioMessagePreview audioUrl={audioUrl} onDelete={() => setAudioUrl(null)} />
+              ) : (
+                <View className="flex-1 rounded-lg overflow-hidden ">
+                  <Input
+                    ref={inputRef}
+                    className="bg-card border-card border-dashed px-4 py-2.5 text-base text-foreground min-h-[44px]"
+                    placeholder="Schreibe eine Nachricht..."
+                    placeholderTextColor="#666"
+                    value={inputMessage}
+                    onChangeText={setInputMessage}
+                    multiline={false}
+                    maxLength={500}
+                    style={{ maxHeight: 120 }}
+                    keyboardType="default"
+                    returnKeyType="send"
+                    onSubmitEditing={() => {
+                      if (isTyping || !inputMessage.trim() || capturedImage === "") return;
+                      handleSend();
+                    }}
+                  />
+                </View>
+              )}
+              {inputMessage.trim() || audioUrl ? (
                 <Button
                   size="icon"
-                  variant="default"
-                  className="absolute -top-2 -right-2 w-6 h-6"
-                  onPress={() => setCapturedImage(null)}
-                  haptics="light"
+                  variant={inputMessage.trim() || audioUrl ? "default" : "secondary"}
+                  onPress={handleSend}
+                  disabled={isTyping || (!inputMessage.trim() && !audioUrl) || capturedImage === ""}
+                  haptics="medium"
+                  className="bg-primary rounded-full"
                 >
-                  <Text className="text-xs">✕</Text>
+                  <ArrowUp size={20} strokeWidth={3} className="text-primary-foreground" />
                 </Button>
-              </View>
+              ) : (
+                <Button
+                  size="icon"
+                  variant={isRecording ? "destructive" : "ghost"}
+                  onPress={isRecording ? stopAudioRecording : startAudioRecording}
+                  haptics={isRecording ? "heavy" : "medium"}
+                  className={isRecording ? "rounded-full bg-destructive/20" : "rounded-full"}
+                >
+                  {isRecording ? (
+                    <SquareFilled size="15" className="text-destructive" />
+                  ) : (
+                    <Mic className="text-foreground" />
+                  )}
+                </Button>
+              )}
             </View>
-          )}
-          <View className="flex-row items-center gap-2">
-            <CustomDropdownMenu
-              items={imageOptions}
-              trigger={
-                <Button size="icon" variant="ghost" className="px-0 mx-0" haptics="light">
-                  <Plus size={30} className="text-foreground" />
-                </Button>
-              }
-              side="top"
-              align="end"
-            />
-            {audioUrl ? (
-              <ChatAudioMessagePreview audioUrl={audioUrl} onDelete={() => setAudioUrl(null)} />
-            ) : (
-              <View className="flex-1 rounded-lg overflow-hidden ">
-                <Input
-                  ref={inputRef}
-                  className="bg-card border-card border-dashed px-4 py-2.5 text-base text-foreground min-h-[44px]"
-                  placeholder="Schreibe eine Nachricht..."
-                  placeholderTextColor="#666"
-                  value={inputMessage}
-                  onChangeText={setInputMessage}
-                  multiline={false}
-                  maxLength={500}
-                  style={{ maxHeight: 120 }}
-                  keyboardType="default"
-                  returnKeyType="send"
-                  onSubmitEditing={() => {
-                    if (isTyping || !inputMessage.trim() || capturedImage === "") return;
-                    handleSend();
-                  }}
-                />
-              </View>
-            )}
-            {inputMessage.trim() || audioUrl ? (
-              <Button
-                size="icon"
-                variant={inputMessage.trim() || audioUrl ? "default" : "secondary"}
-                onPress={handleSend}
-                disabled={isTyping || (!inputMessage.trim() && !audioUrl) || capturedImage === ""}
-                haptics="medium"
-                className="bg-primary rounded-full"
-              >
-                <ArrowUp size={20} strokeWidth={3} className="text-primary-foreground" />
-              </Button>
-            ) : (
-              <Button
-                size="icon"
-                variant={isRecording ? "destructive" : "ghost"}
-                onPress={isRecording ? stopAudioRecording : startAudioRecording}
-                haptics={isRecording ? "heavy" : "medium"}
-                className={isRecording ? "rounded-full bg-destructive/20" : "rounded-full"}
-              >
-                {isRecording ? (
-                  <SquareFilled size="15" className="text-destructive" />
-                ) : (
-                  <Mic className="text-foreground" />
-                )}
-              </Button>
-            )}
           </View>
         </View>
       </KeyboardAvoidingView>

@@ -1,6 +1,6 @@
-import { FilePart, ImagePart, TextPart } from "ai";
+import { CoreMessage, FilePart, ImagePart, TextPart } from "ai";
 import { randomUUID } from "expo-crypto";
-import { UserChatMessage, WorkoutSession } from "../types";
+import { ChatMessage, UserChatMessage, WorkoutSession } from "../types";
 import * as FileSystem from "expo-file-system";
 
 export async function createUserMessage(
@@ -116,5 +116,55 @@ export async function saveAudioPermanently(temporaryAudioUri: string): Promise<s
   } catch (error) {
     console.error("Fehler beim Speichern der Audio-Datei:", error);
     throw error;
+  }
+}
+
+export async function getMessageSuggestions(
+  messages: ChatMessage[],
+  userInfo: string,
+  chatContext?: string
+): Promise<string[]> {
+  const lastMessages = messages.slice(-5);
+  const lastTechnicalMessages: CoreMessage[] = lastMessages.map((message) => message.technicalMessage).flat();
+
+  try {
+    const response = await fetch("https://api-proxy-worker.nils-fischer7.workers.dev/api/message-suggestions", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        provider: "google",
+        messages: lastTechnicalMessages,
+        userInfo: userInfo,
+        lastMessageTime: lastMessages.at(-1)?.createdAt,
+        chatContext: chatContext,
+      }),
+    });
+
+    if (!response.ok) {
+      const errorData = await response.text();
+      console.error(`Error getting message suggestions: ${response.status} ${response.statusText}`, errorData);
+      return [];
+    }
+
+    const data = await response.json();
+    console.log("Message suggestions response data:", data);
+
+    if (Array.isArray(data) && data.every((item) => typeof item === "string")) {
+      return data as string[];
+    } else if (
+      data.response &&
+      Array.isArray(data.response.suggestions) &&
+      data.response.suggestions.every((item: any) => typeof item === "string")
+    ) {
+      return data.response.suggestions as string[];
+    } else {
+      console.error("Error getting message suggestions: Invalid response format.", data);
+      return [];
+    }
+  } catch (error) {
+    console.error("Error fetching or processing message suggestions:", error);
+    return [];
   }
 }
