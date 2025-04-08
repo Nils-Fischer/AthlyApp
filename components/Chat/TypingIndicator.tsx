@@ -12,7 +12,7 @@ export const TypingIndicator = React.memo(() => (
         <MessageAvatar isAI={true} />
       </View>
       <View className="flex-row justify-end items-center">
-        <Card className="bg-secondary/30 border-0 shadow-sm p-4">
+        <Card className="bg-zinc-200 border-none p-4 rounded-3xl">
           <View className="flex-row items-center gap-2">
             <ActivityIndicator size="small" />
             <Text className="text-sm text-muted-foreground">schreibt...</Text>
