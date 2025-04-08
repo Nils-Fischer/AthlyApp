@@ -129,7 +129,7 @@ export const useChatStore = create<ChatState>()(
           set({ isLoading: true });
 
           console.log("Fetching API with message:", JSON.stringify(message, null, 2));
-          const lastMessages = get().messages.slice(-5);
+          const lastMessages = get().messages.slice(-10);
 
           const lastTechnicalMessages: CoreMessage[] = lastMessages.map((message) => message.technicalMessage).flat();
 
