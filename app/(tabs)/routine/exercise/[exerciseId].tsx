@@ -34,7 +34,7 @@ export default function ExerciseDetailScreen() {
       />
       <ExerciseDetail
         exercise={exercise}
-        navigateToExercise={(exercise) => router.push(`/routine/workout/exercise/${exercise.id}`)}
+        navigateToExercise={(exercise) => router.push(`/routine/exercise/${exercise.id}`)}
       />
     </>
   );
