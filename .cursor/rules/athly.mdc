@@ -18,6 +18,7 @@ alwaysApply: true
 - Utilize Expo's EAS Build and Updates for continuous deployment and Over-The-Air (OTA) updates
 - Follow React Native's threading model to ensure smooth UI performance
 - Use React Navigation for handling navigation and deep linking with best practices
+- Avoid excessive commenting, only comment hard to understand code and rather just explain your changes
 
 # Project Structure
 assets/
@@ -121,6 +122,9 @@ app.json
   --accent-foreground
   --destructive
   --destructive-foreground
+  --success
+  --success-foreground
+  --success-background
   --border
   --input
   --ring
