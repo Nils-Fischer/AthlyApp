@@ -29,17 +29,25 @@ export const ExerciseDetail: React.FC<{ exercise: Exercise; navigateToExercise: 
   navigateToExercise,
 }) => {
   const exerciseStore = useExerciseStore();
-  const mediaItems: MediaItem[] = [
+  const defaultMediaItems: MediaItem[] = [
     {
       type: "image" as const,
       url: "https://images.pexels.com/photos/841130/pexels-photo-841130.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2",
     },
     { type: "video" as const, url: "https://videos.pexels.com/video-files/4065388/4065388-uhd_2560_1440_30fps.mp4" },
-    ...(exercise?.media?.map((url) => {
-      const type = url.endsWith(".jpg") || url.endsWith(".png") ? "image" : "video";
-      return { type: type as MediaType, url };
-    }) || []),
   ];
+  const exerciseMedia =
+    exercise?.media
+      ?.map((url) => {
+        const type = url.endsWith(".jpg") || url.endsWith(".png") ? "image" : "video";
+        return { type: type as MediaType, url };
+      })
+      .sort((a, b) => {
+        if (a.type === "image" && b.type === "video") return -1;
+        return 1;
+      }) || [];
+
+  const mediaItems: MediaItem[] = exerciseMedia.length > 0 ? exerciseMedia : defaultMediaItems;
 
   const scrollY = useSharedValue(0);
   const scrollHandler = useAnimatedScrollHandler({
