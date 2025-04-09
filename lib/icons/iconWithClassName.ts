@@ -11,14 +11,18 @@ type IconComponent = LucideComponent | PhosphorComponent;
 
 export function iconWithClassName(icons: IconComponent[]) {
   icons.forEach((Icon) => {
-    cssInterop(Icon as React.ComponentType<any>, {
-      className: {
-        target: "style",
-        nativeStyleToProp: {
-          color: true,
-          opacity: true,
+    cssInterop(
+      Icon as React.ComponentType<any>,
+      {
+        className: {
+          target: "style",
+          nativeStyleToProp: {
+            color: true,
+            opacity: true,
+            fill: true,
+          },
         },
-      },
-    });
+      } as any
+    );
   });
 }

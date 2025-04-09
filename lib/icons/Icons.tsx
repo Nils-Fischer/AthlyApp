@@ -92,9 +92,11 @@ import {
 } from "lucide-react-native";
 import { iconWithClassName } from "./iconWithClassName";
 import { BarChart } from "./BarChartIcon";
-import { House } from "phosphor-react-native";
+import { House, Gear, Barbell } from "phosphor-react-native";
 
 iconWithClassName([
+  Gear,
+  Barbell,
   Activity,
   AlertCircle,
   AlertOctagon,
@@ -190,6 +192,8 @@ iconWithClassName([
 ]);
 
 export {
+  Gear,
+  Barbell,
   Activity,
   AlertCircle,
   AlertOctagon,
