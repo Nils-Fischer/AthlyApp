@@ -10,6 +10,9 @@ interface WorkoutHistoryState {
   getLastWorkout: (workoutId: string) => WorkoutSession | undefined;
   getLastSession: () => WorkoutSession | undefined;
   getExerciseRecords: (exerciseId: number) => ExerciseRecord[];
+  getTotalNumberOffFinishedSessions: () => number;
+  getTotalWeightLifted: () => number;
+  getActiveStreak: () => number;
 }
 
 export const useWorkoutHistoryStore = create<WorkoutHistoryState>()(
@@ -42,6 +45,34 @@ export const useWorkoutHistoryStore = create<WorkoutHistoryState>()(
       getExerciseRecords: (exerciseId: number) => {
         const { sessions } = get();
         return sessions.flatMap((session) => session.entries.filter((entry) => entry.exerciseId === exerciseId));
+      },
+      getTotalNumberOffFinishedSessions: () => {
+        return get().sessions.length;
+      },
+      getTotalWeightLifted: () => {
+        return get().sessions.reduce(
+          (acc, session) =>
+            acc +
+            session.entries.reduce(
+              (acc, entry) => acc + entry.sets.reduce((acc, set) => acc + (set.weight || 0), 0),
+              0
+            ),
+          0
+        );
+      },
+      getActiveStreak: () => {
+        const result = get().sessions.reduce(
+          (streak, session) => {
+            const { lastSession, streakNumber } = streak;
+            if (!lastSession) return streak;
+            if (session.date.getUTCDate() - lastSession.getUTCDate() <= 3) {
+              return { lastSession: session.date, streakNumber: streakNumber + 1 };
+            }
+            return { lastSession: session.date, streakNumber: 0 };
+          },
+          { lastSession: get().sessions[0]?.date, streakNumber: 0 }
+        );
+        return result.streakNumber;
       },
     }),
     {

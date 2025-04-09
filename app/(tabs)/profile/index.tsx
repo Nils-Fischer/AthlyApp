@@ -2,16 +2,29 @@ import { View } from "react-native";
 import { Avatar, AvatarFallback } from "~/components/ui/avatar";
 import { Button } from "~/components/ui/button";
 import { H1, Large, Small } from "~/components/ui/typography";
-import { Clock, Barbell, Flame, Gear, Smile } from "~/lib/icons/Icons";
+import { Barbell, Flame, Gear, Smile, Weight } from "~/lib/icons/Icons";
 import { useUserProfileStore } from "~/stores/userProfileStore";
-import { cn } from "~/lib/utils";
+import { cn, weightToString } from "~/lib/utils";
 import { router, Stack } from "expo-router";
-import React from "react";
+import React, { useEffect } from "react";
 import { Separator } from "~/components/ui/separator";
+import { useWorkoutHistoryStore } from "~/stores/workoutHistoryStore";
 
 export default function ProfileScreen() {
   const { profile } = useUserProfileStore();
   const userName = profile ? `${profile.firstName} ${profile.lastName}`.trim() : "User";
+  const { sessions, getTotalNumberOffFinishedSessions, getTotalWeightLifted, getActiveStreak } =
+    useWorkoutHistoryStore();
+  const totalNumberOfSessions = getTotalNumberOffFinishedSessions();
+  const totalWeightLifted = getTotalWeightLifted();
+  const activityStreak = getActiveStreak();
+
+  useEffect(() => {
+    console.log("totalNumberOfSessions", totalNumberOfSessions);
+    console.log("totalWeightLifted", totalWeightLifted);
+    console.log("activityStreak", activityStreak);
+    console.log("sessions", sessions);
+  }, [totalNumberOfSessions, totalWeightLifted, activityStreak]);
 
   return (
     <>
@@ -47,8 +60,8 @@ export default function ProfileScreen() {
         <View className="w-full flex-row justify-around px-4">
           {/* Stat Item 1: Activity Streak */}
           <View className="items-center w-1/3 gap-2 ">
-            <Flame size={32} className="text-red-500" />
-            <Large className="text-2xl">0</Large>
+            <Flame size={32} className="text-rose-500" />
+            <Large className="text-2xl">{activityStreak}</Large>
             <Small className="text-center text-muted-foreground">Aktivitätsserie</Small>
           </View>
 
@@ -56,18 +69,18 @@ export default function ProfileScreen() {
 
           {/* Stat Item 3: Completed Workouts */}
           <View className="items-center w-1/3 gap-2">
-            <Barbell size={32} className="text-zinc-500" />
-            <Large className="text-2xl">0</Large>
-            <Small className="text-center text-muted-foreground">Abgeschlossene Workouts</Small>
+            <Barbell size={32} className="text-amber-500" />
+            <Large className="text-2xl">{totalNumberOfSessions}</Large>
+            <Small className="text-center text-muted-foreground">Fertige Workouts</Small>
           </View>
 
           <Separator orientation="vertical" className="opacity-50" />
 
           {/* Stat Item 2: Workout Minutes */}
           <View className="items-center w-1/3 gap-2">
-            <Clock size={32} className="text-blue-500" />
-            <Large className="text-2xl">0</Large>
-            <Small className="text-center text-muted-foreground">Workout Minuten</Small>
+            <Weight size={32} className="text-sky-500" />
+            <Large className="text-2xl">{weightToString(totalWeightLifted)}</Large>
+            <Small className="text-center text-muted-foreground">Gesamtes Gewicht</Small>
           </View>
         </View>
       </View>

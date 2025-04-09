@@ -120,3 +120,9 @@ export function getWeightRange(exercise: WorkoutExercise): string | null {
 export function dateToISOString(date: Date): string {
   return `${date.getFullYear()}-${date.getMonth() + 1}-${date.getDate()}`;
 }
+
+export function weightToString(weight: number): string {
+  if (weight < 1000) return `${weight} kg`;
+  if (weight < 1000000) return `${(weight / 1000).toFixed(1)} t`;
+  return `${(weight / 1000000).toFixed(1)} Mt`;
+}
