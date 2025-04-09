@@ -5,7 +5,7 @@ export default function DashboardLayout() {
     <Stack
       screenOptions={{
         headerShown: true,
-        headerTitle: "Feedback",
+        headerTitle: "Profile",
       }}
     >
       <Stack.Screen name="index" options={{ headerShown: true }} />

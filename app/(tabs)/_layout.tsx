@@ -1,7 +1,7 @@
 import { Tabs, usePathname } from "expo-router";
 import { useTheme } from "@react-navigation/native";
-import { Dumbbell, Home, MessageCircle, MessageSquare } from "~/lib/icons/Icons";
-import { DumbbellFilled, HomeFilled, MessageCircleFilled, MessageSquareFilled } from "~/lib/icons/FilledIcons";
+import { Dumbbell, House, MessageCircle, User } from "~/lib/icons/Icons";
+import { DumbbellFilled, HouseFilled, MessageCircleFilled, UserFilled } from "~/lib/icons/FilledIcons";
 
 interface Route {
   name: string;
@@ -17,8 +17,8 @@ const routes: Route[] = [
     name: "Dashboard",
     label: "(dashboard)",
     icon: {
-      outlined: Home,
-      filled: HomeFilled,
+      outlined: House,
+      filled: HouseFilled,
     },
   },
   {
@@ -38,11 +38,11 @@ const routes: Route[] = [
     },
   },
   {
-    name: "Feedback",
-    label: "feedback",
+    name: "Profile",
+    label: "profile",
     icon: {
-      outlined: MessageSquare,
-      filled: MessageSquareFilled,
+      outlined: User,
+      filled: UserFilled,
     },
   },
 ];
