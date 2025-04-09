@@ -8,7 +8,7 @@ export type PrivacyPolicyProps = {
 
 const PrivacyPolicy: React.FC<PrivacyPolicyProps> = ({ showHeader = true }) => {
   return (
-    <View className="flex-1 p-1 pt-0 mt-0 bg-background gap-3">
+    <View className="flex-1 p-1 pt-0 mt-0 bg-card gap-3">
       <View className="mb-6">
         {showHeader && <H2>Datenschutzerklärung</H2>}
         <Muted>Gültig ab: 01. März 2025</Muted>

@@ -3,13 +3,7 @@ import { Text } from "~/components/ui/text";
 import { Button } from "~/components/ui/button";
 import { Gender, UserProfile } from "~/lib/types";
 import { useState } from "react";
-import Animated, {
-  FadeInDown,
-  useSharedValue,
-  useAnimatedStyle,
-  withTiming,
-  interpolate,
-} from "react-native-reanimated";
+import Animated, { FadeInDown, useSharedValue, useAnimatedStyle, withTiming } from "react-native-reanimated";
 import { Input } from "~/components/ui/input";
 import DateTimePicker from "@react-native-community/datetimepicker";
 import { Platform } from "react-native";
@@ -46,18 +40,6 @@ export const Formular: React.FC<FormularProps> = ({ onFinish }) => {
   // Animation States
   const opacity = useSharedValue(1);
   const translateY = useSharedValue(0);
-  const animationProgress = useSharedValue(0);
-  const contentScale = useSharedValue(1);
-  const buttonScale = useSharedValue(1);
-
-  const animatedContainerStyle = useAnimatedStyle(() => ({
-    opacity: interpolate(animationProgress.value, [0, 1], [1, 0]),
-    transform: [{ translateY: interpolate(animationProgress.value, [0, 1], [0, -50]) }, { scale: contentScale.value }],
-  }));
-
-  const animatedButtonStyle = useAnimatedStyle(() => ({
-    transform: [{ scale: buttonScale.value }],
-  }));
 
   // Animationsstil
   const animatedStyle = useAnimatedStyle(() => ({

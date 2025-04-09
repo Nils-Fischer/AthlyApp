@@ -3,7 +3,7 @@ import PrivacyPolicy from "~/components/Legal/PrivacyPolicy";
 
 export default function PrivacyPolicyScreen() {
   return (
-    <ScrollView className="bg-background flex-1 p-4">
+    <ScrollView className="bg-card flex-1 p-4">
       <PrivacyPolicy />
     </ScrollView>
   );

@@ -9,7 +9,7 @@ export type TermsOfServiceProps = {
 
 const TermsOfService: React.FC<TermsOfServiceProps> = ({ showHeader = true }) => {
   return (
-    <View className="flex-1 p-1 pt-0 mt-0 bg-background gap-4">
+    <View className="flex-1 p-1 pt-0 mt-0 bg-card gap-4">
       <View className="mb-6">
         {showHeader && <H2>Nutzungsbedingungen</H2>}
         <Muted>Gültig ab: 25. März 2025</Muted>
