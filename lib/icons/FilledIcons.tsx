@@ -1,37 +1,56 @@
-import { Apple, Dumbbell, Home, MessageCircle, Play, MessageSquare, Pause, Square } from "lucide-react-native";
+import {
+  Apple,
+  User,
+  Dumbbell,
+  MessageCircle,
+  Play,
+  MessageSquare,
+  Pause,
+  Square,
+  CircleUser,
+} from "lucide-react-native";
 import { createFilledIcon } from "./customFilledIcon";
-import { iconWithClassName } from "./iconWithClassName";
 import { BarChartFilled } from "./BarChartIcon";
+import { House } from "phosphor-react-native";
+
+// Import the shared helper function
+import { iconWithClassName } from "./iconWithClassName";
 
 const AppleFilled = createFilledIcon(Apple);
+const CircleUserFilled = createFilledIcon(CircleUser);
 const DumbbellFilled = createFilledIcon(Dumbbell);
-const HomeFilled = createFilledIcon(Home);
+const HouseFilled = createFilledIcon(House);
 const MessageCircleFilled = createFilledIcon(MessageCircle);
-const PlayFilled = createFilledIcon(Play);
 const MessageSquareFilled = createFilledIcon(MessageSquare);
 const PauseFilled = createFilledIcon(Pause);
+const PlayFilled = createFilledIcon(Play);
 const SquareFilled = createFilledIcon(Square);
+const UserFilled = createFilledIcon(User);
 
 iconWithClassName([
   AppleFilled,
-  DumbbellFilled,
-  HomeFilled,
-  MessageCircleFilled,
   BarChartFilled,
-  PlayFilled,
+  CircleUserFilled,
+  DumbbellFilled,
+  HouseFilled,
+  MessageCircleFilled,
   MessageSquareFilled,
   PauseFilled,
+  PlayFilled,
   SquareFilled,
+  UserFilled,
 ]);
 
 export {
   AppleFilled,
-  DumbbellFilled,
-  HomeFilled,
-  MessageCircleFilled,
   BarChartFilled,
-  PlayFilled,
+  CircleUserFilled,
+  DumbbellFilled,
+  HouseFilled,
+  MessageCircleFilled,
   MessageSquareFilled,
   PauseFilled,
+  PlayFilled,
   SquareFilled,
+  UserFilled,
 };

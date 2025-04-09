@@ -1,9 +1,17 @@
-import type { LucideIcon } from "lucide-react-native";
+import type { LucideProps } from "lucide-react-native";
 import { cssInterop } from "nativewind";
+import React from "react";
+import type { IconProps as PhosphorIconProps } from "phosphor-react-native";
 
-export function iconWithClassName(icons: LucideIcon[]) {
-  icons.forEach((icon) =>
-    cssInterop(icon, {
+type LucideComponent = React.FC<LucideProps>;
+
+type PhosphorComponent = React.ComponentType<PhosphorIconProps>;
+
+type IconComponent = LucideComponent | PhosphorComponent;
+
+export function iconWithClassName(icons: IconComponent[]) {
+  icons.forEach((Icon) => {
+    cssInterop(Icon as React.ComponentType<any>, {
       className: {
         target: "style",
         nativeStyleToProp: {
@@ -11,6 +19,6 @@ export function iconWithClassName(icons: LucideIcon[]) {
           opacity: true,
         },
       },
-    })
-  );
+    });
+  });
 }
