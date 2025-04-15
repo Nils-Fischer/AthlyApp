@@ -61,16 +61,19 @@ export const useWorkoutHistoryStore = create<WorkoutHistoryState>()(
         );
       },
       getActiveStreak: () => {
-        const result = get().sessions.reduce(
+        const sessions = get().sessions;
+        const result = sessions.reduce(
           (streak, session) => {
-            const { lastSession, streakNumber } = streak;
-            if (!lastSession) return streak;
-            if (session.date.getUTCDate() - lastSession.getUTCDate() <= 3) {
-              return { lastSession: session.date, streakNumber: streakNumber + 1 };
+            let { lastSession, streakNumber } = streak;
+            const sessionDate = session.date instanceof Date ? session.date : new Date(session.date);
+            const lastSessionDate = lastSession instanceof Date ? lastSession : new Date(lastSession);
+            if (!lastSessionDate) return streak;
+            if (sessionDate.getUTCDate() - lastSessionDate.getUTCDate() <= 3) {
+              return { lastSession: sessionDate, streakNumber: streakNumber + 1 };
             }
-            return { lastSession: session.date, streakNumber: 0 };
+            return { lastSession: sessionDate, streakNumber: 0 };
           },
-          { lastSession: get().sessions[0]?.date, streakNumber: 0 }
+          { lastSession: sessions[0]?.date, streakNumber: 0 }
         );
         return result.streakNumber;
       },
