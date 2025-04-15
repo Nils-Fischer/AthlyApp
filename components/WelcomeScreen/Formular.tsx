@@ -5,7 +5,7 @@ import { Gender, UserProfile } from "~/lib/types";
 import { useState } from "react";
 import Animated, { FadeInDown, useSharedValue, useAnimatedStyle, withTiming } from "react-native-reanimated";
 import { Input } from "~/components/ui/input";
-import DateTimePicker from "@react-native-community/datetimepicker";
+import DateTimePicker, { DateTimePickerEvent } from "@react-native-community/datetimepicker";
 import { Platform } from "react-native";
 
 interface FormularProps {
@@ -16,7 +16,7 @@ interface FormularProps {
 type FormState = {
   firstName: string;
   lastName: string;
-  birthday: Date;
+  birthday: Date | undefined;
   gender: Gender | null;
   height: string;
   weight: string;
@@ -28,7 +28,7 @@ export const Formular: React.FC<FormularProps> = ({ profile, onFinish }) => {
   const [formState, setFormState] = useState<FormState>({
     firstName: profile.firstName,
     lastName: profile.lastName,
-    birthday: profile.birthday,
+    birthday: profile.birthday instanceof Date ? profile.birthday : undefined,
     gender: profile.gender,
     height: profile.height ? profile.height.toString() : "",
     weight: profile.weight ? profile.weight.toString() : "",
@@ -88,19 +88,21 @@ export const Formular: React.FC<FormularProps> = ({ profile, onFinish }) => {
   };
 
   // Format date for display
-  const formatDate = (date: Date): string => {
-    return date.toLocaleDateString("de-DE");
+  const formatDate = (date: Date | undefined): string => {
+    if (date instanceof Date && !isNaN(date.getTime())) {
+      return date.toLocaleDateString("de-DE");
+    }
+    return "Datum auswählen";
   };
 
   // Handle date change
-  const onDateChange = (event: any, selectedDate?: Date) => {
-    // Hide the picker on iOS after selection
+  const onDateChange = (event: DateTimePickerEvent, selectedDate?: Date) => {
     if (Platform.OS === "ios") {
       setFormState((prev) => ({ ...prev, showDatePicker: false }));
     }
 
     if (event.type === "dismissed") {
-      return; // User canceled, don't update date
+      return;
     }
 
     if (selectedDate) {
@@ -185,7 +187,7 @@ export const Formular: React.FC<FormularProps> = ({ profile, onFinish }) => {
           {formState.showDatePicker && (
             <DateTimePicker
               testID="dateTimePicker"
-              value={formState.birthday}
+              value={formState.birthday || new Date()}
               mode="date"
               display={Platform.OS === "ios" ? "spinner" : "default"}
               onChange={onDateChange}
@@ -230,7 +232,12 @@ export const Formular: React.FC<FormularProps> = ({ profile, onFinish }) => {
           onPress={handleSubmit}
           haptics="heavy"
           disabled={
-            !formState.firstName || !formState.lastName || !formState.gender || !formState.height || !formState.weight
+            !formState.firstName ||
+            !formState.lastName ||
+            !formState.birthday ||
+            !formState.gender ||
+            !formState.height ||
+            !formState.weight
           }
         >
           <Text className="text-primary-foreground text-base font-medium">Los geht's! 💪</Text>

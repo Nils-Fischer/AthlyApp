@@ -13,6 +13,7 @@ interface WorkoutHistoryState {
   getTotalNumberOffFinishedSessions: () => number;
   getTotalWeightLifted: () => number;
   getActiveStreak: () => number;
+  clearWorkoutHistory: () => void;
 }
 
 export const useWorkoutHistoryStore = create<WorkoutHistoryState>()(
@@ -76,6 +77,9 @@ export const useWorkoutHistoryStore = create<WorkoutHistoryState>()(
           { lastSession: sessions[0]?.date, streakNumber: 0 }
         );
         return result.streakNumber;
+      },
+      clearWorkoutHistory: () => {
+        set({ sessions: [] });
       },
     }),
     {

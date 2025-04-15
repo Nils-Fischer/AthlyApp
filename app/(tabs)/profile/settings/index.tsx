@@ -30,6 +30,17 @@ export default function SettingsScreen() {
         </View>
 
         <View className="gap-4">
+          <CardLabel>Konto</CardLabel>
+          <Pressable
+            className="flex-row items-center justify-between border-b border-border pb-4"
+            onPress={() => router.push("/profile/settings/account")}
+          >
+            <Large>Mein Konto</Large>
+            <ChevronRight size={24} className="text-foreground" />
+          </Pressable>
+        </View>
+
+        <View className="gap-4">
           <CardLabel>Athly</CardLabel>
           <Pressable
             className="flex-row items-center justify-between border-b border-border pb-4"

@@ -38,7 +38,6 @@ export default function ProfileScreen() {
       setFormState({
         firstName: profile.firstName || "",
         lastName: profile.lastName || "",
-        // Ensure birthday is a Date object
         birthday: profile.birthday ? new Date(profile.birthday) : new Date(),
         gender: profile.gender || Gender.Other,
         height: profile.height || 0,

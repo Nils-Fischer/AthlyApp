@@ -17,6 +17,7 @@ export interface UserRoutineState {
   updateExerciseInWorkout: (workoutId: string, exerciseId: number, exercise: WorkoutExercise) => void;
   deleteExerciseFromWorkout: (workoutId: string, exerciseId: number) => void;
   updateSetsInExercise: (workoutId: string, exerciseId: number, sets: SetConfiguration[]) => void;
+  clearRoutines: () => void;
 }
 
 export const useUserRoutineStore = create<UserRoutineState>()(
@@ -177,6 +178,9 @@ export const useUserRoutineStore = create<UserRoutineState>()(
             }),
           })),
         }));
+      },
+      clearRoutines: () => {
+        set({ routines: [] });
       },
     }),
     {
