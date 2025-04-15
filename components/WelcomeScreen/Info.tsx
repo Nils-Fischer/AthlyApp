@@ -1,8 +1,8 @@
 import { View } from "react-native";
 import { Text } from "~/components/ui/text";
 import { Button } from "~/components/ui/button";
+import { Image } from "expo-image";
 import Animated, {
-  FadeIn,
   FadeInDown,
   SlideInDown,
   useAnimatedStyle,
@@ -47,16 +47,16 @@ export const Info: React.FC<InfoProps> = ({ onNext }) => {
   }));
 
   return (
-    <View className="flex-1 items-center justify-start w-full">
+    <View className="flex-1 items-center flex-column justify-between w-full">
       {/* Animierter Titel */}
       <Animated.View className="absolute left-0 right-0 items-center" style={[{ top: "30%" }, animatedTitleStyle]}>
         <Text className="text-4xl font-bold text-accent">Athly</Text>
       </Animated.View>
 
       {/* Hauptinhalt */}
-      <View className="w-full mt-[35%]">
+      <View className="flex-1 flex-column justify-between w-full mt-[35%]">
         {/* Header Bereich */}
-        <Animated.View className="w-full items-center space-y-6 mb-12" entering={FadeInDown.duration(500).delay(2800)}>
+        <Animated.View className="w-full items-center gap-4 mb-12" entering={FadeInDown.duration(500).delay(2800)}>
           <View>
             <Text className="text-3xl font-bold text-center">Willkommen bei</Text>
           </View>
@@ -73,11 +73,16 @@ export const Info: React.FC<InfoProps> = ({ onNext }) => {
         </Animated.View>
 
         {/* Explanation Box */}
-        <Animated.View className="w-full bg-card p-6 rounded-2xl mb-12" entering={FadeInDown.duration(600).delay(3100)}>
-          <Text className="text-card-foreground text-base leading-relaxed">
-            Um dir den bestmöglichen Trainingsplan erstellen zu können, benötigt dein KI-Trainer einige grundlegende
-            Informationen. Diese helfen dabei, dein Training optimal an deine Bedürfnisse anzupassen.
-          </Text>
+        <Animated.View
+          className="flex-1 w-full p-6 rounded-2xl mb-12 items-center justify-center"
+          entering={FadeInDown.duration(1000).delay(4100)}
+        >
+          <Image
+            source={require("~/assets/images/icon.svg.png")}
+            style={{ width: "100%", height: "100%" }}
+            className="rounded-2xl"
+            contentFit="contain"
+          />
         </Animated.View>
 
         {/* Button */}
