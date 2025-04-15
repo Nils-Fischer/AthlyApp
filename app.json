@@ -18,8 +18,9 @@
       "supportsTablet": true,
       "bundleIdentifier": "com.anonymous.train-tech",
       "infoPlist": {
-        "NSCameraUsageDescription": "Allow Athly to access your camera to take photos for sharing in chats",
-        "NSPhotoLibraryUsageDescription": "Allow Athly to access your photos for sharing in chats",
+        "NSCameraUsageDescription": "Athly benötigt Zugriff auf deine Kamera, damit du Fotos und Videos im Chat mit deinem Personal Trainer aufnehmen und teilen kannst.",
+        "NSPhotoLibraryUsageDescription": "Athly benötigt Zugriff auf deine Fotobibliothek, damit du Fotos und Videos aus deiner Galerie im Chat mit deinem Personal Trainer teilen kannst.",
+        "NSMicrophoneUsageDescription": "Athly benötigt Zugriff auf dein Mikrofon, damit du Sprachnachrichten im Chat mit deinem Personal Trainer aufnehmen und senden kannst.",
         "ITSAppUsesNonExemptEncryption": false
       },
       "splash": {
@@ -52,19 +53,19 @@
       [
         "expo-camera",
         {
-          "cameraPermissionText": "$(PRODUCT_NAME) needs access to your Camera."
+          "cameraPermissionText": "Athly benötigt Zugriff auf deine Kamera, damit du Fotos und Videos im Chat mit deinem Personal Trainer aufnehmen und teilen kannst."
         }
       ],
       [
         "expo-image-picker",
         {
-          "photosPermission": "The app accesses your photos to let you share them with your friends."
+          "photosPermission": "Athly benötigt Zugriff auf deine Fotobibliothek, damit du Fotos und Videos aus deiner Galerie im Chat mit deinem Personal Trainer teilen kannst."
         }
       ],
       [
         "expo-audio",
         {
-          "microphonePermission": "Allow $(PRODUCT_NAME) to access your microphone."
+          "microphonePermission": "Athly benötigt Zugriff auf dein Mikrofon, damit du Sprachnachrichten im Chat mit deinem Personal Trainer aufnehmen und senden kannst."
         }
       ],
       ["expo-apple-authentication"]
