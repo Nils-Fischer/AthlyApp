@@ -72,18 +72,6 @@ export const Info: React.FC<InfoProps> = ({ onNext }) => {
           </Animated.Text>
         </Animated.View>
 
-        {/* MVP Notice */}
-        <Animated.View className="w-full bg-card p-6 rounded-2xl mb-8" entering={FadeInDown.duration(600).delay(3000)}>
-          <View className="flex-row items-center space-x-2 mb-2">
-            <Text className="text-2xl">👋</Text>
-            <Text className="text-card-foreground font-semibold text-lg">Early Access</Text>
-          </View>
-          <Text className="text-card-foreground text-base leading-relaxed">
-            Du bist einer der ersten Nutzer unserer App! Wir entwickeln Athly kontinuierlich weiter und dein Feedback
-            ist uns sehr wichtig.
-          </Text>
-        </Animated.View>
-
         {/* Explanation Box */}
         <Animated.View className="w-full bg-card p-6 rounded-2xl mb-12" entering={FadeInDown.duration(600).delay(3100)}>
           <Text className="text-card-foreground text-base leading-relaxed">

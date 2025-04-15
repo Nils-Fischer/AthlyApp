@@ -8,7 +8,7 @@ import { supabase } from "~/lib/supabase";
 import { User } from "@supabase/auth-js";
 
 interface LoginFormProps {
-  onNext: (user: User) => void;
+  onNext: (user: User, firstName?: string, lastName?: string) => void;
   onError: (message: string | null) => void;
   onResetPassword: () => void;
 }

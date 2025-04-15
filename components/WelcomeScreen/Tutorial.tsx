@@ -17,10 +17,11 @@ export const Tutorial: React.FC<TutorialProps> = ({ onNext }) => {
       <View className="p-6">
         {/* Dev Notice */}
         <Animated.View entering={FadeIn.duration(500)} className="bg-accent p-4 rounded-xl mb-6">
-          <Text className="text-background font-semibold mb-2">🚧 Early Access Notice</Text>
+          <Text className="text-background font-semibold mb-2">🚧 Hinweis</Text>
           <Text className="text-sm text-accent-foreground">
-            Du testest eine frühe kostenlose Version der App. Probiere die KI- und Appfunktionen aus und teile uns deine
-            Erfahrungen mit. Dein Feedback ist wertvoll für die Weiterentwicklung
+            Du testest eine frühe <Text className="text-sm font-medium text-background">noch kostenlose</Text> Version
+            der App. Probiere die KI- und Appfunktionen aus und teile uns deine Erfahrungen mit. Dein Feedback ist
+            wertvoll für die Weiterentwicklung
           </Text>
         </Animated.View>
 

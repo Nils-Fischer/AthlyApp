@@ -15,7 +15,7 @@ const OTP_STORAGE_KEY = "lastOtpRequestTime";
 interface LoginWithOtpFormProps {
   onBackToLogin: () => void;
   onError: (message: string | null) => void;
-  onNext: (user: User) => void;
+  onNext: (user: User, firstName?: string, lastName?: string) => void;
 }
 
 const LoginWithOtpForm: React.FC<LoginWithOtpFormProps> = ({ onBackToLogin, onError, onNext }) => {

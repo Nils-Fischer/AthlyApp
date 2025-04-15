@@ -15,7 +15,7 @@ import LoginForm from "./LoginForm";
 import LoginWithOtpForm from "./LoginWithOTPForm";
 
 interface LoginProps {
-  onNext: (user: User) => void;
+  onNext: (user: User, firstName?: string, lastName?: string) => void;
 }
 
 type ActiveView = "main" | "legal";
@@ -42,6 +42,10 @@ export const Login: React.FC<LoginProps> = ({ onNext }) => {
         ],
       });
 
+      console.log("credential", credential);
+
+      const { givenName, familyName } = credential.fullName ?? { givenName: undefined, familyName: undefined };
+
       if (credential.identityToken) {
         const {
           error,
@@ -52,7 +56,7 @@ export const Login: React.FC<LoginProps> = ({ onNext }) => {
         });
 
         if (!error && user) {
-          onNext(user);
+          onNext(user, givenName ?? undefined, familyName ?? undefined);
         } else if (error) {
           console.error("Auth error:", error);
           setError("Bei der Anmeldung ist ein Fehler aufgetreten. Bitte versuche es erneut.");

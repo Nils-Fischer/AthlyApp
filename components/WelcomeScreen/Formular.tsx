@@ -9,6 +9,7 @@ import DateTimePicker from "@react-native-community/datetimepicker";
 import { Platform } from "react-native";
 
 interface FormularProps {
+  profile: UserProfile;
   onFinish: (profile: UserProfile) => void;
 }
 
@@ -22,15 +23,15 @@ type FormState = {
   showDatePicker: boolean;
 };
 
-export const Formular: React.FC<FormularProps> = ({ onFinish }) => {
+export const Formular: React.FC<FormularProps> = ({ profile, onFinish }) => {
   // State mit expliziten Typen
   const [formState, setFormState] = useState<FormState>({
-    firstName: "",
-    lastName: "",
-    birthday: new Date(Date.now() - 1000 * 60 * 60 * 24 * 365 * 20), // Default to 20 years ago
-    gender: null,
-    height: "",
-    weight: "",
+    firstName: profile.firstName,
+    lastName: profile.lastName,
+    birthday: profile.birthday,
+    gender: profile.gender,
+    height: profile.height ? profile.height.toString() : "",
+    weight: profile.weight ? profile.weight.toString() : "",
     showDatePicker: false,
   });
 

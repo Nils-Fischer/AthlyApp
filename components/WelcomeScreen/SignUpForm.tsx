@@ -8,7 +8,7 @@ import { supabase } from "~/lib/supabase";
 import { User } from "@supabase/auth-js";
 
 interface SignUpFormProps {
-  onNext: (user: User) => void;
+  onNext: (user: User, firstName?: string, lastName?: string) => void;
   onError: (message: string | null) => void;
 }
 
